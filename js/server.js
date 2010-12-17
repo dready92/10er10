@@ -4,7 +4,9 @@ var util = require("util"),
 	connect = require("connect"),
 	files = require("./files"),
 	stat = require("./serverstat"),
-	httpHelper = require("./httpHelper");
+	httpHelper = require("./httpHelper"),
+	couch = require("./couch.rest"),
+	hash= require("./hash");
 
 	
 // 	var httpErrorCodes = {
@@ -95,7 +97,18 @@ var test2 = function (req,res,next) { console.log("here 2 !");next(); };
 connect.createServer( connect.logger(), require("./test1").test1, test2, connect.router(postRoutes)
 ).listen(8124);
 
-connect.createServer(
-	connect.staticProvider("/var/www/html/audio")
-	).listen(8118);
+// connect.createServer(connect.staticProvider("/var/www/html/audio")).listen(8118);
 	
+
+	var db = couch.joc("http://localhost:5984/","auth");
+	db.limit(4).include_docs(true).getAllDocs({
+		success: function(data) {			
+// 			console.log("getAlldocs success",util.inspect(data)); 		
+			data.rows.forEach(function(v,k) {
+				console.log(v.doc);
+			});
+		},
+		error: function(data) {			console.log("getAlldocs error"); 		},
+	});
+	
+// 	console.log(hash.sha1("reggae4me"));
