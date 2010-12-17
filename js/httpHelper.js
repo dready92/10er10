@@ -62,7 +62,7 @@ exports.localPathServer = function ( uri, localuri ) {
 	if ( !localuri.length )	return false;
 	
 	return  function ( request, response, next ) {
-		var ctx = {request: request, response: response, headers: {"accept-ranges": "bytes"}};
+		request.ctx.headers["Accept-Range"] = "bytes";
 		var url = path.normalize(request.url);
 		console.log("request.url",request.url,"url",url,"uri",uri,"localuri",localuri,"localFile",url.replace(uri,localuri));
 		if ( url.indexOf(uri) !== 0 ) {
@@ -72,11 +72,11 @@ exports.localPathServer = function ( uri, localuri ) {
 		var localFile = url.replace(uri,localuri);
 		fs.stat(localFile, function(err, stats) {
 			if(!err) {
-				ctx.stats = stats;
-				ctx.status = 200;
+				request.ctx.stats = stats;
+				request.ctx.status = 200;
 				console.log(utils);
-				ctx.headers["content-type"] = utils.mime.type(localFile);
-				sendStatic(localFile,stats,ctx);
+				request.ctx.headers["content-type"] = utils.mime.type(localFile);
+				sendStatic(localFile,stats,request.ctx);
 			} else {
 				next();
 				return ;
@@ -137,7 +137,7 @@ function sendStatic(staticFile, stats, ctx) {
 				ctx.headers['content-length'] = stats.size;
 				var stream = fs.createReadStream(staticFile);
 			}
-			console.log("writing headers",util.inspect(ctx.headers));
+// 			console.log("writing headers",util.inspect(ctx.headers));
 			ctx.response.writeHead(ctx.status, ctx.headers);
 			if(ctx.request.method == 'GET') {
 				util.pump(stream, ctx.response);
