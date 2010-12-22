@@ -14,11 +14,12 @@ var streamWriter = exports.streamWriter = function(cmd, args) {
 	var closeCallback = null;
 	var bytesWritten = 0;
 	var exitcode = -1;
-	var inWrite = false;
+	var free = true;
 	this.open = function() {
 		pipe = spawn(cmd,args);
 		pipe.stdout.on("data",function(chunk) { that.emit("stdout",chunk);});
 		pipe.stderr.on("data",function(chunk) { that.emit("stderr",chunk);console.log("emit stderr",chunk);});
+		
 		pipe.on("exit",function(code) {exitcode = code;});
 		fireInterval();
 		this.open = function() {console.log("streamWriter open has already been called once");};
@@ -42,31 +43,41 @@ var streamWriter = exports.streamWriter = function(cmd, args) {
 	var fireInterval = function() {
 // 		if ( !pipe )	return ;
 		ival = setInterval(function() {
-			if ( inWrite )	return ;
+			if ( !free )	return ;
 // 			console.log("buf length ? ",buf.length, " close ? ",close);
 			if ( buf.length ) {
 // 				console.log("buf : ",buf);
 // 				console.log("buf: ", typeof buf);
+				var packets = 5;
+				var toSend = buf.splice(0, buf.length < packets ? buf.length : packets);
 				var size = 0;
-				buf.forEach(function(v,k) { size+=v.length; });
+				toSend.forEach(function(v,k) { size+=v.length; });
 				var b = new Buffer(size);
 				var offset = 0;
 				
-				buf.forEach(function(v,k) {
+				toSend.forEach(function(v,k) {
 					v.copy(b,offset,0,v.length);
 					offset +=v.length;
 				});
-				buf = [];
-				inWrite = true;
-				pipe.stdout.on("drain",function() {
-						console.log("stream drain event");
-						bytesWritten+=bc;
-						inWrite = false;
-						that.emit("data",b);
-				});
+// 				buf = [];
+// 				inWrite = true;
+// 				var b = buf.shift();
 				console.log(cmd,"writing to pipe");
-				pipe.stdin.write(b);
-				
+				free = pipe.stdin.write(b);
+				if ( !free ) {
+					(function(bc) {
+						pipe.stdout.once("drain",function() {
+							console.log("stream drain event");
+							bytesWritten+=bc;
+							free = true;
+							that.emit("data",b);
+						});
+					})(b.length);
+				} else {
+					console.log("stream drain event");
+					bytesWritten+=b.length;
+					that.emit("data",b);
+				}
 			} else if ( close ) {
 				pipe.stdin.end();
 				var close = function(code) {

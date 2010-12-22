@@ -79,8 +79,8 @@ exports.api = function(app) {
 				bytesIval = null;
 				d10.fileType(d10.config.audio.tmpdir+"/"+fileName, function(err,type) {
 						if  ( err !== null ) { return ; }
-						fileType = type;
-						if ( fileType.replace(/\s/g,"") == "audio/mpeg" ) {
+						fileType = type.replace(/\s/g,"");
+						if ( fileType == "audio/mpeg" ) {
 							console.log("due to filetype checking I launch oggenc");
 							createoggwriter();
 						} else {
@@ -136,13 +136,31 @@ exports.api = function(app) {
 			args.push("-");
 			oggwriter = new files.streamWriter(d10.config.cmds.oggenc,args);
 			lamewriter.on("stdout",function(chunk) { oggwriter.write(chunk); });
-			lamewriter.on("end",function(chunk) { oggwriter.close(); });
+			lamewriter.on("end",function(chunk) { oggwriter.close(); console.log("lamewriter end"); });
 			oggwriter.on("data",function() {console.log("oggwriter has written "+oggwriter.bytesWritten()+" bytes");});
 			oggwriter.on("end",function() { console.log("ogg conversion finished"); });
 			lamewriter.open();
 			oggwriter.open();
 		};
 
+		var endOfFileWriter = function() {
+			if ( fileType == "audio/mpeg" ) {
+				if ( !oggwriter ) {
+					console.log("due to filetype checking I launch oggenc");
+					createoggwriter();
+				}
+// 				createoggwriter();
+				lamewriter.close();
+			} else if ( fileType == "application/ogg" ) {
+				lamewriter.abort();
+			}
+			if ( !oggwriter ) {
+				createoggwriter();
+			}
+			
+			
+		};
+		
 		var filewriter = null, // the async fileWriter
 			lamewriter = null, // the async pipewriter launching lame
 			oggwriter = null, // the async pipewriter launching oggend
@@ -167,10 +185,23 @@ exports.api = function(app) {
 					lamewriter.write(b);
 				});
 				filewriter.on("end", function() {
-					if ( !oggwriter ) {
-						createoggwriter();
+					if ( fileType == null ) {
+						d10.fileType(d10.config.audio.tmpdir+"/"+fileName, function(err,type) {
+							if  ( err !== null ) { return ; }
+							fileType = type.replace(/\s/g,"");
+							endOfFileWriter();
+// 							if ( fileType == "audio/mpeg" ) {
+// 								console.log("due to filetype checking I launch oggenc");
+// 								createoggwriter();
+// 							} else {
+// 								lamewriter.abort();
+// 							}
+// 							}
+						});
+					} else {
+						endOfFileWriter();
 					}
-					lamewriter.close();
+
 					console.log("fileWriter end event");
 					
 				});
