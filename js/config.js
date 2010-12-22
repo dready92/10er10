@@ -4,6 +4,35 @@ exports.couch = {
 	track: {dsn: "http://localhost:5984/",database:"track-test"}
 };
 
+// templates path
+exports.templates = {
+	node: "../d10/views/"
+};
+
+// cookie name
+exports.cookieName = "goodcacke";
+
+// cookie time to live ( in miliseconds )
+exports.cookieTtl = 1000*60*60*24*15;
+
+// results per page
+exports.rpp = 30;
+
+exports.audio = {
+	tmpdir: "../d10/audio/tmp",
+	finaldir: "../d10/audio/files"
+};
+
+exports.cmds = {
+	file: "/usr/bin/file",
+	file_options: "-bi",
+	lame: "/usr/bin/lame",
+	lame_opts:  ["--mp3input","--quiet","--decode","-","-"],
+	oggenc: "/usr/bin/oggenc",
+	oggenc_opts: ["--quiet","-o"]
+}
+
+
 exports.javascript = {
 	includes : [
 		"modernizr-1.5.min.js",
@@ -32,13 +61,6 @@ exports.javascript = {
 		"bgtask.js"
 	]
 };
-exports.templates = {
-	node: "../d10/views/"
-};
-exports.cookieName = "goodcacke";
-exports.cookieTtl = 1000*60*60*24*15;
-
-exports.rpp = 30;
 
 exports.genres = [
 'Blues',

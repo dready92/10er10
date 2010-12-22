@@ -1,0 +1,14 @@
+<article class="review">
+<h1 class="airin">Morceaux à valider</h1>
+<ul class="nomark">
+{{#rows}}
+<li class="link" arg="{{_id}}">
+{{filename}}
+{{artist}} {{^artist}}artiste inconnu{{/artist}}
+ : 
+{{title}} {{^title}}titre inconnu{{/title}}
+</li>
+
+{{/rows}}
+</ul>
+</article>

@@ -1,42 +1,49 @@
-/*var util = require("util"),
-	fs = require("fs"),
-	http = require("http"),*/
 var	connect = require("connect"),
-/*	files = require("./files"),
-	stat = require("./serverstat"),*/
 	httpHelper = require("./httpHelper"),
-/*	couch = require("./couch.rest"),
-	hash = require("./hash"),
-	mustache = require("./mustache"),
-	config = require("./config"),*/
 	homepage = require("./d10.router.homepage"),
 	cookieSession = require("./cookieSessionMiddleware"),
 	api = require("./d10.router.api"),
 	plmApi = require("./d10.router.api.plm")
-	listingApi = require("./d10.router.api.listing");
+	listingApi = require("./d10.router.api.listing"),
+	songStuff = require("./d10.router.song");
 
 function staticRoutes(app) {
-	var staticAudio = httpHelper.localPathServer("/audio","/var/www/html/audio");
-	var staticContent = httpHelper.localPathServer("/css","/var/www/html/d10/css");
-	var staticJs = httpHelper.localPathServer("/js","/var/www/html/d10/js");
-	app.get("/audio/*",staticAudio);
-	app.get("/js/*",staticJs);
-	app.get("/css/*",staticContent);
+// 	var staticAudio = httpHelper.localPathServer("/audio","/var/www/html/audio");
+// 	var staticContent = httpHelper.localPathServer("/css","/var/www/html/d10/css");
+// 	var staticJs = httpHelper.localPathServer("/js","/var/www/html/d10/js");
+// 	app.get("/audio/*",staticAudio);
+	app.get("/js/*",httpHelper.localPathServer("/js","/var/www/html/d10/js"));
+	app.get("/css/*",httpHelper.localPathServer("/css","/var/www/html/d10/css"));
+};
+
+function staticAudio (app) {
+	app.get("/audio/*",httpHelper.localPathServer("/audio","/var/www/html/audio"));
 };
 
 // var test2 = function (req,res,next) { console.log("here 2 !");next(); };
 
-connect.createServer( 
+var server = connect.createServer( 
 	connect.logger(), 
 	require("./contextMiddleware").context,
 	connect.router(staticRoutes), 
 	cookieSession.cookieSession,
+	connect.router(staticAudio),	
 	connect.router(homepage.homepage),
 	connect.router(api.api),
 	connect.router(plmApi.api),
-	connect.router(listingApi.api)
+	connect.router(listingApi.api),
+	connect.router(songStuff.api)
 ).listen(8124);
 
+server.on("error",function() {
+	console.log("SERVER ERROR");
+	console.log(arguments);
+});
+server.on("clientError",function() {
+	console.log("CLIENT ERROR");
+	console.log(arguments);
+});
+// clientError
 // connect.createServer(connect.staticProvider("/var/www/html/audio")).listen(8118);
 	
 

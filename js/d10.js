@@ -1,4 +1,5 @@
 var fs = require("fs"),
+	exec = require('child_process').exec,
 	mustache = require("./mustache");
 	exports.db = require("./d10db");
 var config = exports.config = require("./config");
@@ -169,7 +170,21 @@ exports.fillUserCtx = function (ctx,response,session) {
 };
 
 
-
+exports.fileType = function(file,cb) {
+	var process = exec(
+		config.cmds.file+" "+config.cmds.file_options+" "+file,
+		function(error,stdout, stderr) {
+			if ( error !== null ) {
+				console.log("fileType error while checking ",file);
+				cb(error);
+			} else {
+				console.log("fileType : ",stdout);
+				cb(null,stdout);
+			}
+// 			if ( cb ) { cb(error); }
+		}
+	);
+};
 
 
 
