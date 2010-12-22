@@ -395,7 +395,7 @@ Vous avez <strong></strong> morceaux à valider !
  
 <footer> 
 Logged as boss - 
-<a href="/index.php/welcome/goodbye">logout</a> - Deezer10 - <span class="hours"></span> heures de musique
+<a href="{{base_url}}welcome/goodbye">logout</a> - Deezer10 - <span class="hours"></span> heures de musique
 </footer> 
  
 </div></div> 
@@ -406,15 +406,27 @@ Logged as boss -
 <img src="/css/plsmall.gif"> 
 </div> 
 <script> 
-site_url="/index.php";
-base_url="/";
+site_url="";
+base_url="{{base_url}}";
 window.d10 = {};
-window.d10 = {debug: false, debug_options: {}, fn:{} };
+window.d10 = {debug: {{dbg}}, debug_options: {}, fn:{} };
  
- 
+{{#debugAudio}}
+d10.debug_options.audio = true;
+{{/debugAudio}}
+{{#debugNet}}
+d10.debug_options.network = true;
+{{/debugNet}} 
+
+
 function debug() {
+{{#debugloop}}
+	if ( console && console.log ) {
+		console.log.call(console,arguments);
+	}
+{{/debugloop}}
 }
- 
+debug("site_url : ",site_url);
 </script> 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>  
 {{#scripts}}

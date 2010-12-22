@@ -1,14 +1,19 @@
-var util = require("util"),
+/*var util = require("util"),
 	fs = require("fs"),
-	http = require("http"),
-	connect = require("connect"),
-	files = require("./files"),
-	stat = require("./serverstat"),
+	http = require("http"),*/
+var	connect = require("connect"),
+/*	files = require("./files"),
+	stat = require("./serverstat"),*/
 	httpHelper = require("./httpHelper"),
-	couch = require("./couch.rest"),
+/*	couch = require("./couch.rest"),
 	hash = require("./hash"),
 	mustache = require("./mustache"),
-	config = require("./config");
+	config = require("./config"),*/
+	homepage = require("./d10.router.homepage"),
+	cookieSession = require("./cookieSessionMiddleware"),
+	api = require("./d10.router.api"),
+	plmApi = require("./d10.router.api.plm")
+	listingApi = require("./d10.router.api.listing");
 
 function staticRoutes(app) {
 	var staticAudio = httpHelper.localPathServer("/audio","/var/www/html/audio");
@@ -19,42 +24,23 @@ function staticRoutes(app) {
 	app.get("/css/*",staticContent);
 };
 
+// var test2 = function (req,res,next) { console.log("here 2 !");next(); };
 
-var view = function(n,d,p,cb) {
-	if ( !cb && p ) {
-		cb = p;
-		p = null;
-	}
-	fs.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
-		if (err) throw err;
-		console.log(data);
-		data = mustache.to_html(data,d,p);
-		if ( cb )	cb.call(data,data);
-	});
-};
-
-
-function homepage(app) {
-	app.get('/', function(request, response, next){
-		console.log(request.headers);
-		response.writeHead(200, {'Content-Type': 'text/plain'});
-		view("homepage",{scripts: config.javascript.includes},function(html) {
-			response.end(html);
-		});
-    });
-};
-
-
-
-var test2 = function (req,res,next) { console.log("here 2 !");next(); };
-
-connect.createServer( connect.logger(), require("./test1").test1, test2, connect.router(staticRoutes), connect.router(homepage)
+connect.createServer( 
+	connect.logger(), 
+	require("./contextMiddleware").context,
+	connect.router(staticRoutes), 
+	cookieSession.cookieSession,
+	connect.router(homepage.homepage),
+	connect.router(api.api),
+	connect.router(plmApi.api),
+	connect.router(listingApi.api)
 ).listen(8124);
 
 // connect.createServer(connect.staticProvider("/var/www/html/audio")).listen(8118);
 	
 
-	var db = couch.joc("http://localhost:5984/","auth");
+/*	var db = couch.joc("http://localhost:5984/","auth");
 	db.limit(4).include_docs(true).getAllDocs({
 		success: function(data) {			
 // 			console.log("getAlldocs success",util.inspect(data)); 		
@@ -63,7 +49,7 @@ connect.createServer( connect.logger(), require("./test1").test1, test2, connect
 			});
 		},
 		error: function(data) {			console.log("getAlldocs error"); 		},
-	});
+	});*/
 	
 // 	console.log(hash.sha1("reggae4me"));
 	

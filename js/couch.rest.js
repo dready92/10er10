@@ -115,9 +115,9 @@ if ( process ) {
 		opts.response = function(r) {
 // 			debug("launching response callbacks");
 			var success = this.successCodes(r.statusCode);
-			if ( success && this.success )	this.success.call(this,r.body,r);
-			if ( !success && this.error )	this.error.call(this,r.body,r);
-			if ( this.initialResponse )		this.initialResponse.call(this,r.body,r);
+			if ( success && this.success && this.success.call )	this.success.call(this,r.body,r);
+			if ( !success && this.error && this.error.call )	this.error.call(this,r.body,r);
+			if ( this.initialResponse && this.initialResponse.call )		this.initialResponse.call(this,r.body,r);
 		};
 		return $.restRaw(method,url,opts);
 	};
@@ -142,8 +142,14 @@ if ( process ) {
 		if ( s.body && typeof s.body == "object" ) {
 			s.body = JSON.stringify(s.body);
 		}
-		if ( s.data ) { url += "?"+$.param(s.data); }
-		
+		if ( s.type == "PUT" || s.type == "POST" ) {
+			if ( !s.body && s.data && typeof s.data == "object" ) {
+				s.body = $.param(s.data);
+				s.data = null;
+			}
+		}	else if ( s.data  ) { url += "?"+$.param(s.data); }
+
+
 		var requestDone = false;
 
 		var response = {statusCode: null, statusMessage: null, body: null, headers: null };
@@ -158,7 +164,7 @@ if ( process ) {
 		if ( s.username ) {
 			xhr.open(type, url, s.async, s.username, s.password);
 		} else {
-			debug(type, url, s.async);
+// 			debug(type, url, s.async);
 			xhr.open(type, url, s.async);
 		}
 
@@ -298,8 +304,11 @@ if ( process ) {
 
 		// Send the data
 		try {
-			xhr.send( s.body ? s.body : type === "POST" || type === "PUT" || type === "DELETE" ? s.data : null );
+			console.log(type,":",url,": sending data",s.body);
+			xhr.send( s.body ? s.body : null );
 		} catch(e) {
+// 			console.log(e);
+// 			console.log(s.body, s.data);
 			response.statusCode = 499;
 			response.statusMessage = "Unable to send the request";
 			if ( s.response )	s.response.call(s,response);
@@ -335,7 +344,7 @@ if ( process ) {
 		client.queryParameters = {};
 		var back = {method: "GET",data: null,body: null};
 		if ( qp.keys ) {
-			back.body = JSON.stringify(qp.keys);
+			back.body = JSON.stringify({keys: qp.keys});
 			delete qp.keys;
 			back.method="POST";
 		}
@@ -438,10 +447,11 @@ if ( process ) {
 				var method = "POST",
 					url = this.getDatabaseUri();
 				if ( doc._id ) {
-					url+="/"+encodeURIComponent(doc._id);l
+					url+="/"+encodeURIComponent(doc._id);
 					method = "PUT";
 				}
-				var settings = $.extend({successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, dataType: "json" },this.options,opts);
+				var settings = $.extend({successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, dataType: "json", body: doc },this.options,opts);
+// 				console.log(method,url,settings);
 				queryAndTest(method,url,settings);
 				return true;
 			},
@@ -453,7 +463,8 @@ if ( process ) {
 			},
 			deleteDoc: function(opts,doc){
 				if ( typeof doc != "object" || !doc._id || !doc._rev ) return false;
-				var settings = $.extend({successCodes: function(c) {return ( c == 200 ) ;}, dataType: "json" },this.options,opts);
+// 				console.log("delete doc : start");
+				var settings = $.extend({successCodes: function(c) {return ( c == 200 ) ;}, dataType: "json",data: {rev: doc._rev} },this.options,opts);
 				queryAndTest("DELETE",this.getDatabaseUri()+"/"+encodeURIComponent(doc._id),settings);
 				return true;
 			},
@@ -498,7 +509,14 @@ if ( process ) {
 				if ( !ddoc || !ddoc.length || !handler || !handler.length ) return false;
 				var url = this.getDatabaseUri()+"/_design/"+encodeURIComponent(ddoc)+"/_view/"+encodeURIComponent(handler);
 				var q = prepareViewQuery(this);
-				var settings = $.extend({successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, dataType: "json",data: q.data, body: q.body },this.options,opts);
+				var settings = $.extend(
+					{
+						successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, 
+						dataType: "json",
+						data: q.data, 
+						body: q.body,
+						contentType: "application/json"
+					},this.options,opts);
 				queryAndTest(q.method,url,settings);
 				return true;
 			},
@@ -516,6 +534,10 @@ if ( process ) {
 							+"/_list/"+encodeURIComponent(handler)
 							+"/"+encodeURIComponent(view_ddoc)+"/"+encodeURIComponent(view_handler);
 				var q = prepareViewQuery(this);
+				if ( opts.data && typeof opts.data == "object" ) {
+					$.extend(q.data,opts.data);
+					opts.data = q.data;
+				}
 				var settings = $.extend({successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, dataType: "json",data: q.data, body: q.body },this.options,opts);
 				queryAndTest(q.method,url,settings);
 				return true;
@@ -531,7 +553,15 @@ if ( process ) {
 			getAllDocs: function(opts) {
 				var url = this.getDatabaseUri()+"/_all_docs";
 				var q = prepareViewQuery(this);
-				var settings = $.extend({successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, dataType: "json",data: q.data, body: q.body },this.options,opts);
+// 				console.log(q);
+				var settings = $.extend(
+					{
+						successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, 
+						dataType: "json",
+						data: q.data,
+						contentType: "application/json",
+						body: q.body 
+					},this.options,opts);
 				queryAndTest(q.method,url,settings);
 				return true;
 			},
@@ -600,7 +630,10 @@ if ( process ) {
 				return this;
 			},
 			keys: function(v) {
-				if ( typeof v == "array" ) {
+// 				console.log("setting keys");
+// 				console.log(typeof v);
+				if ( Object.prototype.toString.call(v) === '[object Array]' ) {
+// 					console.log("really setting keys");
 					this.queryParameters.keys = v;
 				}
 				return this;

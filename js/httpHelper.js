@@ -3,48 +3,7 @@ var fs = require("fs"),
 	util = require("util"),
 	utils = require("connect/utils");
 
-var httpStatusCodes = {
-	100: "Continue",
-	101: "Switching Protocols",
-	200: "OK",
-	201: "Created",
-	202: "Accepted",
-	203: "Non-Authoritative Information",
-	204: "No Content",
-	205: "Reset Content",
-	206: "Partial Content",
-	300: "Multiple Choices",
-	301: "Moved Permanently",
-	302: "Found",
-	303: "See Other",
-	304: "Not Modified",
-	305: "Use Proxy",
-	307: "Temporary Redirect",
-	400: "Bad Request",
-	401: "Unauthorized",
-	402: "Payment Required",
-	403: "Forbidden",
-	404: "Not Found",
-	405: "Method Not Allowed",
-	406: "Not Acceptable",
-	407: "Proxy Authentication Required",
-	408: "Request Timeout",
-	409: "Conflict",
-	410: "Gone",
-	411: "Length Required",
-	412: "Precondition Failed",
-	413: "Request Entity Too Large",
-	414: "Request-URI Too Long",
-	415: "Unsupported Media Type",
-	416: "Requested Range Not Satisfiable",
-	417: "Expectation Failed",
-	500: "Internal Server Error",
-	501: "Not Implemented",
-	502: "Bad Gateway",
-	503: "Service Unavailable",
-	504: "Gateway Timeout",
-	505: "HTTP Version Not Supported"
-};
+
 
 exports.statusCode = function (code) {
 	if ( ! code )	return false;
@@ -62,9 +21,9 @@ exports.localPathServer = function ( uri, localuri ) {
 	if ( !localuri.length )	return false;
 	
 	return  function ( request, response, next ) {
-		request.ctx.headers["Accept-Range"] = "bytes";
+		request.ctx.headers["Accept-Ranges"] = "bytes";
 		var url = path.normalize(request.url);
-		console.log("request.url",request.url,"url",url,"uri",uri,"localuri",localuri,"localFile",url.replace(uri,localuri));
+// 		console.log("request.url",request.url,"url",url,"uri",uri,"localuri",localuri,"localFile",url.replace(uri,localuri));
 		if ( url.indexOf(uri) !== 0 ) {
 			next();
 			return ;
@@ -74,8 +33,8 @@ exports.localPathServer = function ( uri, localuri ) {
 			if(!err) {
 				request.ctx.stats = stats;
 				request.ctx.status = 200;
-				console.log(utils);
-				request.ctx.headers["content-type"] = utils.mime.type(localFile);
+// 				console.log(utils);
+				request.ctx.headers["Content-Type"] = utils.mime.type(localFile);
 				sendStatic(localFile,stats,request.ctx);
 			} else {
 				next();
@@ -125,19 +84,26 @@ var parseRange = function(ctx, stats) {
 function sendStatic(staticFile, stats, ctx) {
     function sendBytes() {
 		if(satisfiesConditions(stats, ctx)) {
-			ctx.headers['last-modified'] = stats.mtime.toUTCString();
-			ctx.headers['etag'] = stats.mtime.getTime();
+			ctx.headers['Last-Modified'] = stats.mtime.toUTCString();
+			ctx.headers['Etag'] = stats.mtime.getTime();
 			var range;
 			if(ctx.request.headers['range'] && (range = parseRange(ctx, stats))) {;
 				ctx.status = 206;
-				ctx.headers['content-length'] = range[1] - range[0] + 1;
-				ctx.headers['content-range'] = 'bytes ' + range[0] + '-' + range[1] + '/' + stats.size;
+				ctx.headers['Content-Length'] = range[1] - range[0] + 1;
+				ctx.headers['Content-Range'] = 'bytes ' + range[0] + '-' + range[1] + '/' + stats.size;
 				var stream = fs.createReadStream(staticFile, {start: range[0], end: range[1]});
 			} else {
-				ctx.headers['content-length'] = stats.size;
+				ctx.headers['Content-Length'] = stats.size;
 				var stream = fs.createReadStream(staticFile);
 			}
-// 			console.log("writing headers",util.inspect(ctx.headers));
+			
+// 			console.log("writing headers",ctx.status,util.inspect(ctx.headers));
+// 			var h = {};
+// 			for (var i in ctx.headers ) {
+// 				h[i] = ctx.headers[i];
+// 			}
+// 			console.log(ctx.headers);
+// 			console.log(h);
 			ctx.response.writeHead(ctx.status, ctx.headers);
 			if(ctx.request.method == 'GET') {
 				util.pump(stream, ctx.response);
@@ -167,9 +133,9 @@ function sendStatic(staticFile, stats, ctx) {
 		if(status) {
 // 			ctx.extn = defaultViewExtn;
 // 			ctx.headers['content-type'] = mime.mimes[defaultViewExtn];
-			ctx.headers['content-type'] = mime.mimes["text/html"];
-			delete ctx.headers['last-modified'];
-			delete ctx.headers['content-disposition'];
+			ctx.headers['Content-Type'] = "text/html";
+			delete ctx.headers['Last-Modified'];
+			delete ctx.headers['Content-Disposition'];
 			ctx.response.writeHead(status, ctx.headers);
 			ctx.response.end();
 			return false;
