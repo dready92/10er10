@@ -200,6 +200,16 @@ exports.fileWriter.prototype = Object.create(events.EventEmitter.prototype, {
     }
 });
 
+exports.bufferSum = function(buffers) {
+	var size = 0,offset = 0,b;
+	buffers.forEach(function(v,k) { size+=v.length; });
+	b = new Buffer(size);
+	buffers.forEach(function(v,k) {
+		v.copy(b,offset,0,v.length);
+		offset +=v.length;
+	});
+	return b;
+};
 
 exports.md5_file = function ( file, callback ) {
 	var out = "",

@@ -2,6 +2,8 @@ var d10 = require ("./d10"),
 	querystring = require("querystring"),
 	fs = require("fs"),
 	files = require("./files"),
+	util = require("util"),
+	spawn = require('child_process').spawn,
 	exec = require('child_process').exec;
 
 var successResp = function(data,ctx) {
@@ -90,84 +92,49 @@ exports.api = function(app) {
 				);
 			}
 		};
-		/*
-		var checkFileType = function(file,cb) {
-			var process = exec(d10.config.cmds.file+" "+d10.config.cmds.file_options+" "+file,
-							   function(error,stdout, stderr) {
-									if ( error !== null ) {
-										console.log("checkFileType error while checking ",file);
-										return ;
-									} else {
-										console.log("checkFileType : ",stdout);
-										fileType = stdout;
-									}
-									if ( cb ) { cb(error); }
-							   }
-						  );
-		};
-		*/
-/*		var validFileLength = function(file, length, then) {
-			console.log("validFileLength : testing for ",file,length);
-			fs.stat(file, function(err,stat) {
-				if ( err !== null ) {
-					console.log("validFileLength : got an error",err);
-// 					fileLengthOk = false;
-					return then(err);
-				}
-				console.log("validFileLength : stat size = ",stat.size, length == stat.size);
-				then(null, length == stat.size);
-// 				if ( length == stat.size ) {
-// 					fileLengthOk = true;
-// 				} else {
-// 					fileLengthOk = false;
-// 				}
-			});
-		};*/
+
 		var createoggwriter = function () {
 			console.log("-----------------------------------------------");
 			console.log("-------      Create OGG encoding        -------");
 			console.log("-----------------------------------------------");
-			if( !lamewriter ) {
-				console.log("can't create ogg stream, lame string not found");
-				return ;
-			}
 			var args = d10.config.cmds.oggenc_opts.slice();
 			args.push(d10.config.audio.tmpdir+"/"+id+".ogg");
 			args.push("-");
-			oggwriter = new files.streamWriter(d10.config.cmds.oggenc,args);
-			lamewriter.on("stdout",function(chunk) { oggwriter.write(chunk); });
-			lamewriter.on("end",function(chunk) { oggwriter.close(); console.log("lamewriter end"); });
-			oggwriter.on("data",function() {console.log("oggwriter has written "+oggwriter.bytesWritten()+" bytes");});
-			oggwriter.on("end",function() { console.log("ogg conversion finished"); });
-			lamewriter.open();
-			oggwriter.open();
+			lamewriter = spawn(d10.config.cmds.lame, d10.config.cmds.lame_opts);
+			oggwriter = spawn(d10.config.cmds.oggenc, args);
+			oggwriter.on("exit",function() { console.log("oggwriter exited"); oggready = d10.config.audio.tmpdir+"/"+id+".ogg"; });
+			lamewriter.on("exit",function() { console.log("lamewriter exited");});
+			util.pump(lamewriter.stdout, oggwriter.stdin,function(c) {
+				console.log("encoding pump stopped",c);
+			});
+			function writeBuffer() {
+				var buffer = files.bufferSum(lamebuffer.buffer);
+				lamebuffer.buffer = [];
+				var writeOk = lamewriter.stdin.write(buffer);
+				if ( writeOk ) {
+					console.log("================= Lame pumping from request ===============");
+					util.pump(request, lamewriter.stdin);
+					lamebuffer.on = false;
+				} else {
+					console.log(".");
+					lamewriter.stdin.once("drain",function() {writeBuffer();});
+				}
+			};
+			writeBuffer();
 		};
 
 		var endOfFileWriter = function() {
-			if ( fileType == "audio/mpeg" ) {
-				if ( !oggwriter ) {
-					console.log("due to filetype checking I launch oggenc");
-					createoggwriter();
-				}
-// 				createoggwriter();
-				lamewriter.close();
-			} else if ( fileType == "application/ogg" ) {
-				lamewriter.abort();
-			}
-			if ( !oggwriter ) {
-				createoggwriter();
-			}
-			
-			
 		};
 		
 		var filewriter = null, // the async fileWriter
 			lamewriter = null, // the async pipewriter launching lame
 			oggwriter = null, // the async pipewriter launching oggend
+			oggready = null, // ogg file when ready
 			id = "aa"+d10.uid(), // new song uid
 			fileName = id+".mp3",
 			fileLengthOk = null, // result of the check on the file size
 			bytesIval = null,	// bytes checker interval
+			lamebuffer = { on: true, buffer: [] };
 			fileType = null    // filetype from the file command
 			; 
 		request.on("error",function(){
@@ -175,31 +142,22 @@ exports.api = function(app) {
 			console.log(arguments);
 		});
 		request.on("data",function(chunk) {
+			if ( lamebuffer.on ) { lamebuffer.buffer.push(chunk); }
 			if ( !filewriter  ) {
 				bytesIval = setInterval(bytesCheck,500);
 				console.log("creating fileWriter");
 				filewriter  = new files.fileWriter(d10.config.audio.tmpdir+"/"+fileName);
-				lamewriter = new files.streamWriter(d10.config.cmds.lame,d10.config.cmds.lame_opts);
 				filewriter.open();
-				filewriter.on("data",function(b) {
-					lamewriter.write(b);
-				});
 				filewriter.on("end", function() {
 					if ( fileType == null ) {
 						d10.fileType(d10.config.audio.tmpdir+"/"+fileName, function(err,type) {
 							if  ( err !== null ) { return ; }
 							fileType = type.replace(/\s/g,"");
-							endOfFileWriter();
-// 							if ( fileType == "audio/mpeg" ) {
-// 								console.log("due to filetype checking I launch oggenc");
-// 								createoggwriter();
-// 							} else {
-// 								lamewriter.abort();
-// 							}
-// 							}
+// 							endOfFileWriter();
+
 						});
 					} else {
-						endOfFileWriter();
+// 						endOfFileWriter();
 					}
 
 					console.log("fileWriter end event");
