@@ -55,6 +55,7 @@ var	httpStatusCodes = {
 	433: 'File already in database',
 	434: 'Invalid email address',
 	435: 'Unable to send email',
+	436: 'Unable to get song length',
 	500: "Internal Server Error",
 	501: "Not Implemented",
 	502: "Bad Gateway",
@@ -179,22 +180,143 @@ exports.fileType = function(file,cb) {
 				cb(error);
 			} else {
 				console.log("fileType : ",stdout);
-				cb(null,stdout);
+				cb(null,stdout.replace(/\s/g,""));
 			}
 // 			if ( cb ) { cb(error); }
 		}
 	);
 };
 
+exports.oggLength = function(file,cb) {
+// 	console.log("launching oggLength");
+	var ogginfo = exec(config.cmds.ogginfo+" "+file,function(err,stdout,stderr) {
+		if ( stdout.length ) {
+			var back = stdout.match(/Playback length: ([0-9]+)m:([0-9]+)/);
+			if ( back.length > 2 ) {
+				return cb(null,back);
+			}
+		}
+		if ( err !== null ) {
+			cb(err);
+		} else {
+			cb("no match");
+		}
+	});
+};
+
+exports.id3tags = function(file, cb) {
+	var tagsPipe = exec(config.cmds.taginfo+" "+file+" | "+config.cmds.utrac+" -t UTF-8",function(err,stdout,stderr) {
+		if ( err )	{
+			return cb(err);
+		}
+		var tagnames = ['ALBUM','TRACK','ARTIST','TITLE','GENRE','YEAR'],
+			tags = {};
+// 		console.log("TAGS bruts: ",stdout);
+		stdout.split("\n").forEach(function(v,k) {
+			var tag = v.split("=",2);
+			if ( tagnames.indexOf(tag[0]) >=0 ) {
+				tags[tag[0]] = tag[1].replace(/^\s+/,"").replace(/\s+$/,"").replace(/"/g,"");
+				if ( tag[0] == "TRACK" ) {
+					tags["TRACKNUMBER"] = tags[tag[0]];
+				} else if ( tag[0] == "YEAR" ) {
+					tags["DATE"] = tags[tag[0]];
+				}
+			}
+		});
+// 		console.log("TAGS tableau :");
+		console.log(tags);
+		cb(null,tags);
+	});
+};
+
+exports.oggtags = function(file, cb) {
+	var tagsPipe = exec(config.cmds.vorbiscomment+" -l "+file+" | "+config.cmds.utrac+" -t UTF-8",function(err,stdout,stderr) {
+		if ( err )	{
+			return cb(err);
+		}
+// 		var tagnames = ['ALBUM','TRACK','ARTIST','TITLE','GENRE','YEAR'],
+		var tags = {};
+		console.log("TAGS bruts: ",stdout);
+		stdout.split("\n").forEach(function(v,k) {
+			console.log("ligne ",v);
+			var tag = v.split("=",2);
+			console.log(tag);
+			if ( tag.length > 1 ) {
+				tags[tag[0]] = tag[1].replace(/^\s+/,"").replace(/\s+$/,"").replace(/"/g,"");
+			}
+		});
+		console.log("TAGS tableau :");
+		console.log(tags);
+		cb(null,tags);
+	});
+};
+
+exports.escapeShellArg = function(s) {
+	return "'"+s.replace(/'/g, "'\\''")+"'";
+};
+
+exports.setOggtags = function(file, tags, cb) {
+	if ( !exports.count(tags) ) {
+		return cb(null,tags);
+	}
+	var args = [];
+	for ( var index in tags ) {
+		args.push("-t "+exports.escapeShellArg(index+"="+tags[index]));
+	}
+	var tagsPipe = exec(config.cmds.vorbiscomment+" -s "+args.join(" ")+" "+file,function(err,stdout,stderr) {
+		if ( err )	{
+			return cb(err);
+		}
+		cb(null,tags);
+	});
+};
+
+exports.sanitize = {
+	string: function(s) {
+		return exports.ucwords(s.replace(/^\s+/,"").replace(/\s+$/,"").replace(/</g,"").replace(/>/g,"").toLowerCase());
+	},
+	number: function(s) {
+		s = parseFloat(s);
+		if ( isNaN(s) )	return 0;
+		return s;
+	},
+	genre: function(s) {
+		s = s.toLowerCase();
+		var back = "";
+		config.genres.forEach(function(v,k) {
+			if ( s == v.toLowerCase() ) {
+				back=v;
+			}
+		});
+		return back;
+	}
+};
+
+exports.valid = {
+	title: function(s) { return (s.length) ; },
+	artist:  function(s) { return (s.length) ; },
+	genre: function(s) { return  ( config.genres.indexOf(s) >= 0 ) ;},
+	id: function(s) { return s.substr(0,2) == "aa" ? true : false}
+};
+/*
+exports.sanitizeTag = array ( name, value) {
+	name = name.toLowerCase();
+	value = value.toLowerCase();
+	if ( name == "genre" ) {
+		config.genres.forEach(function(v,k) {
+			if ( value == v.toLowerCase() ) {
+				return v;
+			}
+		});
+	}
+	if ( name == "tracknumber" ) {
+		
+	}
+	var methods = {
+		title: ""
+	};
+};
 
 
-
-
-
-
-
-
-
-
-
+*/
 

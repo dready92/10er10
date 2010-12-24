@@ -311,6 +311,21 @@ exports.api = function(app) {
 	}
 	);
 
+	app.get("/api/songsToReview:end?",function(request,response) {
+		d10.db.db("d10").include_docs(true).key( [ request.ctx.user._id, false ] ).getView(
+			{
+				success: function(resp) {
+					successResp(resp,request.ctx);
+				},
+				error: function(foo,err) {
+					errResp(err.statusCode, err.statusMessage,request.ctx);
+				}
+			},
+			"user",
+			"song"
+		);
+	});
+	
 	app.post("/api/ping",function(request,response) {
 		console.log("router:","POST /api/ping");
 		request.on("data",function() {console.log("ping data reached");});

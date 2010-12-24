@@ -140,6 +140,7 @@ if ( process ) {
 		var status, data;
 		var type = method.toUpperCase();
 		if ( s.body && typeof s.body == "object" ) {
+			console.log("stringify",s.body);
 			s.body = JSON.stringify(s.body);
 		}
 		if ( s.type == "PUT" || s.type == "POST" ) {
@@ -305,9 +306,13 @@ if ( process ) {
 		// Send the data
 		try {
 			console.log(type,":",url,": sending data",s.body);
+			var b = null;
+			if ( process && Buffer ) {
+				if ( s.body ) s.body = new Buffer(s.body,"utf8"); 
+			}
 			xhr.send( s.body ? s.body : null );
 		} catch(e) {
-// 			console.log(e);
+ 			console.log(e);
 // 			console.log(s.body, s.data);
 			response.statusCode = 499;
 			response.statusMessage = "Unable to send the request";
@@ -445,12 +450,16 @@ if ( process ) {
 					}
 				}
 				var method = "POST",
-					url = this.getDatabaseUri();
+					url = this.getDatabaseUri(),
+					baseSettings = {successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, dataType: "json", body: doc }
 				if ( doc._id ) {
 					url+="/"+encodeURIComponent(doc._id);
 					method = "PUT";
+					if ( doc._rev ) {
+						baseSettings.data = {rev: doc._rev};
+					}
 				}
-				var settings = $.extend({successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, dataType: "json", body: doc },this.options,opts);
+				var settings = $.extend(baseSettings,this.options,opts);
 // 				console.log(method,url,settings);
 				queryAndTest(method,url,settings);
 				return true;

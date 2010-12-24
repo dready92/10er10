@@ -186,11 +186,8 @@ exports.XMLHttpRequest = function() {
 		
 		// Use the correct request method
         request = client.request(settings.method, uri, headers);
-
-		// Send data to the server
-		if (data) {
-			request.write(data);
-		}
+// 		request.setEncoding("utf8");
+		
 		
 		request.addListener('response', function(resp) {
 			response = resp;
@@ -212,7 +209,16 @@ exports.XMLHttpRequest = function() {
 				setState(self.DONE);
 			});
 		});		
-		request.end();
+		// Send data to the server
+		if (data) {
+			
+// 			var b = new Buffer(data,"utf8");
+// 			console.log("ssssending data : ",data, data.length,b.length);
+			request.end(data);
+		} else {
+			console.log("no data");
+			request.end();
+		}
 	};
 
 	/**

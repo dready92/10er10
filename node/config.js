@@ -6,7 +6,7 @@ exports.couch = {
 
 // templates path
 exports.templates = {
-	node: "../d10/views/"
+	node: "../views/"
 };
 
 // cookie name
@@ -19,8 +19,8 @@ exports.cookieTtl = 1000*60*60*24*15;
 exports.rpp = 30;
 
 exports.audio = {
-	tmpdir: "../d10/audio/tmp",
-	finaldir: "../d10/audio/files"
+	tmpdir: "../audio/tmp",
+	dir: "../audio/files"
 };
 
 exports.cmds = {
@@ -29,7 +29,12 @@ exports.cmds = {
 	lame: "/usr/bin/lame",
 	lame_opts:  ["--mp3input","--quiet","--decode","-","-"],
 	oggenc: "/usr/bin/oggenc",
-	oggenc_opts: ["--quiet","-o"]
+	oggenc_opts: ["--quiet","-o"],
+	ogginfo: "/usr/bin/ogginfo",
+	utrac: "/usr/local/bin/utrac",
+	taginfo: "/usr/local/bin/taginfo",
+	vorbiscomment: "/usr/bin/vorbiscomment"
+	
 }
 
 

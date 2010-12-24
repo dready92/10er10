@@ -221,3 +221,14 @@ exports.md5_file = function ( file, callback ) {
 	
 	md5.on('exit', function (code) {  callback.call(this,out,code); });
 };
+
+
+exports.sha1_file = function ( file, callback ) {
+	var out = "",
+	spawn  = require('child_process').spawn,
+	sha1    = spawn('sha1sum', [file]);
+	
+	sha1.stdout.on('data', function (data) { out+=data; });
+	sha1.stderr.on('data', function (data) { console.log('stderr: ' + data); });
+	sha1.on('exit', function (code) {  callback(code,out.replace(/\s+$/,"")); });
+};
