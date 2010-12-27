@@ -1,7 +1,7 @@
 var fs = require("fs"),
-	exec = require('child_process').exec,
-	mustache = require("./mustache");
-	exports.db = require("./d10db");
+	exec = require('child_process').exec;
+exports.mustache = require("./mustache");
+exports.db = require("./d10db");
 var config = exports.config = require("./config");
 	
 var	httpStatusCodes = {
@@ -65,7 +65,8 @@ var	httpStatusCodes = {
 };
 
 exports.uid = function() {
-	return (new Date().getTime() + "" + (0x100000000 * Math.random()).toString(32));
+// 	return ((0x100000000 * Math.random()).toString(32) + "" + (0x100000000 * Math.random()).toString(32));
+	return ((0x100000000 * Math.random()).toString(32) + "" + (0x100000000 * Math.random()).toString(32)).replace(/\./g,"")
 };
 	
 exports.count = function(obj) {
@@ -91,7 +92,7 @@ exports.view = function(n,d,p,cb) {
 	fs.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
 		if (err) throw err;
 				// 		console.log(data);
-		data = mustache.to_html(data,d,p);
+		data = exports.mustache.to_html(data,d,p);
 		if ( cb )	cb.call(data,data);
 	});
 };

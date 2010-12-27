@@ -51,7 +51,19 @@ exports.homepage = function(app) {
 			});
 		}
 	}
-	
+	app.get("/welcome/goodbye",function(request,response,next) {
+		d10.db.db("d10").deleteDoc(
+			{
+			},
+			request.ctx.session
+		);
+	    delete request.ctx.session;
+	    delete request.ctx.user;
+	    delete request.ctx.userPrivateConfig;
+		request.ctx.headers["Set-Cookie"] = config.cookieName+"=no; path="+config.cookiePath;
+		//; expires="+new Date().toUTCString();
+		displayHomepage(request,response,next);
+	});
 	app.get("/", displayHomepage);
 	app.post("/",function( request, response, next ) {
 		
@@ -102,7 +114,7 @@ exports.homepage = function(app) {
 								};
 								var d = new Date();
 								d.setTime ( d.getTime() + config.cookieTtl );
-								request.ctx.headers["Set-Cookie"] = config.cookieName+"="+escape(JSON.stringify(infos))+"; expires="+d.toUTCString();
+								request.ctx.headers["Set-Cookie"] = config.cookieName+"="+escape(JSON.stringify(infos))+"; expires="+d.toUTCString()+"; path="+config.cookiePath;
 								// Set-Cookie:goodcake=%7B%22user%22%3A%22boss%22%2C%22session%22%3A%224dfaee1e15a3d1111e145aa0f2f2f566bd5185a3%22%7D; expires=Wed, 29-Dec-2010 09:47
 								// if (val instanceof Date) {
 							// val = val.toUTCString();

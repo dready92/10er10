@@ -11,6 +11,7 @@ exports.templates = {
 
 // cookie name
 exports.cookieName = "goodcacke";
+exports.cookiePath = "/";
 
 // cookie time to live ( in miliseconds )
 exports.cookieTtl = 1000*60*60*24*15;
@@ -66,6 +67,26 @@ exports.javascript = {
 		"bgtask.js"
 	]
 };
+
+
+exports.emailSender = "root@10er10.com";
+exports.emailSenderLabel = "Deezer10";
+exports.invites = {
+	ttl:7 ,
+	url: "http://invites.10er10.com/index.php/code/{{id}}",
+	subject: "Invitation: découvrez Deezer10",
+	message: "Bonjour !\n\n"+
+"Un de vos amis a pensé à vous! Ceci est une invitation pour découvrir Deezer10, un site web privé d'écoute et de partage de musique.\n\n"+
+"Deezer10 vous permet d'enregistrer vos morceaux MP3 et OGG, de les écouter, de créer vos propres playlists. Vous bénéficiez ainsi d'une discothèque disponible à tout moment sur Internet, que vous soyez cher vous, chez vos amis, au travail... Deezer10 utilise les dernières technologies HTML5, c'est pourquoi il vous faut un navigateur moderne pour que le site fonctionne correctement. Nous vous conseillons Mozilla Firefox ou Google Chrome.\n\n"+
+"Personne ne connait mieux que vous votre musique. C'est pourquoi nous ne vous demandons pas de mettre toutes vos chansons sur le serveur, mais uniquement le meilleur, la crème de la créme. C'est aussi pourquoi, une fois que vous enregistrez une chanson sur le serveur, nous vous demandons de la valider : ceci permet d'avoir un index à jour du contenu des morceaux (artistes, titres, genres musicaux), afin que le catalogue soit le plus pertinent possible.\n\n"+
+"Deezer10 respecte votre vie privée : le serveur web n'enregistre pas les connexions, nous ne gardons pas votre adresse email... Alors attention ! Il est indispensable que vous reteniez bien votre login et votre mot de passe : le site n'a aucun moyen de vous le renvoyer si vous l'avez oublié. Notez-le, envoyez-le vous par email...\n\n"+
+"Cette invitation est valide pendant {{ttl}} jours. Pour créer votre compte, connectez vous dès maintenant ici :\n\n"+
+"{{>url}}\n\n"+
+"A bientôt,\n\n"+
+"Le staff\n"
+}
+		
+		
 
 exports.genres = [
 'Blues',

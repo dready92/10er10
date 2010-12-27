@@ -5,7 +5,9 @@ var	connect = require("connect"),
 	api = require("./d10.router.api"),
 	plmApi = require("./d10.router.api.plm")
 	listingApi = require("./d10.router.api.listing"),
-	songStuff = require("./d10.router.song");
+	songStuff = require("./d10.router.song"),
+	invites = require("./d10.router.invites")
+	;
 
 function staticRoutes(app) {
 // 	var staticAudio = httpHelper.localPathServer("/audio","/var/www/html/audio");
@@ -32,7 +34,8 @@ var server = connect.createServer(
 	connect.router(api.api),
 	connect.router(plmApi.api),
 	connect.router(listingApi.api),
-	connect.router(songStuff.api)
+	connect.router(songStuff.api),
+	connect.router(invites.api)
 ).listen(8124);
 
 server.on("error",function() {
