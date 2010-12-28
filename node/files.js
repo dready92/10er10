@@ -23,7 +23,7 @@ var streamWriter = exports.streamWriter = function(cmd, args) {
 		
 		pipe.on("exit",function(code) {exitcode = code;});
 		fireInterval();
-		this.open = function() {console.log("streamWriter open has already been called once");};
+		this.open = function() {d10.log("debug","streamWriter open has already been called once");};
 	};
 	
 	this.abort = function () {
@@ -45,10 +45,10 @@ var streamWriter = exports.streamWriter = function(cmd, args) {
 // 		if ( !pipe )	return ;
 		ival = setInterval(function() {
 			if ( !free )	return ;
-// 			console.log("buf length ? ",buf.length, " close ? ",close);
+// 			d10.log("debug","buf length ? ",buf.length, " close ? ",close);
 			if ( buf.length ) {
-// 				console.log("buf : ",buf);
-// 				console.log("buf: ", typeof buf);
+// 				d10.log("debug","buf : ",buf);
+// 				d10.log("debug","buf: ", typeof buf);
 				var packets = 5;
 				var toSend = buf.splice(0, buf.length < packets ? buf.length : packets);
 				var size = 0;
@@ -68,21 +68,21 @@ var streamWriter = exports.streamWriter = function(cmd, args) {
 				if ( !free ) {
 					(function(bc) {
 						pipe.stdout.once("drain",function() {
-							console.log("stream drain event");
+							d10.log("debug","stream drain event");
 							bytesWritten+=bc;
 							free = true;
 							that.emit("data",b);
 						});
 					})(b.length);
 				} else {
-					console.log("stream drain event");
+					d10.log("debug","stream drain event");
 					bytesWritten+=b.length;
 					that.emit("data",b);
 				}
 			} else if ( close ) {
 				pipe.stdin.end();
 				var close = function(code) {
-					console.log("process exited"); 
+					d10.log("debug","process exited"); 
 					if ( closeCallback ) { closeCallback.call(this, bytesWritten); }
 					clearInterval(ival);
 					that.emit("end");
@@ -124,7 +124,7 @@ var fileWriter = exports.fileWriter = function(path) {
 	this.open = function() {
 		fs.open(path, "w" , "0644", function(err,fd) {
 			if ( err ) {
-				console.log("fileWriter::open - got an error");
+				d10.log("debug","fileWriter::open - got an error");
 				return ;
 			}
 			descriptor = fd;
@@ -152,10 +152,10 @@ var fileWriter = exports.fileWriter = function(path) {
 		if ( !descriptor )	return ;
 		ival = setInterval(function() {
 			if ( inWrite )	return ;
-// 			console.log("buf length ? ",buf.length, " close ? ",close);
+// 			d10.log("debug","buf length ? ",buf.length, " close ? ",close);
 			if ( buf.length ) {
-// 				console.log("buf : ",buf);
-// 				console.log("buf: ", typeof buf);
+// 				d10.log("debug","buf : ",buf);
+// 				d10.log("debug","buf: ", typeof buf);
 				var size = 0;
 				buf.forEach(function(v,k) { size+=v.length; });
 				
@@ -163,7 +163,7 @@ var fileWriter = exports.fileWriter = function(path) {
 				var offset = 0;
 				
 				buf.forEach(function(v,k) {
-// 					console.log("buffer ? ", v instanceof Buffer );
+// 					d10.log("debug","buffer ? ", v instanceof Buffer );
 					v.copy(b,offset,0,v.length);
 					offset +=v.length;
 				});
@@ -171,7 +171,7 @@ var fileWriter = exports.fileWriter = function(path) {
 				inWrite = true;
 				fs.write(descriptor,b,0,b.length,null,function(e,bc) {
 					if ( e ) {
-						console.log("fileWriter::write - got an error",e);
+						d10.log("debug","fileWriter::write - got an error",e);
 						inWrite = false;
 						return ;
 					}
@@ -181,7 +181,7 @@ var fileWriter = exports.fileWriter = function(path) {
 				});
 			} else if (  close ) {
 				fs.close(descriptor, function() { 
-					console.log("write fd is closed"); 
+					d10.log("debug","write fd is closed"); 
 					if ( closeCallback ) { closeCallback.call(this, bytesWritten); }
 					clearInterval(ival);
 					that.emit("end");
@@ -218,7 +218,7 @@ exports.md5_file = function ( file, callback ) {
 	md5    = spawn('md5sum', [file]);
 	
 	md5.stdout.on('data', function (data) { out+=data; });
-	md5.stderr.on('data', function (data) { console.log('stderr: ' + data); });
+	md5.stderr.on('data', function (data) { d10.log("debug",'stderr: ' + data); });
 	
 	md5.on('exit', function (code) {  callback.call(this,out,code); });
 };
@@ -230,6 +230,6 @@ exports.sha1_file = function ( file, callback ) {
 	sha1    = spawn('sha1sum', [file]);
 	
 	sha1.stdout.on('data', function (data) { out+=data; });
-	sha1.stderr.on('data', function (data) { console.log('stderr: ' + data); });
+	sha1.stderr.on('data', function (data) { d10.log("debug",'stderr: ' + data); });
 	sha1.on('exit', function (code) {  callback(code,out.replace(/\s+$/,"")); });
 };

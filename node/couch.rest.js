@@ -50,7 +50,7 @@ if ( process ) {
 		globalEval: function(){}
 	};
 	
-	var debug = function() { console.log.apply(console,arguments); }
+	var debug = function() { /*console.log.apply(console,arguments);*/ }
 	
 }
 
@@ -140,7 +140,7 @@ if ( process ) {
 		var status, data;
 		var type = method.toUpperCase();
 		if ( s.body && typeof s.body == "object" ) {
-			console.log("stringify",s.body);
+			debug("stringify",s.body);
 			s.body = JSON.stringify(s.body);
 		}
 		if ( s.type == "PUT" || s.type == "POST" ) {
@@ -305,7 +305,7 @@ if ( process ) {
 
 		// Send the data
 		try {
-// 			d10.log("debug",type,":",url,": sending data",s.body);
+			console.log(type,":",url,": sending data",s.body);
 			var b = null;
 			if ( process && Buffer ) {
 				if ( s.body ) s.body = new Buffer(s.body,"utf8"); 
@@ -316,6 +316,7 @@ if ( process ) {
 // 			d10.log("debug",s.body, s.data);
 			response.statusCode = 499;
 			response.statusMessage = "Unable to send the request";
+			response.e = e;
 			if ( s.response )	s.response.call(s,response);
 			// Fire the complete handlers
 			complete();
@@ -472,7 +473,6 @@ if ( process ) {
 			},
 			deleteDoc: function(opts,doc){
 				if ( typeof doc != "object" || !doc._id || !doc._rev ) return false;
-// 				console.log("delete doc : start");
 				var settings = $.extend({successCodes: function(c) {return ( c == 200 ) ;}, dataType: "json",data: {rev: doc._rev} },this.options,opts);
 				queryAndTest("DELETE",this.getDatabaseUri()+"/"+encodeURIComponent(doc._id),settings);
 				return true;
@@ -562,7 +562,6 @@ if ( process ) {
 			getAllDocs: function(opts) {
 				var url = this.getDatabaseUri()+"/_all_docs";
 				var q = prepareViewQuery(this);
-// 				d10.log("debug",q);
 				var settings = $.extend(
 					{
 						successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, 
@@ -639,10 +638,7 @@ if ( process ) {
 				return this;
 			},
 			keys: function(v) {
-// 				console.log("setting keys");
-// 				d10.log("debug",typeof v);
 				if ( Object.prototype.toString.call(v) === '[object Array]' ) {
-// 					console.log("really setting keys");
 					this.queryParameters.keys = v;
 				}
 				return this;

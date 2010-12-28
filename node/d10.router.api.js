@@ -55,7 +55,7 @@ exports.api = function(app) {
 				d10.rest.success(responses,request.ctx);
 			},
 			function(errors,responses) {
-				console.log("errors");
+				d10.log("debug","errors");
 				d10.log("debug",errors);
 				d10.rest.err(423,null,request.ctx);
 			}
@@ -109,7 +109,7 @@ exports.api = function(app) {
 	});
 	
 	app.get("/api/current_playlist",function(request,response) {
-		console.log("router:","/api/current_playlist");
+		d10.log("debug","router:","/api/current_playlist");
 		var getFromPlaylist = function(id) {
 			d10.db.db("d10").getDoc({
 					success: function(playlist) {
@@ -179,7 +179,7 @@ exports.api = function(app) {
 	
 	
 	app.get("/api/toReview",function(request,response) {
-		console.log("router:","/api/toReview");
+		d10.log("debug","router:","/api/toReview");
 
 		d10.db.db("d10").key( [ request.ctx.user._id, false ] )
 		.getView(
@@ -206,10 +206,10 @@ exports.api = function(app) {
 		request.on("end",function() {
 			var data = querystring.parse(body),
 			recordAnonymousPlaylist = function (d10UserPrefs) {
-				console.log("in recordAnonymousPlaylist");
-				delete d10UserPrefs.playlist;
+				d10.log("debug","in recordAnonymousPlaylist");
+				delete d10UserPrefs.c_playlist;
 				d10UserPrefs.c_playlist_ids = data["ids[]"];
-				console.log("calling storeDoc, ", data["ids[]"].length,d10UserPrefs.c_playlist_ids.length );
+				d10.log("debug","calling storeDoc, ", data["ids[]"].length,d10UserPrefs.c_playlist_ids.length );
 				d10.db.db("d10").storeDoc(
 					{
 						success: function() {
@@ -223,6 +223,7 @@ exports.api = function(app) {
 				);
 			},
 			recordRplPlaylist = function(d10UserPrefs) {
+				d10.log("debug","playlist : recordRplPlaylist");
 				d10.db.db("d10").getDoc(
 					{
 						success: function() {
@@ -294,11 +295,11 @@ exports.api = function(app) {
 	});
 	
 	app.post("/api/ping",function(request,response) {
-		console.log("router:","POST /api/ping");
-		request.on("data",function() {console.log("ping data reached");});
-		request.on("end",function() {console.log("ping end reached");});
+		d10.log("debug","router:","POST /api/ping");
+		request.on("data",function() {d10.log("debug","ping data reached");});
+		request.on("end",function() {d10.log("debug","ping end reached");});
 		var updateAliveDoc = function() {
-			d10.db.db("track").updateDoc({success: function() {console.log("alive doc updated");},error:function(err,all) {d10.log("debug",err,all, "error");}},"tracking","ping",request.ctx.user._id.replace(/^us/,"pi"));
+			d10.db.db("track").updateDoc({success: function() {d10.log("debug","alive doc updated");},error:function(err,all) {d10.log("debug",err,all, "error");}},"tracking","ping",request.ctx.user._id.replace(/^us/,"pi"));
 		};
 
 		var parsePlayerInfos = function() {
@@ -317,7 +318,7 @@ exports.api = function(app) {
 					success: function(doc) {
 						if ( doc.hits ) doc.hits++;
 						else			doc.hits = 1;
-						d10.db.db("d10").storeDoc({success:function() {console.log("hitcount updated");}},doc);
+						d10.db.db("d10").storeDoc({success:function() {d10.log("debug","hitcount updated");}},doc);
 					}
 				},
 				id
@@ -561,7 +562,7 @@ exports.api = function(app) {
 			var end = start;
 			var next = String.fromCharCode( end.charCodeAt( end.length-1 ) + 1 );
 			end = end.substr(0, end.length - 1) + next;
-// 			console.log("startkey",start,"endkey",end,"next",next);
+// 			d10.log("debug","startkey",start,"endkey",end,"next",next);
 			db.startkey(start).endkey(end).inclusive_end(false);
 		}
 		db.include_docs(true).getView({
@@ -618,7 +619,7 @@ exports.api = function(app) {
 	
 	app.post("/api/details",function(request,response) {
 		bodyDecoder()(request, response,function() {
-			console.log("body decoded");
+			d10.log("debug","body decoded");
 			var artists = [], albums = [], jobs = {};
 			if ( request.body["artists[]"] ) {
 				if ( Object.prototype.toString.call(request.body["artists[]"]) === '[object Array]' ) {

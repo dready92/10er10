@@ -23,7 +23,6 @@ exports.localPathServer = function ( uri, localuri ) {
 	return  function ( request, response, next ) {
 		request.ctx.headers["Accept-Ranges"] = "bytes";
 		var url = path.normalize(request.url);
-// 		console.log("request.url",request.url,"url",url,"uri",uri,"localuri",localuri,"localFile",url.replace(uri,localuri));
 		if ( url.indexOf(uri) !== 0 ) {
 			next();
 			return ;
@@ -33,7 +32,6 @@ exports.localPathServer = function ( uri, localuri ) {
 			if(!err) {
 				request.ctx.stats = stats;
 				request.ctx.status = 200;
-// 				console.log(utils);
 				request.ctx.headers["Content-Type"] = utils.mime.type(localFile);
 				sendStatic(localFile,stats,request.ctx);
 			} else {
@@ -97,13 +95,6 @@ function sendStatic(staticFile, stats, ctx) {
 				var stream = fs.createReadStream(staticFile);
 			}
 			
-// 			console.log("writing headers",ctx.status,util.inspect(ctx.headers));
-// 			var h = {};
-// 			for (var i in ctx.headers ) {
-// 				h[i] = ctx.headers[i];
-// 			}
-// 			console.log(ctx.headers);
-// 			console.log(h);
 			ctx.response.writeHead(ctx.status, ctx.headers);
 			if(ctx.request.method == 'GET') {
 				util.pump(stream, ctx.response);

@@ -310,8 +310,6 @@ return $this->response( json_success($back) );
 		db.getList(
 			{
 				success: function(resp) {
-// 					d10.log("debug",request.url, "success ! ");
-// 					d10.log("debug",resp);
 					response.writeHead(200, request.ctx.headers );
 					response.end (
 						JSON.stringify(resp.titles)
@@ -319,8 +317,6 @@ return $this->response( json_success($back) );
 // 					d10.rest.success(resp.titles,request.ctx);
 				},
 				error: function(a,b) {
-// 					console.log("error ! ",a,b);
-// 					d10.log("debug",a);
 					response.writeHead(200, request.ctx.headers );
 					response.end (
 						"[]"
@@ -339,21 +335,15 @@ return $this->response( json_success($back) );
 			var q = d10.ucwords(request.query.start);
 			db.startkey([q]).endkey([d10.nextWord(q)]);
 		}
-// 		d10.log("debug",request.url,"sending list request");
 		db.getList(
 			{
 				success: function(resp) {
-// 					d10.log("debug",request.url, "success ! ");
-// 					d10.log("debug",resp);
 					response.writeHead(200, request.ctx.headers );
 					response.end (
 						JSON.stringify(resp.artists)
 					);
-// 					d10.rest.success(resp.titles,request.ctx);
 				},
 				error: function(a,b) {
-// 					console.log("error ! ",a,b);
-// 					d10.log("debug",a);
 					response.writeHead(200, request.ctx.headers );
 					response.end (
 						"[]"
@@ -425,43 +415,6 @@ return $this->response( json_success($back) );
 			"artist"
 		);
 	});
-	/*
-  function title_get() {
-//   $this->couch_ci->group(true)->group_level(1);
-    if ( $this->input->get('start') ) {
-      $q = ucwords($this->input->get('start'));
-      $end = substr($q,-1);
-      $end = chr(ord($end)+1);
-      $end = substr($q,0,-1).$end;
-      $this->couch_ci->startkey(array( $q ))->endkey(array( $end ));
-    }
-    try {
-      $res = $this->couch_ci->getList('title','search','search');
-    } catch ( Exception $e ) {
-      log_exception($e);
-      return $this->response( array() );
-    }
-    $this->response($res->titles);
-	}
-
-*/
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 
 }; // exports.api

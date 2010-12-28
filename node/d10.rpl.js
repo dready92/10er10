@@ -3,7 +3,7 @@ var d10 = require ("./d10");
 exports.playlistAndSongs = function(id, then) {
 	
 	var getSongs = function(playlist) {
-// 		console.log("playlist songs :",typeof playlist.songs);
+// 		d10.log("debug","playlist songs :",typeof playlist.songs);
 // 		d10.log("debug",playlist.songs);
 		if ( !playlist.songs || !playlist.songs.length ) {
 			return then(null,playlist);

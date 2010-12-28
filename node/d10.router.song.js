@@ -58,11 +58,11 @@ exports.api = function(app) {
 	});
 	
 	app.put("/api/meta/:id",function(request,response,next) {
-		console.log("Taking");
+		d10.log("debug","Taking");
 		if ( request.params.id.substr(0,2) != "aa" ) {
 			return next();
 		}
-		console.log("Still here");
+		d10.log("debug","Still here");
 		var body = "";
 		request.setEncoding("utf8");
 		request.on("data",function(chunk) {
@@ -106,7 +106,7 @@ exports.api = function(app) {
 								  ));
 				return ;
 			}
-			console.log("And here too");
+			d10.log("debug","And here too");
 			if ( request.body.album ) {
 				fields.album = d10.sanitize.string(request.body.album);
 			}
@@ -123,18 +123,18 @@ exports.api = function(app) {
 			d10.db.db("d10").getDoc(
 				{
 					success: function(doc) {
-						console.log("getDoc success");
+						d10.log("debug","getDoc success");
 						for ( var i in fields ) {
 							doc[i] = fields[i];
 						}
 						d10.db.db("d10").storeDoc(
 							{
 								success: function(resp) {
-									console.log("storeDoc success");
+									d10.log("debug","storeDoc success");
 									d10.rest.success("recorded",request.ctx);
 								},
 								error: function(foo,err) {
-									console.log("storeDoc error");
+									d10.log("debug","storeDoc error");
 									d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
 								}
 							},
@@ -143,7 +143,7 @@ exports.api = function(app) {
 						
 					},
 					error: function(foo,err) {
-						console.log("getDoc error");
+						d10.log("debug","getDoc error");
 						d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
 					}
 				}
@@ -165,7 +165,7 @@ exports.api = function(app) {
 		}
 		
 		var safeErrResp = function(code,data,ctx) {
-			console.log("sending errorResponse ",code);
+			d10.log("debug","sending errorResponse ",code);
 			d10.log("debug",data);
 			if ( errResponse ) return ;
 			errResponse = {code: code, data: data};
@@ -201,25 +201,25 @@ exports.api = function(app) {
 				oggEncode: {
 					status: null, // null (rien), true (running) or false (stopped)
 					run: function(then) {
-						console.log("-----------------------------------------------");
-						console.log("-------      Create OGG encoding        -------");
-						console.log("-----------------------------------------------");
+						d10.log("debug","-----------------------------------------------");
+						d10.log("debug","-------      Create OGG encoding        -------");
+						d10.log("debug","-----------------------------------------------");
 						var args = d10.config.cmds.oggenc_opts.slice();
 						args.push(d10.config.audio.tmpdir+"/"+this.oggName,"-");
 						job.lameWriter = spawn(d10.config.cmds.lame, d10.config.cmds.lame_opts);
 						job.oggWriter = spawn(d10.config.cmds.oggenc, args);
 						job.oggWriter.on("exit",function(code) {
-							console.log("launching oggwriter end of operation callback");
+							d10.log("debug","launching oggwriter end of operation callback");
 							then(code ? code : null,null);
 						});
-						job.lameWriter.on("exit",function() { console.log("lamewriter exited"); });
-						util.pump(job.lameWriter.stdout, job.oggWriter.stdin,function(c) { console.log("encoding pump stopped",c); });
+						job.lameWriter.on("exit",function() { d10.log("debug","lamewriter exited"); });
+						util.pump(job.lameWriter.stdout, job.oggWriter.stdin,function(c) { d10.log("debug","encoding pump stopped",c); });
 						function writeBuffer() {
 							if ( ! job.lameBuffer.buffer.length ) {
 								if ( job.requestEnd ) {
 									job.lameWriter.stdin.end();
 								} else {
-									console.log("================= Lame pumping from request ===============");
+									d10.log("debug","================= Lame pumping from request ===============");
 									util.pump(request, job.lameWriter.stdin);
 									job.lameBuffer.status = false;
 								}
@@ -229,15 +229,15 @@ exports.api = function(app) {
 			// 				var buffer = files.bufferSum(job.lameBuffer.buffer);job.lameBuffer.buffer = [];
 			// 				var pfusion =3;
 			// 				var buffer = job.lameBuffer.buffer.shift();
-							console.log("Size: ",job.lameBuffer.buffer.length," bufferJoin: ",job.bufferJoin);
+							d10.log("debug","Size: ",job.lameBuffer.buffer.length," bufferJoin: ",job.bufferJoin);
 							var buffer = files.bufferSum(
 								job.lameBuffer.buffer.splice(0, job.lameBuffer.buffer.length <= job.bufferJoin ? job.lameBuffer.buffer.length : job.bufferJoin)
 							);
-			// 				console.log("writing "+buffer.length+" bytes to lameWriter");
+			// 				d10.log("debug","writing "+buffer.length+" bytes to lameWriter");
 							var writeOk = job.lameWriter.stdin.write(buffer);
 							if ( writeOk ) { writeBuffer(); } 
 							else {
-								console.log(".");
+								d10.log("debug",".");
 								job.lameWriter.stdin.once("drain",function() {writeBuffer();});
 							}
 						};
@@ -282,10 +282,10 @@ exports.api = function(app) {
 									len = 60*parseInt(len[1],10) + parseInt(len[2],10);
 								}
 // 								job.oggLength = len;
-// 								console.log("oggLength : ");
+// 								d10.log("debug","oggLength : ");
 // // 								d10.log("debug",job.oggLength);
 							}
-// 							if ( err ) { console.log("oggLength is in error",d10.config.audio.tmpdir+"/"+file);d10.log("debug",err);d10.log("debug",len);}
+// 							if ( err ) { d10.log("debug","oggLength is in error",d10.config.audio.tmpdir+"/"+file);d10.log("debug",err);d10.log("debug",len);}
 							then(err,len);
 						});
 					}
@@ -318,7 +318,7 @@ exports.api = function(app) {
 						d10.db.db("d10").key( this.tasks.sha1File.response ).getView(
 							{
 								success: function(resp) {
-									console.log("sha1Check couch response ");
+									d10.log("debug","sha1Check couch response ");
 									d10.log("debug",resp);
 									if (!resp.rows || resp.rows.length) {
 										then(433);
@@ -340,7 +340,7 @@ exports.api = function(app) {
 				cleanupTags: {
 					status: null,
 					run: function(then) {
-// 						console.log("cleanup tags");
+// 						d10.log("debug","cleanup tags");
 // 						d10.log("debug",this.tasks.fileMeta.response);
 						var tags = JSON.parse(JSON.stringify(this.tasks.fileMeta.response));
 // 						d10.log("debug",tags);
@@ -372,7 +372,7 @@ exports.api = function(app) {
 							filename = this.oggName,
 							sourceFile = d10.config.audio.tmpdir+"/";
 							sourceFile+= (this.tasks.fileType.response == "application/ogg" ) ? this.fileName : this.oggName ;
-						console.log("moveFile : ",sourceFile," -> ",d10.config.audio.dir+"/"+c+"/"+filename);
+						d10.log("debug","moveFile : ",sourceFile," -> ",d10.config.audio.dir+"/"+c+"/"+filename);
 						var moveFile = function() {
 							fs.rename(
 								sourceFile,
@@ -449,7 +449,7 @@ exports.api = function(app) {
 						d10.db.db("d10").storeDoc(
 							{
 								success: function(resp) {
-									console.log("doc storage: ");
+									d10.log("debug","doc storage: ");
 									d10.log("debug",resp);
 									doc._rev = resp.rev;
 									then(null,doc);
@@ -466,7 +466,7 @@ exports.api = function(app) {
 			},
 			queue: [],
 			run: function(taskName) {
-				console.log("JOB: run "+taskName);
+				d10.log("debug","JOB: run "+taskName);
 				if ( this.tasks[taskName] && this.tasks[taskName].status === null &&  this.queue.indexOf(taskName) < 0 ) {
 					this.queue.push(taskName);
 					this.tasks[taskName].run.call(this, function(err,resp) { job.endOfTask.call(job,taskName,err,resp); });
@@ -496,7 +496,7 @@ exports.api = function(app) {
 				this.bind(evt,cb,true);
 			},
 			emit: function(evt,data) {
-				console.log("JOB: emit "+evt);
+				d10.log("debug","JOB: emit "+evt);
 				if ( this.callbacks[evt] ) {
 					var remove = [];
 					this.callbacks[evt].forEach(function(v,k) {
@@ -533,17 +533,17 @@ exports.api = function(app) {
 				}
 			}
 		};
-		console.log("filename : ",job.fileName,"ogg name : ",job.oggName);
+		d10.log("debug","filename : ",job.fileName,"ogg name : ",job.oggName);
 		job.complete("oggEncode",function(err,resp) {
 			if ( err ) {
-				console.log("SEVERE: error on oggEncode task",err);
+				d10.log("debug","SEVERE: error on oggEncode task",err);
 				job.allComplete(function() { safeErrResp(422,err,request.ctx); });
 			} else {
 				job.emit("oggAvailable",[]);
 			}
 		});
 		job.complete("fileType",function(err,resp) {
-			console.log("filetype complete : ",resp);
+			d10.log("debug","filetype complete : ",resp);
 			if ( err ) {
 				job.allComplete(function() { safeErrResp(421,err,request.ctx); });
 			}
@@ -562,7 +562,7 @@ exports.api = function(app) {
 		});
 
 		job.complete("fileMeta",function(err,data) {
-			console.log("fileMeta : ");
+			d10.log("debug","fileMeta : ");
 			d10.log("debug",err);
 			d10.log("debug",data);
 		});
@@ -575,7 +575,7 @@ exports.api = function(app) {
 			job.run("moveFile");
 		});
 		job.complete("moveFile",function(err,resp) {
-			console.log("moveFile finidhed");
+			d10.log("debug","moveFile finidhed");
 			if ( err ) {
 				return safeErrResp(432,err,request.ctx);
 			}
@@ -586,20 +586,20 @@ exports.api = function(app) {
 		});
 		
 		job.complete("cleanupTags",function(err,resp) {
-			console.log("cleanupTags finidhed");
+			d10.log("debug","cleanupTags finidhed");
 			job.run("createDocument");
 			job.run("applyTagsToFile");
 		});
 		
 		job.complete("createDocument",function(err,resp) {
-			console.log("db document recorded");
+			d10.log("debug","db document recorded");
 			d10.log("debug",resp);
 			d10.rest.success(resp,request.ctx);
 		});
 		
 		
 		job.once("oggAvailable",function() {
-			console.log("OGG FILE IS AVAILABLE ! ");
+			d10.log("debug","OGG FILE IS AVAILABLE ! ");
 			job.run("oggLength");
 			var steps = ["oggLength","sha1File","fileMeta"],
 				complete = 0,
@@ -609,7 +609,7 @@ exports.api = function(app) {
 					} else if ( job.tasks.oggLength.err || job.tasks.oggLength.response == 0 ) {
 						safeErrResp(436,err,request.ctx);
 					} else {
-						console.log("GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG");
+						d10.log("debug","GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG");
 						
 						job.run("sha1Check");
 					}
@@ -652,9 +652,9 @@ exports.api = function(app) {
 				});
 				if ( count === steps.length ) {
 					clearInterval(ival);
-					console.log("GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG, and "+errs.length+" errors");
+					d10.log("debug","GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG, and "+errs.length+" errors");
 // 					job.complete("moveFile",function(err,stat) {
-// 						console.log("moveFile finidhed");
+// 						d10.log("debug","moveFile finidhed");
 // 						d10.log("debug",err);
 // 					});
 // 					job.run("moveFile");
@@ -668,13 +668,13 @@ exports.api = function(app) {
 			errResponse = null  // the error response to send
 			; 
 		request.on("error",function(){
-			console.log("request ERROR !");
+			d10.log("debug","request ERROR !");
 			d10.log("debug",arguments);
 		});
 		
 		request.on("end",function() {
 			job.requestEnd = true;
-			console.log("got request end");
+			d10.log("debug","got request end");
 			if ( job.fileWriter  ) {
 				job.fileWriter.close();
 			} else {
@@ -683,14 +683,14 @@ exports.api = function(app) {
 			}
 			if ( bytesIval ) { clearInterval(bytesIval); }
 			
-// 			console.log("valid length ? ",fileLengthOk);
+// 			d10.log("debug","valid length ? ",fileLengthOk);
 		});
 		
 		request.on("data",function(chunk) {
 			
 			if ( !job.fileWriter  ) {
 				
-				console.log("creating fileWriter");
+				d10.log("debug","creating fileWriter");
 				job.fileWriter  = new files.fileWriter(d10.config.audio.tmpdir+"/"+job.fileName);
 				bytesIval = setInterval(bytesCheck,500);
 				job.fileWriter.open();
@@ -707,7 +707,7 @@ exports.api = function(app) {
 					if ( job.tasks.fileType.status === false ) {
 						if ( job.tasks.fileType.response != "audio/mpeg" && job.tasks.fileType.response != "application/ogg"  ) {
 							//send headers bc we can't tell the file type
-// 							console.log("ERROR: no headers");
+// 							d10.log("debug","ERROR: no headers");
 // 							return d10.rest.err(420, job.tasks.fileType.response, request.ctx);
 							return ;
 						}
@@ -715,7 +715,7 @@ exports.api = function(app) {
 // 					job.run("sha1File");
 					
 					if ( job.tasks.fileType.response == "application/ogg" ) { job.emit("oggAvailable",[]); }
-					console.log("fileWriter end event");
+					d10.log("debug","fileWriter end event");
 				});
 			}
 
@@ -742,7 +742,7 @@ exports.api = function(app) {
 							}
 						});
 						if ( count == complete.length ) {
-							console.log("Got everything to be happy");
+							d10.log("debug","Got everything to be happy");
 						}
 					},200);
 					*/
@@ -756,9 +756,9 @@ exports.api = function(app) {
 							fileType = type.replace(/\s/g,"");
 // 							endOfFileWriter();
 							if ( fileType == "audio/mpeg" ) {
-								console.log("due to filetype checking I launch oggenc");
+								d10.log("debug","due to filetype checking I launch oggenc");
 								createoggwriter(
-									function(err,res) { console.log("oggwriter exited"); oggready = d10.config.audio.tmpdir+"/"+id+".ogg"; }
+									function(err,res) { d10.log("debug","oggwriter exited"); oggready = d10.config.audio.tmpdir+"/"+id+".ogg"; }
 								);
 							} else {
 								job.lameBuffer.status = false;
@@ -778,11 +778,11 @@ exports.api = function(app) {
 						});
 					} else {
 						if ( oggready ) {
-							console.log("launching oggready");
+							d10.log("debug","launching oggready");
 							oggLength(oggready,function(err,res) {
-								if ( err ) { console.log("oggLength : error : ",err); }
+								if ( err ) { d10.log("debug","oggLength : error : ",err); }
 								else		{ 
-									console.log("oggLength : output");
+									d10.log("debug","oggLength : output");
 									d10.log("debug",res);
 								}
 							});
@@ -791,11 +791,11 @@ exports.api = function(app) {
 						else if ( job.oggWriter ) {
 							var wival = setInterval(function() {
 								if ( oggready ) {
-									console.log("-- ogg file ready, getting song length");
+									d10.log("debug","-- ogg file ready, getting song length");
 									oggLength(oggready,function(err,res) {
-										if ( err ) { console.log("oggLength : error : ",err); }
+										if ( err ) { d10.log("debug","oggLength : error : ",err); }
 										else		{ 
-											console.log("oggLength : output");
+											d10.log("debug","oggLength : output");
 											d10.log("debug",res);
 										}
 									}

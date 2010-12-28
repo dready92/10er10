@@ -213,10 +213,9 @@ exports.XMLHttpRequest = function() {
 		if (data) {
 			
 // 			var b = new Buffer(data,"utf8");
-// 			console.log("ssssending data : ",data, data.length,b.length);
 			request.end(data);
 		} else {
-			console.log("no data");
+// 			d10.log("debug","no data");
 			request.end();
 		}
 	};
