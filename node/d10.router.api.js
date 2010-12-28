@@ -5,43 +5,10 @@ var d10 = require ("./d10"),
 	querystring = require("querystring"),
 	exec = require('child_process').exec;
 
-var successResp = function(data,ctx) {
-	var back = {
-		status: "success",
-		data: data
-	};
-	ctx.response.writeHead(200, ctx.headers );
-	ctx.response.end (
-		JSON.stringify(back)
-	);
-};
-
-var errResp = function(code, data,ctx) {
-	if ( !ctx ) {
-		ctx = data;
-		data = null;
-	}
-	var back = {
-		status: "error",
-		data: {
-			code: code,
-			message: d10.http.statusMessage(code)
-		}
-	};
-	if (data) {
-		back.data.infos = data;
-	}
-	ctx.response.writeHead(200, ctx.headers );
-	ctx.response.end (
-		JSON.stringify(back)
-	);
-};
-
-
 exports.api = function(app) {
 
 	var checkSession = function(request,response,next) {
-// 		console.log(request.ctx);
+// 		d10.log("debug",request.ctx);
 		if ( !request.ctx.session || !request.ctx.user || !request.ctx.user._id ) {
 			response.writeHead(404,{"Content-Type":"text/plain"});
 			response.end("Page not found");
@@ -85,12 +52,12 @@ exports.api = function(app) {
 			},
 			function(responses) {
 				responses.user = request.ctx.user;
-				successResp(responses,request.ctx);
+				d10.rest.success(responses,request.ctx);
 			},
 			function(errors,responses) {
 				console.log("errors");
-				console.log(errors);
-				errResp(423,null,request.ctx);
+				d10.log("debug",errors);
+				d10.rest.err(423,null,request.ctx);
 			}
 		);
 	}); // /api/userinfos
@@ -106,15 +73,15 @@ exports.api = function(app) {
 	app.get("/api/length", function(request,response) {
 		d10.db.db("d10").getView({
 			error: function(resp) {
-				errResp(423,resp,request.ctx);
+				d10.rest.err(423,resp,request.ctx);
 			},
 			success: function(resp) {
 				var len = 0;
 				try {
 					len = resp.rows.shift().value;
-					successResp( {"length": len}, request.ctx );
+					d10.rest.success( {"length": len}, request.ctx );
 				} catch (e) {
-					successResp( {"length": 0}, request.ctx );
+					d10.rest.success( {"length": 0}, request.ctx );
 				}
 			}
 		},"song","length");
@@ -128,14 +95,14 @@ exports.api = function(app) {
 			function (error, stdout, stderr) {
 				if (error !== null) {
 					request.ctx.headers["Content-Type"]="text/plain";
-					errResp(423,"Internal server error",request.ctx);
+					d10.rest.err(423,"Internal server error",request.ctx);
 // 					response.writeHead(501,{"Content-Type":"text/plain"});
 // 					response.end();
 					return ;
 				}
 				var up = stdout.replace(/\s+$/,"").split(": ").pop().split(", ");
-				console.log(up);
-				successResp( {load: up}, request.ctx );
+				d10.log("debug",up);
+				d10.rest.success( {load: up}, request.ctx );
 				
 			}
 		);
@@ -155,18 +122,18 @@ exports.api = function(app) {
 											back.push(v.doc);
 										}
 									});
-									successResp( back, request.ctx );
+									d10.rest.success( back, request.ctx );
 								},
 								error: function(resp) {
-									errResp(423,resp,request.ctx);
+									d10.rest.err(423,resp,request.ctx);
 								}
 							});
 						} else {
-							successResp( [], request.ctx );
+							d10.rest.success( [], request.ctx );
 						}
 					},
 					error: function(resp) {
-						errResp(423,resp,request.ctx);
+						d10.rest.err(423,resp,request.ctx);
 					}
 				},
 				id
@@ -182,10 +149,10 @@ exports.api = function(app) {
 							back.push(v.doc);
 						}
 					});
-					successResp( back, request.ctx );
+					d10.rest.success( back, request.ctx );
 				},
 				error: function(resp) {
-					errResp(423,resp,request.ctx);
+					d10.rest.err(423,resp,request.ctx);
 				}
 			});
 		};
@@ -197,11 +164,11 @@ exports.api = function(app) {
 				} else if ( doc.c_playlist_ids ){
 					getFromIds(doc.c_playlist_ids);
 				} else {
-					successResp( [], request.ctx );
+					d10.rest.success( [], request.ctx );
 				}
 			},
 			error: function(data) {
-				errResp(423,data,request.ctx);
+				d10.rest.err(423,data,request.ctx);
 			}
 		},
 		request.ctx.user._id.replace(/^us/,"up")
@@ -218,11 +185,11 @@ exports.api = function(app) {
 		.getView(
 			{
 				success: function(resp) {
-					successResp( {count: resp.rows.length}, request.ctx );
+					d10.rest.success( {count: resp.rows.length}, request.ctx );
 
 				},
 				error: function(data) {
-					errResp(423,data,request.ctx);
+					d10.rest.err(423,data,request.ctx);
 				}
 			},
 			"user",
@@ -246,10 +213,10 @@ exports.api = function(app) {
 				d10.db.db("d10").storeDoc(
 					{
 						success: function() {
-							successResp( {}, request.ctx );
+							d10.rest.success( {}, request.ctx );
 						},
 						error: function(resp) {
-							errResp(413,data,request.ctx);
+							d10.rest.err(413,data,request.ctx);
 						}
 					},
 					d10UserPrefs
@@ -264,10 +231,10 @@ exports.api = function(app) {
 							d10.db.db("d10").storeDoc(
 								{
 									success: function() {
-										successResp( [], request.ctx );
+										d10.rest.success( [], request.ctx );
 									},
 									error: function(resp) {
-										errResp(413,data,request.ctx);
+										d10.rest.err(413,data,request.ctx);
 									}
 								},
 								d10UserPrefs
@@ -275,14 +242,14 @@ exports.api = function(app) {
 						},
 						error: function(err) {
 							// malicious code; make it harder to bug us
-							successResp( [], request.ctx );
+							d10.rest.success( [], request.ctx );
 						}
 					},
 					data.playlist
 				);
 			}
 			;
-			console.log(data);
+			d10.log("debug",data);
 			// { "ids[]":["aasdf","aasdfsf"] }
 // 			request.ctx.headers["Content-Type"] = "application/json";
 			
@@ -299,14 +266,14 @@ exports.api = function(app) {
 						}
 					},
 					error: function (data) {
-						errResp(413,data,request.ctx);
+						d10.rest.err(413,data,request.ctx);
 					}
 				},
 				
 				request.ctx.user._id.replace(/^us/,"up")
 			);
 			
-// 			successResp( {}, request.ctx );
+// 			d10.rest.success( {}, request.ctx );
 		});
 	}
 	);
@@ -315,10 +282,10 @@ exports.api = function(app) {
 		d10.db.db("d10").include_docs(true).key( [ request.ctx.user._id, false ] ).getView(
 			{
 				success: function(resp) {
-					successResp(resp,request.ctx);
+					d10.rest.success(resp,request.ctx);
 				},
 				error: function(foo,err) {
-					errResp(err.statusCode, err.statusMessage,request.ctx);
+					d10.rest.err(err.statusCode, err.statusMessage,request.ctx);
 				}
 			},
 			"user",
@@ -331,7 +298,7 @@ exports.api = function(app) {
 		request.on("data",function() {console.log("ping data reached");});
 		request.on("end",function() {console.log("ping end reached");});
 		var updateAliveDoc = function() {
-			d10.db.db("track").updateDoc({success: function() {console.log("alive doc updated");},error:function(err,all) {console.log(err,all, "error");}},"tracking","ping",request.ctx.user._id.replace(/^us/,"pi"));
+			d10.db.db("track").updateDoc({success: function() {console.log("alive doc updated");},error:function(err,all) {d10.log("debug",err,all, "error");}},"tracking","ping",request.ctx.user._id.replace(/^us/,"pi"));
 		};
 
 		var parsePlayerInfos = function() {
@@ -383,10 +350,10 @@ exports.api = function(app) {
 		};
 		
 		bodyDecoder()(request, response,function() {
-			console.log(request.body,"after decode");
+			d10.log("debug",request.body,"after decode");
 			updateAliveDoc();
 			parsePlayerInfos();
-			successResp( [], request.ctx );
+			d10.rest.success( [], request.ctx );
 		});
 	
 	});
@@ -442,7 +409,7 @@ exports.api = function(app) {
 			request.body = querystring.parse(body);
 			var count = parseInt(request.body.count);
 			if ( isNaN(count) || count < 1 ){
-				return errResp(427,"count",request.ctx);
+				return d10.rest.err(427,"count",request.ctx);
 			}
 			var db = d10.db.db("d10");
 			var name = getArray(request.body["name[]"]);
@@ -457,7 +424,7 @@ exports.api = function(app) {
 					success: function(response) {
 						var random = getRandomIds(response,count,not,really_not);
 						if ( !random.length ) {
-							return successResp({songs: []},request.ctx);
+							return d10.rest.success({songs: []},request.ctx);
 						}
 						
 						db.keys(random).include_docs(true).getAllDocs(
@@ -465,17 +432,17 @@ exports.api = function(app) {
 								success: function(resp) {
 									var back = [];
 									resp.rows.forEach(function(v) { back.push(v.doc); });
-									successResp({songs: back},request.ctx);
+									d10.rest.success({songs: back},request.ctx);
 								},
 								error: function(resp) {
-									errResp(423,err,request.ctx);
+									d10.rest.err(423,err,request.ctx);
 								}
 							}
 						);
 						
 					},
 					error: function(err) {
-						errResp(423,err,request.ctx);
+						d10.rest.err(423,err,request.ctx);
 					}
 				},
 				"genre",
@@ -492,14 +459,14 @@ exports.api = function(app) {
 				success: function(doc) {
 					doc.volume = volume;
 					d10.db.db("d10").storeDoc({
-							success: function() { successResp([],request.ctx); },
-							error: function(b,err)	{ errResp(423,err,request.ctx);}
+							success: function() { d10.rest.success([],request.ctx); },
+							error: function(b,err)	{ d10.rest.err(423,err,request.ctx);}
 						},
 						doc
 					);
 				},
 				error: function(doc,err) {
-					errResp(423,err,request.ctx);
+					d10.rest.err(423,err,request.ctx);
 				}
 			},
 			"up"+request.ctx.user._id.substr(2)
@@ -524,15 +491,15 @@ exports.api = function(app) {
 						star = "likes";
 					}
 					d10.db.db("d10").storeDoc({
-						success: function() {successResp({id: "aa"+request.params.id, star: star },request.ctx);},
+						success: function() {d10.rest.success({id: "aa"+request.params.id, star: star },request.ctx);},
 						error: function(e,err) {
-							errResp(423,err,request.ctx);
+							d10.rest.err(423,err,request.ctx);
 						}
 					},
 					doc);
 				},
 				error: function(e,err) {
-					errResp(423,err,request.ctx);
+					d10.rest.err(423,err,request.ctx);
 				}
 			},
 			"up"+request.ctx.user._id.substr(2)
@@ -540,7 +507,7 @@ exports.api = function(app) {
 		};
 		d10.db.db("d10").getDoc({
 			success: starring,
-			error: function(f,err) { errResp(427,err,request.ctx); }
+			error: function(f,err) { d10.rest.err(427,err,request.ctx); }
 		},
 		"aa"+request.params.id
 						 );
@@ -562,15 +529,15 @@ exports.api = function(app) {
 						star = "dislikes";
 					}
 					d10.db.db("d10").storeDoc({
-						success: function() {successResp({id: "aa"+request.params.id, star: star },request.ctx);},
+						success: function() {d10.rest.success({id: "aa"+request.params.id, star: star },request.ctx);},
 						error: function(e,err) {
-							errResp(423,err,request.ctx);
+							d10.rest.err(423,err,request.ctx);
 						}
 					},
 					doc);
 				},
 				error: function(e,err) {
-					errResp(423,err,request.ctx);
+					d10.rest.err(423,err,request.ctx);
 				}
 			},
 			"up"+request.ctx.user._id.substr(2)
@@ -578,7 +545,7 @@ exports.api = function(app) {
 		};
 		d10.db.db("d10").getDoc({
 			success: starring,
-			error: function(f,err) { errResp(427,err,request.ctx); }
+			error: function(f,err) { d10.rest.err(427,err,request.ctx); }
 		},
 		"aa"+request.params.id
 						 );
@@ -638,10 +605,10 @@ exports.api = function(app) {
 				request.ctx.headers["Content-Type"] = "application/json";
 				response.writeHead(200,request.ctx.headers);
 				response.end( JSON.stringify(results) );
-// 				successResp(results,request.ctx);
+// 				d10.rest.success(results,request.ctx);
 			},
 			error: function(e,err) {
-				errResp(423,err,request.ctx);
+				d10.rest.err(423,err,request.ctx);
 			}
 		},
 		"song",
@@ -699,7 +666,7 @@ exports.api = function(app) {
 																					);
 				};
 			}
-// 				console.log(jobs);
+// 				d10.log("debug",jobs);
 			d10.when(
 				jobs,
 				function(resp) {
@@ -708,7 +675,7 @@ exports.api = function(app) {
 					response.end(JSON.stringify(resp));
 				},
 				function(err) {
-					errResp(427,err,request.ctx);
+					d10.rest.err(427,err,request.ctx);
 				}
 			);
 		});

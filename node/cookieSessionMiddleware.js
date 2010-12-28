@@ -11,7 +11,7 @@ var checkAuth = function (ctx,passTheCoochie) {
 			var parts = cookie.split('=');
 			cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
 		});
-// 		console.log(ctx.request.url,1);
+// 		d10.log("debug",ctx.request.url,1);
 		if ( cookies[d10.config.cookieName] ) {
 			// 			console.log("found my cookie");
 			var cookieData;
@@ -24,24 +24,24 @@ var checkAuth = function (ctx,passTheCoochie) {
 				return passTheCoochie(); 
 				
 			};
-// 			console.log(ctx.request.url,2);
+// 			d10.log("debug",ctx.request.url,2);
 			// 			console.log("cookie data : ",cookieData);
 			if ( cookieData && cookieData.user && cookieData.session ) {
 				// 				console.log("cookie got user and session");
-// 				console.log(ctx.request.url,3);
+// 				d10.log("debug",ctx.request.url,3);
 				d10.db.loginInfos(
 					cookieData.user, 
 					function(response) {
-						console.log(ctx.request.url,4);
-						// 						console.log(response);
+						d10.log("debug",ctx.request.url,4);
+						// 						d10.log("debug",response);
 						response.rows.forEach(function(v,k) {
-// 							console.log(ctx.request.url,v.doc._id);
+// 							d10.log("debug",ctx.request.url,v.doc._id);
 							if ( v.doc._id == "se"+cookieData.session ) {
 								// 								ctx.session = v.doc;
 								// 								console.log("found user session");	
 								d10.fillUserCtx(ctx,response,v.doc);
-								console.log(ctx.request.url+": "+ctx.user.login," is now logged");
-								// 								console.log(ctx);
+								d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged");
+								// 								d10.log("debug",ctx);
 								return false;
 							}
 						});

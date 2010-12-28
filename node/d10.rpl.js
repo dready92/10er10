@@ -3,11 +3,8 @@ var d10 = require ("./d10");
 exports.playlistAndSongs = function(id, then) {
 	
 	var getSongs = function(playlist) {
-// 			if ( !playlist.songs ) {
-// 				playlist.songs = [];
-// 			}
-		console.log("playlist songs :",typeof playlist.songs);
-		console.log(playlist.songs);
+// 		console.log("playlist songs :",typeof playlist.songs);
+// 		d10.log("debug",playlist.songs);
 		if ( !playlist.songs || !playlist.songs.length ) {
 			return then(null,playlist);
 		}
@@ -167,7 +164,7 @@ exports.create = function(login, name, songs, then) {
 			
 		},
 		function(resp) {
-			return errResp(423,resp,request.ctx);
+			return d10.rest.err(423,resp,request.ctx);
 		}
 	);
 };
@@ -216,7 +213,7 @@ exports.rename = function(login,playlist, name, then) {
 			
 		},
 		function(resp) {
-			return errResp(423,resp,request.ctx);
+			return d10.rest.err(423,resp,request.ctx);
 		}
 	);
 };

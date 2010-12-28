@@ -4,8 +4,6 @@ var cache = {
 	current: 0
 };
 
-console.log("loading serverStats");
-
 exports.total = function(v) {
 	if ( v )	cache.total++;
 	else		return cache.total;

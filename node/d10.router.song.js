@@ -6,40 +6,6 @@ var d10 = require ("./d10"),
 	spawn = require('child_process').spawn,
 	exec = require('child_process').exec;
 
-var successResp = function(data,ctx) {
-	var back = {
-		status: "success",
-		data: data
-	};
-	ctx.response.writeHead(200, ctx.headers );
-	ctx.response.end (
-		JSON.stringify(back)
-	);
-};
-
-var errResp = function(code, data,ctx) {
-	if ( !ctx ) {
-		ctx = data;
-		data = null;
-	}
-	var back = {
-		status: "error",
-		data: {
-			code: code,
-			message: d10.http.statusMessage(code)
-		}
-	};
-	if (data) {
-		back.data.infos = data;
-	}
-	ctx.response.writeHead(200, ctx.headers );
-	ctx.response.end (
-		JSON.stringify(back)
-	);
-};
-
-
-
 
 exports.api = function(app) {
 	app.get("/html/my/review", function(request,response) {
@@ -63,7 +29,7 @@ exports.api = function(app) {
 				error: function(err) {
 					response.writeHead(423, d10.http.statusMessage(423), request.ctx.headers );
 					response.end();
-// 					errResp(423,err,request.ctx);
+// 					d10.rest.err(423,err,request.ctx);
 				}
 			},
 			"user","song"
@@ -104,7 +70,7 @@ exports.api = function(app) {
 		});
 		request.on("end",function() {
 			if ( !body.length ) {
-				return errResp(427,"no parameters sent",request.ctx);
+				return d10.rest.err(427,"no parameters sent",request.ctx);
 			}
 			request.body = querystring.parse(body);
 			var fields = {};
@@ -165,11 +131,11 @@ exports.api = function(app) {
 							{
 								success: function(resp) {
 									console.log("storeDoc success");
-									successResp("recorded",request.ctx);
+									d10.rest.success("recorded",request.ctx);
 								},
 								error: function(foo,err) {
 									console.log("storeDoc error");
-									errResp(err.statusCode, err.statusMessage, request.ctx);
+									d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
 								}
 							},
 							doc
@@ -178,7 +144,7 @@ exports.api = function(app) {
 					},
 					error: function(foo,err) {
 						console.log("getDoc error");
-						errResp(err.statusCode, err.statusMessage, request.ctx);
+						d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
 					}
 				}
 				, request.params.id
@@ -195,16 +161,16 @@ exports.api = function(app) {
 	app.put("/api/song", function(request,response) {
 		if ( !request.query.filename || !request.query.filename.length 
 			|| !request.query.filesize || !request.query.filesize.length ) {
-			return errResp(427,"filename and filesize arguments required",request.ctx);
+			return d10.rest.err(427,"filename and filesize arguments required",request.ctx);
 		}
 		
 		var safeErrResp = function(code,data,ctx) {
 			console.log("sending errorResponse ",code);
-			console.log(data);
+			d10.log("debug",data);
 			if ( errResponse ) return ;
 			errResponse = {code: code, data: data};
-			if ( job.requestEnd ) {errResp(code,data,ctx);}
-			else	{ request.on("end",function() {errResp(code,data,ctx);}); };
+			if ( job.requestEnd ) {d10.rest.err(code,data,ctx);}
+			else	{ request.on("end",function() {d10.rest.err(code,data,ctx);}); };
 		};
 		
 		var bytesCheck = function() {
@@ -317,9 +283,9 @@ exports.api = function(app) {
 								}
 // 								job.oggLength = len;
 // 								console.log("oggLength : ");
-// // 								console.log(job.oggLength);
+// // 								d10.log("debug",job.oggLength);
 							}
-// 							if ( err ) { console.log("oggLength is in error",d10.config.audio.tmpdir+"/"+file);console.log(err);console.log(len);}
+// 							if ( err ) { console.log("oggLength is in error",d10.config.audio.tmpdir+"/"+file);d10.log("debug",err);d10.log("debug",len);}
 							then(err,len);
 						});
 					}
@@ -353,7 +319,7 @@ exports.api = function(app) {
 							{
 								success: function(resp) {
 									console.log("sha1Check couch response ");
-									console.log(resp);
+									d10.log("debug",resp);
 									if (!resp.rows || resp.rows.length) {
 										then(433);
 									} else {
@@ -375,9 +341,9 @@ exports.api = function(app) {
 					status: null,
 					run: function(then) {
 // 						console.log("cleanup tags");
-// 						console.log(this.tasks.fileMeta.response);
+// 						d10.log("debug",this.tasks.fileMeta.response);
 						var tags = JSON.parse(JSON.stringify(this.tasks.fileMeta.response));
-// 						console.log(tags);
+// 						d10.log("debug",tags);
 						if ( tags.genre ) {
 							var value = "";
 							d10.config.genres.forEach(function(v,k) {
@@ -395,7 +361,7 @@ exports.api = function(app) {
 						['ALBUM','TRACKNUMBER','ARTIST','TITLE','GENRE','DATE'].forEach(function(v,k) {
 							if ( !tags[v] ) { tags[v] = null; }
 						});
-						console.log(tags);
+						d10.log("debug",tags);
 						then(null,tags);
 					}
 				},
@@ -484,7 +450,7 @@ exports.api = function(app) {
 							{
 								success: function(resp) {
 									console.log("doc storage: ");
-									console.log(resp);
+									d10.log("debug",resp);
 									doc._rev = resp.rev;
 									then(null,doc);
 								},
@@ -597,8 +563,8 @@ exports.api = function(app) {
 
 		job.complete("fileMeta",function(err,data) {
 			console.log("fileMeta : ");
-			console.log(err);
-			console.log(data);
+			d10.log("debug",err);
+			d10.log("debug",data);
 		});
 		
 		
@@ -627,8 +593,8 @@ exports.api = function(app) {
 		
 		job.complete("createDocument",function(err,resp) {
 			console.log("db document recorded");
-			console.log(resp);
-			successResp(resp,request.ctx);
+			d10.log("debug",resp);
+			d10.rest.success(resp,request.ctx);
 		});
 		
 		
@@ -689,7 +655,7 @@ exports.api = function(app) {
 					console.log("GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG, and "+errs.length+" errors");
 // 					job.complete("moveFile",function(err,stat) {
 // 						console.log("moveFile finidhed");
-// 						console.log(err);
+// 						d10.log("debug",err);
 // 					});
 // 					job.run("moveFile");
 					
@@ -703,7 +669,7 @@ exports.api = function(app) {
 			; 
 		request.on("error",function(){
 			console.log("request ERROR !");
-			console.log(arguments);
+			d10.log("debug",arguments);
 		});
 		
 		request.on("end",function() {
@@ -730,9 +696,9 @@ exports.api = function(app) {
 				job.fileWriter.open();
 
 				job.fileWriter.on("end", function() {
-// 					console.log(job.fileWriter.bytesWritten(),"total bytes written");
+// 					d10.log("debug",job.fileWriter.bytesWritten(),"total bytes written");
 					if ( parseInt(request.query.filesize) != job.fileWriter.bytesWritten() ) {
-						return errResp(421, request.query.filesize+" != "+n,request.ctx);
+						return d10.rest.err(421, request.query.filesize+" != "+n,request.ctx);
 					}
 					job.bufferJoin = 20;
 					
@@ -742,7 +708,7 @@ exports.api = function(app) {
 						if ( job.tasks.fileType.response != "audio/mpeg" && job.tasks.fileType.response != "application/ogg"  ) {
 							//send headers bc we can't tell the file type
 // 							console.log("ERROR: no headers");
-// 							return errResp(420, job.tasks.fileType.response, request.ctx);
+// 							return d10.rest.err(420, job.tasks.fileType.response, request.ctx);
 							return ;
 						}
 					}
@@ -817,7 +783,7 @@ exports.api = function(app) {
 								if ( err ) { console.log("oggLength : error : ",err); }
 								else		{ 
 									console.log("oggLength : output");
-									console.log(res);
+									d10.log("debug",res);
 								}
 							});
 // 							oggLength(oggready);
@@ -830,7 +796,7 @@ exports.api = function(app) {
 										if ( err ) { console.log("oggLength : error : ",err); }
 										else		{ 
 											console.log("oggLength : output");
-											console.log(res);
+											d10.log("debug",res);
 										}
 									}
 									);

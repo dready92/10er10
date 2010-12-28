@@ -12,23 +12,23 @@ var 	bodyDecoder = require("connect/middleware/bodyDecoder"),
 exports.homepage = function(app) {
 	
 	var displayHomepage = function(request,response,next) {
-// 		console.log(request);
-// 		console.log(request.ctx);
+// 		d10.log("debug",request);
+// 		d10.log("debug",request.ctx);
 		if ( request.ctx.session && "_id" in request.ctx.session ) {
 			console.log("LOGGED");
 		} else {
 			console.log("NOT LOGGED");
 		}
 // 		console.log("writing headers");
-// 		console.log(request.ctx.headers);
+// 		d10.log("debug",request.ctx.headers);
 // 		var h = {};
 // 		for (var i in request.ctx.headers ) {
 // 		}
-// 		console.log(response.writeHead);
+// 		d10.log("debug",response.writeHead);
 		response.writeHead(200, request.ctx.headers );
-// 		console.log(request.ctx);
+// 		d10.log("debug",request.ctx);
 		if ( request.ctx.session && "_id" in request.ctx.session ) {
-			// 		console.log(request.headers);
+			// 		d10.log("debug",request.headers);
 			var debug = request.query && request.query.debug ? true : false ;
 			var vars = {scripts: config.javascript.includes, dbg: debug ? "true":"false", base_url: request.basepath };
 			if ( request.query.o && request.query.o.indexOf("a") >= 0 ) {
@@ -140,7 +140,7 @@ exports.homepage = function(app) {
 		
 		// login try
 		bodyDecoder()(request, response,function() {
-// 			console.log(request.body,"after decode");
+// 			d10.log("debug",request.body,"after decode");
 			if ( request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length ) {
 				// get uid with login
 				console.log("got a username & password : try to find uid with username");

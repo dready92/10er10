@@ -305,15 +305,15 @@ if ( process ) {
 
 		// Send the data
 		try {
-			console.log(type,":",url,": sending data",s.body);
+// 			d10.log("debug",type,":",url,": sending data",s.body);
 			var b = null;
 			if ( process && Buffer ) {
 				if ( s.body ) s.body = new Buffer(s.body,"utf8"); 
 			}
 			xhr.send( s.body ? s.body : null );
 		} catch(e) {
- 			console.log(e);
-// 			console.log(s.body, s.data);
+//  			d10.log("debug",e);
+// 			d10.log("debug",s.body, s.data);
 			response.statusCode = 499;
 			response.statusMessage = "Unable to send the request";
 			if ( s.response )	s.response.call(s,response);
@@ -460,7 +460,7 @@ if ( process ) {
 					}
 				}
 				var settings = $.extend(baseSettings,this.options,opts);
-// 				console.log(method,url,settings);
+// 				d10.log("debug",method,url,settings);
 				queryAndTest(method,url,settings);
 				return true;
 			},
@@ -562,7 +562,7 @@ if ( process ) {
 			getAllDocs: function(opts) {
 				var url = this.getDatabaseUri()+"/_all_docs";
 				var q = prepareViewQuery(this);
-// 				console.log(q);
+// 				d10.log("debug",q);
 				var settings = $.extend(
 					{
 						successCodes: function(c) {return ( c == 200 || c == 201 ) ;}, 
@@ -640,7 +640,7 @@ if ( process ) {
 			},
 			keys: function(v) {
 // 				console.log("setting keys");
-// 				console.log(typeof v);
+// 				d10.log("debug",typeof v);
 				if ( Object.prototype.toString.call(v) === '[object Array]' ) {
 // 					console.log("really setting keys");
 					this.queryParameters.keys = v;

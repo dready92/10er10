@@ -1,5 +1,4 @@
 var bodyDecoder = require("connect/middleware/bodyDecoder"),
-	sendemail = require("mailer"),
 	spawn = require('child_process').spawn,
 	d10 = require("./d10");
 
@@ -24,46 +23,6 @@ exports.api = function(app) {
 		}
 	});
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	var successResp = function(data,ctx) {
-		var back = {
-			status: "success",
-			data: data
-		};
-		ctx.response.writeHead(200, ctx.headers );
-		ctx.response.end (
-			JSON.stringify(back)
-		);
-	};
-	
-	var errResp = function(code, data,ctx) {
-		if ( !ctx ) {
-			ctx = data;
-			data = null;
-		}
-		var back = {
-			status: "error",
-			data: {
-				code: code,
-				message: d10.http.statusMessage(code)
-			}
-		};
-		if (data) {
-			back.data.infos = data;
-		}
-		ctx.response.writeHead(200, ctx.headers );
-		ctx.response.end (
-			JSON.stringify(back)
-		);
-	};
-	
 	var isValidEmailAddress = function (emailAddress) {
 		return /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/.test(emailAddress);
 	};
@@ -77,17 +36,17 @@ exports.api = function(app) {
 			url: d10.mustache.to_html(d10.config.invites.url,{id: invite._id.replace(/^in/,"")})
 		});
 // 		body = mime.encodeQuotedPrintable(body);
-		console.log(body);
+		d10.log("debug",body);
 		var email = spawn("php",["-q","../email/send.php","-s",d10.config.invites.subject,"-f",d10.config.emailSender,"-t",email,"-n",d10.config.emailSenderLabel]);
 		email.on("exit",function(code) {
 			if ( code )	then(code);
 			else		then(null,null);
 		});
 		email.stdout.on("data",function(d) {
-			console.log(d);
+			d10.log("debug",d);
 		});
 		email.stderr.on("data",function(d) {
-			console.log(d.toString("utf8")	);
+			d10.log("debug",d.toString("utf8")	);
 		});
 		email.stdin.end(body);
 	};
@@ -95,15 +54,15 @@ exports.api = function(app) {
 	app.post("/api/sendInvite",function(request,response) {
 		//should have email...?
 		bodyDecoder()(request, response,function() {
-						console.log(request.body,"after decode");
+						d10.log("debug",request.body,"after decode");
 			if ( !request.ctx.user.invites ) {
-				return errResp(431,{invites: request.ctx.user.invites}, request.ctx);
+				return d10.rest.err(431,{invites: request.ctx.user.invites}, request.ctx);
 			}
 			if ( !request.body || !request.body.email || !request.body.email.length ) {
-				return errResp(427,"missing parameter: email", request.ctx);
+				return d10.rest.err(427,"missing parameter: email", request.ctx);
 			}
 			if ( !isValidEmailAddress(request.body.email) ) {
-				return errResp(434,{}, request.ctx);
+				return d10.rest.err(434,{}, request.ctx);
 			}
 			
 			//create invite
@@ -117,15 +76,15 @@ exports.api = function(app) {
 				success: function() {
 					sendInviteMail(request.body.email,invite,function(err,resp) {
 						if ( err ) {
-							return errResp(435,err,request.ctx);
+							return d10.rest.err(435,err,request.ctx);
 						}
 						request.ctx.user.invites--;
 						d10.db.db("auth").storeDoc({},request.ctx.user);
-						return successResp([],request.ctx);
+						return d10.rest.success([],request.ctx);
 					});
 				},
 				error: function(body,err) {
-					return errResp(423,err,request.ctx);
+					return d10.rest.err(423,err,request.ctx);
 				}
 			},
 			invite);

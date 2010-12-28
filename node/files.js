@@ -1,6 +1,7 @@
 var fs = require('fs'),
 	events = require("events"),
-	spawn = require("child_process").spawn;
+	spawn = require("child_process").spawn,
+	d10 = require("./d10");
 
 var streamWriter = exports.streamWriter = function(cmd, args) {
 	events.EventEmitter.call(this);
@@ -18,7 +19,7 @@ var streamWriter = exports.streamWriter = function(cmd, args) {
 	this.open = function() {
 		pipe = spawn(cmd,args);
 		pipe.stdout.on("data",function(chunk) { that.emit("stdout",chunk);});
-		pipe.stderr.on("data",function(chunk) { that.emit("stderr",chunk);console.log("emit stderr",chunk);});
+		pipe.stderr.on("data",function(chunk) { that.emit("stderr",chunk);d10.log("emit stderr",chunk);});
 		
 		pipe.on("exit",function(code) {exitcode = code;});
 		fireInterval();
@@ -62,7 +63,7 @@ var streamWriter = exports.streamWriter = function(cmd, args) {
 // 				buf = [];
 // 				inWrite = true;
 // 				var b = buf.shift();
-				console.log(cmd,"writing to pipe");
+				d10.log("debug",cmd,"writing to pipe");
 				free = pipe.stdin.write(b);
 				if ( !free ) {
 					(function(bc) {

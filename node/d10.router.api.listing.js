@@ -3,39 +3,6 @@ var d10 = require ("./d10"),
 	querystring = require("querystring"),
 	exec = require('child_process').exec;
 
-var successResp = function(data,ctx) {
-	var back = {
-		status: "success",
-		data: data
-	};
-	ctx.response.writeHead(200, ctx.headers );
-	ctx.response.end (
-		JSON.stringify(back)
-	);
-};
-
-var errResp = function(code, data,ctx) {
-	if ( !ctx ) {
-		ctx = data;
-		data = null;
-	}
-	var back = {
-		status: "error",
-		data: {
-			code: code,
-			message: d10.http.statusMessage(code)
-		}
-	};
-	if (data) {
-		back.data.infos = data;
-	}
-	ctx.response.writeHead(200, ctx.headers );
-	ctx.response.end (
-		JSON.stringify(back)
-	);
-};
-
-
 exports.api = function(app) {
 
 	app.get("/api/pagination/:sort", function(request,response) {
@@ -63,7 +30,7 @@ exports.api = function(app) {
 			},
 			genre: function() {
 				if ( !request.query.genre || d10.config.genres.indexOf(request.query.genre) < 0 ) {
-					return errResp(428, request.query.genre, request.ctx);
+					return d10.rest.err(428, request.query.genre, request.ctx);
 				}
 				db.reduce(false).startkey([request.query.genre]).endkey([request.query.genre,[]]);
 			},
@@ -82,7 +49,7 @@ exports.api = function(app) {
 		};
 		
 		if ( sortTypes.indexOf(request.params.sort) < 0 ){
-			return errResp(427, request.params.sort, request.ctx);
+			return d10.rest.err(427, request.params.sort, request.ctx);
 		}
 		if ( preHooks[request.params.sort] && preHooks[request.params.sort].call ) {
 			preHooks[request.params.sort].call(this);
@@ -94,10 +61,10 @@ exports.api = function(app) {
 			{
 				data: {rpp: d10.config.rpp},
 				success: function(resp) {
-					successResp(resp.pages,request.ctx);
+					d10.rest.success(resp.pages,request.ctx);
 				},
 				error: function(resp) {
-					return errResp(423, request.params.sort, request.ctx);
+					return d10.rest.err(423, request.params.sort, request.ctx);
 				}
 			},
 			"pagination",
@@ -112,7 +79,7 @@ exports.api = function(app) {
 
 	app.get("/api/ts_creation",function(request,response) {
 		var db = d10.db.db("d10").include_docs(true).reduce(false).descending(true).limit(d10.config.rpp);
-// 		console.log(request.query);
+// 		d10.log("debug",request.query);
 		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
 			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
 			db.startkey_docid( request.query.startkey_docid ).startkey( request.query["startkey[]"] );
@@ -121,10 +88,10 @@ exports.api = function(app) {
 		db.getView(
 			{
 				success: function(resp) {
-					successResp(resp,request.ctx);
+					d10.rest.success(resp,request.ctx);
 				},
 				error: function(resp) {
-					return errResp(423, request.params.sort, request.ctx);
+					return d10.rest.err(423, request.params.sort, request.ctx);
 				}
 			},
 			"ts_creation",
@@ -135,7 +102,7 @@ exports.api = function(app) {
 
 	app.get("/api/hits",function(request,response) {
 		var db = d10.db.db("d10").include_docs(true).reduce(false).descending(true).limit(d10.config.rpp);
-// 		console.log(request.query);
+// 		d10.log("debug",request.query);
 		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
 			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
 			db.startkey_docid( request.query.startkey_docid ).startkey( request.query["startkey[]"] );
@@ -144,10 +111,10 @@ exports.api = function(app) {
 		db.getView(
 			{
 				success: function(resp) {
-					successResp(resp,request.ctx);
+					d10.rest.success(resp,request.ctx);
 				},
 				error: function(resp) {
-					return errResp(423, request.params.sort, request.ctx);
+					return d10.rest.err(423, request.params.sort, request.ctx);
 				}
 			},
 			"hits",
@@ -158,9 +125,9 @@ exports.api = function(app) {
 	
 	app.get("/api/titles/titles",function(request,response) {
 		var db = d10.db.db("d10").include_docs(true).reduce(false).limit(d10.config.rpp);
-// 		console.log(request.query);
+// 		d10.log("debug",request.query);
 		if ( request.query.title && request.query.title.length ) {
-// 			console.log(request.url,"setting endkey");
+// 			d10.log("debug",request.url,"setting endkey");
 			db.endkey([request.query.title,[]]);
 		}
 		
@@ -172,10 +139,10 @@ exports.api = function(app) {
 		db.getView(
 			{
 				success: function(resp) {
-					successResp(resp,request.ctx);
+					d10.rest.success(resp,request.ctx);
 				},
 				error: function(resp) {
-					return errResp(423, request.params.sort, request.ctx);
+					return d10.rest.err(423, request.params.sort, request.ctx);
 				}
 			},
 			"title",
@@ -186,9 +153,9 @@ exports.api = function(app) {
 	
 	app.get("/api/artists/artists",function(request,response) {
 		var db = d10.db.db("d10").include_docs(true).reduce(false).limit(d10.config.rpp);
-// 		console.log(request.query);
+// 		d10.log("debug",request.query);
 		if ( request.query.artist && request.query.artist.length ) {
-// 			console.log(request.url,"setting endkey");
+// 			d10.log("debug",request.url,"setting endkey");
 			db.endkey([request.query.artist,[]]);
 		}
 		
@@ -200,10 +167,10 @@ exports.api = function(app) {
 		db.getView(
 			{
 				success: function(resp) {
-					successResp(resp,request.ctx);
+					d10.rest.success(resp,request.ctx);
 				},
 				error: function(resp) {
-					return errResp(423, request.params.sort, request.ctx);
+					return d10.rest.err(423, request.params.sort, request.ctx);
 				}
 			},
 			"artist",
@@ -226,10 +193,10 @@ exports.api = function(app) {
 		db.getView(
 			{
 				success: function(resp) {
-					successResp(resp,request.ctx);
+					d10.rest.success(resp,request.ctx);
 				},
 				error: function(resp) {
-					return errResp(423, resp, request.ctx);
+					return d10.rest.err(423, resp, request.ctx);
 				}
 			},
 			"album",
@@ -249,10 +216,10 @@ exports.api = function(app) {
 		db.getView(
 			{
 				success: function(resp) {
-					successResp(resp,request.ctx);
+					d10.rest.success(resp,request.ctx);
 				},
 				error: function(resp) {
-					return errResp(423, resp, request.ctx);
+					return d10.rest.err(423, resp, request.ctx);
 				}
 			},
 			"s_user",
@@ -273,10 +240,10 @@ exports.api = function(app) {
 		db.getView(
 			{
 				success: function(resp) {
-					successResp(resp,request.ctx);
+					d10.rest.success(resp,request.ctx);
 				},
 				error: function(resp) {
-					return errResp(423, resp, request.ctx);
+					return d10.rest.err(423, resp, request.ctx);
 				}
 			},
 			"s_user_likes",
@@ -311,7 +278,7 @@ return $this->response( json_success($back) );
 	
 	app.get("/api/genres/genres",function(request,response) {
 		if ( !request.query.genre || d10.config.genres.indexOf(request.query.genre) < 0 ) {
-			return errResp(428, request.query.genre, request.ctx);
+			return d10.rest.err(428, request.query.genre, request.ctx);
 		}
 		var db = d10.db.db("d10").include_docs(true).reduce(false).limit(d10.config.rpp);
 		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
@@ -321,10 +288,10 @@ return $this->response( json_success($back) );
 		db.getView(
 			{
 				success: function(resp) {
-					successResp(resp,request.ctx);
+					d10.rest.success(resp,request.ctx);
 				},
 				error: function(resp) {
-					return errResp(423, resp, request.ctx);
+					return d10.rest.err(423, resp, request.ctx);
 				}
 			},
 			"genre",
@@ -343,17 +310,17 @@ return $this->response( json_success($back) );
 		db.getList(
 			{
 				success: function(resp) {
-// 					console.log(request.url, "success ! ");
-// 					console.log(resp);
+// 					d10.log("debug",request.url, "success ! ");
+// 					d10.log("debug",resp);
 					response.writeHead(200, request.ctx.headers );
 					response.end (
 						JSON.stringify(resp.titles)
 					);
-// 					successResp(resp.titles,request.ctx);
+// 					d10.rest.success(resp.titles,request.ctx);
 				},
 				error: function(a,b) {
 // 					console.log("error ! ",a,b);
-// 					console.log(a);
+// 					d10.log("debug",a);
 					response.writeHead(200, request.ctx.headers );
 					response.end (
 						"[]"
@@ -372,21 +339,21 @@ return $this->response( json_success($back) );
 			var q = d10.ucwords(request.query.start);
 			db.startkey([q]).endkey([d10.nextWord(q)]);
 		}
-// 		console.log(request.url,"sending list request");
+// 		d10.log("debug",request.url,"sending list request");
 		db.getList(
 			{
 				success: function(resp) {
-// 					console.log(request.url, "success ! ");
-// 					console.log(resp);
+// 					d10.log("debug",request.url, "success ! ");
+// 					d10.log("debug",resp);
 					response.writeHead(200, request.ctx.headers );
 					response.end (
 						JSON.stringify(resp.artists)
 					);
-// 					successResp(resp.titles,request.ctx);
+// 					d10.rest.success(resp.titles,request.ctx);
 				},
 				error: function(a,b) {
 // 					console.log("error ! ",a,b);
-// 					console.log(a);
+// 					d10.log("debug",a);
 					response.writeHead(200, request.ctx.headers );
 					response.end (
 						"[]"
@@ -409,7 +376,7 @@ return $this->response( json_success($back) );
 		db.getList(
 			{
 				success: function(resp) {
-// 					console.log(resp);
+// 					d10.log("debug",resp);
 					response.writeHead(200, request.ctx.headers );
 					response.end (
 						JSON.stringify(resp.albums)
@@ -433,10 +400,10 @@ return $this->response( json_success($back) );
 		.getView(
 			{
 				success: function(resp) {
-					successResp(resp,request.ctx);
+					d10.rest.success(resp,request.ctx);
 				},
 				error: function (resp) {
-					errResp(423, resp, request.ctx);
+					d10.rest.err(423, resp, request.ctx);
 				}
 			},
 			"artist",
@@ -448,10 +415,10 @@ return $this->response( json_success($back) );
 		.getView(
 			{
 				success: function(resp) {
-					successResp(resp.rows,request.ctx);
+					d10.rest.success(resp.rows,request.ctx);
 				},
 				error: function (resp) {
-					errResp(423, resp, request.ctx);
+					d10.rest.err(423, resp, request.ctx);
 				}
 			},
 			"genre",

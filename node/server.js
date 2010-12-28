@@ -24,7 +24,7 @@ function staticAudio (app) {
 
 // var test2 = function (req,res,next) { console.log("here 2 !");next(); };
 
-var server = connect.createServer( 
+var d10Server = connect.createServer( 
 	connect.logger(), 
 	require("./contextMiddleware").context,
 	connect.router(staticRoutes), 
@@ -36,13 +36,22 @@ var server = connect.createServer(
 	connect.router(listingApi.api),
 	connect.router(songStuff.api),
 	connect.router(invites.api)
-).listen(8124);
+);
 
-server.on("error",function() {
+connect.createServer(
+	// 10er10 vhosts
+	connect.vhost("10er10.com",d10Server),
+	connect.vhost("www.10er10.com",d10Server),
+	//defaultServer
+	d10Server
+		)
+.listen(8124);
+
+d10Server.on("error",function() {
 	console.log("SERVER ERROR");
 	console.log(arguments);
 });
-server.on("clientError",function() {
+d10Server.on("clientError",function() {
 	console.log("CLIENT ERROR");
 	console.log(arguments);
 });

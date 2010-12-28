@@ -64,6 +64,11 @@ var	httpStatusCodes = {
 	505: "HTTP Version Not Supported"
 };
 
+
+exports.log = function() {
+	console.log.apply(console,arguments);
+};
+
 exports.uid = function() {
 // 	return ((0x100000000 * Math.random()).toString(32) + "" + (0x100000000 * Math.random()).toString(32));
 	return ((0x100000000 * Math.random()).toString(32) + "" + (0x100000000 * Math.random()).toString(32)).replace(/\./g,"")
@@ -91,7 +96,6 @@ exports.view = function(n,d,p,cb) {
 	}
 	fs.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
 		if (err) throw err;
-				// 		console.log(data);
 		data = exports.mustache.to_html(data,d,p);
 		if ( cb )	cb.call(data,data);
 	});
@@ -127,7 +131,6 @@ exports.when = function(elems, success, failure) {
 	var errors = {};
 	
 	var checkEOT = function() {
-		console.log( "when", exports.count(responses) , exports.count(errors) );
 		if ( exports.count(responses) + exports.count(errors) == exports.count(elems) ) {
 			if ( exports.count(errors) ) {
 				failure.call(this,errors, responses);
@@ -166,11 +169,10 @@ exports.fillUserCtx = function (ctx,response,session) {
 	ctx.session = session;
 	response.rows.forEach(function(v,k) {
 		if ( v.doc._id.indexOf("se") === 0 && v.doc._id != session._id ) {
-			console.log("deleting session ",v.doc._id);
+			exports.log("debug","deleting session ",v.doc._id);
 			exports.db.db("auth").deleteDoc(
 					{
-						success: function(r) { console.log("session "+r.id+" deleted"); }
-						// 						error: function(data,response) {console.log("error deleting session : ");console.log(response);}
+						success: function(r) { exports.log("debug","session "+r.id+" deleted"); }
 			}
 			,v.doc);
 		} else if ( v.doc._id.indexOf("us") === 0 ) {
@@ -187,10 +189,10 @@ exports.fileType = function(file,cb) {
 		config.cmds.file+" "+config.cmds.file_options+" "+file,
 		function(error,stdout, stderr) {
 			if ( error !== null ) {
-				console.log("fileType error while checking ",file);
+				exports.log("debug","fileType error while checking ",file);
 				cb(error);
 			} else {
-				console.log("fileType : ",stdout);
+				exports.log("debug","fileType : ",stdout);
 				cb(null,stdout.replace(/\s/g,""));
 			}
 // 			if ( cb ) { cb(error); }
@@ -199,7 +201,6 @@ exports.fileType = function(file,cb) {
 };
 
 exports.oggLength = function(file,cb) {
-// 	console.log("launching oggLength");
 	var ogginfo = exec(config.cmds.ogginfo+" "+file,function(err,stdout,stderr) {
 		if ( stdout.length ) {
 			var back = stdout.match(/Playback length: ([0-9]+)m:([0-9]+)/);
@@ -222,7 +223,6 @@ exports.id3tags = function(file, cb) {
 		}
 		var tagnames = ['ALBUM','TRACK','ARTIST','TITLE','GENRE','YEAR'],
 			tags = {};
-// 		console.log("TAGS bruts: ",stdout);
 		stdout.split("\n").forEach(function(v,k) {
 			var tag = v.split("=",2);
 			if ( tagnames.indexOf(tag[0]) >=0 ) {
@@ -234,8 +234,7 @@ exports.id3tags = function(file, cb) {
 				}
 			}
 		});
-// 		console.log("TAGS tableau :");
-		console.log(tags);
+		exports.log("debug",tags);
 		cb(null,tags);
 	});
 };
@@ -247,17 +246,16 @@ exports.oggtags = function(file, cb) {
 		}
 // 		var tagnames = ['ALBUM','TRACK','ARTIST','TITLE','GENRE','YEAR'],
 		var tags = {};
-		console.log("TAGS bruts: ",stdout);
+		exports.log("debug","TAGS bruts: ",stdout);
 		stdout.split("\n").forEach(function(v,k) {
-			console.log("ligne ",v);
+// 			exports.log("debug","ligne ",v);
 			var tag = v.split("=",2);
-			console.log(tag);
+// 			exports.log("debug",tag);
 			if ( tag.length > 1 ) {
 				tags[tag[0]] = tag[1].replace(/^\s+/,"").replace(/\s+$/,"").replace(/"/g,"");
 			}
 		});
-		console.log("TAGS tableau :");
-		console.log(tags);
+		exports.log("debug",tags);
 		cb(null,tags);
 	});
 };
@@ -330,4 +328,35 @@ exports.sanitizeTag = array ( name, value) {
 
 
 */
-
+exports.rest = {
+	err: function(code, data,ctx) {
+		if ( !ctx ) {
+			ctx = data;
+			data = null;
+		}
+		var back = {
+			status: "error",
+			data: {
+				code: code,
+				message: exports.http.statusMessage(code)
+			}
+		};
+		if (data) {
+			back.data.infos = data;
+		}
+		ctx.response.writeHead(200, ctx.headers );
+		ctx.response.end (
+			JSON.stringify(back)
+		);
+	},
+	success: function(data,ctx) {
+		var back = {
+			status: "success",
+			data: data
+		};
+		ctx.response.writeHead(200, ctx.headers );
+		ctx.response.end (
+			JSON.stringify(back)
+		);
+	}
+};
