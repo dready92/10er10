@@ -148,7 +148,17 @@ exports.when = function(elems, success, failure) {
 			});
 		})(elems[k],k);
 	}
-	
+	return {
+		active: function() {  return (elems.length - responses.length - errors.length ); },
+		total: function() { return elems.length},
+		complete: function() { return (responses.length + errors.length); },
+		completeNames: function() {
+			var back = [];
+			for ( var index in responses ) { back.push(index); }
+			for ( var index in errors ) { back.push(index); }
+			return back;
+		}
+	};
 };
 
 

@@ -483,6 +483,237 @@ exports.api = function(app) {
 			   );
 		});
 	});
+	
+	app.post("/api/volume",function(request,response) {
+		bodyDecoder()(request, response,function() {
+			var volume = (request.body && "volume" in request.body) ? parseFloat(request.body.volume) : 0;
+			if ( isNaN(volume) )	volume=0;
+			d10.db.db("d10").getDoc({
+				success: function(doc) {
+					doc.volume = volume;
+					d10.db.db("d10").storeDoc({
+							success: function() { successResp([],request.ctx); },
+							error: function(b,err)	{ errResp(423,err,request.ctx);}
+						},
+						doc
+					);
+				},
+				error: function(doc,err) {
+					errResp(423,err,request.ctx);
+				}
+			},
+			"up"+request.ctx.user._id.substr(2)
+							 );
+		});
+	});
+	
+	
+	app.put("/api/starring/likes/aa:id",function(request,response) {
+		var starring = function() {
+			d10.db.db("d10").getDoc({
+				success: function(doc) {
+					var star = null;
+					if ( doc.dislikes["aa"+request.params.id] ) {
+						delete doc.dislikes["aa"+request.params.id];
+					}
+					if ( doc.likes["aa"+request.params.id] ) {
+						delete doc.likes["aa"+request.params.id];
+
+					} else {
+						doc.likes["aa"+request.params.id] = true;
+						star = "likes";
+					}
+					d10.db.db("d10").storeDoc({
+						success: function() {successResp({id: "aa"+request.params.id, star: star },request.ctx);},
+						error: function(e,err) {
+							errResp(423,err,request.ctx);
+						}
+					},
+					doc);
+				},
+				error: function(e,err) {
+					errResp(423,err,request.ctx);
+				}
+			},
+			"up"+request.ctx.user._id.substr(2)
+							 );
+		};
+		d10.db.db("d10").getDoc({
+			success: starring,
+			error: function(f,err) { errResp(427,err,request.ctx); }
+		},
+		"aa"+request.params.id
+						 );
+	});
+	
+	app.put("/api/starring/dislikes/aa:id",function(request,response) {
+		var starring = function() {
+			d10.db.db("d10").getDoc({
+				success: function(doc) {
+					var star = null;
+					if ( doc.likes["aa"+request.params.id] ) {
+						delete doc.likes["aa"+request.params.id];
+					}
+					if ( doc.dislikes["aa"+request.params.id] ) {
+						delete doc.dislikes["aa"+request.params.id];
+
+					} else {
+						doc.dislikes["aa"+request.params.id] = true;
+						star = "dislikes";
+					}
+					d10.db.db("d10").storeDoc({
+						success: function() {successResp({id: "aa"+request.params.id, star: star },request.ctx);},
+						error: function(e,err) {
+							errResp(423,err,request.ctx);
+						}
+					},
+					doc);
+				},
+				error: function(e,err) {
+					errResp(423,err,request.ctx);
+				}
+			},
+			"up"+request.ctx.user._id.substr(2)
+							 );
+		};
+		d10.db.db("d10").getDoc({
+			success: starring,
+			error: function(f,err) { errResp(427,err,request.ctx); }
+		},
+		"aa"+request.params.id
+						 );
+	});
+	
+	
+	
+	
+	app.get("/api/search2",function(request,response) {
+		var db = d10.db.db("d10");
+		if ( request.query.start ) {
+			var start = d10.ucwords( request.query.start.replace(/^\s+/,"").replace(/\s+$/,"") );
+			var end = start;
+			var next = String.fromCharCode( end.charCodeAt( end.length-1 ) + 1 );
+			end = end.substr(0, end.length - 1) + next;
+// 			console.log("startkey",start,"endkey",end,"next",next);
+			db.startkey(start).endkey(end).inclusive_end(false);
+		}
+		db.include_docs(true).getView({
+			success: function(resp) {
+				var results = {title: [], artist: [], album: []};
+				resp.rows.forEach(function(v,k) {
+					var doc = v.doc;
+					var field = v.value.json.field;
+					if ( field == "album" || field == "artist" ) {
+						var put = false;
+						for (i=0,len=results[field].length; i<len; i++ ) {
+							if ( results[field][i].doc[field] ==  doc[field] ) {
+								put = true;
+								break;
+							} else if ( results[field][i].doc[field] > doc[field] ) {
+								put = true;
+								results[field].splice(i,0,{doc: doc, value: v.value});
+								break;
+							}
+						}
+						if ( !put ) {
+							results[field].push( {doc: doc, value: v.value} );
+						}
+					} else {
+						var put = false;
+						for (i=0,len=results[field].length; i<len; i++ ) {
+							if ( results[field][i].doc[field]+" "+results[field][i].doc._id == doc[field]+" "+ doc._id ) {
+								put = true;
+								break;
+							} else if ( results[field][i].doc[field]+" "+results[field][i].doc._id > doc[field]+" "+ doc._id ) {
+								put = true;
+								results[field].splice(i,0,{doc: doc, value: v.value});
+								break;
+							}
+						}
+						if ( !put ) {
+							results[field].push({doc: doc, value: v.value});
+						}
+					}
+				});
+				request.ctx.headers["Content-Type"] = "application/json";
+				response.writeHead(200,request.ctx.headers);
+				response.end( JSON.stringify(results) );
+// 				successResp(results,request.ctx);
+			},
+			error: function(e,err) {
+				errResp(423,err,request.ctx);
+			}
+		},
+		"song",
+		"search"
+							  );
+	});
+	
+	app.post("/api/details",function(request,response) {
+		bodyDecoder()(request, response,function() {
+			console.log("body decoded");
+			var artists = [], albums = [], jobs = {};
+			if ( request.body["artists[]"] ) {
+				if ( Object.prototype.toString.call(request.body["artists[]"]) === '[object Array]' ) {
+					artists = request.body["artists[]"];
+				} else if ( request.body["artists[]"].length ) {
+					artists = [ request.body["artists[]"] ];
+				}
+			}
+			if ( request.body["albums[]"] ) {
+				if ( Object.prototype.toString.call(request.body["albums[]"]) === '[object Array]' ) {
+					albums = request.body["albums[]"];
+				} else if ( request.body["albums[]"].length ) {
+					albums = [ request.body["albums[]"] ];
+				}
+			}
+			if ( artists.length ) {
+				jobs.artists=function(cb) {
+					d10.db.db("d10").reduce(false).include_docs(true).keys(artists).getView(
+						{
+							success: function(resp) {
+								cb(null,resp.rows);
+							},
+							error: function(e,err) {
+								cb(err);
+							}
+						},
+						"artist",
+						"artist"
+																					);
+				};
+			}
+			if ( albums.length ) {
+				jobs.albums=function(cb) {
+					d10.db.db("d10").reduce(false).include_docs(true).keys(albums).getView(
+						{
+							success: function(resp) {
+								cb(null,resp.rows);
+							},
+							error: function(e,err) {
+								cb(err);
+							}
+						},
+						"album",
+						"album"
+																					);
+				};
+			}
+// 				console.log(jobs);
+			d10.when(
+				jobs,
+				function(resp) {
+					request.ctx.headers["Content-Type"] = "application/json";
+					response.writeHead(200,request.ctx.headers);
+					response.end(JSON.stringify(resp));
+				},
+				function(err) {
+					errResp(427,err,request.ctx);
+				}
+			);
+		});
+	});
+	
 }; // exports.api
 
 
