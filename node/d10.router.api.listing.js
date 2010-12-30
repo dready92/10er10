@@ -385,6 +385,28 @@ return $this->response( json_success($back) );
 		   );
 	});
 	
+	app.get("/api/genre",function(request,response) {
+		if ( request.query.start && request.query.start.length ) { 
+			var resp = [], reg = new RegExp( request.query.start, "i" );
+			d10.config.genres.forEach(function(genre,k) {
+				if ( genre.search( reg ) === 0 ) {
+					resp.push(genre);
+				}
+			});
+			response.writeHead(200, request.ctx.headers );
+			response.end (
+				JSON.stringify( resp )
+			);
+
+		} else {
+			response.writeHead(200, request.ctx.headers );
+			response.end (
+				JSON.stringify( d10.config.genres )
+			);
+		}
+	});
+	
+	
 	app.get("/api/artistsListing",function(request,response) {
 		d10.db.db("d10").group(true).group_level(1)
 		.getView(

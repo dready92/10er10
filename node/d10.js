@@ -90,6 +90,8 @@ exports.http.statusMessage = function(code) {
 };
 
 exports.view = function(n,d,p,cb) {
+	console.log("view");
+	console.log(d,p);
 	if ( !cb && p ) {
 		cb = p;
 		p = null;
@@ -204,6 +206,10 @@ exports.oggLength = function(file,cb) {
 	var ogginfo = exec(config.cmds.ogginfo+" "+file,function(err,stdout,stderr) {
 		if ( stdout.length ) {
 			var back = stdout.match(/Playback length: ([0-9]+)m:([0-9]+)/);
+			if ( !back ) {
+				cb("no match");
+				return ;
+			}
 			if ( back.length > 2 ) {
 				return cb(null,back);
 			}

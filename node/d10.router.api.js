@@ -3,12 +3,12 @@
 var d10 = require ("./d10"),
 	bodyDecoder = require("connect/middleware/bodyDecoder"),
 	querystring = require("querystring"),
+	fs = require("fs"),
 	exec = require('child_process').exec;
 
 exports.api = function(app) {
 
 	var checkSession = function(request,response,next) {
-// 		d10.log("debug",request.ctx);
 		if ( !request.ctx.session || !request.ctx.user || !request.ctx.user._id ) {
 			response.writeHead(404,{"Content-Type":"text/plain"});
 			response.end("Page not found");
@@ -55,7 +55,6 @@ exports.api = function(app) {
 				d10.rest.success(responses,request.ctx);
 			},
 			function(errors,responses) {
-				d10.log("debug","errors");
 				d10.log("debug",errors);
 				d10.rest.err(423,null,request.ctx);
 			}
@@ -64,8 +63,9 @@ exports.api = function(app) {
 	app.get("/api/htmlElements", function(request,response) {
 		request.ctx.headers["Content-type"] = "application/json";
 		response.writeHead(200, request.ctx.headers );
-		d10.view("startTemplates",null,function(html) {
-			response.end(html);
+		fs.readFile(d10.config.templates.node+"startTemplates.html","utf-8", function (err, data) {
+			if (err) throw err;
+			response.end(data);
 		});
 	});
 
@@ -96,8 +96,6 @@ exports.api = function(app) {
 				if (error !== null) {
 					request.ctx.headers["Content-Type"]="text/plain";
 					d10.rest.err(423,"Internal server error",request.ctx);
-// 					response.writeHead(501,{"Content-Type":"text/plain"});
-// 					response.end();
 					return ;
 				}
 				var up = stdout.replace(/\s+$/,"").split(": ").pop().split(", ");
@@ -109,7 +107,7 @@ exports.api = function(app) {
 	});
 	
 	app.get("/api/current_playlist",function(request,response) {
-		d10.log("debug","router:","/api/current_playlist");
+// 		d10.log("debug","router:","/api/current_playlist");
 		var getFromPlaylist = function(id) {
 			d10.db.db("d10").getDoc({
 					success: function(playlist) {
@@ -159,9 +157,13 @@ exports.api = function(app) {
 		
 		d10.db.db("d10").getDoc({
 			success: function(doc) {
+// 				d10.log("debug","playlist doc is : ");
+// 				d10.log( doc);
 				if ( doc && doc.c_playlist ) {
+// 					d10.log("getting playlist from plm");
 					getFromPlaylist(doc.c_playlist);
 				} else if ( doc.c_playlist_ids ){
+// 					d10.log("getting playlist from ids");
 					getFromIds(doc.c_playlist_ids);
 				} else {
 					d10.rest.success( [], request.ctx );
@@ -206,9 +208,14 @@ exports.api = function(app) {
 		request.on("end",function() {
 			var data = querystring.parse(body),
 			recordAnonymousPlaylist = function (d10UserPrefs) {
-				d10.log("debug","in recordAnonymousPlaylist");
+// 				d10.log("debug","in recordAnonymousPlaylist");
 				delete d10UserPrefs.c_playlist;
-				d10UserPrefs.c_playlist_ids = data["ids[]"];
+				if ( Object.prototype.toString.call(data["ids[]"]) === '[object Array]' ) {
+					d10UserPrefs.c_playlist_ids = data["ids[]"];
+				} else {
+					d10UserPrefs.c_playlist_ids = [ data["ids[]"] ];
+				}
+// 				d10UserPrefs.c_playlist_ids = data["ids[]"];
 				d10.log("debug","calling storeDoc, ", data["ids[]"].length,d10UserPrefs.c_playlist_ids.length );
 				d10.db.db("d10").storeDoc(
 					{
@@ -223,7 +230,7 @@ exports.api = function(app) {
 				);
 			},
 			recordRplPlaylist = function(d10UserPrefs) {
-				d10.log("debug","playlist : recordRplPlaylist");
+// 				d10.log("debug","playlist : recordRplPlaylist");
 				d10.db.db("d10").getDoc(
 					{
 						success: function() {
@@ -250,9 +257,7 @@ exports.api = function(app) {
 				);
 			}
 			;
-			d10.log("debug",data);
-			// { "ids[]":["aasdf","aasdfsf"] }
-// 			request.ctx.headers["Content-Type"] = "application/json";
+// 			d10.log("debug",data);
 			
 			d10.db.db("d10").getDoc(
 				{
@@ -273,8 +278,6 @@ exports.api = function(app) {
 				
 				request.ctx.user._id.replace(/^us/,"up")
 			);
-			
-// 			d10.rest.success( {}, request.ctx );
 		});
 	}
 	);

@@ -47,6 +47,7 @@ exports.javascript = {
 		"jquery.csstransform.js",
 		"jquery.ovlay.js",
 		"jquery.includes.js",
+		"mustache.js",
 		"dnd.js",
 		"utils.js",
 		"track.js",

@@ -6,7 +6,8 @@ var	connect = require("connect"),
 	plmApi = require("./d10.router.api.plm"),
 	listingApi = require("./d10.router.api.listing"),
 	songStuff = require("./d10.router.song"),
-	invites = require("./d10.router.invites")
+	invites = require("./d10.router.invites"),
+	download = require("./d10.router.audio.download")
 	;
 
 function staticRoutes(app) {
@@ -23,7 +24,8 @@ var d10Server = connect.createServer(
 	require("./contextMiddleware").context,
 	connect.router(staticRoutes), 
 	cookieSession.cookieSession,
-	connect.router(staticAudio),	
+	connect.router(download.api),
+	connect.router(staticAudio),
 	connect.router(homepage.homepage),
 	connect.router(api.api),
 	connect.router(plmApi.api),

@@ -281,11 +281,8 @@ exports.api = function(app) {
 								if ( len && len.length && len.length > 2 ) {
 									len = 60*parseInt(len[1],10) + parseInt(len[2],10);
 								}
-// 								job.oggLength = len;
-// 								d10.log("debug","oggLength : ");
-// // 								d10.log("debug",job.oggLength);
+								d10.log("oggLength returns : "+len);
 							}
-// 							if ( err ) { d10.log("debug","oggLength is in error",d10.config.audio.tmpdir+"/"+file);d10.log("debug",err);d10.log("debug",len);}
 							then(err,len);
 						});
 					}
@@ -410,15 +407,20 @@ exports.api = function(app) {
 					status: null,
 					run: function(then) {
 						
-						var resp = this.tasks.oggLength.response,						
-							duration = 0;
+						var resp = this.tasks.oggLength.response, duration = 0;
 						if ( 
 							Object.prototype.toString.call(resp) === '[object Array]' &&
 							resp.length > 2 && 
 							!isNaN(parseFloat(resp[1])) && 
 							!isNaN(parseFloat(resp[2])) 
 						) {
+							d10.log("ogglength is an array");
 							duration = parseFloat(resp[1])*60 + parseFloat(resp[2]);
+						} else {
+							d10.log("ogglength is not an array");
+							d10.log(this.tasks.oggLength.response);
+							d10.log(typeof this.tasks.oggLength.response);
+							duration = this.tasks.oggLength.response;
 						}
 						
 						var doc = {
@@ -428,6 +430,7 @@ exports.api = function(app) {
 							user: request.ctx.user._id,
 							reviewed: false,
 							valid: false,
+							ts_creation: new Date().getTime(),
 							hits: 0,
 							duration: duration
 						};
@@ -509,10 +512,8 @@ exports.api = function(app) {
 				}
 			},
 			complete: function(task, cb) {
-				if ( !this.tasks[task] ) {
-					return false;
-				}
-				if ( this.tasks[task] == false ) {
+				if ( !this.tasks[task] ) { return false; }
+				if ( this.tasks[task].status === false ) {
 					cb.call(this,this.tasks[task].err, this.tasks[task].response);
 				}
 				this.bind(task+":complete",cb);
@@ -567,12 +568,20 @@ exports.api = function(app) {
 			d10.log("debug",data);
 		});
 		
-		
-		job.complete("sha1Check",function(err,resp) {
+		job.complete("sha1File",function(err,resp) {
 			if ( err ) {
 				return safeErrResp(433,err,request.ctx);
 			}
-			job.run("moveFile");
+			job.run("sha1Check");
+		});
+		
+		job.complete("sha1Check",function(err,resp) {
+			if ( err ) {
+				safeErrResp(433,err,request.ctx);
+				fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName);
+				job.complete("oggEncode",function() {fs.unlink(d10.config.audio.tmpdir+"/"+job.oggName);});
+				return ;
+			}
 		});
 		job.complete("moveFile",function(err,resp) {
 			d10.log("debug","moveFile finidhed");
@@ -604,13 +613,21 @@ exports.api = function(app) {
 			var steps = ["oggLength","sha1File","fileMeta"],
 				complete = 0,
 				onAllComplete = function() {
+					d10.log("oggLength response ");
+					d10.log(job.tasks.oggLength.response);
 					if ( job.tasks.sha1File.err ) {
-						safeErrResp(503,err,request.ctx);
+						safeErrResp(503,job.tasks.sha1File.err,request.ctx);
 					} else if ( job.tasks.oggLength.err || job.tasks.oggLength.response == 0 ) {
-						safeErrResp(436,err,request.ctx);
+						safeErrResp(436,job.tasks.oggLength.err,request.ctx);
 					} else {
 						d10.log("debug","GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG");
 						
+						job.complete("sha1Check",function(err,resp) {
+							d10.log("debug","sha1check is complete, ket's go recording the song !");
+							if ( !err ){
+								job.run("moveFile");
+							}
+						});
 						job.run("sha1Check");
 					}
 				};
@@ -636,34 +653,6 @@ exports.api = function(app) {
 		});
 			
 			
-			/*
-			
-			var ival = setInterval(function() {
-				var count = 0, errs = [];
-				steps.forEach(function(v) {
-					if ( job.tasks[v].status === null ) {
-						job.run(v);
-					} else if ( job.tasks[v].status === false ) {
-						count++;
-						if (job.tasks[v].err) {
-							errs.push(err);
-						}
-					}
-				});
-				if ( count === steps.length ) {
-					clearInterval(ival);
-					d10.log("debug","GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG, and "+errs.length+" errors");
-// 					job.complete("moveFile",function(err,stat) {
-// 						d10.log("debug","moveFile finidhed");
-// 						d10.log("debug",err);
-// 					});
-// 					job.run("moveFile");
-					
-				}
-			},200);
-		});
-		*/
-		
 		var bytesIval = null,	// bytes checker interval
 			errResponse = null  // the error response to send
 			; 
@@ -682,8 +671,6 @@ exports.api = function(app) {
 				response.end('Nothing sent\n');
 			}
 			if ( bytesIval ) { clearInterval(bytesIval); }
-			
-// 			d10.log("debug","valid length ? ",fileLengthOk);
 		});
 		
 		request.on("data",function(chunk) {
@@ -712,7 +699,7 @@ exports.api = function(app) {
 							return ;
 						}
 					}
-// 					job.run("sha1File");
+					job.run("sha1File");
 					
 					if ( job.tasks.fileType.response == "application/ogg" ) { job.emit("oggAvailable",[]); }
 					d10.log("debug","fileWriter end event");
@@ -727,111 +714,5 @@ exports.api = function(app) {
 	});
 	
 };
-
-
-					/*
-					var complete = ["fileType","sha1File","oggLength"];
-					complete.forEach(function(v,k) {
-						job.run(v);
-					});
-					var completeIval = setInterval(function() {
-						var count=0;
-						complete.forEach(function(v,k) {
-							if ( job.tasks[v].status === false ) {
-								count++;
-							}
-						});
-						if ( count == complete.length ) {
-							d10.log("debug","Got everything to be happy");
-						}
-					},200);
-					*/
-					
-					
-					
-					/*
-					if ( fileType == null ) {
-						d10.fileType(d10.config.audio.tmpdir+"/"+fileName, function(err,type) {
-							if  ( err !== null ) { return ; }
-							fileType = type.replace(/\s/g,"");
-// 							endOfFileWriter();
-							if ( fileType == "audio/mpeg" ) {
-								d10.log("debug","due to filetype checking I launch oggenc");
-								createoggwriter(
-									function(err,res) { d10.log("debug","oggwriter exited"); oggready = d10.config.audio.tmpdir+"/"+id+".ogg"; }
-								);
-							} else {
-								job.lameBuffer.status = false;
-								job.lameBuffer.buffer = [];
-								if ( fileType == "application/ogg" ) {
-									fs.rename(
-										d10.config.audio.tmpdir+"/"+fileName, 
-										d10.config.audio.tmpdir+"/"+id+".ogg",
-										function ( ) {
-											oggready=d10.config.audio.tmpdir+"/"+id+".ogg";
-										}
-									   );
-								} else {
-									errors.push([420, ""]);
-								}
-							}
-						});
-					} else {
-						if ( oggready ) {
-							d10.log("debug","launching oggready");
-							oggLength(oggready,function(err,res) {
-								if ( err ) { d10.log("debug","oggLength : error : ",err); }
-								else		{ 
-									d10.log("debug","oggLength : output");
-									d10.log("debug",res);
-								}
-							});
-// 							oggLength(oggready);
-						}
-						else if ( job.oggWriter ) {
-							var wival = setInterval(function() {
-								if ( oggready ) {
-									d10.log("debug","-- ogg file ready, getting song length");
-									oggLength(oggready,function(err,res) {
-										if ( err ) { d10.log("debug","oggLength : error : ",err); }
-										else		{ 
-											d10.log("debug","oggLength : output");
-											d10.log("debug",res);
-										}
-									}
-									);
-								}
-								clearInterval(wival);
-							},500);
-						}
-// 						endOfFileWriter();
-					}
-					*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
