@@ -86,14 +86,6 @@ exports.api = function(app) {
 			if ( d10.count(errors) ) {
 				request.ctx.headers["Content-Type"] = "application/json";
 				response.writeHead(200,request.ctx.headers);
-				/*
-				 * array (	'status'=>'error',
-						'data'=>array(
-								'code'   =>6,
-								'message'=>$ec[6]
-							),
-							'fields'=> $fields
-			);*/
 				response.end(JSON.stringify(
 					{
 						status: "error",
@@ -149,9 +141,6 @@ exports.api = function(app) {
 				}
 				, request.params.id
 							 );
-			
-// 			artist = request.body.artist ? d10.sanitize.string(request.body.artist) : "";
-			
 		});
 	});
 	
@@ -182,7 +171,6 @@ exports.api = function(app) {
 			}
 		};
 
-		var endOfFileWriter = function() {	};
 		var jobid = "aa"+d10.uid(),job = {
 			id: jobid,
 			fileName: jobid+".mp3",
@@ -683,21 +671,15 @@ exports.api = function(app) {
 				job.fileWriter.open();
 
 				job.fileWriter.on("end", function() {
-// 					d10.log("debug",job.fileWriter.bytesWritten(),"total bytes written");
 					if ( parseInt(request.query.filesize) != job.fileWriter.bytesWritten() ) {
 						return d10.rest.err(421, request.query.filesize+" != "+n,request.ctx);
 					}
 					job.bufferJoin = 20;
 					
-// 					if ( job.tasks.fileType.status === null ) {
-// 						job.run("fileType");
-					if ( job.tasks.fileType.status === false ) {
-						if ( job.tasks.fileType.response != "audio/mpeg" && job.tasks.fileType.response != "application/ogg"  ) {
-							//send headers bc we can't tell the file type
-// 							d10.log("debug","ERROR: no headers");
-// 							return d10.rest.err(420, job.tasks.fileType.response, request.ctx);
+					if ( job.tasks.fileType.status === false &&
+						 job.tasks.fileType.response != "audio/mpeg" && 
+						 job.tasks.fileType.response != "application/ogg"  ) {
 							return ;
-						}
 					}
 					job.run("sha1File");
 					

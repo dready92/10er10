@@ -61,12 +61,36 @@ exports.api = function(app) {
 		);
 	}); // /api/userinfos
 	app.get("/api/htmlElements", function(request,response) {
+		
+		var jobs = {}
+		for ( var jobname in d10.config.templates.clientList ) {
+			jobs[jobname] = (function(tpl,j) {
+								return function(cb) {
+									fs.readFile(d10.config.templates.client+"/"+tpl,"utf8",function(err,data) {
+										cb(err,data);
+									});
+								};
+							})(d10.config.templates.clientList[jobname],jobname);
+		}
+		request.ctx.headers["Content-type"] = "application/json";
+		d10.when(
+			jobs,
+			function(responses) {
+				d10.log("success");
+				d10.rest.success(responses,request.ctx);
+			},
+			function(e,r) {
+				d10.log("error");d10.log(e);
+				d10.rest.err(500,e,request.ctx);
+			}
+		);
+		/*
 		request.ctx.headers["Content-type"] = "application/json";
 		response.writeHead(200, request.ctx.headers );
 		fs.readFile(d10.config.templates.node+"startTemplates.html","utf-8", function (err, data) {
 			if (err) throw err;
 			response.end(data);
-		});
+		});*/
 	});
 
 // 	$back = $this->couch_ci->getView("song","length");
@@ -670,7 +694,6 @@ exports.api = function(app) {
 																					);
 				};
 			}
-// 				d10.log("debug",jobs);
 			d10.when(
 				jobs,
 				function(resp) {

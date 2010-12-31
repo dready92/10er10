@@ -6,7 +6,8 @@ exports.couch = {
 
 // templates path
 exports.templates = {
-	node: "../views/"
+	node: "../views/",
+	client: "/var/www/html/d10/system/application/views"
 };
 
 // cookie name
@@ -240,3 +241,36 @@ exports.genres = [
 'SynthPop',
 'Dub'
 ];
+
+exports.templates.clientList = {
+
+    'my.song_template_trailer': 'html/my/song_template_trailer.php',
+    'my.song_template_review_header': 'html/my/song_template_review_header.php',
+    'my.song_template_review_trailer': 'html/my/song_template_review_trailer.php',
+	'my.plm': 'html/my/plm.php',
+    'my.plm.rpl': 'html/my/plm_rpl.php',
+	'library.content.simple': 'html/library/content_simple.php',
+	'library.content.genre': 'html/library/content_genre.php',
+    'library.content.none':'html/library/content_none.php',
+    'library.control.genre':'html/library/control_genre.php',
+    'library.control.artist':'html/library/control_artist.php',
+    'library.control.album':'html/library/control_album.php',
+    'library.control.title':'html/library/control_title.php',
+    'library.listing.artist':'html/library/listing_artist.php',
+    'library.listing.artist.line':'html/library/listing_artist_line.php',
+    'library.listing.genre':'html/library/listing_genre.php',
+    'library.listing.genre.line':'html/library/listing_genre_line.php',
+    'hoverbox.addsong.container':'html/hoverbox/addsong.container.php',
+    'hoverbox.playlistrow':'html/hoverbox/playlistrow.php',
+    'upload.file.widget':'html/upload/file.widget.php',
+    'loading':'pleaseWait.php',
+    'refresh':'refresh.php',
+	'results.album':'html/results/album.php',
+	'results.artist':'html/results/artist.php',
+
+    // should always be at the end : that what's client JS check
+    'song_template':'html/song_template/song.php'
+};
+
+
+
