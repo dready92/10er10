@@ -34,13 +34,13 @@ var d10Server = connect.createServer(
 	connect.router(invites.api)
 );
 
-connect.createServer(
+var globalSrv = connect.createServer(
 	// 10er10 vhosts
 	connect.vhost("10er10.com",d10Server),
 	connect.vhost("www.10er10.com",d10Server),
 	//defaultServer
 	d10Server
-		)
+)
 .listen(8124);
 
 d10Server.on("error",function() {
@@ -51,3 +51,13 @@ d10Server.on("clientError",function() {
 	console.log("CLIENT ERROR");
 	console.log(arguments);
 });
+
+globalSrv.on("error",function() {
+	console.log("SERVER ERROR");
+	console.log(arguments);
+});
+globalSrv.on("clientError",function() {
+	console.log("CLIENT ERROR");
+	console.log(arguments);
+});
+

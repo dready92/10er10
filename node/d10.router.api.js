@@ -23,7 +23,7 @@ exports.api = function(app) {
 	app.post("/api/*",checkSession);
 	app.put("/api/*",checkSession);
 	app.delete("/api/*",checkSession);
-	
+
 	app.get("/api/userinfos", function(request,response) {
 		d10.when ( 
 			{

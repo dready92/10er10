@@ -58,7 +58,7 @@ exports.api = function(app) {
 	});
 	
 	app.put("/api/meta/:id",function(request,response,next) {
-		d10.log("debug","Taking");
+// 		d10.log("debug","Taking");
 		if ( request.params.id.substr(0,2) != "aa" ) {
 			return next();
 		}
@@ -98,7 +98,7 @@ exports.api = function(app) {
 								  ));
 				return ;
 			}
-			d10.log("debug","And here too");
+// 			d10.log("debug","And here too");
 			if ( request.body.album ) {
 				fields.album = d10.sanitize.string(request.body.album);
 			}
@@ -115,7 +115,7 @@ exports.api = function(app) {
 			d10.db.db("d10").getDoc(
 				{
 					success: function(doc) {
-						d10.log("debug","getDoc success");
+// 						d10.log("debug","getDoc success");
 						for ( var i in fields ) {
 							doc[i] = fields[i];
 						}
@@ -225,7 +225,7 @@ exports.api = function(app) {
 							var writeOk = job.lameWriter.stdin.write(buffer);
 							if ( writeOk ) { writeBuffer(); } 
 							else {
-								d10.log("debug",".");
+// 								d10.log("debug",".");
 								job.lameWriter.stdin.once("drain",function() {writeBuffer();});
 							}
 						};
@@ -269,7 +269,7 @@ exports.api = function(app) {
 								if ( len && len.length && len.length > 2 ) {
 									len = 60*parseInt(len[1],10) + parseInt(len[2],10);
 								}
-								d10.log("oggLength returns : "+len);
+// 								d10.log("oggLength returns : "+len);
 							}
 							then(err,len);
 						});
@@ -303,8 +303,8 @@ exports.api = function(app) {
 						d10.db.db("d10").key( this.tasks.sha1File.response ).getView(
 							{
 								success: function(resp) {
-									d10.log("debug","sha1Check couch response ");
-									d10.log("debug",resp);
+// 									d10.log("debug","sha1Check couch response ");
+// 									d10.log("debug",resp);
 									if (!resp.rows || resp.rows.length) {
 										then(433);
 									} else {
@@ -346,7 +346,7 @@ exports.api = function(app) {
 						['ALBUM','TRACKNUMBER','ARTIST','TITLE','GENRE','DATE'].forEach(function(v,k) {
 							if ( !tags[v] ) { tags[v] = null; }
 						});
-						d10.log("debug",tags);
+// 						d10.log("debug",tags);
 						then(null,tags);
 					}
 				},
@@ -402,12 +402,12 @@ exports.api = function(app) {
 							!isNaN(parseFloat(resp[1])) && 
 							!isNaN(parseFloat(resp[2])) 
 						) {
-							d10.log("ogglength is an array");
+// 							d10.log("ogglength is an array");
 							duration = parseFloat(resp[1])*60 + parseFloat(resp[2]);
 						} else {
-							d10.log("ogglength is not an array");
-							d10.log(this.tasks.oggLength.response);
-							d10.log(typeof this.tasks.oggLength.response);
+// 							d10.log("ogglength is not an array");
+// 							d10.log(this.tasks.oggLength.response);
+// 							d10.log(typeof this.tasks.oggLength.response);
 							duration = this.tasks.oggLength.response;
 						}
 						
@@ -440,8 +440,8 @@ exports.api = function(app) {
 						d10.db.db("d10").storeDoc(
 							{
 								success: function(resp) {
-									d10.log("debug","doc storage: ");
-									d10.log("debug",resp);
+// 									d10.log("debug","doc storage: ");
+// 									d10.log("debug",resp);
 									doc._rev = resp.rev;
 									then(null,doc);
 								},
@@ -457,7 +457,7 @@ exports.api = function(app) {
 			},
 			queue: [],
 			run: function(taskName) {
-				d10.log("debug","JOB: run "+taskName);
+// 				d10.log("debug","JOB: run "+taskName);
 				if ( this.tasks[taskName] && this.tasks[taskName].status === null &&  this.queue.indexOf(taskName) < 0 ) {
 					this.queue.push(taskName);
 					this.tasks[taskName].run.call(this, function(err,resp) { job.endOfTask.call(job,taskName,err,resp); });
@@ -522,7 +522,7 @@ exports.api = function(app) {
 				}
 			}
 		};
-		d10.log("debug","filename : ",job.fileName,"ogg name : ",job.oggName);
+// 		d10.log("debug","filename : ",job.fileName,"ogg name : ",job.oggName);
 		job.complete("oggEncode",function(err,resp) {
 			if ( err ) {
 				d10.log("debug","SEVERE: error on oggEncode task",err);
@@ -551,9 +551,9 @@ exports.api = function(app) {
 		});
 
 		job.complete("fileMeta",function(err,data) {
-			d10.log("debug","fileMeta : ");
-			d10.log("debug",err);
-			d10.log("debug",data);
+// 			d10./*log*/("debug","fileMeta : ");
+// 			d10.log("debug",err);
+// 			d10.log("debug",data);
 		});
 		
 		job.complete("sha1File",function(err,resp) {
@@ -572,7 +572,7 @@ exports.api = function(app) {
 			}
 		});
 		job.complete("moveFile",function(err,resp) {
-			d10.log("debug","moveFile finidhed");
+// 			d10.log("debug","moveFile finished");
 			if ( err ) {
 				return safeErrResp(432,err,request.ctx);
 			}
@@ -590,7 +590,7 @@ exports.api = function(app) {
 		
 		job.complete("createDocument",function(err,resp) {
 			d10.log("debug","db document recorded");
-			d10.log("debug",resp);
+// 			d10.log("debug",resp);
 			d10.rest.success(resp,request.ctx);
 		});
 		
@@ -601,8 +601,8 @@ exports.api = function(app) {
 			var steps = ["oggLength","sha1File","fileMeta"],
 				complete = 0,
 				onAllComplete = function() {
-					d10.log("oggLength response ");
-					d10.log(job.tasks.oggLength.response);
+// 					d10.log("oggLength response ");
+// 					d10.log(job.tasks.oggLength.response);
 					if ( job.tasks.sha1File.err ) {
 						safeErrResp(503,job.tasks.sha1File.err,request.ctx);
 					} else if ( job.tasks.oggLength.err || job.tasks.oggLength.response == 0 ) {
@@ -649,6 +649,29 @@ exports.api = function(app) {
 			d10.log("debug",arguments);
 		});
 		
+		request.connection.on("error",function(){
+			d10.log("debug","request connection ERROR !");
+			d10.log("debug",arguments);
+		});
+		
+		
+		request.connection.on("close",function(err){
+			d10.log("debug","request connection CLOSE !");
+			d10.log("debug",arguments);
+			d10.log("debug","requestEnd",job.requestEnd);
+			if ( job.requestEnd === false ) {
+				// client connection failed to send us the complete data
+				if ( job.lameWriter ) {
+					job.lameWriter.kill();
+				}
+				if ( job.oggWriter ) {
+					job.oggWriter.kill();
+				}
+				fs.unlink(d10.config.audio.tmpdir+"/"+job.oggName);
+				fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName);
+			}
+		});
+		
 		request.on("end",function() {
 			job.requestEnd = true;
 			d10.log("debug","got request end");
@@ -689,7 +712,6 @@ exports.api = function(app) {
 			}
 
 			if ( job.lameBuffer.status ) { job.lameBuffer.buffer.push(chunk); }
-			
 			job.fileWriter.write(chunk);
 		});
 
