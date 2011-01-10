@@ -1,0 +1,1 @@
+<span class="artistName link">{{artist}}</span>, 

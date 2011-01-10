@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Invitation</title>
+<style type="text/css">
+* {margin: 0; padding: 0; font-size: 14px;}
+body { background-color: #232323; color: #454545;}
+#container { width: 800px; margin:0 auto; padding: 20px 0; background-color: #FFFFFF; }
+table { width: 750px ; margin: 0 auto; background-color: #FFFFFF; padding: 15px 5px; border: 1px solid #ADC1D6;}
+table tr.success { background-color: #EEFFEE; }
+table td { vertical-align: middle;}
+table td.odd { text-align: right; padding: 0 10px 0 0; width: 33%; vertical-align: top;}
+span.info { font-size: 12px; color: #666;}
+span.errorMessage { color: #FF4444;}
+span.red { color: #FF0000; }
+span.big { font-size: 1.1em; font-weight: bold; }
+
+div.accountCreated { padding: 10px; }
+
+p { margin: 5px 10px;}
+p.center { text-align: center;}
+p.bigmargin { margin-top: 30px; }
+p.border { border: 1px solid #ADC1D6; }
+h1 { font-size: 1.4em; color: #7297BA ; text-align: center; margin: 30px 0 15px 0;}
+h2 { margin: 10px 10px; font-size: 1.2em; color: #454545; }
+
+a.intern {
+	color: #7297BA;
+/* 	background-color: #CFD6DE; */
+	border: 1px solid #CFD6DE;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	padding: 4px 6px;
+	text-decoration: none;
+}
+
+a.intern:hover {
+	background-color: #EEE;
+}
+
+input[type=text], input[type=password] {
+	border: 1px solid #343434;
+}
+
+</style>
+<!--<script src="<?=base_url()?>jquery.js"></script>-->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+<script src="{{site_url}}static/sammy.js"></script>
+</head>
+<body>
+<div id="container">
+	<div id="step1">
+<h1>Qu'est ce qui se passe ?</h1>
+<p>
+Vous avez été invité à participer au projet Deezer10. Deezer10 est une plateforme web qui vous permet de mettre vos morceaux de musique sur le serveur, puis de les écouter, directement depuis votre navigateur.
+</p>
+<p>
+<h1>Les différences entre Deezer10 et les autres plateformes web</h1>
+<h2>La communauté</h2>
+<p>
+Sur Deezer10, chaque morceau de musique que vous mettez en ligne est immédiatement accessible aux autres utilisateurs. C'est vous qui faites la qualité du contenu du site.
+<BR>
+Une fois que vous avez déposé un morceau sur le serveur, vous devez le valider. Cela consiste seulement à vérifier que les informations du morceau (titre, artiste, genre...) sont correctes. 
+Plus les informations sur les morceaux sont correctes, et plus le catalogue Deezer10 est pertinent. 
+</p>
+<h2>La technologie</h2>
+<p>
+Deezer10 utilise les nouvelles technologies <a href="http://fr.wikipedia.org/wiki/HTML5" target="_new">HTML5</a> disponibles sur les navigateurs <a href="http://www.mozilla-europe.org/fr/firefox/" target="_new">Firefox</a> et <a href="http://www.google.com/chrome" target="_new">Google Chrome</a>.
+Le drag'n'drop, la lecture de fichiers audio sans besoin de plugins, et plus encore : tout ceci est implémenté dans Deezer10.
+</p>
+<h2>L'anonymat</h2>
+<p>
+Deezer10 ne conserve pas votre adresse email, n'enregistre pas vos adresses IP dans les logs du serveur web.
+</p>
+<h1>Quel rapport avec Deezer ?</h1>
+<p>
+Aucun.
+</p>
+<p class="center bigmargin">
+		<a class="intern" href="#/step2">Super, la suite</a>
+</p>
+	</div>
+	<div id="step2" style="display: none">
+<h1>Rappelez vous de votre nom d'utilisateur et de votre mot de passe</h1>
+<p>
+Deezer10 ne retient pas votre adresse email : nous n'avons donc aucun moyen de vous renvoyer votre compte ou votre mot de passe si vous l'avez perdu.
+</p>
+<p class="center">
+<span class="big red">Alors ne perdez pas votre nom d'utilisateur et votre mot de passe !</span>
+</p>
+<p>
+ Envoyez le vous par email, notez le sur un bout de papier sous votre clavier, tatouez le vous sur l'avant-bras, gardez-le en lieu sûr.
+</p>
+<p class="center bigmargin">
+		<a class="intern"  href="#/step3">J'ai bien compris, passons aux choses sérieuses</a>
+</p>
+	</div>
+	<div id="step3" style="display: none">
+<h1>Création de votre compte</h1>
+
+
+		<form method="POST" action="#/createAccount">
+			<p>
+				<p>
+				A vous de jouer.
+				</p>
+				<p class="bigmargin">
+				<table border="0" cellspacing="0">
+					<tr class="login">
+						<td class="odd"><span class="label">Nom d'utilisateur:</span></td>
+						<td class="even"><input type="text" name="login" autocomplete="off" size="30"> <img src="{{site_url}}static/roll.gif" style="display: none"> <br>
+							<span class="info">Le nom d'utilisateur doit comporter au minimum 4 caractères, et ne doit pas comporter les caractères : &lt; &gt; &quot; ' / \ .</span>
+						</td>
+					</tr>
+					<tr class="loginError">
+						<td class="odd">&nbsp;</td>
+						<td class="even"><span class="errorMessage"></span></td>
+					</tr>
+					<tr class="password">
+						<td class="odd"><span class="label">Mot de passe:</span></td>
+						<td class="even"><input type="password" name="password" autocomplete="off" size="30"> <img src="{{site_url}}static/roll.gif" style="display: none"> <br>
+							<span class="info">Le mot de passe doit comporter au minimum 8 caractères dont au moins 4 caractères distincts. Il ne doit pas être identique au nom d'utilisateur.</span>
+						</td>
+					</tr>
+					<tr class="passwordError">
+						<td class="odd">&nbsp;</td>
+						<td class="even"><span class="errorMessage"></span></td>
+					</tr>
+					<tr class="submit">
+						<td class="odd">&nbsp;</td>
+						<td class="even"><input type="submit" value="Créer mon compte" disabled="true"></td>
+					</tr>
+				</table>
+				</p>
+			</p>
+			<p class="center bigmargin">
+				<a class="intern" href="#/step1">Escuse, j'ai pas très bien compris kessketa dit avant ...</a>
+			</p>
+		</form>
+
+		<div class="accountCreated" style="display:none">
+<p class="center">
+Votre compte est créé. Vous pouvez dès maintenant aller sur <a href="http://10er10.com/">http://10er10.com/</a> pour profiter de l'application. Bonne écoute !
+</p>
+		</div>
+	</div>
+</div>
+
+
+
+<script>
+var base_url = "{{site_url}}";
+var code = "{{code}}";
+$(document).ready(function() {
+	var app = $.sammy(function() {
+		this.element_selector = '#container';
+		this.get("#/step1",function(context) {
+			context.$element().children().hide();
+			$("#step1").show();
+		});
+		this.get("#/step2",function(context) {
+			context.$element().children().hide();
+			$("#step2").show();
+		});
+		this.get("#/step3",function(context) {
+			context.$element().children().hide();
+			$("#step3").show();
+		});
+		this.post("#/createAccount",function(context) {
+// 			console.log(context);
+			context.params.code = code;
+			$("form input[type=submit]").attr("disabled","true").html("Création du compte...");
+			$.ajax({
+				type: "post",
+				url: base_url+"code/createAccount",
+				data: context.params.toHash(),
+				success: function () {
+					$("form").hide();
+					$("div.accountCreated").show();
+				},
+				error: function (xhr) {
+					formCheckError(xhr.status);
+					$("form input[type=submit]").removeAttr("disabled").html("Créer mon compte");
+				}
+			});
+		});
+	});
+	app.run();
+
+	function formCheckError (err) {
+		if ( err == 430 ) {
+			$("tr.loginError span.errorMessage").html("Ce nom d'utilisateur est déjà pris.");
+		} else if ( err == 431 ) {
+			$("tr.loginError span.errorMessage").html("Ce nom d'utilisateur ne contient pas assez de caractères.");
+		} else if ( err == 432 ) {
+			$("tr.loginError span.errorMessage").html("Ce nom d'utilisateur contient un ou des caractères invalides.");
+		} else if ( err == 440 ) {
+			$("tr.passwordError span.errorMessage").html("Ce mot de passe ne contient pas assez de caractères.");
+		} else if ( err == 441 ) {
+			$("tr.passwordError span.errorMessage").html("Ce mot de passe ne contient pas assez de caractères différents.");
+		}
+	}
+
+	function checkLogin() {
+		var node = $("input[name=login]");
+		if ( node.val().length < 4 ) { loginTimeout = null; return ; };
+		node.closest("tr").removeClass("success").find("img").show();;
+// 		node.
+		$.ajax({
+			type: "post",
+			url: base_url+"code/checkLogin",
+			data: { code: code, login: node.val() },
+			success: function() { 
+// 				console.log("success"); 
+				$("tr.loginError span.errorMessage").empty(); 
+				node.closest("tr").addClass("success");
+			},
+			error: function (xhr) {
+				// xhr.status
+				formCheckError(xhr.status);
+			},
+			complete: function() { 
+				loginTimeout = null; 
+// 				console.log("complete");
+				node.next("img").hide(); 
+			}
+		});
+	}
+	var loginTimeout = null;
+	$("input[name=login]").keyup(function() {
+		var node = $(this);
+		if ( loginTimeout ) {
+			clearTimeout(loginTimeout);
+		}
+		loginTimeout = setTimeout(checkLogin,1000);
+	});
+
+
+	function checkPassword() {
+		var node = $("input[name=password]");
+		if ( node.val().length < 8 ) { passwordTimeout = null; return ; };
+		node.closest("tr").removeClass("success").find("img").show();;
+		$.ajax({
+			type: "post",
+			url: base_url+"code/checkPassword",
+			data: { code: code, password: node.val() },
+			success: function() { 
+// 				console.log("success"); 
+				$("tr.passwordError span.errorMessage").empty(); 
+				node.closest("tr").addClass("success");
+			},
+			error: function (xhr) {
+				// xhr.status
+				formCheckError(xhr.status);
+			},
+			complete: function() { 
+				loginTimeout = null; 
+// 				console.log("complete"); 
+				node.next("img").hide(); 
+			}
+		});
+	}
+
+	var passwordTimeout = null;
+	$("input[name=password]").keyup(function() {
+		var node = $(this);
+		node.closest("tr").removeClass("success")
+		if ( passwordTimeout ) {
+			clearTimeout(passwordTimeout);
+		}
+		passwordTimeout = setTimeout(checkPassword,1000);
+	});
+
+
+	setInterval(function() {
+		if ( $("input[name=login]").closest("tr").hasClass("success") && $("input[name=password]").closest("tr").hasClass("success") ) {
+			$("input[type=submit]").removeAttr("disabled").closest("tr").addClass("success");
+			
+		} else {
+			$("input[type=submit]").attr("disabled","true").closest("tr").removeClass("success");
+		}
+	},100);
+
+});
+
+
+</script>
+
+</body>
+</html> 

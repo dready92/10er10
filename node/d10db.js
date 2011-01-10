@@ -14,10 +14,22 @@ exports.db = getDb;
 exports.loginInfos = function(login, cb, ecb) {
 	var db = getDb("auth");
 	db	.include_docs(true)
-		.startkey( [login,null] )
-		.endkey( [login,[]] )
+		.key( ["login",login] )
 		.getView({
-			success: cb ? cb: function() {},
+			success: function(resp) {
+				if ( resp.rows && resp.rows.length == 1 ) {
+					db.include_docs(true)
+					.startkey([resp.rows[0].doc._id.replace(/^us/,""),""])
+					.endkey([resp.rows[0].doc._id.replace(/^us/,""),[]])
+					.getView({
+						success: cb ? cb : function() {},
+						error: ecb ? ecb: function() {}
+					},"infos","all");
+				} else {
+					console.log("fucking shit",resp);
+					ecb ? ecb(): function() {};
+				}
+			},
 			error: ecb ? ecb: function() {}
 		}, "infos","all");	
 };

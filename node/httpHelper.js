@@ -21,12 +21,11 @@ exports.localPathServer = function ( uri, localuri ) {
 	if ( !localuri.length )	return false;
 	
 	return  function ( request, response, next ) {
+		if ( ! request.ctx ) { request.ctx = {request: request, response: response}; }
+		if ( ! request.ctx.headers ) { request.ctx.headers = {}; }
 		request.ctx.headers["Accept-Ranges"] = "bytes";
 		var url = path.normalize(request.url);
-		if ( url.indexOf(uri) !== 0 ) {
-			next();
-			return ;
-		};
+		if ( url.indexOf(uri) !== 0 ) { return next(); };
 		var localFile = url.replace(uri,localuri);
 		fs.stat(localFile, function(err, stats) {
 			if(!err) {
@@ -35,8 +34,7 @@ exports.localPathServer = function ( uri, localuri ) {
 				request.ctx.headers["Content-Type"] = utils.mime.type(localFile);
 				sendStatic(localFile,stats,request.ctx);
 			} else {
-				next();
-				return ;
+				return next();
 			}
 		});
 	};

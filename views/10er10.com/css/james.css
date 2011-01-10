@@ -1,0 +1,15 @@
+.ul_james {
+	margin: 0;
+	padding: 0;
+    list-style-position: outside;
+    list-style: none;
+}
+
+.li_james {
+	cursor: pointer;
+    background-color: #7197D9;
+}
+
+.li_james_hovered {
+    background-color: #1F4788;
+}

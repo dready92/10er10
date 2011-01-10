@@ -1,0 +1,1 @@
+<div class="pleaseWait">Chargement en cours...</div>

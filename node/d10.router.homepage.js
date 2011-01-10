@@ -29,7 +29,7 @@ exports.homepage = function(app) {
 			if ( debug ) {
 				vars.debugloop = true;
 			}
-			
+			vars.username = request.ctx.user.login;
 			d10.view("homepage",vars,function(html) {
 				response.end(html);
 			});
@@ -59,7 +59,7 @@ exports.homepage = function(app) {
 		var checkPass = function (uid) {
 			d10.log("debug","checking login infos ",uid);
 			d10.db.loginInfos(
-				uid,
+				request.body.username,
 				function(loginResponse) {
 					d10.log("debug","checking login infos : response");
 					var password = hash.sha1(request.body.password),
@@ -73,6 +73,7 @@ exports.homepage = function(app) {
 								d10.log("debug","password check ",password, v.doc.password);
 								// 							
 								valid = true;
+								uid = v.doc._id.replace(/^pr/,"");
 								return false;
 							}
 						}
@@ -133,6 +134,9 @@ exports.homepage = function(app) {
 			if ( request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length ) {
 				// get uid with login
 				d10.log("debug","got a username & password : try to find uid with username");
+				
+				checkPass();
+				/*
 				var i = d10.db.db("auth").key( ["login",request.body.username] ).getView({
 					success: function(res) {
 						d10.log("debug","got view response ",res.rows.length);
@@ -145,6 +149,7 @@ exports.homepage = function(app) {
 					},
 					error: function (e,err) {d10.log("debug",err,"couch request error");displayHomepage(request,response,next);}
 				},"infos","all");
+				*/
 			} else {
 				displayHomepage(request,response,next);
 			}

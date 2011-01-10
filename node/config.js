@@ -1,3 +1,5 @@
+exports.port = 8124;
+
 exports.couch = {
 	d10: {dsn: "http://localhost:5984/",database:"d10-test"},
 	auth: {dsn: "http://localhost:5984/",database:"auth-test"},
@@ -6,12 +8,13 @@ exports.couch = {
 
 // templates path
 exports.templates = {
-	node: "../views/",
-	client: "/var/www/html/d10/system/application/views"
+	node: "../views/10er10.com/",
+	client: "../views/10er10.com/",
+	invites: "../views/invites.10er10.com/"
 };
 
 // cookie name
-exports.cookieName = "goodcacke";
+exports.cookieName = "doBadThings";
 exports.cookiePath = "/";
 
 // cookie time to live ( in miliseconds )
@@ -75,7 +78,7 @@ exports.emailSender = "root@10er10.com";
 exports.emailSenderLabel = "Deezer10";
 exports.invites = {
 	ttl:7 ,
-	url: "http://invites.10er10.com/index.php/code/{{id}}",
+	url: "http://invites.10er10.com/code/in{{id}}",
 	subject: "Invitation: découvrez Deezer10",
 	message: "Bonjour !\n\n"+
 "Un de vos amis a pensé à vous! Ceci est une invitation pour découvrir Deezer10, un site web privé d'écoute et de partage de musique.\n\n"+
@@ -263,8 +266,8 @@ exports.templates.clientList = {
     'hoverbox.addsong.container':'html/hoverbox/addsong.container.php',
     'hoverbox.playlistrow':'html/hoverbox/playlistrow.php',
     'upload.file.widget':'html/upload/file.widget.php',
-    'loading':'pleaseWait.php',
-    'refresh':'refresh.php',
+    'loading':'html/pleaseWait.php',
+    'refresh':'html/refresh.php',
 	'results.album':'html/results/album.php',
 	'results.artist':'html/results/artist.php',
 

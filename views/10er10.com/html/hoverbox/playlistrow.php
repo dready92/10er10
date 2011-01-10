@@ -1,0 +1,1 @@
+<div class="clickable" name="{{_id}}">{{name}}</div>

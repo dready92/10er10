@@ -1,0 +1,437 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+<title>Bienvenue</title> 
+<META http-equiv="Content-Type" Content="text/html; charset=utf-8"> 
+<!--<link rel="stylesheet" type="text/css" href="/css/style.css" />--> 
+ 
+<link rel="stylesheet" type="text/css" href="/css/style.css" /> 
+</head> 
+<body><div id="containerWrap"> 
+<div id="beautyFade"> 
+<div id="initialLoading"> 
+	<p>Loading interface</p> 
+</div> 
+</div> 
+<div id="browserNotSupported"> 
+  <div> 
+    Votre navigateur ne supporte pas les fonctionnalités HTML5 nécessaires pour ce site !
+<BR> 
+Ce site a été testé sous <a href="http://getfirefox.com">Mozilla Firefox</a> et <a href="http://www.google.com/chrome">Google Chrome</a>. Si vous voulez plus d'informations concernant les navigateurs, <a href="http://www.whatbrowser.org/fr/">cliquez ici</a>.
+  </div> 
+</div> 
+<div id="osd"></div> 
+<div id="container" style="display:none"> 
+<header> 
+  <div class="logo"> 
+    <span class="d">D</span><span class="e1">E</span><span class="e2">E</span><span class="z">Z</span><span class="e3">E</span><span class="r">R</span><span class="n1">1</span><span class="n0">0</span> 
+  </div> 
+  <div class="teaser">T'inquiète Momo</div> 
+  <div class="playing"></div> 
+</header> 
+ 
+<nav> 
+	<div id="search" action="results" data-no-active-click="1" data-mm-in-effect="fadeIn"> 
+		<div> 
+			<input type="text" name="q" defaultvalue="Rechercher..." autocomplete="off"> <img class="middle" src="/css/16x16/actions/edit-find.png"> 
+		</div> 
+		<div class="label">Recherche : </div> 
+		<div>Rechercher des morceaux par titre, artiste, ...</div> 
+	</div> 
+	<ul class="nomark"> 
+		<li  action="upload" actiontype="toggle"> 
+			<div><img class="middle" src="/css/22x22/actions/go-jump.png"> Uploader</div> 
+			<div>Ajouter des morceaux</div> 
+		</li><li action="my" actiontype="toggle"> 
+			<div><img class="middle" src="/css/22x22/places/user-home.png"> Mon espace</div> 
+			<div>Mes chansons, mes playlists...</div> 
+		</li><li action="library" actiontype="toggle"> 
+			<div><img class="middle" src="/css/22x22/places/folder-sound.png"> Catalogue</div> 
+			<div>Classements par genre, popularité,...</div> 
+		</li><li action="welcome" actiontype="toggle"> 
+			<div><img class="middle" src="/css/22x22/categories/system-help.png"> Bienvenue</div> 
+			<div>Aide, Mode d'emploi</div> 
+		</li> 
+ 
+	</ul> 
+</nav> 
+ 
+<aside id="side"> 
+  <div id="reviewReminder" class="hidden"> 
+Vous avez <strong></strong> morceaux à valider !
+  </div> 
+  <div id="controls"> 
+    <div class="table" name="progressbar"> 
+      <div class="row"> 
+        <div class="cell"><span name="secs"></span></div> 
+        <div class="cell"> 
+      <div name="progression"> 
+        <div class="netload"></div> 
+        <div class="timer"></div> 
+      </div> 
+    </div> 
+       <div class="cell"><span name="total"></span></div> 
+      </div> 
+    </div> 
+    <div name="controls"> 
+      <div class="table" name="controls"> 
+        <div class="row"> 
+          <div class="cell"> 
+            <img src="/css/22x22/actions/get-hot-new-stuff.png" name="likes"> 
+            <div class="tooltip"><p>J'aime ce morceau</p>Ce morceau apparaitra dans<br>"Mon espace / Les morceaux que j'aime"</div> 
+            <img src="/css/22x22/actions/mail-mark-junk.png" name="dislikes"> 
+            <div class="tooltip"><p>Je n'aime pas ce morceau</p>Permet de spécifier que ce morceau est mauvais.</div> 
+          </div> 
+          <div class="cell"> 
+            <img src="/css/22x22/actions/player_start.png" name="previous" title="Morceau précédent"> 
+            <img src="/css/32x32/actions/player_play.png" name="play" title="Musique ! Jouer les morceaux de la playlist"> 
+            <img src="/css/32x32/actions/player_pause.png" name="pause" class="hidden" title="Mettre sur pause"> 
+            <img src="/css/22x22/actions/player_end.png" name="next" title="Morceau suivant"> 
+          </div> 
+          <div class="cell"><div name="volume"><div name="volumein"></div></div></div> 
+        </div> 
+      </div> 
+    </div> 
+    <div class="autofill" title="Mode radio : ajoute des morceaux à la fin de la playlist"> 
+      <div class="off center"><span>Mode radio: désactivé</span> <span class="link">Activer</span></div> 
+      <div class="on center hidden"><span>Mode radio: activé</span> <span class="link">Options</span></div> 
+      <div class="overlay hidden"> 
+        <div class="center vertical-little-air">Limiter les morceaux ajoutés à la playlist aux genres suivants :</div> 
+        <div class="list"> 
+                        <div name="Acapella">Acapella</div> 
+                        <div name="Acid">Acid</div> 
+                        <div name="Acid Jazz">Acid Jazz</div> 
+                        <div name="Acid Punk">Acid Punk</div> 
+                        <div name="Acoustic">Acoustic</div> 
+                        <div name="Alternative">Alternative</div> 
+                        <div name="Alternative Rock">Alternative Rock</div> 
+                        <div name="Ambient">Ambient</div> 
+                        <div name="Anime">Anime</div> 
+                        <div name="Avantgarde">Avantgarde</div> 
+                        <div name="Ballad">Ballad</div> 
+                        <div name="Bass">Bass</div> 
+                        <div name="Beat">Beat</div> 
+                        <div name="Bebob">Bebob</div> 
+                        <div name="Big Band">Big Band</div> 
+                        <div name="Black Metal">Black Metal</div> 
+                        <div name="Bluegrass">Bluegrass</div> 
+                        <div name="Blues">Blues</div> 
+                        <div name="Booty Bass">Booty Bass</div> 
+                        <div name="BritPop">BritPop</div> 
+                        <div name="Cabaret">Cabaret</div> 
+                        <div name="Celtic">Celtic</div> 
+                        <div name="Chamber Music">Chamber Music</div> 
+                        <div name="Chanson">Chanson</div> 
+                        <div name="Chorus">Chorus</div> 
+                        <div name="Christian Gangsta">Christian Gangsta</div> 
+                        <div name="Christian Rap">Christian Rap</div> 
+                        <div name="Christian Rock">Christian Rock</div> 
+                        <div name="Classic Rock">Classic Rock</div> 
+                        <div name="Classical">Classical</div> 
+                        <div name="Club">Club</div> 
+                        <div name="Club-House">Club-House</div> 
+                        <div name="Comedy">Comedy</div> 
+                        <div name="Contemporary C">Contemporary C</div> 
+                        <div name="Country">Country</div> 
+                        <div name="Crossover">Crossover</div> 
+                        <div name="Cult">Cult</div> 
+                        <div name="Dance">Dance</div> 
+                        <div name="Dance Hall">Dance Hall</div> 
+                        <div name="Darkwave">Darkwave</div> 
+                        <div name="Death Metal">Death Metal</div> 
+                        <div name="Disco">Disco</div> 
+                        <div name="Dream">Dream</div> 
+                        <div name="Drum & Bass">Drum & Bass</div> 
+                        <div name="Drum Solo">Drum Solo</div> 
+                        <div name="Dub">Dub</div> 
+                        <div name="Duet">Duet</div> 
+                        <div name="Easy Listening">Easy Listening</div> 
+                        <div name="Electronic">Electronic</div> 
+                        <div name="Ethnic">Ethnic</div> 
+                        <div name="Euro-House">Euro-House</div> 
+                        <div name="Euro-Techno">Euro-Techno</div> 
+                        <div name="Eurodance">Eurodance</div> 
+                        <div name="Fast Fusion">Fast Fusion</div> 
+                        <div name="Folk">Folk</div> 
+                        <div name="Folk-Rock">Folk-Rock</div> 
+                        <div name="Folklore">Folklore</div> 
+                        <div name="Freestyle">Freestyle</div> 
+                        <div name="Funk">Funk</div> 
+                        <div name="Fusion">Fusion</div> 
+                        <div name="Game">Game</div> 
+                        <div name="Gangsta">Gangsta</div> 
+                        <div name="Goa">Goa</div> 
+                        <div name="Gospel">Gospel</div> 
+                        <div name="Gothic">Gothic</div> 
+                        <div name="Gothic Rock">Gothic Rock</div> 
+                        <div name="Grunge">Grunge</div> 
+                        <div name="Hard Rock">Hard Rock</div> 
+                        <div name="Hardcore">Hardcore</div> 
+                        <div name="Heavy Metal">Heavy Metal</div> 
+                        <div name="Hip-Hop">Hip-Hop</div> 
+                        <div name="House">House</div> 
+                        <div name="Humour">Humour</div> 
+                        <div name="Indie">Indie</div> 
+                        <div name="Industrial">Industrial</div> 
+                        <div name="Instrumental">Instrumental</div> 
+                        <div name="Instrumental Pop">Instrumental Pop</div> 
+                        <div name="Instrumental Rock">Instrumental Rock</div> 
+                        <div name="JPop">JPop</div> 
+                        <div name="Jazz">Jazz</div> 
+                        <div name="Jazz+Funk">Jazz+Funk</div> 
+                        <div name="Jungle">Jungle</div> 
+                        <div name="Latin">Latin</div> 
+                        <div name="Lo-Fi">Lo-Fi</div> 
+                        <div name="Meditative">Meditative</div> 
+                        <div name="Merengue">Merengue</div> 
+                        <div name="Metal">Metal</div> 
+                        <div name="Musical">Musical</div> 
+                        <div name="National Folk">National Folk</div> 
+                        <div name="Native US">Native US</div> 
+                        <div name="Negerpunk">Negerpunk</div> 
+                        <div name="New Age">New Age</div> 
+                        <div name="New Wave">New Wave</div> 
+                        <div name="Noise">Noise</div> 
+                        <div name="Oldies">Oldies</div> 
+                        <div name="Opera">Opera</div> 
+                        <div name="Other">Other</div> 
+                        <div name="Polka">Polka</div> 
+                        <div name="Polsk Punk">Polsk Punk</div> 
+                        <div name="Pop">Pop</div> 
+                        <div name="Pop-Folk">Pop-Folk</div> 
+                        <div name="Pop/Funk">Pop/Funk</div> 
+                        <div name="Porn Groove">Porn Groove</div> 
+                        <div name="Power Ballad">Power Ballad</div> 
+                        <div name="Pranks">Pranks</div> 
+                        <div name="Primus">Primus</div> 
+                        <div name="Progressive Rock">Progressive Rock</div> 
+                        <div name="Psychedelic">Psychedelic</div> 
+                        <div name="Psychedelic Rock">Psychedelic Rock</div> 
+                        <div name="Punk">Punk</div> 
+                        <div name="Punk Rock">Punk Rock</div> 
+                        <div name="R&B">R&B</div> 
+                        <div name="Rap">Rap</div> 
+                        <div name="Rave">Rave</div> 
+                        <div name="Reggae">Reggae</div> 
+                        <div name="Retro">Retro</div> 
+                        <div name="Revival">Revival</div> 
+                        <div name="Rhytmic Soul">Rhytmic Soul</div> 
+                        <div name="Rock">Rock</div> 
+                        <div name="Rock & Roll">Rock & Roll</div> 
+                        <div name="Salsa">Salsa</div> 
+                        <div name="Samba">Samba</div> 
+                        <div name="Satire">Satire</div> 
+                        <div name="Showtunes">Showtunes</div> 
+                        <div name="Ska">Ska</div> 
+                        <div name="Slow Jam">Slow Jam</div> 
+                        <div name="Slow Rock">Slow Rock</div> 
+                        <div name="Sonata">Sonata</div> 
+                        <div name="Soul">Soul</div> 
+                        <div name="Sound Clip">Sound Clip</div> 
+                        <div name="Soundtrack">Soundtrack</div> 
+                        <div name="Southern Rock">Southern Rock</div> 
+                        <div name="Space">Space</div> 
+                        <div name="Speech">Speech</div> 
+                        <div name="Swing">Swing</div> 
+                        <div name="Symphonic Rock">Symphonic Rock</div> 
+                        <div name="Symphony">Symphony</div> 
+                        <div name="SynthPop">SynthPop</div> 
+                        <div name="Tango">Tango</div> 
+                        <div name="Techno">Techno</div> 
+                        <div name="Techno-Industrial">Techno-Industrial</div> 
+                        <div name="Terror">Terror</div> 
+                        <div name="Thrash Metal">Thrash Metal</div> 
+                        <div name="Top 40">Top 40</div> 
+                        <div name="Trailer">Trailer</div> 
+                        <div name="Trance">Trance</div> 
+                        <div name="Tribal">Tribal</div> 
+                        <div name="Trip-Hop">Trip-Hop</div> 
+                        <div name="Vocal">Vocal</div> 
+                  </div> 
+      <div class="close center vertical-little-air"><span class="link">fermer cette fenêtre</span></div> 
+      <div class="disable center vertical-little-air"><span class="link">Désactiver le mode radio</span></div> 
+    </div> 
+    </div> 
+  </div> 
+  <div class="playlisttitle"><span></span></div> 
+  <div id="playlist"></div> 
+  <div class="emptyPlaylist">Votre liste de lecture est vide.<BR><span class="link">Remplis-la !</span></div> 
+  <div class="manager"> 
+    <button name="new" title="Vider la liste de lecture"> 
+      <img src="/css/22x22/actions/edit-clear.png" class="middle"> 
+   Vider</button> 
+    <button name="load" title="Charger une playlist"> 
+      <img src="/css/22x22/actions/document-open.png" class="middle"> 
+    Ouvrir</button> 
+    <button name="save" title="Enregistrer la playlist"> 
+    <img src="/css/22x22/actions/document-save.png" class="middle"> 
+    Sauver</button> 
+  </div> 
+  <div class="saveplaylist hidden"> 
+    <div class="center"> 
+      <p class="airin"> 
+        Enregistrer sous : <input type="text" name="name" defaultvalue="playlist name..."> 
+      </p> 
+      <button><img src="/css/22x22/actions/document-save.png" class="middle"> Enregistrer</button> 
+      <span class="link">Euh non désolé</span> 
+    </div> 
+  </div> 
+  <div class="updateplaylist hidden center"> 
+    <p class="airin"> 
+      Il éxiste déjà une playlist portant ce nom... 
+    </p> 
+    <button name="save"><img src="/css/22x22/actions/document-save.png" class="middle"> Enregistrer quand même</button> 
+    <span class="link">Euh non désolé</span> 
+  </div> 
+</aside> 
+ 
+ 
+ 
+<div id="main"> 
+	<div id="welcome" style="display:none"> 
+	<nav><ul class="nomark"><li action="introduction">Bienvenue</li></ul></nav> 
+	<div name="introduction"> 
+		<article class="welcome"> 
+			<h1 class="airin">Bienvenue !</h1> 
+			<div class="scrollContainer"> 
+				<!-- root element for the items --> 
+				<div class="items"> 
+					<div> 
+						<h2>....</h2> 
+						Ecoutez votre musique chez vous, chez vos amis, au travail... Créez vos playlists, découvrez de nouveaux artistes...
+						<h2>...</h2> 
+						Personne ne connait mieux que vous vos morceaux de musique. C'est pourquoi, sur Deezer10, nous vous demandons de ne mettre que les meilleurs ! C'est pourquoi aussi, vous validez vous même vos morceaux : nous vous faisons confiance, et si vous aimez la musique autant que nous, on n'a pas de raison d'être déçu !
+					</div> 
+					<div> 
+						<h2 class="airin">Rapide tour du propriétaire</h2> 
+						Le site est séparé en trois parties principales :
+						<ul><li class="airin">La partie Upload vous permet d'enregistrer vos chansons sur le serveur
+						<li class="airin">La partie Mon espace vous permet de retrouver l'ensemble des morceaux que vous avez enregistré, ainsi que de gérer vos playlists
+						<li class="airin">La partie catalogue contient l'ensemble des morceaux enregistrés par tous les membres du site
+						</ul> 
+					</div> 
+					<div> 
+						<h2 class="airin">Upload</h2> 
+						Dans la partie <strong>Upload</strong>, vous pouvez enregistrer vos fichiers musicaux sur le serveur. Vos fichiers doivent être au format mp3 ou ogg.
+						<br> 
+						Pour envoyer des fichiers, sélectionnez les dans votre explorateur de fichiers et faites les glisser dans la boite !
+					</div> 
+				</div> 
+				<div class="clear"> </div> 
+				<a class="prev"></a> 
+				<a class="next"></a> 
+				<br> 
+			</div> 
+		</article> 
+	</div> 
+</div> 
+<div id="library" style="display:none"> 
+	<nav> 
+		<ul class="nomark"> 
+			<li action="creations">Ajouts récents</li> 
+			<li action="hits">Populaires</li> 
+			<li action="titles">Par titre</li> 
+			<li action="genres">Par genre</li> 
+			<li action="artists">Par artiste</li> 
+			<li action="albums">Par album</li> 
+		</ul> 
+	</nav> 
+</div> 
+<div id="my" style="display:none"> 
+	<nav> 
+		<ul class="nomark"> 
+			<li action="review">A valider</li><li action="songs">Mes morceaux</li><li action="plm">Mes playlists</li><li action="likes">Les morceaux que j'aime</li><li class="" action="invites">Invitations</li> 
+		</ul> 
+	</nav> 
+	<div name="plm" style="display:none"></div> 
+</div><div id="upload" style="display:none"> 
+  <div class="uploadDropBox"> 
+<!--     <p class="airin"><strong>La boite à chansons</strong></p> --> 
+    <p class="airin">Faites glisser vos morceaux de musique dans cette boite</p> 
+  </div> 
+  <div class="filesQueue"></div> 
+  <div class="center"> 
+	<div class="control"> 
+		<a class="video" href="#">Comment ça marche ?</a> 
+	</div> 
+	<div class="video"> 
+		<a href="#">Fermer</a> 
+	</div> 
+  </div> 
+</div><div id="results" style="display:none"> 
+<div class="searchBackground"> 
+	<img class="previous" src="/css/32x32/actions/arrow-previous-double.png"> 
+	<img class="next" src="/css/32x32/actions/arrow-next-double.png"> 
+&nbsp;</div> 
+<div class="resultContainer"> 
+ 
+<div class="rBox rSum1 artists"> 
+<div class="enlarge"><button>Voir en détail</button></div> 
+<h1>Artistes</h1> 
+<div class="items"></div> 
+</div> 
+ 
+<div class="rBox rSum2 albums"> 
+<div class="enlarge"><button>Voir en détail</button></div> 
+<h1>Albums</h1> 
+<div class="items"></div> 
+</div> 
+ 
+<div class="rBox rCenter songs"> 
+<div class="enlarge"><button>Voir en détail</button></div> 
+<h1>Morceaux</h1> 
+<div class="items"><div class="list"></div></div> 
+</div> 
+ 
+</div> 
+ 
+ 
+</div> 
+	<div id="mainerror" class="hidden"> 
+		<h1>Ouplaya !</h1><p>Le système a rencontré une erreur... :</p><div name="error"></div><span name="retry" class="link" actiontype="open">Recommencer</span> 
+	</div> 
+</div> 
+ 
+ 
+<footer> 
+Logged as {{username}} - 
+<a href="{{base_url}}welcome/goodbye">logout</a> - Deezer10 - <span class="hours"></span> heures de musique
+</footer> 
+ 
+</div></div> 
+<div class="hidden" id="songitem"> 
+<img src="/css/22x22/apps/amarok.png"> 
+</div> 
+<div class="hidden" id="waititem"> 
+<img src="/css/plsmall.gif"> 
+</div> 
+<script> 
+site_url="";
+base_url="{{base_url}}";
+window.d10 = {};
+window.d10 = {debug: {{dbg}}, debug_options: {}, fn:{} };
+ 
+{{#debugAudio}}
+d10.debug_options.audio = true;
+{{/debugAudio}}
+{{#debugNet}}
+d10.debug_options.network = true;
+{{/debugNet}} 
+
+
+function debug() {
+{{#debugloop}}
+	if ( console && console.log ) {
+		console.log.call(console,arguments);
+	}
+{{/debugloop}}
+}
+debug("site_url : ",site_url);
+</script> 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>  
+{{#scripts}}
+<script src="/js/{{.}}"></script>  
+{{/scripts}}
+
+</body> 
+</html>

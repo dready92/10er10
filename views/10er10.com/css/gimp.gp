@@ -1,0 +1,1 @@
+Data syntax error. You have to use <a href="/">Color Scheme Designer</a> to export a color palette.

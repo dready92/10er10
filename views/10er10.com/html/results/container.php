@@ -1,0 +1,29 @@
+<div id="results" style="display:none">
+<div class="searchBackground">
+	<img class="previous" src="css/32x32/actions/arrow-previous-double.png">
+	<img class="next" src="css/32x32/actions/arrow-next	-double.png">
+&nbsp;</div>
+<div class="resultContainer">
+
+<div class="rBox rSum1 artists">
+<div class="enlarge"><button>Voir en détail</button></div>
+<h1>Artistes</h1>
+<div class="items"></div>
+</div>
+
+<div class="rBox rSum2 albums">
+<div class="enlarge"><button>Voir en détail</button></div>
+<h1>Albums</h1>
+<div class="items"></div>
+</div>
+
+<div class="rBox rCenter songs">
+<div class="enlarge"><button>Voir en détail</button></div>
+<h1>Morceaux</h1>
+<div class="items"><div class="list"></div></div>
+</div>
+
+</div>
+
+
+</div>

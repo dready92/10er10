@@ -1,9 +1,14 @@
 var fs = require("fs"),
+	cradle = require('cradle'),
 	exec = require('child_process').exec;
 exports.mustache = require("./mustache");
-exports.db = require("./d10db");
 var config = exports.config = require("./config");
-	
+
+exports.db = require("./d10db");
+exports.db.auth = new(cradle.Connection)(config.couch.auth.dsn, 5984, {cache: false,raw: false}).database(config.couch.auth.database);
+exports.db.track = new(cradle.Connection)(config.couch.track.dsn, 5984, {cache: false,raw: false}).database(config.couch.track.database);
+exports.db.d10 = new(cradle.Connection)(config.couch.d10.dsn, 5984, {cache: false,raw: false}).database(config.couch.d10.database);
+
 var	httpStatusCodes = {
 	100: "Continue",
 	101: "Switching Protocols",
@@ -71,7 +76,11 @@ exports.log = function() {
 
 exports.uid = function() {
 // 	return ((0x100000000 * Math.random()).toString(32) + "" + (0x100000000 * Math.random()).toString(32));
-	return ((0x100000000 * Math.random()).toString(32) + "" + (0x100000000 * Math.random()).toString(32)).replace(/\./g,"")
+	return (
+		(0x100000000 * Math.random()).toString(32) + "" 
+		+ (0x100000000 * Math.random()).toString(32)+ ""
+		+ (0x100000000 * Math.random()).toString(32)
+		   ).replace(/\./g,"")
 };
 	
 exports.count = function(obj) {
@@ -313,27 +322,7 @@ exports.valid = {
 	genre: function(s) { return  ( config.genres.indexOf(s) >= 0 ) ;},
 	id: function(s) { return s.substr(0,2) == "aa" ? true : false}
 };
-/*
-exports.sanitizeTag = array ( name, value) {
-	name = name.toLowerCase();
-	value = value.toLowerCase();
-	if ( name == "genre" ) {
-		config.genres.forEach(function(v,k) {
-			if ( value == v.toLowerCase() ) {
-				return v;
-			}
-		});
-	}
-	if ( name == "tracknumber" ) {
-		
-	}
-	var methods = {
-		title: ""
-	};
-};
 
-
-*/
 exports.rest = {
 	err: function(code, data,ctx) {
 		if ( !ctx ) {
