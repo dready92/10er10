@@ -1,4 +1,4 @@
-exports.port = 8124;
+exports.port = 8888;
 
 exports.couch = {
 	d10: {dsn: "http://localhost:5984/",database:"d10-test"},

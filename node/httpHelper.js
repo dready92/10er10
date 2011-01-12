@@ -122,7 +122,7 @@ function sendStatic(staticFile, stats, ctx) {
 		if(status) {
 // 			ctx.extn = defaultViewExtn;
 // 			ctx.headers['content-type'] = mime.mimes[defaultViewExtn];
-			ctx.headers['Content-Type'] = "text/html";
+// 			ctx.headers['Content-Type'] = "text/html";
 			delete ctx.headers['Last-Modified'];
 			delete ctx.headers['Content-Disposition'];
 			ctx.response.writeHead(status, ctx.headers);

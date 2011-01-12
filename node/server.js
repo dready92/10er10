@@ -54,8 +54,6 @@ var invitesServer = connect.createServer(
 
 var globalSrv = connect.createServer(
 	// 10er10 vhosts
-// 	connect.vhost("10er10.com",d10Server),
-// 	connect.vhost("www.10er10.com",d10Server),
 	connect.vhost("invites.10er10.com",invitesServer),
 // 	defaultServer
 	d10Server

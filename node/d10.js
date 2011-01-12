@@ -181,11 +181,10 @@ exports.fillUserCtx = function (ctx,response,session) {
 	response.rows.forEach(function(v,k) {
 		if ( v.doc._id.indexOf("se") === 0 && v.doc._id != session._id ) {
 			exports.log("debug","deleting session ",v.doc._id);
-			exports.db.db("auth").deleteDoc(
-					{
-						success: function(r) { exports.log("debug","session "+r.id+" deleted"); }
-			}
-			,v.doc);
+			exports.saveSession(v.doc,true);
+// 			exports.db.auth.remove(v.doc._id, v.doc._rev,function(err) {
+// 				if ( !err )	exports.log("debug","session "+r.id+" deleted");
+// 			});
 		} else if ( v.doc._id.indexOf("us") === 0 ) {
 			ctx.user = v.doc;
 		} else if ( v.doc._id.indexOf("pr") === 0 ) {
@@ -206,7 +205,6 @@ exports.fileType = function(file,cb) {
 				exports.log("debug","fileType : ",stdout);
 				cb(null,stdout.replace(/\s/g,""));
 			}
-// 			if ( cb ) { cb(error); }
 		}
 	);
 };
@@ -353,5 +351,46 @@ exports.rest = {
 		ctx.response.end (
 			JSON.stringify(back)
 		);
+	}
+};
+
+exports.saveSession = function(doc,deleteIt) {
+	if ( deleteIt ) {
+		exports.db.auth.remove(doc._id,doc._rev,function(err) {
+			if ( err ) {
+				exports.log("failed to delete session "+doc._id);
+			} else {
+				exports.log("session deleted "+doc._id);
+			}
+		});
+	} else {
+		if ( doc._rev ) {
+			exports.db.save(doc._id,doc._rev,doc,function(err,resp) {
+			});
+		}
+	}
+};
+
+exports.saveUser = function(doc,deleteIt) {
+	if ( deleteIt ) {
+		exports.db.auth.remove(doc._id,doc._rev,function(err) {
+			if ( err ) {
+				exports.log("failed to delete user "+doc._id);
+			} else {
+				exports.log("user deleted "+doc._id);
+			}
+		});
+	}
+};
+
+exports.saveUserPrivate = function(doc,deleteIt) {
+	if ( deleteIt ) {
+		exports.db.auth.remove(doc._id,doc._rev,function(err) {
+			if ( err ) {
+				exports.log("failed to delete user private infos "+doc._id);
+			} else {
+				exports.log("user private infos deleted "+doc._id);
+			}
+		});
 	}
 };

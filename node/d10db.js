@@ -35,7 +35,6 @@ exports.loginInfos = function(login, cb, ecb) {
 };
 
 exports.d10Infos = function (login, cb, ecb) {
-
 	var db = getDb("d10");
 	db	.include_docs(true)
 	.startkey( [login,null] )
