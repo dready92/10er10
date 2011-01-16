@@ -4,6 +4,7 @@ var d10 = require ("./d10"),
 	bodyDecoder = require("connect/middleware/bodyDecoder"),
 	querystring = require("querystring"),
 	fs = require("fs"),
+	os = require("os"),
 	exec = require('child_process').exec;
 
 exports.api = function(app) {
@@ -28,17 +29,21 @@ exports.api = function(app) {
 		d10.when ( 
 			{
 				preferences: function(cb) {
-					d10.db.db("d10").getDoc({
-						success: function(data) {
-							cb(null,data);
-						},
-						error: function(err) {
-							cb(err);
-						}
-					},request.ctx.user._id.replace(/^us/,"up"));
+					d10.couch.d10.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,data) {
+							cb(err,data);
+						});
 				},
 				playlists: function(cb) {
-					d10.db.db("d10").key ( [request.ctx.user._id.replace(/^us/,""), "pl"] ).include_docs(true).getView({
+					d10.couch.d10.view("user/all_infos",{key: [request.ctx.user._id.replace(/^us/,""), "pl"],include_docs: true},
+						function(err,data,meta) {
+							if ( err ) return cb(err);
+							var back = [];
+							console.log(arguments);
+							data.rows.forEach(function(v) { back.push(v.doc); });
+							cb(null,back);
+						}
+					);/*
+					.key ( [request.ctx.user._id.replace(/^us/,""), "pl"] ).include_docs(true).getView({
 						success: function(data) {
 							var back = [];
 							data.rows.forEach(function(v) { back.push(v.doc); });
@@ -48,6 +53,7 @@ exports.api = function(app) {
 							cb(err);
 						}
 					},"user","all_infos");
+		*/
 				}
 			},
 			function(responses) {
@@ -95,6 +101,17 @@ exports.api = function(app) {
 
 // 	$back = $this->couch_ci->getView("song","length");
 	app.get("/api/length", function(request,response) {
+		d10.couch.d10.view("song/length",function(err,resp) {
+			if ( err ) d10.rest.err(423,resp,request.ctx);
+			var len = 0;
+			try {
+				len = resp.rows.shift().value;
+				d10.rest.success( {"length": len}, request.ctx );
+			} catch (e) {
+				d10.rest.success( {"length": 0}, request.ctx );
+			}
+		});
+		/*
 		d10.db.db("d10").getView({
 			error: function(resp) {
 				d10.rest.err(423,resp,request.ctx);
@@ -109,12 +126,14 @@ exports.api = function(app) {
 				}
 			}
 		},"song","length");
+		*/
 	});
 	
 	
 	app.get("/api/serverLoad", function(request,response) {
 		var child;
-		
+		d10.rest.success( {load: os.loadavg()}, request.ctx );
+		/*
 		child = exec('uptime',
 			function (error, stdout, stderr) {
 				if (error !== null) {
@@ -128,43 +147,53 @@ exports.api = function(app) {
 				
 			}
 		);
+	*/
 	});
 	
 	app.get("/api/current_playlist",function(request,response) {
 // 		d10.log("debug","router:","/api/current_playlist");
 		var getFromPlaylist = function(id) {
-			d10.db.db("d10").getDoc({
-					success: function(playlist) {
-						if ( playlist.songs && playlist.songs.length ) {
-							d10.db.db("d10").include_docs(true).keys(playlist.songs).getAllDocs({
-								success: function(resp) {
-									var back = [];
-									resp.rows.forEach(function(v,k) {
-										if ( !v.error ) {
-											back.push(v.doc);
-										}
-									});
-									d10.rest.success( back, request.ctx );
-								},
-								error: function(resp) {
-									d10.rest.err(423,resp,request.ctx);
+			d10.db.db("d10").getDoc(id, function(err,playlist) {
+				if ( err ) return d10.rest.err(423,err,request.ctx);
+				if ( playlist.songs && playlist.songs.length ) {
+					
+					d10.couch.d10.getAllDocs({include_docs: true, keys: playlist.songs},function(err,resp) {
+						if ( err ) return d10.rest.err(423,resp,request.ctx);
+						var back = [];
+						resp.rows.forEach(function(v,k) {
+							if ( !v.error ) {
+								back.push(v.doc);
+							}
+						});
+						d10.rest.success( back, request.ctx );
+					});
+					/*
+					d10.db.db("d10").include_docs(true).keys(playlist.songs).getAllDocs({
+						success: function(resp) {
+							var back = [];
+							resp.rows.forEach(function(v,k) {
+								if ( !v.error ) {
+									back.push(v.doc);
 								}
 							});
-						} else {
-							d10.rest.success( [], request.ctx );
+							d10.rest.success( back, request.ctx );
+						},
+						error: function(resp) {
+							d10.rest.err(423,resp,request.ctx);
 						}
-					},
-					error: function(resp) {
-						d10.rest.err(423,resp,request.ctx);
-					}
-				},
-				id
-			);
+					});
+					*/
+				} else {
+					d10.rest.success( [], request.ctx );
+				}
+			});
 		};
 		
 		var getFromIds = function (ids) {
-			d10.db.db("d10").include_docs(true).keys(ids).getAllDocs({
-				success: function(resp) {
+			d10.couch.d10.getAllDocs({include_docs: true, keys: ids},function(err,resp) {
+				if ( err )	d10.rest.err(423,err,request.ctx);
+// 			d10.db.db("d10").include_docs(true).keys(ids).getAllDocs({
+// 				success: function(resp) {
 					var back = [];
 					resp.rows.forEach(function(v,k) {
 						if ( !v.error ) {
@@ -172,15 +201,16 @@ exports.api = function(app) {
 						}
 					});
 					d10.rest.success( back, request.ctx );
-				},
-				error: function(resp) {
-					d10.rest.err(423,resp,request.ctx);
-				}
+// 				},
+// 				error: function(resp) {
+// 					d10.rest.err(423,resp,request.ctx);
+// 				}
 			});
 		};
 		
-		d10.db.db("d10").getDoc({
-			success: function(doc) {
+		d10.couch.d10.getDoc(request.ctx.user._id.replace(/^us/,"up"),
+			function(err,doc) {
+				if ( err ) return d10.rest.err(423,err,request.ctx);
 // 				d10.log("debug","playlist doc is : ");
 // 				d10.log( doc);
 				if ( doc && doc.c_playlist ) {
@@ -192,12 +222,7 @@ exports.api = function(app) {
 				} else {
 					d10.rest.success( [], request.ctx );
 				}
-			},
-			error: function(data) {
-				d10.rest.err(423,data,request.ctx);
 			}
-		},
-		request.ctx.user._id.replace(/^us/,"up")
 		);
 		
 		
@@ -207,6 +232,11 @@ exports.api = function(app) {
 	app.get("/api/toReview",function(request,response) {
 		d10.log("debug","router:","/api/toReview");
 
+		d10.couch.d10.view("user/song",{key: [ request.ctx.user._id, false ]},function(err,resp) {
+			if ( err )	d10.rest.err(423,err,request.ctx)
+			else		d10.rest.success( {count: resp.rows.length}, request.ctx );
+		});
+		/*
 		d10.db.db("d10").key( [ request.ctx.user._id, false ] )
 		.getView(
 			{
@@ -221,6 +251,7 @@ exports.api = function(app) {
 			"user",
 			"song"
 		);
+		*/
 	});
 
 
@@ -241,6 +272,12 @@ exports.api = function(app) {
 				}
 // 				d10UserPrefs.c_playlist_ids = data["ids[]"];
 				d10.log("debug","calling storeDoc, ", data["ids[]"].length,d10UserPrefs.c_playlist_ids.length );
+				
+				d10.couch.d10.storeDoc(d10UserPrefs,function(err,resp) {
+					if ( err )	d10.rest.err(413,err,request.ctx);
+					else		d10.rest.success( {}, request.ctx );
+				});
+				/*
 				d10.db.db("d10").storeDoc(
 					{
 						success: function() {
@@ -252,14 +289,33 @@ exports.api = function(app) {
 					},
 					d10UserPrefs
 				);
+		*/
 			},
 			recordRplPlaylist = function(d10UserPrefs) {
 // 				d10.log("debug","playlist : recordRplPlaylist");
+
+				d10.couch.d10.getDoc(data.playlist,function(err,resp) {
+					if ( err )	return d10.rest.success( [], request.ctx );
+					delete d10UserPrefs.c_playlist_ids;
+					d10UserPrefs.c_playlist = data.playlist;
+					
+					d10.couch.d10.storeDoc(d10UserPrefs,function(err,resp) {
+						if ( err ) d10.rest.err(413,err,request.ctx);
+										   else		d10.rest.success( [], request.ctx );
+					});
+				});
+/*
 				d10.db.db("d10").getDoc(
 					{
 						success: function() {
 							delete d10UserPrefs.c_playlist_ids;
 							d10UserPrefs.c_playlist = data.playlist;
+							
+							d10.couch.d10.storeDoc(d10UserPrefs,function(err,resp) {
+								if ( err ) d10.rest.err(413,err,request.ctx);
+								else		d10.rest.success( [], request.ctx );
+							});
+							/*
 							d10.db.db("d10").storeDoc(
 								{
 									success: function() {
@@ -271,6 +327,7 @@ exports.api = function(app) {
 								},
 								d10UserPrefs
 							);
+
 						},
 						error: function(err) {
 							// malicious code; make it harder to bug us
@@ -279,10 +336,23 @@ exports.api = function(app) {
 					},
 					data.playlist
 				);
+				*/
 			}
 			;
 // 			d10.log("debug",data);
 			
+			d10.couch.d10.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,resp) {
+				if ( err ) { return d10.rest.err(413,err,request.ctx);}
+				if ( resp.playlist && resp.playlist.substr(0,2) == "pl" ) {
+					recordRplPlaylist(resp);
+				} else if ( resp["id[]"] ) {
+					recordAnonymousPlaylist(resp);
+				} else {
+					resp["id[]"] = [];
+					recordAnonymousPlaylist(resp);
+				}
+			});
+			/*
 			d10.db.db("d10").getDoc(
 				{
 					success: function (resp) {
@@ -302,11 +372,17 @@ exports.api = function(app) {
 				
 				request.ctx.user._id.replace(/^us/,"up")
 			);
+			*/
 		});
 	}
 	);
 
 	app.get("/api/songsToReview:end?",function(request,response) {
+		d10.couch.d10.view("user/song",{include_docs: true, key: [ request.ctx.user._id, false ]}, function(err,resp) {
+			if ( err ) { d10.rest.err(err.statusCode, err.statusMessage,request.ctx); }
+			else {d10.rest.success(resp,request.ctx);}
+		});
+		/*
 		d10.db.db("d10").include_docs(true).key( [ request.ctx.user._id, false ] ).getView(
 			{
 				success: function(resp) {
@@ -319,6 +395,7 @@ exports.api = function(app) {
 			"user",
 			"song"
 		);
+		*/
 	});
 	
 	app.post("/api/ping",function(request,response) {
@@ -326,7 +403,10 @@ exports.api = function(app) {
 		request.on("data",function() {d10.log("debug","ping data reached");});
 		request.on("end",function() {d10.log("debug","ping end reached");});
 		var updateAliveDoc = function() {
-			d10.db.db("track").updateDoc({success: function() {d10.log("debug","alive doc updated");},error:function(err,all) {d10.log("debug",err,all, "error");}},"tracking","ping",request.ctx.user._id.replace(/^us/,"pi"));
+			d10.couch.track.updateDoc("tracking/ping/"+request.ctx.user._id.replace(/^us/,"pi"),function(err,resp) {
+				d10.log("debug", err ? "error updating tracking ping" : "tracking ping updated");
+			});
+// 			d10.db.db("track").updateDoc({success: function() {d10.log("debug","alive doc updated");},error:function(err,all) {d10.log("debug",err,all, "error");}},"tracking","ping",request.ctx.user._id.replace(/^us/,"pi"));
 		};
 
 		var parsePlayerInfos = function() {
@@ -341,18 +421,38 @@ exports.api = function(app) {
 			}
 			
 			var updateHits = function ( id ) {
+				d10.couch.d10.getDoc(id, function(err,doc) {
+					if (err)	return ;
+					if ( doc.hits ) doc.hits++;
+					else			doc.hits = 1;
+					d10.couch.d10.storeDoc(doc,function(err,resp) {if ( !err )	d10.log("debug","hitcount updated");});
+				});
+				/*
 				d10.db.db("d10").getDoc({
 					success: function(doc) {
 						if ( doc.hits ) doc.hits++;
 						else			doc.hits = 1;
-						d10.db.db("d10").storeDoc({success:function() {d10.log("debug","hitcount updated");}},doc);
+						d10.couch.d10.storeDoc(doc,function(err,resp) {if ( !err )	d10.log("debug","hitcount updated");});
+// 						d10.db.db("d10").storeDoc({success:function() {d10.log("debug","hitcount updated");}},doc);
 					}
 				},
 				id
 				);
+				*/
 			};
 			
 			var updateUserData = function(id) {
+				d10.couch.d10.getDoc(request.ctx.user._id.replace(/^us/,"pr"),function(err,resp) {
+					if ( err ) {
+						return ;
+					}
+					if (!doc.listen)	doc.listen = {};
+					if ( doc.listen[id] )	doc.listen[id]++;
+					else					doc.listen[id]=1;
+					d10.couch.d10.storeDoc(doc,function() {});
+									 
+				});
+				/*
 				d10.db.db("d10").getDoc({
 					success: function(doc) {
 						if (!doc.listen)	doc.listen = {};
@@ -363,6 +463,7 @@ exports.api = function(app) {
 				},
 				request.ctx.user._id.replace(/^us/,"pr")
 				);
+				*/
 			};
 			
 			infos.forEach(function(v,k) {
@@ -372,7 +473,8 @@ exports.api = function(app) {
 				delete v.id;
 				v._id="pt"+d10.uid();
 				v.user = request.ctx.user._id;
-				d10.db.db("track").storeDoc({},v);
+				d10.couch.track.storeDoc(v,function(){});
+// 				d10.db.db("track").storeDoc({},v);
 			});
 			
 		};
@@ -439,14 +541,47 @@ exports.api = function(app) {
 			if ( isNaN(count) || count < 1 ){
 				return d10.rest.err(427,"count",request.ctx);
 			}
-			var db = d10.db.db("d10");
+// 			var db = d10.db.db("d10");
+			var data = {};
 			var name = getArray(request.body["name[]"]);
 			if ( name.length ) {
-				db.keys(name);
+// 				db.keys(name);
+				data.keys = name;
 			}
 			var not = getArray(request.body["not[]"]);
 			var really_not = getArray(request.body["really_not[]"]);
-			
+			d10.couch.d10.view("genre/unsorted",function(err,response) {
+				if ( err ) {
+					return d10.rest.err(423,err,request.ctx);
+				}
+				var random = getRandomIds(response,count,not,really_not);
+				if ( !random.length ) {
+					return d10.rest.success({songs: []},request.ctx);
+				}
+				d10.couch.d10.getAllDocs({keys: random, include_docs: true},function(err,resp) {
+					if ( err ) {
+						return d10.rest.err(423,err,request.ctx);
+					}
+					var back = [];
+					resp.rows.forEach(function(v) { back.push(v.doc); });
+					d10.rest.success({songs: back},request.ctx);
+				});
+				/*
+				db.keys(random).include_docs(true).getAllDocs(
+					{
+						success: function(resp) {
+							var back = [];
+							resp.rows.forEach(function(v) { back.push(v.doc); });
+							d10.rest.success({songs: back},request.ctx);
+						},
+						error: function(resp) {
+							d10.rest.err(423,err,request.ctx);
+						}
+					}
+				);
+			*/
+			});
+			/*
 			db.getView(
 				{
 					success: function(response) {
@@ -476,6 +611,7 @@ exports.api = function(app) {
 				"genre",
 				"unsorted"
 			   );
+				*/
 		});
 	});
 	

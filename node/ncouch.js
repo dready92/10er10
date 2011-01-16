@@ -25,7 +25,9 @@ function ncouch (url) {
 	var components = {
 		database: {}
 	};
-	
+
+	var debug=false;
+	var requestsCount = 0;
 	
 	console.log(uri);
 	
@@ -37,6 +39,9 @@ function ncouch (url) {
 			body: null,
 			headers: {}
 		};
+		
+		requestsCount++;
+		var ruid = requestsCount;
 		
 		var defaultHeaders = {
 			"Accept": "application/json, text/html, text/plain, */*",
@@ -54,17 +59,23 @@ function ncouch (url) {
 		}
 
 		var client = http.createClient(uri.port ? uri.port : 80, uri.hostname);
-		console.log("request",settings.type,settings.url);
+		if ( debug ) {
+			console.log("request",settings.type,settings.url);
+		}
 		var request = client.request(settings.type,settings.url ? settings.url : "",settings.headers);
 		request.on("response",function(resp) {
+			if ( debug ) {
+				console.log(ruid,"request response: ",resp.statusCode);
+			}
 			resp.setEncoding("utf8");
 			body = "";
 			resp.on("data",function(d) { body+=d;});
 			resp.on("error", function() {
 				settings.complete(resp.statusCode,null,
 						 {
-							 statusCode: resp.statusCode,
-							 headers: JSON.parse(JSON.stringify(resp.headers))
+							statusCode: resp.statusCode,
+							headers: JSON.parse(JSON.stringify(resp.headers)),
+							query: options
 						 }
 				);
 			});
@@ -76,10 +87,14 @@ function ncouch (url) {
 					} catch (e) {
 					}
 				}
+				if ( debug ) {
+					console.log(ruid,"request body: ",body);
+				}
 				settings.complete(null,body,
 						 {
-							 statusCode: resp.statusCode,
-							 headers: JSON.parse(JSON.stringify(resp.headers))
+							statusCode: resp.statusCode,
+							headers: JSON.parse(JSON.stringify(resp.headers)),
+							query: options
 						 }
 				);
 			});
@@ -266,6 +281,22 @@ function ncouch (url) {
 			return wrapper.storeDocs(docs,data,cb);
 		};
 		
+		wrapper.getAllDocs = function (data,cb) {
+			if ( ! cb &&  typeof data == "function" ) {
+				cb = data;
+				data = {};
+			}
+			var options = {
+				url: dburl+"/_all_docs" ,
+				 type: "GET",
+				 data: data,
+				 event: function(err,resp,meta) {
+					 wrapper.emit("allDocs",err,resp,meta);
+				 }
+			};
+			_query(options,[200],cb);
+		};
+		
 		wrapper.view = function(view, data, cb) {
 			var parts = view.split("/",2);
 			if ( parts.length < 2 ) {
@@ -283,11 +314,11 @@ function ncouch (url) {
 					wrapper.emit("view",err,resp,meta);
 				}
 			};
-			_query(options,cb);
+			_query(options,[200],cb);
 		};
 		
 		wrapper.list = function(list,data,cb) {
-			var parts = view.list("/",4);
+			var parts = view.split("/",4);
 			if ( parts.length < 3 ) {
 				return false;
 			}
@@ -304,10 +335,10 @@ function ncouch (url) {
 				}
 			};
 			if ( parts.length == 4 )	options.url += "/"+encodeURIComponent(parts[3]);
-			_query(options,cb);
+			_query(options,[200],cb);
 		};
 		wrapper.show = function(show,data,cb) {
-			var parts = view.list("/",3);
+			var parts = view.split("/",3);
 			if ( parts.length < 2 ) {
 				return false;
 			}
@@ -324,8 +355,30 @@ function ncouch (url) {
 				}
 			};
 			if ( parts.length == 3 )	options.url += "/"+encodeURIComponent(parts[3]);
-			_query(options,cb);
+			_query(options,[200],cb);
 		};
+		
+		wrapper.updateDoc = function(path, data,cb) {
+			var parts = path.split("/",3);
+			if ( parts.length < 2 ) {
+				return false;
+			}
+			if ( ! cb &&  typeof data == "function" ) {
+				cb = data;
+				data = {};
+			}
+			var options = {
+				url: dburl+"/_design/"+encodeURIComponent(parts[0])+"/_update/"+encodeURIComponent(parts[1]),
+				type: "PUT",
+				data: data,
+				event: function(err,resp,meta) {
+					wrapper.emit("updateDoc",err,resp,meta);
+				}
+			};
+			if ( parts.length == 3 )	options.url += "/"+encodeURIComponent(parts[3]);
+			_query(options,[200,201],cb);
+		}
+		
 		return wrapper;
 	};
 	
@@ -336,6 +389,13 @@ function ncouch (url) {
 		return components.database[name]
 	}
 	
+	this.debug = function() {
+		if ( !arguments.length ) {
+			return debug;
+		}
+		debug = arguments[0] ? true : false;
+		return this;
+	}
 };
 
 exports.server = function(url) {

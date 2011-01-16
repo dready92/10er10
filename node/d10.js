@@ -1,5 +1,6 @@
 var fs = require("fs"),
 	cradle = require('cradle'),
+	ncouch = require("./ncouch"),
 	exec = require('child_process').exec;
 exports.mustache = require("./mustache");
 var config = exports.config = require("./config");
@@ -8,6 +9,19 @@ exports.db = require("./d10db");
 exports.db.auth = new(cradle.Connection)(config.couch.auth.dsn, 5984, {cache: false,raw: false}).database(config.couch.auth.database);
 exports.db.track = new(cradle.Connection)(config.couch.track.dsn, 5984, {cache: false,raw: false}).database(config.couch.track.database);
 exports.db.d10 = new(cradle.Connection)(config.couch.d10.dsn, 5984, {cache: false,raw: false}).database(config.couch.d10.database);
+
+exports.couch = {
+	d10: ncouch.server(config.couch.d10.dsn).debug(true).database(config.couch.d10.database),
+	auth: ncouch.server(config.couch.auth.dsn).debug(true).database(config.couch.auth.database),
+	track: ncouch.server(config.couch.track.dsn).debug(true).database(config.couch.track.database)
+};
+
+console.log("Server debug state : ", ncouch.server(config.couch.d10.dsn).debug());
+console.log("Server debug state : ", ncouch.server(config.couch.d10.dsn).debug());
+
+// exports.couch.d10.debug(true);
+// exports.couch.auth.debug(true);
+// exports.couch.track.debug(true);
 
 var	httpStatusCodes = {
 	100: "Continue",
@@ -182,9 +196,6 @@ exports.fillUserCtx = function (ctx,response,session) {
 		if ( v.doc._id.indexOf("se") === 0 && v.doc._id != session._id ) {
 			exports.log("debug","deleting session ",v.doc._id);
 			exports.saveSession(v.doc,true);
-// 			exports.db.auth.remove(v.doc._id, v.doc._rev,function(err) {
-// 				if ( !err )	exports.log("debug","session "+r.id+" deleted");
-// 			});
 		} else if ( v.doc._id.indexOf("us") === 0 ) {
 			ctx.user = v.doc;
 		} else if ( v.doc._id.indexOf("pr") === 0 ) {
@@ -356,7 +367,7 @@ exports.rest = {
 
 exports.saveSession = function(doc,deleteIt) {
 	if ( deleteIt ) {
-		exports.db.auth.remove(doc._id,doc._rev,function(err) {
+		exports.couch.auth.deleteDoc(doc,function(err) {
 			if ( err ) {
 				exports.log("failed to delete session "+doc._id);
 			} else {
@@ -365,7 +376,7 @@ exports.saveSession = function(doc,deleteIt) {
 		});
 	} else {
 		if ( doc._rev ) {
-			exports.db.save(doc._id,doc._rev,doc,function(err,resp) {
+			exports.couch.auth.storeDoc(doc,function(err,resp) {
 			});
 		}
 	}
@@ -373,7 +384,7 @@ exports.saveSession = function(doc,deleteIt) {
 
 exports.saveUser = function(doc,deleteIt) {
 	if ( deleteIt ) {
-		exports.db.auth.remove(doc._id,doc._rev,function(err) {
+		exports.couch.auth.deleteDoc(doc,function(err) {
 			if ( err ) {
 				exports.log("failed to delete user "+doc._id);
 			} else {
@@ -385,7 +396,7 @@ exports.saveUser = function(doc,deleteIt) {
 
 exports.saveUserPrivate = function(doc,deleteIt) {
 	if ( deleteIt ) {
-		exports.db.auth.remove(doc._id,doc._rev,function(err) {
+		exports.couch.auth.deleteDoc(doc,function(err) {
 			if ( err ) {
 				exports.log("failed to delete user private infos "+doc._id);
 			} else {

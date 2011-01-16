@@ -75,8 +75,9 @@ exports.homepage = function(app) {
 						}
 					});
 					if ( valid == true && uid ) {
-// 						d10.log("debug","user ",uid,"should be logged");
-						var sessionId = utils.uid()+""+utils.uid();
+						d10.log("debug","user ",uid,"should be logged");
+						var sessionId = d10.uid();
+						console.log("session id : ",sessionId);
 						var d = new Date();
 						// create session and send cookie
 						var doc = { 
