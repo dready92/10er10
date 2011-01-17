@@ -288,103 +288,12 @@ Vous avez <strong></strong> morceaux à valider !
  
  
 <div id="main"> 
-	<div id="welcome" style="display:none"> 
-	<nav><ul class="nomark"><li action="introduction">Bienvenue</li></ul></nav> 
-	<div name="introduction"> 
-		<article class="welcome"> 
-			<h1 class="airin">Bienvenue !</h1> 
-			<div class="scrollContainer"> 
-				<!-- root element for the items --> 
-				<div class="items"> 
-					<div> 
-						<h2>....</h2> 
-						Ecoutez votre musique chez vous, chez vos amis, au travail... Créez vos playlists, découvrez de nouveaux artistes...
-						<h2>...</h2> 
-						Personne ne connait mieux que vous vos morceaux de musique. C'est pourquoi, sur Deezer10, nous vous demandons de ne mettre que les meilleurs ! C'est pourquoi aussi, vous validez vous même vos morceaux : nous vous faisons confiance, et si vous aimez la musique autant que nous, on n'a pas de raison d'être déçu !
-					</div> 
-					<div> 
-						<h2 class="airin">Rapide tour du propriétaire</h2> 
-						Le site est séparé en trois parties principales :
-						<ul><li class="airin">La partie Upload vous permet d'enregistrer vos chansons sur le serveur
-						<li class="airin">La partie Mon espace vous permet de retrouver l'ensemble des morceaux que vous avez enregistré, ainsi que de gérer vos playlists
-						<li class="airin">La partie catalogue contient l'ensemble des morceaux enregistrés par tous les membres du site
-						</ul> 
-					</div> 
-					<div> 
-						<h2 class="airin">Upload</h2> 
-						Dans la partie <strong>Upload</strong>, vous pouvez enregistrer vos fichiers musicaux sur le serveur. Vos fichiers doivent être au format mp3 ou ogg.
-						<br> 
-						Pour envoyer des fichiers, sélectionnez les dans votre explorateur de fichiers et faites les glisser dans la boite !
-					</div> 
-				</div> 
-				<div class="clear"> </div> 
-				<a class="prev"></a> 
-				<a class="next"></a> 
-				<br> 
-			</div> 
-		</article> 
-	</div> 
-</div> 
-<div id="library" style="display:none"> 
-	<nav> 
-		<ul class="nomark"> 
-			<li action="creations">Ajouts récents</li> 
-			<li action="hits">Populaires</li> 
-			<li action="titles">Par titre</li> 
-			<li action="genres">Par genre</li> 
-			<li action="artists">Par artiste</li> 
-			<li action="albums">Par album</li> 
-		</ul> 
-	</nav> 
-</div> 
-<div id="my" style="display:none"> 
-	<nav> 
-		<ul class="nomark"> 
-			<li action="review">A valider</li><li action="songs">Mes morceaux</li><li action="plm">Mes playlists</li><li action="likes">Les morceaux que j'aime</li><li class="" action="invites">Invitations</li> 
-		</ul> 
-	</nav> 
-	<div name="plm" style="display:none"></div> 
-</div><div id="upload" style="display:none"> 
-  <div class="uploadDropBox"> 
-<!--     <p class="airin"><strong>La boite à chansons</strong></p> --> 
-    <p class="airin">Faites glisser vos morceaux de musique dans cette boite</p> 
-  </div> 
-  <div class="filesQueue"></div> 
-  <div class="center"> 
-	<div class="control"> 
-		<a class="video" href="#">Comment ça marche ?</a> 
-	</div> 
-	<div class="video"> 
-		<a href="#">Fermer</a> 
-	</div> 
-  </div> 
-</div><div id="results" style="display:none"> 
-<div class="searchBackground"> 
-	<img class="previous" src="/css/32x32/actions/arrow-previous-double.png"> 
-	<img class="next" src="/css/32x32/actions/arrow-next-double.png"> 
-&nbsp;</div> 
-<div class="resultContainer"> 
- 
-<div class="rBox rSum1 artists"> 
-<div class="enlarge"><button>Voir en détail</button></div> 
-<h1>Artistes</h1> 
-<div class="items"></div> 
-</div> 
- 
-<div class="rBox rSum2 albums"> 
-<div class="enlarge"><button>Voir en détail</button></div> 
-<h1>Albums</h1> 
-<div class="items"></div> 
-</div> 
- 
-<div class="rBox rCenter songs"> 
-<div class="enlarge"><button>Voir en détail</button></div> 
-<h1>Morceaux</h1> 
-<div class="items"><div class="list"></div></div> 
-</div> 
- 
-</div> 
- 
+
+{{>libraryContainer}}
+{{>myContainer}}
+{{>uploadContainer}}
+{{>welcomeContainer}}
+{{>resultsContainer}}
  
 </div> 
 	<div id="mainerror" class="hidden"> 

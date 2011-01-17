@@ -1383,6 +1383,14 @@ div.hoverbox hr {
 	padding-right: 32px;
 }
 
+#results div.searchBackground img.loop {
+	position: absolute;
+	left: 500px;
+	top: 139px;
+	visibility: hidden;
+	opacity: .7;
+}
+
 
 #results div.resultContainer {
 	width: 699px;

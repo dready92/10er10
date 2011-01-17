@@ -1,10 +1,11 @@
 var fs = require("fs"),
 	cradle = require('cradle'),
 	ncouch = require("./ncouch"),
+	files = require("./files"),
 	exec = require('child_process').exec;
 exports.mustache = require("./mustache");
 var config = exports.config = require("./config");
-
+var fileCache = files.fileCache( config.production ? null : {bypass: true} );
 exports.db = require("./d10db");
 exports.db.auth = new(cradle.Connection)(config.couch.auth.dsn, 5984, {cache: false,raw: false}).database(config.couch.auth.database);
 exports.db.track = new(cradle.Connection)(config.couch.track.dsn, 5984, {cache: false,raw: false}).database(config.couch.track.database);
@@ -119,7 +120,7 @@ exports.view = function(n,d,p,cb) {
 		cb = p;
 		p = null;
 	}
-	fs.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
+	fileCache.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
 		if (err) throw err;
 		data = exports.mustache.to_html(data,d,p);
 		if ( cb )	cb.call(data,data);
@@ -405,3 +406,4 @@ exports.saveUserPrivate = function(doc,deleteIt) {
 		});
 	}
 };
+

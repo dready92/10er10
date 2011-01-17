@@ -1,7 +1,9 @@
 var fs = require('fs'),
 	events = require("events"),
-	spawn = require("child_process").spawn,
-	d10 = require("./d10");
+	stream = require("stream"),
+	util = require("util"),
+	spawn = require("child_process").spawn;
+// 	d10 = require("./d10");
 	
 var fileWriter = exports.fileWriter = function(path) {
 	events.EventEmitter.call(this);
@@ -18,7 +20,7 @@ var fileWriter = exports.fileWriter = function(path) {
 	this.open = function() {
 		fs.open(path, "w" , "0644", function(err,fd) {
 			if ( err ) {
-				d10.log("debug","fileWriter::open - got an error");
+// 				d10.log("debug","fileWriter::open - got an error");
 				return ;
 			}
 			descriptor = fd;
@@ -62,7 +64,7 @@ var fileWriter = exports.fileWriter = function(path) {
 				inWrite = true;
 				fs.write(descriptor,b,0,b.length,null,function(e,bc) {
 					if ( e ) {
-						d10.log("debug","fileWriter::write - got an error",e);
+// 						d10.log("debug","fileWriter::write - got an error",e);
 						inWrite = false;
 						return ;
 					}
@@ -72,7 +74,7 @@ var fileWriter = exports.fileWriter = function(path) {
 				});
 			} else if (  close ) {
 				fs.close(descriptor, function() { 
-					d10.log("debug","write fd is closed"); 
+// 					d10.log("debug","write fd is closed"); 
 					if ( closeCallback ) { closeCallback.call(this, bytesWritten); }
 					clearInterval(ival);
 					that.emit("end");
@@ -109,7 +111,7 @@ exports.md5_file = function ( file, callback ) {
 	md5    = spawn('md5sum', [file]);
 	
 	md5.stdout.on('data', function (data) { out+=data; });
-	md5.stderr.on('data', function (data) { d10.log("debug",'stderr: ' + data); });
+// 	md5.stderr.on('data', function (data) { d10.log("debug",'stderr: ' + data); });
 	
 	md5.on('exit', function (code) {  callback.call(this,out,code); });
 };
@@ -121,6 +123,107 @@ exports.sha1_file = function ( file, callback ) {
 	sha1    = spawn('sha1sum', [file]);
 	
 	sha1.stdout.on('data', function (data) { out+=data; });
-	sha1.stderr.on('data', function (data) { d10.log("debug",'stderr: ' + data); });
+// 	sha1.stderr.on('data', function (data) { d10.log("debug",'stderr: ' + data); });
 	sha1.on('exit', function (code) {  callback(code,out.replace(/\s+$/,"")); });
 };
+
+
+exports.fileCache = function(options) {
+	var cache = {
+		files: {},
+		stats: {}
+	};
+	
+	var settings = { bypass: false };
+	for ( var index in options ) { settings[index] = options[index]; }
+	
+	var cacheEntry = function(data ) {
+		return { data: data, timestamp: new Date().getTime()
+		};
+	};
+	
+	var cachedReadStream = function(data) {
+		var pause = true;
+		var d = data.slice();
+		var that = this;
+		this.setEncoding = function(){};
+		this.readable = true;
+		this.destroy = function(){};
+		this.pause = function() { pause = true; };
+		this.resume = function() { pause = false; process.nextTick(sendOne); };
+		var sendOne = function() {
+			if ( pause )	return ;
+			if ( d.length ) { 
+				that.emit("data",d.shift()); 
+				if ( d.length ) return process.nextTick(sendOne);
+				that.emit("end");
+				that.emit("close");
+			}
+		};
+		this.resume();
+	};
+	util.inherits(cachedReadStream, stream.Stream);
+	
+	var dupReadStream = function(file,key) {
+		var stream = fs.createReadStream(file);
+		if ( settings.bypass )	return stream;
+		var data = [];
+		stream.on("data",function(d) { data.push(d); });
+		stream.on("close",function() { cache.files[key] = cacheEntry(data) });
+		return stream;
+	};
+	
+	return {
+		createReadStream: function(file,options) {
+			options = options || {};
+			var key = file;
+			if ( options.start ) {key+= "^s"+options.start;}
+			if ( options.end ) {key+= "^e"+options.end;}
+			if ( cache.files[key] ) {
+				console.log("file ",file," served from cache",settings.bypass);
+				return new cachedReadStream(cache.files[key].data);
+			}	else {
+				return dupReadStream(file,key);
+			}
+		},
+		stat: function(file,then) {
+			if ( cache.stats[file] ) {
+// 				d10.log("filestat ",file," served from cache");
+				then.apply(this,cache.stats[file].data);
+				return ;
+			}
+			fs.stat(file,function() {
+				var entry = cacheEntry(Array.prototype.slice.call(arguments));
+				then.apply(this,entry.data);
+				if ( !settings.bypass ) {
+					cache.stats[file] = entry;
+				}
+			});
+		},
+		readFile: function(file,e,c) {
+			var callback = c ? c : e ;
+			if ( !cache.files[file] ) {
+				var then = function(err,data) {
+					process.nextTick(function() {
+						callback.call(this,err,data);
+					});
+					if ( !settings.bypass ) {
+						console.log("setting cache for ",file);
+						cache.files[file] = cacheEntry({data: data, err: err});
+					}
+					
+				};
+				if ( c )	fs.readFile(file,e,then);
+				else		fs.readFile(file,then);
+			} else {
+				nextTick(function() {
+					callback.call(this,cache.files[file].err, cache.files[file].data);
+				});
+			}
+		},
+		getCache: function() {return cache}
+	};
+		
+};
+
+

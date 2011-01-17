@@ -1,7 +1,9 @@
 var fs = require("fs"),
 	path = require("path"),
 	util = require("util"),
-	utils = require("connect/utils");
+	utils = require("connect/utils"),
+	d10 = require("./d10"),
+	files = require("./files");
 
 
 
@@ -14,12 +16,15 @@ exports.statusCode = function (code) {
 
 
 
-exports.localPathServer = function ( uri, localuri ) {
+exports.localPathServer = function ( uri, localuri, cacheSettings ) {
 	uri = uri.replace(/\/$/,"");
 	if ( !uri.length )	return false;
 	localuri = localuri.replace(/\/$/,"");
 	if ( !localuri.length )	return false;
-	
+	cacheSettings = cacheSettings || {};
+	if ( !d10.config.production && ! "bypasss" in cacheSettings  )	cacheSettings.bypass = true;
+	var cache = new files.fileCache(cacheSettings) ;
+// 	setInterval(function() { d10.log("FileCache ",uri,d10.count( cache.getCache().files ), d10.count( cache.getCache().stats ))  },1000);
 	return  function ( request, response, next ) {
 		if ( ! request.ctx ) { request.ctx = {request: request, response: response}; }
 		if ( ! request.ctx.headers ) { request.ctx.headers = {}; }
@@ -27,12 +32,12 @@ exports.localPathServer = function ( uri, localuri ) {
 		var url = path.normalize(request.url);
 		if ( url.indexOf(uri) !== 0 ) { return next(); };
 		var localFile = url.replace(uri,localuri);
-		fs.stat(localFile, function(err, stats) {
+		cache.stat(localFile, function(err, stats) {
 			if(!err) {
 				request.ctx.stats = stats;
 				request.ctx.status = 200;
 				request.ctx.headers["Content-Type"] = utils.mime.type(localFile);
-				sendStatic(localFile,stats,request.ctx);
+				sendStatic(localFile,stats,request.ctx,cache);
 			} else {
 				return next();
 			}
@@ -77,7 +82,7 @@ var parseRange = function(ctx, stats) {
     }
 };
 
-function sendStatic(staticFile, stats, ctx) {
+function sendStatic(staticFile, stats, ctx,cache) {
     function sendBytes() {
 		if(satisfiesConditions(stats, ctx)) {
 			ctx.headers['Last-Modified'] = stats.mtime.toUTCString();
@@ -87,10 +92,10 @@ function sendStatic(staticFile, stats, ctx) {
 				ctx.status = 206;
 				ctx.headers['Content-Length'] = range[1] - range[0] + 1;
 				ctx.headers['Content-Range'] = 'bytes ' + range[0] + '-' + range[1] + '/' + stats.size;
-				var stream = fs.createReadStream(staticFile, {start: range[0], end: range[1]});
+				var stream = cache.createReadStream(staticFile, {start: range[0], end: range[1]});
 			} else {
 				ctx.headers['Content-Length'] = stats.size;
-				var stream = fs.createReadStream(staticFile);
+				var stream = cache.createReadStream(staticFile);
 			}
 			
 			ctx.response.writeHead(ctx.status, ctx.headers);

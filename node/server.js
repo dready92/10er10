@@ -12,22 +12,24 @@ var	connect = require("connect"),
 	config = require("./config")
 	;
 
+if ( process.getuid() == 502 ) {
+	config.production = true;
+}
+// config.production = true;
 function staticRoutes(app) {
-	app.get("/js/*",httpHelper.localPathServer("/js","../views/10er10.com/js"));
-	app.get("/css/*",httpHelper.localPathServer("/css","../views/10er10.com/css"));
+	app.get("/js/*",httpHelper.localPathServer("/js","../views/10er10.com/js",{bypass: config.production ? false : true}));
+	app.get("/css/*",httpHelper.localPathServer("/css","../views/10er10.com/css",{bypass: config.production ? false : true}));
 };
 
 function staticAudio (app) {
-	app.get("/audio/*",httpHelper.localPathServer("/audio","/var/www/html/audio"));
+	app.get("/audio/*",httpHelper.localPathServer("/audio","/var/www/html/audio",{bypass: true}));
 };
 
 function staticInvites(app) {
 	app.get("/static/*",httpHelper.localPathServer("/static","../views/invites.10er10.com/static"));
 };
 
-var d10Server = connect.createServer( 
-	connect.favicon('../views/10er10.com/favicon.ico'),
-	connect.logger(), 
+var stack = [
 	require("./contextMiddleware").context,
 	connect.router(staticRoutes), 
 	cookieSession.cookieSession,
@@ -39,7 +41,18 @@ var d10Server = connect.createServer(
 	connect.router(listingApi.api),
 	connect.router(songStuff.api),
 	connect.router(invites.api)
-);
+];
+
+
+
+
+var d10Server = connect.createServer(connect.favicon('../views/10er10.com/favicon.ico'));
+if ( !config.production ) {
+	d10Server.use(connect.logger());
+}
+
+stack.forEach(function(mw) { d10Server.use(mw); });
+
 
 var invitesServer = connect.createServer( 
  	connect.logger(), 
@@ -77,4 +90,4 @@ globalSrv.on("clientError",function() {
 	console.log("CLIENT ERROR");
 	console.log(arguments);
 });
-
+console.log("Production : ",config.production);
