@@ -354,7 +354,7 @@ function ncouch (url) {
 					wrapper.emit("show",err,resp,meta);
 				}
 			};
-			if ( parts.length == 3 )	options.url += "/"+encodeURIComponent(parts[3]);
+			if ( parts.length == 3 )	options.url += "/"+encodeURIComponent(parts[2]);
 			_query(options,[200],cb);
 		};
 		
@@ -375,7 +375,7 @@ function ncouch (url) {
 					wrapper.emit("updateDoc",err,resp,meta);
 				}
 			};
-			if ( parts.length == 3 )	options.url += "/"+encodeURIComponent(parts[3]);
+			if ( parts.length == 3 )	options.url += "/"+encodeURIComponent(parts[2]);
 			_query(options,[200,201],cb);
 		}
 		

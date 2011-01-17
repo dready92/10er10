@@ -619,6 +619,15 @@ exports.api = function(app) {
 		bodyDecoder()(request, response,function() {
 			var volume = (request.body && "volume" in request.body) ? parseFloat(request.body.volume) : 0;
 			if ( isNaN(volume) )	volume=0;
+			d10.couch.d10.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
+				if ( err ) { return d10.rest.err(423,err,request.ctx); }
+				doc.volume = volume;
+				d10.couch.d10.storeDoc(doc,function(err,resp) {
+					if ( err ) { d10.rest.err(423,err,request.ctx); }
+					else { d10.rest.success([],request.ctx); }
+				});
+			});
+			/*
 			d10.db.db("d10").getDoc({
 				success: function(doc) {
 					doc.volume = volume;
@@ -635,12 +644,32 @@ exports.api = function(app) {
 			},
 			"up"+request.ctx.user._id.substr(2)
 							 );
+		*/
 		});
 	});
 	
 	
 	app.put("/api/starring/likes/aa:id",function(request,response) {
 		var starring = function() {
+			d10.couch.d10.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
+				if ( err) { return d10.rest.err(423,err,request.ctx); }
+				var star = null;
+				if ( doc.dislikes["aa"+request.params.id] ) {
+					delete doc.dislikes["aa"+request.params.id];
+				}
+				if ( doc.likes["aa"+request.params.id] ) {
+					delete doc.likes["aa"+request.params.id];
+					
+				} else {
+					doc.likes["aa"+request.params.id] = true;
+					star = "likes";
+				}
+				d10.couch.d10.storeDoc(doc, function(err,resp) {
+					if ( err ) { d10.rest.err(423,err,request.ctx); }
+					else { d10.rest.success({id: "aa"+request.params.id, star: star },request.ctx); }
+				});
+			});
+			/*
 			d10.db.db("d10").getDoc({
 				success: function(doc) {
 					var star = null;
@@ -668,17 +697,43 @@ exports.api = function(app) {
 			},
 			"up"+request.ctx.user._id.substr(2)
 							 );
+	*/
 		};
+		d10.couch.d10.getDoc("aa"+request.params.id, function(err,resp) {
+			if ( err ) { d10.rest.err(427,err,request.ctx); }
+			else {  starring(); }
+		});
+		/*
 		d10.db.db("d10").getDoc({
 			success: starring,
 			error: function(f,err) { d10.rest.err(427,err,request.ctx); }
 		},
 		"aa"+request.params.id
 						 );
+	*/
 	});
 	
 	app.put("/api/starring/dislikes/aa:id",function(request,response) {
 		var starring = function() {
+			d10.couch.d10.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
+				if ( err ) { return d10.rest.err(423,err,request.ctx); }
+				var star = null;
+				if ( doc.likes["aa"+request.params.id] ) {
+					delete doc.likes["aa"+request.params.id];
+				}
+				if ( doc.dislikes["aa"+request.params.id] ) {
+					delete doc.dislikes["aa"+request.params.id];
+					
+				} else {
+					doc.dislikes["aa"+request.params.id] = true;
+					star = "dislikes";
+				}
+				d10.couch.d10.storeDoc(doc,function(err,resp) {
+					if ( err ) { d10.rest.err(423,err,request.ctx);}
+					else { d10.rest.success({id: "aa"+request.params.id, star: star },request.ctx); }
+				});
+			});
+				/*
 			d10.db.db("d10").getDoc({
 				success: function(doc) {
 					var star = null;
@@ -706,78 +761,91 @@ exports.api = function(app) {
 			},
 			"up"+request.ctx.user._id.substr(2)
 							 );
+			*/
 		};
+		d10.couch.d10.getDoc("aa"+request.params.id, function(err,resp) {
+			if ( err ) { d10.rest.err(427,err,request.ctx); }
+			else {  starring(); }
+		});
+		/*
 		d10.db.db("d10").getDoc({
 			success: starring,
 			error: function(f,err) { d10.rest.err(427,err,request.ctx); }
 		},
 		"aa"+request.params.id
-						 );
+						 );*/
 	});
 	
 	
 	
 	
 	app.get("/api/search2",function(request,response) {
-		var db = d10.db.db("d10");
+// 		var db = d10.db.db("d10");
+		var options = {include_docs: true};
 		if ( request.query.start ) {
 			var start = d10.ucwords( request.query.start.replace(/^\s+/,"").replace(/\s+$/,"") );
 			var end = start;
 			var next = String.fromCharCode( end.charCodeAt( end.length-1 ) + 1 );
 			end = end.substr(0, end.length - 1) + next;
 // 			d10.log("debug","startkey",start,"endkey",end,"next",next);
-			db.startkey(start).endkey(end).inclusive_end(false);
+			options.startkey = start;
+			options.endkey = end;
+			options.inclusive_end = false;
+// 			db.startkey(start).endkey(end).inclusive_end(false);
 		}
-		db.include_docs(true).getView({
-			success: function(resp) {
-				var results = {title: [], artist: [], album: []};
-				resp.rows.forEach(function(v,k) {
-					var doc = v.doc;
-					var field = v.value.json.field;
-					if ( field == "album" || field == "artist" ) {
-						var put = false;
-						for (i=0,len=results[field].length; i<len; i++ ) {
-							if ( results[field][i].doc[field] ==  doc[field] ) {
-								put = true;
-								break;
-							} else if ( results[field][i].doc[field] > doc[field] ) {
-								put = true;
-								results[field].splice(i,0,{doc: doc, value: v.value});
-								break;
-							}
-						}
-						if ( !put ) {
-							results[field].push( {doc: doc, value: v.value} );
-						}
-					} else {
-						var put = false;
-						for (i=0,len=results[field].length; i<len; i++ ) {
-							if ( results[field][i].doc[field]+" "+results[field][i].doc._id == doc[field]+" "+ doc._id ) {
-								put = true;
-								break;
-							} else if ( results[field][i].doc[field]+" "+results[field][i].doc._id > doc[field]+" "+ doc._id ) {
-								put = true;
-								results[field].splice(i,0,{doc: doc, value: v.value});
-								break;
-							}
-						}
-						if ( !put ) {
-							results[field].push({doc: doc, value: v.value});
+// 		db.include_docs(true).getView({
+// 			success: function(resp) {
+		d10.couch.d10.view("song/search",options, function(err,resp) {
+			if ( err ) { return d10.rest.err(423,err,request.ctx); }
+			var results = {title: [], artist: [], album: []};
+			resp.rows.forEach(function(v,k) {
+				var doc = v.doc;
+				var field = v.value.json.field;
+				if ( field == "album" || field == "artist" ) {
+					var put = false;
+					for (i=0,len=results[field].length; i<len; i++ ) {
+						if ( results[field][i].doc[field] ==  doc[field] ) {
+							put = true;
+							break;
+						} else if ( results[field][i].doc[field] > doc[field] ) {
+							put = true;
+							results[field].splice(i,0,{doc: doc, value: v.value});
+							break;
 						}
 					}
-				});
-				request.ctx.headers["Content-Type"] = "application/json";
-				response.writeHead(200,request.ctx.headers);
-				response.end( JSON.stringify(results) );
+					if ( !put ) {
+						results[field].push( {doc: doc, value: v.value} );
+					}
+				} else {
+					var put = false;
+					for (i=0,len=results[field].length; i<len; i++ ) {
+						if ( results[field][i].doc[field]+" "+results[field][i].doc._id == doc[field]+" "+ doc._id ) {
+							put = true;
+							break;
+						} else if ( results[field][i].doc[field]+" "+results[field][i].doc._id > doc[field]+" "+ doc._id ) {
+							put = true;
+							results[field].splice(i,0,{doc: doc, value: v.value});
+							break;
+						}
+					}
+					if ( !put ) {
+						results[field].push({doc: doc, value: v.value});
+					}
+				}
+			});
+			request.ctx.headers["Content-Type"] = "application/json";
+			response.writeHead(200,request.ctx.headers);
+			response.end( JSON.stringify(results) );
+		});
 // 				d10.rest.success(results,request.ctx);
-			},
-			error: function(e,err) {
-				d10.rest.err(423,err,request.ctx);
-			}
-		},
-		"song",
-		"search"
-							  );
+// 			},
+// 			error: function(e,err) {
+// 				d10.rest.err(423,err,request.ctx);
+// 			}
+// 		},
+// 		"song",
+// 		"search"
+// 							  );
 	});
 	
 	app.post("/api/details",function(request,response) {
@@ -800,6 +868,12 @@ exports.api = function(app) {
 			}
 			if ( artists.length ) {
 				jobs.artists=function(cb) {
+					
+					d10.couch.d10.view("artist/artist",{reduce: false, include_docs: true, keys: artists}, function(err,resp) {
+						if ( err )	{cb(err);}
+						else	cb(null,resp.rows);
+					});
+					/*
 					d10.db.db("d10").reduce(false).include_docs(true).keys(artists).getView(
 						{
 							success: function(resp) {
@@ -812,10 +886,16 @@ exports.api = function(app) {
 						"artist",
 						"artist"
 																					);
+		*/
 				};
 			}
 			if ( albums.length ) {
 				jobs.albums=function(cb) {
+					d10.couch.d10.view("album/album",{reduce: false, include_docs:true,keys: albums}, function(err,resp) {
+						if ( err )	{cb(err);}
+						else	cb(null,resp.rows);
+					});
+					/*
 					d10.db.db("d10").reduce(false).include_docs(true).keys(albums).getView(
 						{
 							success: function(resp) {
@@ -828,6 +908,7 @@ exports.api = function(app) {
 						"album",
 						"album"
 																					);
+		*/
 				};
 			}
 			d10.when(
