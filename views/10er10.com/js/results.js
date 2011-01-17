@@ -5,6 +5,51 @@ var results = function (search) {
 	// 		var loaded = false;
 	var ui = null;
 	var lastRoute = null;
+	var animated = false;
+	var rcache = [],
+	rcacheSize = 15,
+	rcacheTTL = 120000, 
+	httpCachedRequest = function(request) {
+		var key = request.url+"?"+JSON.stringify(request.data);
+		var cacheIndex = -1;
+		for ( var i in rcache ) {
+			if ( rcache[i].key == key ) {
+				if ( rcache[i].date + rcacheTTL < new Date().getTime() ) {
+					debug("results cache : cache expired");
+					rcache.splice(i,1);
+					break;
+				}
+				cacheIndex = i;
+				break;
+			}
+		}
+		if ( cacheIndex == -1 ) {
+			var success = request.success;
+			request.success = function(data) {
+				this.success = success;
+				rcache.push(
+					{
+						key: key,
+						context: this,
+						date: new Date().getTime(),
+						data: data
+					}
+				);
+				while ( rcache.length > rcacheSize ) {
+					rcache.shift();
+				}
+				success.call(this,data);
+			};
+			d10.bghttp.request(request);
+		} else {
+			setTimeout(function() {
+				rcache[cacheIndex].context.success.call(rcache[cacheIndex].context,rcache[cacheIndex].data);
+			},15);
+		}
+	};
+	
+	
+	
 	var load = function () {
 		ui = $("#results div.resultContainer");
 		ui.find("div.enlarge button").click(function() {
@@ -91,6 +136,9 @@ var results = function (search) {
 			return false;
 		}
 		var looped = {};
+		data.artists = data.artists || [];
+		data.albums = data.albums || [];
+		
 		$.each ( data.artists, function(key,val) {
 			if ( !looped[val.key] ) {
 				looped[val.key] = {
@@ -166,6 +214,10 @@ var results = function (search) {
 			debug("info too late");
 			return false;
 		}
+		if ( animated ) {
+			animated = false;
+			$("#results img.loop").stop(true).css({visibility: "hidden", opacity: 0.6});
+		}
 		var html = '';
 		$("div.rBox.songs div.list",ui).empty();
 		if ( data.title ) {
@@ -203,6 +255,7 @@ var results = function (search) {
 		}
 		if ( details.artists.length || details.albums.length ) {
 			var ajax = {
+				"method": "POST",
 				"url": site_url+"/api/details",
 				"route": lastRoute,
 				"dataType": "json",
@@ -211,7 +264,7 @@ var results = function (search) {
 			};
 			setTimeout(function() {
 				if ( ajax.route == lastRoute ) {
-					d10.bghttp.post(ajax);
+					httpCachedRequest(ajax);
 				}
 			} , 50);
 		}
@@ -261,13 +314,27 @@ var results = function (search) {
 		}
 		if ( data.segments.length ) {
 			var q = data.segments[0] ;
-			d10.bghttp.get({
+			debug("testing animated");
+			httpCachedRequest({
+				"method": "GET",
 				"url": site_url+"/api/search2",
 				"route": lastRoute,
 				"dataType": "json",
 				"data": {"start": q},
 				"success": displayAjaxResponse
 			});
+			debug("testing animated");
+			if ( !animated ) {
+				animated = true;
+				debug("animate...");
+				var startAnim = function() {
+					debug("launching animation on ",$("#results img.loop"));
+					$("#results img.loop").css("visibility","visible").animate({opacity: 0.2},500,function() {
+						$(this).animate({opacity: 0.6},500,startAnim);
+					});
+				};
+				startAnim();
+			}
 		} else {
 			$("div.items",ui).empty();
 		}

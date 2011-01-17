@@ -30,9 +30,34 @@ exports.homepage = function(app) {
 				vars.debugloop = true;
 			}
 			vars.username = request.ctx.user.login;
-			d10.view("homepage",vars,function(html) {
-				response.end(html);
-			});
+			d10.when(
+				{
+					resultsContainer: function(cb) {
+						d10.view("html/results/container",{},function(data) {cb(null,data);} );
+					},
+					libraryContainer: function(cb) {
+						d10.view("html/library/container",{},function(data) {cb(null,data);} );
+					},
+					myContainer: function(cb) {
+						d10.view("html/my/container",{},function(data) {cb(null,data);} );
+					},
+					uploadContainer: function(cb) {
+						d10.view("html/upload/container",{},function(data) {cb(null,data);} );
+					},
+					welcomeContainer: function(cb) {
+						d10.view("html/welcome/container",{},function(data) {cb(null,data);} );
+					}
+				},
+				 function(responses) {
+					d10.view("homepage",vars,responses,function(html) {
+						response.end(html);
+					});
+				},
+				function(errs) {
+					console.log("READ ERROR : ",errs);
+				}
+			);
+			
 		} else {
 			d10.log("debug","sending login");
 			d10.view("login",vars,function(html) {
