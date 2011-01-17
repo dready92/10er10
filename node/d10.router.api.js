@@ -153,7 +153,7 @@ exports.api = function(app) {
 	app.get("/api/current_playlist",function(request,response) {
 // 		d10.log("debug","router:","/api/current_playlist");
 		var getFromPlaylist = function(id) {
-			d10.db.db("d10").getDoc(id, function(err,playlist) {
+			d10.couch.d10.getDoc(id, function(err,playlist) {
 				if ( err ) return d10.rest.err(423,err,request.ctx);
 				if ( playlist.songs && playlist.songs.length ) {
 					

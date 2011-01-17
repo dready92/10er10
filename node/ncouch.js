@@ -29,7 +29,7 @@ function ncouch (url) {
 	var debug=false;
 	var requestsCount = 0;
 	
-	console.log(uri);
+// 	console.log(uri);
 	
 	var serverQuery = this.query = function (options) {
 		var settings = {
@@ -132,7 +132,9 @@ function ncouch (url) {
 		if ( settings.body && typeof settings.body != "string" ) {
 			settings.body = JSON.stringify( settings.body );
 		}
-		console.log("request body",settings.body);
+		if ( debug ) {
+			console.log("request body",settings.body);
+		}
 		return settings;
 	};
 	

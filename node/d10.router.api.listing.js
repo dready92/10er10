@@ -8,7 +8,7 @@ exports.api = function(app) {
 	app.get("/api/pagination/:sort", function(request,response) {
 		var sortTypes = [ "hits","ts_creation","album","artist","genre","title","s_user","s_user_likes" ],
 		query = {rpp: d10.config.rpp};
-		db = d10.db.db("d10");
+// 		db = d10.db.db("d10");
 		
 		var preHooks = {
 			hits: function() {
@@ -19,7 +19,7 @@ exports.api = function(app) {
 			ts_creation: function() {
 				query.reduce = false;
 				query.descending = true;
-				db.reduce(false).descending(true);
+// 				db.reduce(false).descending(true);
 			},
 			album: function() {
 				if ( request.query.album && request.query.album.length ) {
@@ -289,14 +289,24 @@ exports.api = function(app) {
 	});
 	
 	app.get("/api/songs/s_user",function(request,response) {
-		var db = d10.db.db("d10").include_docs(true).endkey([request.ctx.user._id,[]]).limit(d10.config.rpp);
-		
+// 		var db = d10.db.db("d10").include_docs(true).endkey([request.ctx.user._id,[]]).limit(d10.config.rpp);
+		var query = {include_docs: true, endkey: [request.ctx.user._id,[]], limit: d10.config.rpp};
 		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
 // 			request.query["startkey[]"][1] = parseInt(request.query["startkey[]"][1]);
-			db.startkey_docid( request.query.startkey_docid ).startkey( request.query["startkey[]"] );
+// 			db.startkey_docid( request.query.startkey_docid ).startkey( request.query["startkey[]"] );
+			query.startkey = request.query["startkey[]"];
+			query.startkey_docid = request.query.startkey_docid;
 		}
 		
-		db.getView(
+		d10.couch.d10.view("s_user/name",query,function(err,resp) {
+			if ( err ) {
+				return d10.rest.err(423, err, request.ctx);
+			} else {
+				d10.rest.success(resp,request.ctx);
+			}
+		});
+		/*
+		//db.getView(
 			{
 				success: function(resp) {
 					d10.rest.success(resp,request.ctx);
@@ -308,7 +318,7 @@ exports.api = function(app) {
 			"s_user",
 			"name"
 		);
-		
+		*/
 	});
 	
 

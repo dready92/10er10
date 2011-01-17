@@ -15,7 +15,8 @@ var isValidCode = function(code, callback) {
 	if ( code.substr(0,2) !== "in" ) {
 		callback(400);
 	}
-	d10.db.auth.get(code,function(err,doc) {
+	
+	d10.couch.auth.getDoc(code,function(err,doc) {
 		if ( err ) {
 			return callback(err);
 		}
@@ -44,7 +45,7 @@ var isValidLogin = function(login, callback) {
 		  login.toLowerCase() == "administrator" ||
 		   login.toLowerCase() == "root"
 	)	return callback(430);
-	d10.db.auth.view("infos/all", {key: ["login",login]}, function(err,back) {
+	d10.couch.auth.view("infos/all", {key: ["login",login]}, function(err,back) {
 		if ( err ) {
 			callback(503);
 		} else if ( back.rows.length ) {
@@ -77,10 +78,10 @@ var createAccount = function(request,response,invite) {
 	d10.when(
 		{
 			parent: function(cb) {
-				d10.db.auth.get(invite.from,cb);
+				d10.couch.auth.getDoc(invite.from,cb);
 			},
 			parentPriv: function(cb) {
-				d10.db.auth.get(invite.from.replace(/^us/,"pr"),cb);
+				d10.couch.auth.getDoc(invite.from.replace(/^us/,"pr"),cb);
 			}
 		},
 		function(d) {
@@ -95,7 +96,7 @@ var createAccount = function(request,response,invite) {
 				password: hash.sha1(request.body.password),
 				depth: d.parentPriv.depth ? d.parentPriv.depth+1: 1
 			};
-			d10.db.auth.save( [ user, priv ], function(err,resp) {
+			d10.couch.auth.storeDocs( [ user, priv ], function(err,resp) {
 				if ( err ) {
 					response.writeHead(500,{});
 					response.end(JSON.stringify(err));
@@ -112,7 +113,7 @@ var createAccount = function(request,response,invite) {
 }
 
 var createD10UserDocs = function(request,response,user,invite) {
-	d10.db.d10.save( [ {_id: user._id.replace(/^us/,"up")}, {_id: user._id.replace(/^us/,"pr")} ], function(err,resp) {
+	d10.couch.d10.storeDocs( [ {_id: user._id.replace(/^us/,"up")}, {_id: user._id.replace(/^us/,"pr")} ], function(err,resp) {
 		if ( err ) {
 			tryToRemoveAuthDocs(user);
 			response.writeHead(500,{});
@@ -121,19 +122,19 @@ var createD10UserDocs = function(request,response,user,invite) {
 		}
 		response.writeHead(200,{});
 		response.end("ok");
-		d10.db.auth.remove(invite._id, invite._rev);
+		d10.couch.auth.deleteDoc(invite,function(){});
 	});
 };
 
 var tryToRemoveAuthDocs = function (user) {
-	d10.db.auth.get(user._id,function(err,doc) {
+	d10.couch.auth.getDoc(user._id,function(err,doc) {
 		if(!err) {
-			d10.db.auth.remove(doc._id,doc._rev);
+			d10.couch.auth.deleteDoc(doc,function(){});
 		}
 	});
-	d10.db.auth.get(user._id.replace(/^us/,"pr"),function(err,doc) {
+	d10.couch.auth.getDoc(user._id.replace(/^us/,"pr"),function(err,doc) {
 		if(!err) {
-			d10.db.auth.remove(doc._id,doc._rev);
+			d10.couch.auth.deleteDoc(doc,function(){});
 		}
 	});
 };

@@ -220,6 +220,7 @@ exports.api = function(app) {
 		
 		var bytesCheck = function() {
 			var min = 5000;
+			console.log(job.fileWriter.bytesWritten());
 			if ( job.fileWriter.bytesWritten() > min ) {
 				clearInterval(bytesIval);
 				bytesIval = null;
@@ -391,9 +392,20 @@ exports.api = function(app) {
 				cleanupTags: {
 					status: null,
 					run: function(then) {
+						if ( this.tasks.fileMeta.err ) {
+							cleanupFileSystem();
+							return ;
+						}
 // 						d10.log("debug","cleanup tags");
 // 						d10.log("debug",this.tasks.fileMeta.response);
-						var tags = JSON.parse(JSON.stringify(this.tasks.fileMeta.response));
+						var tags = null;
+						try {
+							tags = JSON.parse(JSON.stringify(this.tasks.fileMeta.response));
+						} catch (e) {
+							d10.log("debug","parsing failed for ",this.tasks.fileMeta.response);
+						}
+						
+// 						var tags = {};
 // 						d10.log("debug",tags);
 						if ( tags.genre ) {
 							var value = "";
@@ -629,6 +641,10 @@ exports.api = function(app) {
 // 			d10./*log*/("debug","fileMeta : ");
 // 			d10.log("debug",err);
 // 			d10.log("debug",data);
+			if ( err ) {
+				return safeErrResp(503,err,request.ctx);
+			}
+			
 		});
 		
 		job.complete("sha1File",function(err,resp) {
@@ -654,7 +670,11 @@ exports.api = function(app) {
 			if ( job.tasks.fileType.response == "audio/mpeg" ) {
 				fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName,function()  {});
 			}
-			job.run("cleanupTags");
+			if ( job.tasks.fileMeta.status === null ) {
+				job.complete("fileMeta",function() {  job.run("cleanupTags"); });
+			} else {
+				job.run("cleanupTags"); 
+			}
 		});
 		
 		job.complete("cleanupTags",function(err,resp) {
@@ -729,34 +749,47 @@ exports.api = function(app) {
 			d10.log("debug",arguments);
 		});
 		
-		
+		var cleanupFileSystem = function() {
+			if ( job.lameWriter ) {
+				job.lameWriter.kill();
+			}
+			if ( job.oggWriter ) {
+				job.oggWriter.kill();
+			}
+			fs.unlink(d10.config.audio.tmpdir+"/"+job.oggName);
+			fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName);
+		};
 		request.connection.on("close",function(err){
 			d10.log("debug","request connection CLOSE !");
 			d10.log("debug",arguments);
 			d10.log("debug","requestEnd",job.requestEnd);
 			if ( job.requestEnd === false ) {
 				// client connection failed to send us the complete data
-				if ( job.lameWriter ) {
-					job.lameWriter.kill();
-				}
-				if ( job.oggWriter ) {
-					job.oggWriter.kill();
-				}
-				fs.unlink(d10.config.audio.tmpdir+"/"+job.oggName);
-				fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName);
+				cleanupFileSystem();
 			}
 		});
 		
 		request.on("end",function() {
 			job.requestEnd = true;
 			d10.log("debug","got request end");
+			if ( bytesIval ) { clearInterval(bytesIval); }
 			if ( job.fileWriter  ) {
-				job.fileWriter.close();
+				if ( job.tasks.fileType.status === null ) {
+					job.fileWriter.close(function() {d10.log("debug","launching fileType job after filewriter close");job.run("fileType");});
+				} else {
+					job.fileWriter.close();
+				}
+				/*
+				if ( job.tasks.fileType.status === null ) {
+					job.run("fileType");
+				}
+				*/
 			} else {
 				response.writeHead(200, {'Content-Type': 'text/plain'});
 				response.end('Nothing sent\n');
 			}
-			if ( bytesIval ) { clearInterval(bytesIval); }
+			
+			
 		});
 		
 		request.on("data",function(chunk) {
@@ -765,7 +798,9 @@ exports.api = function(app) {
 				
 				d10.log("debug","creating fileWriter");
 				job.fileWriter  = new files.fileWriter(d10.config.audio.tmpdir+"/"+job.fileName);
+				d10.log("debug","settings bytescheck interval");
 				bytesIval = setInterval(bytesCheck,500);
+				d10.log("debug","interval = ", bytesIval);
 				job.fileWriter.open();
 
 				job.fileWriter.on("end", function() {
@@ -780,8 +815,11 @@ exports.api = function(app) {
 							return ;
 					}
 					job.run("sha1File");
-					
-					if ( job.tasks.fileType.response == "application/ogg" ) { job.emit("oggAvailable",[]); }
+					if ( job.tasks.fileType.status === null ) {
+						job.complete("fileType",function(err,resp) {
+							if (  job.tasks.fileType.response == "application/ogg" ) { job.emit("oggAvailable",[]); }
+						});
+					} else if ( job.tasks.fileType.response == "application/ogg" ) { job.emit("oggAvailable",[]); }
 					d10.log("debug","fileWriter end event");
 				});
 			}
