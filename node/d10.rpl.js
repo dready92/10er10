@@ -8,6 +8,20 @@ exports.playlistAndSongs = function(id, then) {
 		if ( !playlist.songs || !playlist.songs.length ) {
 			return then(null,playlist);
 		}
+		
+		d10.couch.d10.getAllDocs({include_docs: true, keys: playlist.songs},function(err,resp) {
+			if ( err ) { return then(8); }
+			playlist.songs = [];
+			if ( resp.rows ) {
+				resp.rows.forEach(function(v,k) {
+					if ( !v.error ) {
+						playlist.songs.push(v.doc);
+					}
+				});
+			}
+			then(null,playlist);
+		});
+		/*
 		d10.db.db("d10").include_docs(true).keys(playlist.songs).getAllDocs(
 			{
 				success: function(resp) {
@@ -26,12 +40,22 @@ exports.playlistAndSongs = function(id, then) {
 				}
 			}
 		);
-		
+		*/
 	};
 	
 	if ( !id.length || id.substr(0,2) != "pl" ) {
 		return then(8);
 	}
+	
+	d10.couch.d10.getDoc(id,function(err,playlist) {
+		if ( err ) { then(8); }
+		else if ( playlist.songs && playlist.songs.length ) {
+			getSongs(playlist);
+		} else {
+			then(null, playlist);
+		}
+	});
+	/*
 	d10.db.db("d10").getDoc(
 		{
 			success: function(playlist) {
@@ -47,6 +71,7 @@ exports.playlistAndSongs = function(id, then) {
 		},
 		id
 	);
+	*/
 };
 
 exports.update = function(playlist, songs, then) {
@@ -56,6 +81,13 @@ exports.update = function(playlist, songs, then) {
 	
 	var save = function() {
 		playlist.songs = songs;
+		d10.couch.d10.storeDoc(playlist,function(err,resp) {
+			if ( err ) { return then(4); }
+			playlist._rev = resp.rev;
+			then(null,playlist);
+			
+		});
+		/*
 		d10.db.db("d10").storeDoc(
 			{
 				success: function(resp) {
@@ -68,9 +100,25 @@ exports.update = function(playlist, songs, then) {
 			},
 			playlist
 		);
+		*/
 	};
 	
 	if ( songs.length ) {
+		
+		d10.couch.d10.getAllDocs({include_docs: true, keys: songs},function(err,docs) {
+			if ( err ) { return then(8); }
+			var good=true;
+			docs.rows.forEach(function(v,k) {
+				if ( v.error ) {
+					good = false;
+				}
+			});
+			if ( !good ) {
+				return then(8);
+			}
+			save();
+		});
+		/*
 		d10.db.db("d10").include_docs(true).keys(songs).getAllDocs(
 			{
 				success: function(docs) {
@@ -90,6 +138,7 @@ exports.update = function(playlist, songs, then) {
 				}
 			}
 		);
+		*/
 	} else {
 		save();
 	}
@@ -104,6 +153,13 @@ exports.append = function(playlist, song, then) {
 	
 	var save = function(songDoc) {
 		playlist.songs.push(song);
+		
+		d10.couch.d10.storeDoc(playlist,function(err,resp) {
+			if ( err ) { 		return then(4); }
+			playlist._rev = resp.rev;
+			then(null,{playlist: playlist, song: songDoc});
+		});
+		/*
 		d10.db.db("d10").storeDoc(
 			{
 				success: function(resp) {
@@ -114,10 +170,17 @@ exports.append = function(playlist, song, then) {
 					return then(4);
 				}
 			},
+			
 			playlist
 		);
+		*/
 	};
 	
+	d10.couch.d10.getDoc(song,function(err,doc) {
+		if ( err ) { then(8); }
+		else { save(doc); }
+	});
+	/*
 	d10.db.db("d10").getDoc(
 		{
 			success: function(doc) {
@@ -129,6 +192,7 @@ exports.append = function(playlist, song, then) {
 		},
 		song
 	);
+	*/
 };
 
 exports.create = function(login, name, songs, then) {
@@ -145,6 +209,16 @@ exports.create = function(login, name, songs, then) {
 				return then(430);
 			}
 			var playlist = { _id: "pl"+d10.uid(), name: name, user: login, songs: [] };
+			
+			d10.couch.d10.storeDoc(playlist,function(err,resp) {
+				if ( err ) { 	return then(423); }
+				playlist._rev = resp.rev;
+				if ( !songs || !songs.length ) {
+					return then(null,playlist);
+				}
+				exports.update(playlist,songs,then);
+			});
+			/*
 			d10.db.db("d10").storeDoc(
 				{
 					success: function(resp) {
@@ -161,7 +235,7 @@ exports.create = function(login, name, songs, then) {
 				playlist
 			);
 			
-			
+			*/
 		},
 		function(resp) {
 			return d10.rest.err(423,resp,request.ctx);
@@ -183,6 +257,18 @@ exports.rename = function(login,playlist, name, then) {
 				return then(430);
 			}
 			
+			d10.couch.d10.getDoc(playlist,function(err,doc) {
+				if ( err ) { 		return then(423);}
+				if ( doc.user != login ) {
+					return then(403);
+				}
+				doc.name = name;
+				d10.couch.d10.storeDoc(doc,function(err,resp) {
+					if ( err ) 		{then(423);}
+					else	{ then(null,doc); }
+				});
+			});
+			/*
 			d10.db.db("d10").getDoc(
 				{
 					success: function(doc) {
@@ -210,7 +296,7 @@ exports.rename = function(login,playlist, name, then) {
 				},
 				playlist
 			);
-			
+			*/
 		},
 		function(resp) {
 			return d10.rest.err(423,resp,request.ctx);

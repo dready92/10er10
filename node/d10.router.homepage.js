@@ -66,11 +66,13 @@ exports.homepage = function(app) {
 		}
 	}
 	app.get("/welcome/goodbye",function(request,response,next) {
-		d10.db.db("d10").deleteDoc(
+		d10.couch.d10.deleteDoc(request.ctx.session,function(){});
+		/*d10.db.db("d10").deleteDoc(
 			{
 			},
 			request.ctx.session
 		);
+		*/
 	    delete request.ctx.session;
 	    delete request.ctx.user;
 	    delete request.ctx.userPrivateConfig;
@@ -111,6 +113,28 @@ exports.homepage = function(app) {
 							ts_creation: d.getTime(),
 							ts_last_usage: d.getTime()
 						};
+						d10.couch.auth.storeDoc(doc,function(err,storeResponse) {
+							if ( err ) {
+								d10.log("debug","error on session recording",err);
+								displayHomepage(request,response,next);
+								return ;
+							}
+							d10.log("debug","session recorded : ",storeResponse);
+							// 									response.rows.push(doc);
+// 							if ( storeResponse.rev ) {
+// 								doc._rev = storeResponse.rev;
+// 							}
+							d10.fillUserCtx(request.ctx,loginResponse,doc);
+							var infos = {
+								user: request.ctx.user.login,
+								session: sessionId
+							};
+							var d = new Date();
+							d.setTime ( d.getTime() + config.cookieTtl );
+							request.ctx.headers["Set-Cookie"] = config.cookieName+"="+escape(JSON.stringify(infos))+"; expires="+d.toUTCString()+"; path="+config.cookiePath;
+							displayHomepage(request,response,next);
+						});
+						/*
 						d10.db.db("auth").storeDoc({
 							success: function(storeResponse) {
 								d10.log("debug","session recorded : ",storeResponse);
@@ -133,6 +157,7 @@ exports.homepage = function(app) {
 								displayHomepage(request,response,next);
 							}
 						},doc);
+						*/
 					} else {
 						displayHomepage(request,response,next);
 					}

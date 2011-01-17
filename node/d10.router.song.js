@@ -10,6 +10,26 @@ var d10 = require ("./d10"),
 exports.api = function(app) {
 	app.get("/html/my/review", function(request,response) {
 		request.ctx.headers["Content-Type"] = "text/html";
+		d10.couch.d10.view("user/song",{key: [request.ctx.user._id,false],include_docs: true},function(err,resp) {
+			if ( err ) {
+				response.writeHead(423, d10.http.statusMessage(423), request.ctx.headers );
+				response.end();
+				return ;
+			}
+			response.writeHead(200, request.ctx.headers );
+			if( resp.rows && resp.rows.length ) {
+				var r = [];
+				resp.rows.forEach(function(v) { r.push(v.doc); });
+				d10.view("review/list",{rows: r},{},function(data) {
+					response.end(data);
+				});
+			} else {
+				d10.view("review/none",{},{},function(data) {
+					response.end(data);
+				});
+			}
+		});
+		/*
 		d10.db.db("d10").key([request.ctx.user._id,false]).include_docs(true).getView( 
 			{
 				success: function(resp) {
@@ -34,12 +54,26 @@ exports.api = function(app) {
 			},
 			"user","song"
 		);
+		*/
 	});
 	
 	app.get("/html/my/review/:id", function(request,response,next) {
 		if ( request.params.id.substr(0,2) != "aa" ) {
 			return next();
 		}
+		
+		d10.couch.d10.getDoc(request.params.id,function(err,resp) {
+			if ( err ) { 
+				next();
+				return ;
+			}
+			request.ctx.headers["Content-Type"] = "text/html";
+			response.writeHead(200, request.ctx.headers );
+			d10.view("review/song",resp,{},function(data) {
+				response.end(data);
+			});
+		});
+		/*
 		d10.db.db("d10").getDoc(
 			{
 				success: function(doc) {
@@ -55,6 +89,7 @@ exports.api = function(app) {
 			},
 			request.params.id
 						 );
+	*/
 	});
 	
 	app.put("/api/meta/:id",function(request,response,next) {
@@ -111,7 +146,27 @@ exports.api = function(app) {
 			
 			fields.valid = true;
 			fields.reviewed = true;
-			
+		
+			d10.couch.d10.getDoc(request.params.id,function(err,doc) {
+				if ( err ) {
+					d10.log("debug","getDoc error");
+					d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
+					return ;
+				}
+				for ( var i in fields ) {
+					doc[i] = fields[i];
+				}
+				d10.couch.d10.storeDoc(doc, function(err,resp) {
+					if ( err ) {
+						d10.log("debug","storeDoc error");
+						d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
+					}else {
+						d10.log("debug","storeDoc success");
+						d10.rest.success("recorded",request.ctx);
+					}
+				});
+			});
+			/*
 			d10.db.db("d10").getDoc(
 				{
 					success: function(doc) {
@@ -141,6 +196,7 @@ exports.api = function(app) {
 				}
 				, request.params.id
 							 );
+			*/
 		});
 	});
 	
@@ -300,6 +356,16 @@ exports.api = function(app) {
 						} else if ( !this.tasks.sha1File.response || !this.tasks.sha1File.response.length ) {
 							return then("Sha1 not available");
 						}
+						d10.couch.d10.view("song/sha1",{key: this.tasks.sha1File.response}, function(err,resp) {
+							if ( err ) {
+								then(501);
+							} else if (!resp.rows || resp.rows.length) {
+								then(433);
+							} else {
+								then(null,null);
+							}
+						});
+						/*
 						d10.db.db("d10").key( this.tasks.sha1File.response ).getView(
 							{
 								success: function(resp) {
@@ -319,7 +385,7 @@ exports.api = function(app) {
 							"song",
 							"sha1"
 						);
-						
+						*/
 					}
 				},
 				cleanupTags: {
@@ -437,6 +503,14 @@ exports.api = function(app) {
 							doc.valid = true;
 						}
 // 						return then(null,doc);
+						d10.couch.d10.storeDoc(doc,function(err,resp) {
+							if ( err ) { then(err); }
+							else {
+								doc._rev = resp.rev;
+								then(null,doc);
+							}
+						});
+						/*
 						d10.db.db("d10").storeDoc(
 							{
 								success: function(resp) {
@@ -451,6 +525,7 @@ exports.api = function(app) {
 							},
 							doc
 						);
+						*/
 // 						then(null,doc);
 					}
 				}

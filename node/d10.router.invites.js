@@ -54,7 +54,7 @@ exports.api = function(app) {
 	app.post("/api/sendInvite",function(request,response) {
 		//should have email...?
 		bodyDecoder()(request, response,function() {
-						d10.log("debug",request.body,"after decode");
+			d10.log("debug",request.body,"after decode");
 			if ( !request.ctx.user.invites ) {
 				return d10.rest.err(431,{invites: request.ctx.user.invites}, request.ctx);
 			}
@@ -72,6 +72,19 @@ exports.api = function(app) {
 				from: request.ctx.user._id,
 				creation_time: new Date().getTime()
 			};
+			
+			d10.couch.auth.storeDoc(invites,function(err,resp) {
+				if ( err ) return d10.rest.err(423,err,request.ctx);
+				sendInviteMail(request.body.email,invite,function(err,resp) {
+					if ( err ) {
+						return d10.rest.err(435,err,request.ctx);
+					}
+					request.ctx.user.invites--;
+					d10.couch.auth.storeDoc(request.ctx.user,function(){});
+					return d10.rest.success([],request.ctx);
+				});
+			});
+			/*
 			d10.db.db("auth").storeDoc({
 				success: function() {
 					sendInviteMail(request.body.email,invite,function(err,resp) {
@@ -88,7 +101,7 @@ exports.api = function(app) {
 				}
 			},
 			invite);
-			
+			*/
 			
 // 			
 		});

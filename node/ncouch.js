@@ -68,7 +68,7 @@ function ncouch (url) {
 				console.log(ruid,"request response: ",resp.statusCode);
 			}
 			resp.setEncoding("utf8");
-			body = "";
+			var body = "";
 			resp.on("data",function(d) { body+=d;});
 			resp.on("error", function() {
 				settings.complete(resp.statusCode,null,
@@ -121,6 +121,8 @@ function ncouch (url) {
 			} else {
 				if ( DO_NOT_JSON_ENCODE.indexOf(key) < 0 ){
 					keys[key] = JSON.stringify(settings.data[key]);
+				} else {
+					keys[key] = settings.data[key];
 				}
 			}
 		});
@@ -228,7 +230,7 @@ function ncouch (url) {
 				}
 			};
 			
-			
+			_query(options,[200],cb);	
 		};
 		
 		wrapper.storeDocs = function(docs,data,cb) {
@@ -318,7 +320,7 @@ function ncouch (url) {
 		};
 		
 		wrapper.list = function(list,data,cb) {
-			var parts = view.split("/",4);
+			var parts = list.split("/",4);
 			if ( parts.length < 3 ) {
 				return false;
 			}

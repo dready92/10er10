@@ -30,6 +30,22 @@ exports.api = function(app) {
 			if ( Object.prototype.toString.call(songs) !== '[object Array]' ) {
 				songs = [ songs ];
 			}
+			
+			d10.couch.d10.getDoc(request.body.playlist,function(err,playlist) {
+				if ( err) {
+					return d10.rest.err(423,err,request.ctx);
+				}
+				if ( playlist.user != request.ctx.user._id ) {
+					return d10.rest.err(403,null,request.ctx);
+				}
+				rpl.update(playlist, songs, function(err,playlist) {
+					if ( !err ) {
+						return d10.rest.success({playlist: playlist}, request.ctx);
+					}
+					return d10.rest.err(423,null,request.ctx);
+				});
+			});
+			/*
 			d10.db.db("d10").getDoc(
 				{
 					success: function(playlist) {
@@ -49,6 +65,7 @@ exports.api = function(app) {
 				},
 				request.body.playlist
 			);
+		*/
 		});
 	});
 	
@@ -67,6 +84,21 @@ exports.api = function(app) {
 				return d10.rest.err(427,"song parameter is empty",request.ctx);
 			}
 			
+			d10.couch.d10.getDoc(request.body.playlist,function(err,playlist) {
+				if ( err ) {
+					return d10.rest.err(423,err,request.ctx);
+				}
+				if ( playlist.user != request.ctx.user._id ) {
+					return d10.rest.err(403,null,request.ctx);
+				}
+				rpl.append(playlist, request.body.song, function(err,resp) {
+					if ( !err ) {
+						return d10.rest.success({playlist: resp.playlist,song: resp.song }, request.ctx);
+					}
+					return d10.rest.err(423,null,request.ctx);
+				});
+			});
+			/*
 			d10.db.db("d10").getDoc(
 				{
 					success: function(playlist) {
@@ -86,6 +118,7 @@ exports.api = function(app) {
 				},
 				request.body.playlist
 			);
+		*/
 		});
 	});
 	
@@ -148,6 +181,36 @@ exports.api = function(app) {
 				return d10.rest.err(427,"playlist parameter missing",request.ctx);
 			}
 			
+			d10.couch.d10.getDoc(request.body.playlist,function(err, playlist) {
+				if ( err ) {
+					d10.rest.err(423,err,request.ctx);
+				}
+				if ( playlist.user != request.ctx.user._id ) {
+					return d10.rest.err(403,"",request.ctx);
+				}
+				d10.couch.d10.deleteDoc(playlist,function(err,resp) {
+					if ( err ) {
+						return d10.rest.err(423,err,request.ctx);
+					}
+// 					playlist._rev = resp.rev;
+					d10.rest.success({playlist: playlist}, request.ctx);
+				});
+				/*
+				d10.db.db("d10").deleteDoc(
+					{
+						success: function(resp) {
+							playlist._rev = resp.rev;
+							d10.rest.success({playlist: playlist}, request.ctx);
+						},
+						error: function(err) {
+							d10.rest.err(423,err,request.ctx);
+						}
+					},
+					playlist
+				);
+				*/
+			});
+			/*
 			d10.db.db("d10").getDoc(
 				{
 					success: function(playlist) {
@@ -173,6 +236,7 @@ exports.api = function(app) {
 				},
 				request.body.playlist
 			);
+			*/
 		});
 	});
 };

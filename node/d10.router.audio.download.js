@@ -8,7 +8,10 @@ exports.api = function(app) {
 		d10.when(
 			{
 				doc: function(cb) {
-		
+					d10.couch.d10.getDoc("aa"+request.params.id,function(err,resp) {
+						cb(err,resp);
+					});
+					/*
 					d10.db.db("d10").getDoc(
 						{
 							success: function(doc) {
@@ -20,9 +23,11 @@ exports.api = function(app) {
 						},
 						"aa"+request.params.id
 					);
+					*/
 				},
 				stat: function(cb) {
-					
+					fs.stat(file,cb);
+					/*
 					fs.stat(file,function(err,resp) {
 						if ( err ) {
 							cb(err);
@@ -30,6 +35,7 @@ exports.api = function(app) {
 							cb(null,resp);
 						}
 					});
+					*/
 				}
 			},
 			function(r) {

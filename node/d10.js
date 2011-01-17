@@ -11,13 +11,89 @@ exports.db.auth = new(cradle.Connection)(config.couch.auth.dsn, 5984, {cache: fa
 exports.db.track = new(cradle.Connection)(config.couch.track.dsn, 5984, {cache: false,raw: false}).database(config.couch.track.database);
 exports.db.d10 = new(cradle.Connection)(config.couch.d10.dsn, 5984, {cache: false,raw: false}).database(config.couch.d10.database);
 
+
+exports.db.loginInfos = function(login, cb, ecb) {
+	exports.couch.auth.view("infos/all",{include_docs: true, key: ["login",login]},function(err,resp) {
+		if ( err ) {
+			if ( ecb ) {
+				ecb.call(this,err,resp);
+			}
+			return ;
+		}
+		exports.couch.auth.view(
+			"infos/all",
+			{
+				include_docs: true,
+				startkey: [resp.rows[0].doc._id.replace(/^us/,""),""], 
+				endkey: [resp.rows[0].doc._id.replace(/^us/,""),[]]
+			}, function(err,resp) {
+				if ( err ) {
+					if ( ecb ) ecb.call(this,err,resp);
+				} else {
+					if ( cb ) cb.call(this,resp);
+				}
+			}
+		);
+		/*
+		db.include_docs(true)
+		.startkey([resp.rows[0].doc._id.replace(/^us/,""),""])
+		.endkey([resp.rows[0].doc._id.replace(/^us/,""),[]])
+		.getView({
+			success: cb ? cb : function() {},
+				 error: ecb ? ecb: function() {}
+		},"infos","all");
+	*/
+	});
+	/*
+	db	.include_docs(true)
+	.key( ["login",login] )
+	.getView({
+		success: function(resp) {
+			if ( resp.rows && resp.rows.length == 1 ) {
+				db.include_docs(true)
+				.startkey([resp.rows[0].doc._id.replace(/^us/,""),""])
+				.endkey([resp.rows[0].doc._id.replace(/^us/,""),[]])
+				.getView({
+					success: cb ? cb : function() {},
+						 error: ecb ? ecb: function() {}
+				},"infos","all");
+			} else {
+				console.log("fucking shit",resp);
+				ecb ? ecb(): function() {};
+			}
+		},
+		error: ecb ? ecb: function() {}
+	}, "infos","all");	
+	*/
+};
+
+exports.db.d10Infos = function (login, cb, ecb) {
+	exports.couch.d10.view("user/all_infos",{include_docs: true, startkey: [login,null], endkey: [login,[]]},function(err,resp) {
+		if ( err ) {
+			if ( ecb )	ecb.call(this,err,resp);
+		} else {
+			if ( cb )	cb.call(this,resp);
+		}
+	});
+	/*
+	db	.include_docs(true)
+	.startkey( [login,null] )
+	.endkey( [login,[]] )
+	.getView({
+		success: cb ? cb: function() {},
+			 error: ecb ? ecb: function() {}
+	}, "user","all_infos");	
+	*/
+};
+
+
+
 exports.couch = {
 	d10: ncouch.server(config.couch.d10.dsn).debug(true).database(config.couch.d10.database),
 	auth: ncouch.server(config.couch.auth.dsn).debug(true).database(config.couch.auth.database),
 	track: ncouch.server(config.couch.track.dsn).debug(true).database(config.couch.track.database)
 };
 
-console.log("Server debug state : ", ncouch.server(config.couch.d10.dsn).debug());
 console.log("Server debug state : ", ncouch.server(config.couch.d10.dsn).debug());
 
 // exports.couch.d10.debug(true);

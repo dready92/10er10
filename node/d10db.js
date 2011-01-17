@@ -10,7 +10,7 @@ var getDb = function(name) {
 };
 
 exports.db = getDb;
-
+/*
 exports.loginInfos = function(login, cb, ecb) {
 	var db = getDb("auth");
 	db	.include_docs(true)
@@ -44,3 +44,4 @@ exports.d10Infos = function (login, cb, ecb) {
 		 error: ecb ? ecb: function() {}
 	}, "user","all_infos");	
 };
+*/
