@@ -187,7 +187,7 @@ function ncouch (url) {
 				type: doc._id ? "PUT":"POST",
 				data: doc._rev ? {rev: doc._rev} : {},
 				event: function(err,resp,meta) {
-					wrapper.emit("store",err,doc,meta);
+					wrapper.emit("save",err,doc,meta);
 				},
 				dataFilter: function(resp) {
 					doc._id = resp.id;
@@ -262,7 +262,7 @@ function ncouch (url) {
 							if( v._deleted ) {
 								wrapper.emit("delete",err,body[k],meta);
 							}else{
-								wrapper.emit("store",err,body[k],meta);
+								wrapper.emit("save",err,body[k],meta);
 							}
 						}
 					});

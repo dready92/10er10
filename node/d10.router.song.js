@@ -29,32 +29,6 @@ exports.api = function(app) {
 				});
 			}
 		});
-		/*
-		d10.db.db("d10").key([request.ctx.user._id,false]).include_docs(true).getView( 
-			{
-				success: function(resp) {
-					response.writeHead(200, request.ctx.headers );
-					if( resp.rows && resp.rows.length ) {
-						var r = [];
-						resp.rows.forEach(function(v) { r.push(v.doc); });
-						d10.view("review/list",{rows: r},{},function(data) {
-							response.end(data);
-						});
-					} else {
-						d10.view("review/none",{},{},function(data) {
-							response.end(data);
-						});
-					}
-				},
-				error: function(err) {
-					response.writeHead(423, d10.http.statusMessage(423), request.ctx.headers );
-					response.end();
-// 					d10.rest.err(423,err,request.ctx);
-				}
-			},
-			"user","song"
-		);
-		*/
 	});
 	
 	app.get("/html/my/review/:id", function(request,response,next) {

@@ -1,6 +1,48 @@
 var d10 = require("./d10"),
 	utils = require("connect/utils");
 
+	/*
+	 * {
+	 * "login": {
+	 * se
+	 * pr
+	 * us
+	 */
+var sessionCache = {};
+
+d10.couch.auth.on("save",function(err,doc) {
+	if ( ! err ) {
+		var type = doc._id.substr(0,2);
+		if ( type == "se" || type == "pr" || type == "us" ) {
+			for ( var i in sessionCache ) {
+				if ( sessionCache[i][type] && sessionCache[i][type]._id == doc._id ) {
+					sessionCache[i][type] = doc;
+					break;
+				}
+			}
+		}
+	}
+});
+
+d10.couch.auth.on("delete",function(err,doc) {
+	if ( ! err ) {
+		var type = doc._id.substr(0,2);
+		if ( type == "se" || type == "pr" || type == "us" ) {
+			for ( var i in sessionCache ) {
+				if ( sessionCache[i][type] && sessionCache[i][type]._id == doc._id ) {
+					d10.log("debug","sessionCache delete for ",i);
+					delete sessionCache[i];
+					break;
+				}
+			}
+		}
+	}
+});
+
+var sessionCacheAdd = function(us,pr,se) {
+	sessionCache[us.login] =  {us:us,pr:pr,se:se};
+};
+	
 var checkAuth = function (ctx,passTheCoochie) {	
 	var cookies = {};
 	if ( ctx.request.headers.cookie ) {
@@ -18,12 +60,26 @@ var checkAuth = function (ctx,passTheCoochie) {
 				
 			};
 			if ( cookieData && cookieData.user && cookieData.session ) {
+				
+				//get from sessionCache
+				if ( sessionCache[cookieData.user] ) {
+					if ( sessionCache[cookieData.user].se._id == "se"+cookieData.session ) {
+						ctx.user = sessionCache[cookieData.user].us;
+						ctx.userPrivateConfig = sessionCache[cookieData.user].pr;
+						ctx.session = sessionCache[cookieData.user].se;
+						d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged");
+						d10.log("debug","loggged from the session cache");
+						return passTheCoochie();
+					}
+				}
+				
 				d10.db.loginInfos(
 					cookieData.user, 
 					function(response) {
 						response.rows.forEach(function(v,k) {
 							if ( v.doc._id == "se"+cookieData.session ) {
 								d10.fillUserCtx(ctx,response,v.doc);
+								sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session);
 								d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged");
 								return false;
 							}

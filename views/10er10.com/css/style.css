@@ -116,7 +116,8 @@ header > div.logo > .n0 {
 
 header > div.teaser {
   font-family: Cartoon;
-  padding: 0 0 0 15px;
+  padding: 0 0 0 22px;
+  font-size: 1.2em;
   letter-spacing: 2px;
   -moz-transform: translateY(-10px);
   -webkit-transform: translateY(-10px);

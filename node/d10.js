@@ -267,7 +267,11 @@ exports.when = function(elems, success, failure) {
 	};
 };
 
-
+/*
+ * setup ctx.session
+ * ctx.user
+ * ctx.userPrivateConfig
+ */
 exports.fillUserCtx = function (ctx,response,session) {
 	ctx.session = session;
 	response.rows.forEach(function(v,k) {

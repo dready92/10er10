@@ -271,7 +271,7 @@ exports.api = function(app) {
 					d10UserPrefs.c_playlist_ids = [ data["ids[]"] ];
 				}
 // 				d10UserPrefs.c_playlist_ids = data["ids[]"];
-				d10.log("debug","calling storeDoc, ", data["ids[]"].length,d10UserPrefs.c_playlist_ids.length );
+// 				d10.log("debug","calling storeDoc, ", data["ids[]"].length,d10UserPrefs.c_playlist_ids.length );
 				
 				d10.couch.d10.storeDoc(d10UserPrefs,function(err,resp) {
 					if ( err )	d10.rest.err(413,err,request.ctx);
