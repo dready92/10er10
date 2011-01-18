@@ -326,7 +326,7 @@ d10.debug_options.network = true;
 function debug() {
 {{#debugloop}}
 	if ( console && console.log ) {
-		console.log.call(console,arguments);
+		console.log.apply(console,arguments);
 	}
 {{/debugloop}}
 }

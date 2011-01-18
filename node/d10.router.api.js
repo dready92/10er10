@@ -873,20 +873,6 @@ exports.api = function(app) {
 						if ( err )	{cb(err);}
 						else	cb(null,resp.rows);
 					});
-					/*
-					d10.db.db("d10").reduce(false).include_docs(true).keys(artists).getView(
-						{
-							success: function(resp) {
-								cb(null,resp.rows);
-							},
-							error: function(e,err) {
-								cb(err);
-							}
-						},
-						"artist",
-						"artist"
-																					);
-		*/
 				};
 			}
 			if ( albums.length ) {
@@ -919,6 +905,7 @@ exports.api = function(app) {
 					response.end(JSON.stringify(resp));
 				},
 				function(err) {
+					d10.log("got details error",err);
 					d10.rest.err(427,err,request.ctx);
 				}
 			);

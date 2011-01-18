@@ -8,10 +8,15 @@ var results = function (search) {
 	var animated = false;
 	var rcache = [],
 	rcacheSize = 15,
-	rcacheTTL = 120000, 
-	httpCachedRequest = function(request) {
-		var key = request.url+"?"+JSON.stringify(request.data);
-		var cacheIndex = -1;
+	rcacheTTL = 120000,
+	cacheStore = function(key,data) {
+		data.key = key;
+		rcache.push(data);
+		while ( rcache.length > rcacheSize ) {
+			rcache.shift();
+		}
+	},
+	cacheGet = function(key) {
 		for ( var i in rcache ) {
 			if ( rcache[i].key == key ) {
 				if ( rcache[i].date + rcacheTTL < new Date().getTime() ) {
@@ -19,35 +24,10 @@ var results = function (search) {
 					rcache.splice(i,1);
 					break;
 				}
-				cacheIndex = i;
-				break;
+				return rcache[i];
 			}
 		}
-		if ( cacheIndex == -1 ) {
-			var success = request.success;
-			request.success = function(data) {
-				this.success = success;
-				rcache.push(
-					{
-						key: key,
-						context: this,
-						date: new Date().getTime(),
-						data: data
-					}
-				);
-				while ( rcache.length > rcacheSize ) {
-					rcache.shift();
-				}
-				success.call(this,data);
-			};
-			d10.bghttp.request(request);
-		} else {
-			setTimeout(function() {
-				rcache[cacheIndex].context.success.call(rcache[cacheIndex].context,rcache[cacheIndex].data);
-			},15);
-		}
 	};
-	
 	
 	
 	var load = function () {
@@ -206,6 +186,14 @@ var results = function (search) {
 			$("span.duration",anode).prepend(parseInt(val.duration/60));
 			anode.data("songs",val.songs).addClass("details");
 		});
+		
+		var cache = {
+			artists: $("div.rBox.artists div.items",ui).html(),
+			albums: $("div.rBox.albums div.items",ui).html(),
+			songs: $("div.rBox.songs div.items",ui).html(),
+			date: new Date().getTime()
+		};
+		cacheStore(	this.route, cache);	  
 	};
 	
 	var displayAjaxResponse = function(data) {
@@ -255,7 +243,7 @@ var results = function (search) {
 		}
 		if ( details.artists.length || details.albums.length ) {
 			var ajax = {
-				"method": "POST",
+				"type": "POST",
 				"url": site_url+"/api/details",
 				"route": lastRoute,
 				"dataType": "json",
@@ -264,7 +252,7 @@ var results = function (search) {
 			};
 			setTimeout(function() {
 				if ( ajax.route == lastRoute ) {
-					httpCachedRequest(ajax);
+					$.ajax(ajax);
 				}
 			} , 50);
 		}
@@ -314,15 +302,33 @@ var results = function (search) {
 		}
 		if ( data.segments.length ) {
 			var q = data.segments[0] ;
-			debug("testing animated");
-			httpCachedRequest({
-				"method": "GET",
+			
+			var cache = cacheGet(lastRoute);
+			if ( cache ) {
+				debug("getting results from cache");
+				$("div.rBox.songs div.items",ui).html(cache.songs);
+				
+				setTimeout(function() {
+					$("div.rBox.albums div.items",ui).html(cache.albums);
+				},15);
+				setTimeout(function() {
+					$("div.rBox.artists div.items",ui).html(cache.artists);	
+				},35);
+				return;
+			}
+			
+			
+			var request = {
+				"type": "GET",
 				"url": site_url+"/api/search2",
 				"route": lastRoute,
 				"dataType": "json",
 				"data": {"start": q},
 				"success": displayAjaxResponse
-			});
+			};
+			
+			debug("testing animated");
+			$.ajax(request);
 			debug("testing animated");
 			if ( !animated ) {
 				animated = true;
