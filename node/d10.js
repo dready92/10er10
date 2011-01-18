@@ -6,12 +6,12 @@ var fs = require("fs"),
 exports.mustache = require("./mustache");
 var config = exports.config = require("./config");
 var fileCache = files.fileCache( config.production ? null : {bypass: true} );
+exports.couch = {
+	d10: ncouch.server(config.couch.d10.dsn).debug(false).database(config.couch.d10.database),
+	auth: ncouch.server(config.couch.auth.dsn).debug(false).database(config.couch.auth.database),
+	track: ncouch.server(config.couch.track.dsn).debug(false).database(config.couch.track.database)
+};
 exports.db = {};
-/*
-exports.db.auth = new(cradle.Connection)(config.couch.auth.dsn, 5984, {cache: false,raw: false}).database(config.couch.auth.database);
-exports.db.track = new(cradle.Connection)(config.couch.track.dsn, 5984, {cache: false,raw: false}).database(config.couch.track.database);
-exports.db.d10 = new(cradle.Connection)(config.couch.d10.dsn, 5984, {cache: false,raw: false}).database(config.couch.d10.database);
-*/
 
 exports.db.loginInfos = function(login, cb, ecb) {
 	exports.couch.auth.view("infos/all",{include_docs: true, key: ["login",login]},function(err,resp) {
@@ -35,37 +35,7 @@ exports.db.loginInfos = function(login, cb, ecb) {
 				}
 			}
 		);
-		/*
-		db.include_docs(true)
-		.startkey([resp.rows[0].doc._id.replace(/^us/,""),""])
-		.endkey([resp.rows[0].doc._id.replace(/^us/,""),[]])
-		.getView({
-			success: cb ? cb : function() {},
-				 error: ecb ? ecb: function() {}
-		},"infos","all");
-	*/
 	});
-	/*
-	db	.include_docs(true)
-	.key( ["login",login] )
-	.getView({
-		success: function(resp) {
-			if ( resp.rows && resp.rows.length == 1 ) {
-				db.include_docs(true)
-				.startkey([resp.rows[0].doc._id.replace(/^us/,""),""])
-				.endkey([resp.rows[0].doc._id.replace(/^us/,""),[]])
-				.getView({
-					success: cb ? cb : function() {},
-						 error: ecb ? ecb: function() {}
-				},"infos","all");
-			} else {
-				console.log("fucking shit",resp);
-				ecb ? ecb(): function() {};
-			}
-		},
-		error: ecb ? ecb: function() {}
-	}, "infos","all");	
-	*/
 };
 
 exports.db.d10Infos = function (login, cb, ecb) {
@@ -76,26 +46,9 @@ exports.db.d10Infos = function (login, cb, ecb) {
 			if ( cb )	cb.call(this,resp);
 		}
 	});
-	/*
-	db	.include_docs(true)
-	.startkey( [login,null] )
-	.endkey( [login,[]] )
-	.getView({
-		success: cb ? cb: function() {},
-			 error: ecb ? ecb: function() {}
-	}, "user","all_infos");	
-	*/
 };
 
-
-
-exports.couch = {
-	d10: ncouch.server(config.couch.d10.dsn).debug(false).database(config.couch.d10.database),
-	auth: ncouch.server(config.couch.auth.dsn).debug(false).database(config.couch.auth.database),
-	track: ncouch.server(config.couch.track.dsn).debug(false).database(config.couch.track.database)
-};
-
-console.log("Server debug state : ", ncouch.server(config.couch.d10.dsn).debug());
+// console.log("Server debug state : ", ncouch.server(config.couch.d10.dsn).debug());
 
 // exports.couch.d10.debug(true);
 // exports.couch.auth.debug(true);
@@ -249,7 +202,6 @@ exports.when = function(elems, success, failure) {
 			callback.call(this,function(err,response) {
 				if( err ) {	errors[key] = err; }
 				else		{ responses[key] = response;}
-				
 				checkEOT();
 			});
 		})(elems[k],k);
@@ -350,13 +302,10 @@ exports.oggtags = function(file, cb) {
 		if ( err )	{
 			return cb(err);
 		}
-// 		var tagnames = ['ALBUM','TRACK','ARTIST','TITLE','GENRE','YEAR'],
 		var tags = {};
 		exports.log("debug","TAGS bruts: ",stdout);
 		stdout.split("\n").forEach(function(v,k) {
-// 			exports.log("debug","ligne ",v);
 			var tag = v.split("=",2);
-// 			exports.log("debug",tag);
 			if ( tag.length > 1 ) {
 				tags[tag[0]] = tag[1].replace(/^\s+/,"").replace(/\s+$/,"").replace(/"/g,"");
 			}

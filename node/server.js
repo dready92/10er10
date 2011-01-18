@@ -14,6 +14,7 @@ var	connect = require("connect"),
 
 if ( process.getuid() == 502 ) {
 	config.production = true;
+	config.port = 8124;
 }
 // config.production = true;
 function staticRoutes(app) {
