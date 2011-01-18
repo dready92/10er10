@@ -442,7 +442,7 @@ exports.api = function(app) {
 			};
 			
 			var updateUserData = function(id) {
-				d10.couch.d10.getDoc(request.ctx.user._id.replace(/^us/,"pr"),function(err,resp) {
+				d10.couch.d10.getDoc(request.ctx.user._id.replace(/^us/,"pr"),function(err,doc) {
 					if ( err ) {
 						return ;
 					}

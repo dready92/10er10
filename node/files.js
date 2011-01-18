@@ -141,7 +141,7 @@ exports.fileCache = function(options) {
 		return { data: data, timestamp: new Date().getTime()
 		};
 	};
-	
+	console.log("Bypass : ",settings.bypass);
 	var cachedReadStream = function(data) {
 		var pause = true;
 		var d = data.slice();
@@ -164,8 +164,8 @@ exports.fileCache = function(options) {
 	};
 	util.inherits(cachedReadStream, stream.Stream);
 	
-	var dupReadStream = function(file,key) {
-		var stream = fs.createReadStream(file);
+	var dupReadStream = function(file,key,options) {
+		var stream = fs.createReadStream(file,options);
 		if ( settings.bypass )	return stream;
 		var data = [];
 		stream.on("data",function(d) { data.push(d); });
@@ -180,10 +180,10 @@ exports.fileCache = function(options) {
 			if ( options.start ) {key+= "^s"+options.start;}
 			if ( options.end ) {key+= "^e"+options.end;}
 			if ( cache.files[key] ) {
-				console.log("file ",file," served from cache",settings.bypass);
+				console.log("file ",key," served from cache",settings.bypass);
 				return new cachedReadStream(cache.files[key].data);
 			}	else {
-				return dupReadStream(file,key);
+				return dupReadStream(file,key,options);
 			}
 		},
 		stat: function(file,then) {
@@ -217,6 +217,7 @@ exports.fileCache = function(options) {
 				else		fs.readFile(file,then);
 			} else {
 				nextTick(function() {
+					console.log("file served from cache");
 					callback.call(this,cache.files[file].err, cache.files[file].data);
 				});
 			}

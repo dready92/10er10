@@ -17,15 +17,17 @@ exports.statusCode = function (code) {
 
 
 exports.localPathServer = function ( uri, localuri, cacheSettings ) {
+	console.log("create localPathServer for ",uri);
 	uri = uri.replace(/\/$/,"");
 	if ( !uri.length )	return false;
 	localuri = localuri.replace(/\/$/,"");
 	if ( !localuri.length )	return false;
 	cacheSettings = cacheSettings || {};
-	if ( !d10.config.production && ! "bypasss" in cacheSettings  )	cacheSettings.bypass = true;
+	if ( !d10.config.production && ! "bypass" in cacheSettings  )	cacheSettings.bypass = true;
 	var cache = new files.fileCache(cacheSettings) ;
 // 	setInterval(function() { d10.log("FileCache ",uri,d10.count( cache.getCache().files ), d10.count( cache.getCache().stats ))  },1000);
 	return  function ( request, response, next ) {
+		d10.log("debug","static cache request",request.url);
 		if ( ! request.ctx ) { request.ctx = {request: request, response: response}; }
 		if ( ! request.ctx.headers ) { request.ctx.headers = {}; }
 		request.ctx.headers["Accept-Ranges"] = "bytes";
@@ -87,17 +89,18 @@ function sendStatic(staticFile, stats, ctx,cache) {
 		if(satisfiesConditions(stats, ctx)) {
 			ctx.headers['Last-Modified'] = stats.mtime.toUTCString();
 			ctx.headers['Etag'] = stats.mtime.getTime();
-			var range;
+			var range, stream;
 			if(ctx.request.headers['range'] && (range = parseRange(ctx, stats))) {;
 				ctx.status = 206;
 				ctx.headers['Content-Length'] = range[1] - range[0] + 1;
 				ctx.headers['Content-Range'] = 'bytes ' + range[0] + '-' + range[1] + '/' + stats.size;
-				var stream = cache.createReadStream(staticFile, {start: range[0], end: range[1]});
+				stream = cache.createReadStream(staticFile, {start: range[0], end: range[1]});
 			} else {
 				ctx.headers['Content-Length'] = stats.size;
-				var stream = cache.createReadStream(staticFile);
+				stream = cache.createReadStream(staticFile);
 			}
-			
+// 			console.log("creating readstream",staticFile,range);
+// 			stream.on("data",function(c) {console.log("writing ",c.length,"bytes to browser");});
 			ctx.response.writeHead(ctx.status, ctx.headers);
 			if(ctx.request.method == 'GET') {
 				util.pump(stream, ctx.response);
