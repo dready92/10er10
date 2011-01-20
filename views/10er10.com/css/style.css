@@ -1092,6 +1092,9 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 	position: relative;
 }
 
+html.cssanimations #search {
+	z-index:1;
+}
 
 #search.active {
 	-moz-transform: translate(260px, 74px);

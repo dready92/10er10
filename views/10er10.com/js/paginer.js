@@ -191,22 +191,31 @@ d10.fn.paginer = function (
 	};
 
 	var checkCache = this.checkCache = function (dataChanged) {
+		
+		var isCacheDifferent = function(newCache) {
+			if ( indexCache.count != newCache.count ) {
+				return true;
+			}
+			if ( indexCache.id.length != newCache.id.length || indexCache.key.length != newCache.key.length ) {
+				return true;
+			}
+			for ( var index in indexCache.id ) {
+				if ( indexCache.id[index] != newCache.id[index] ) {
+					return true;
+				}
+			}
+		};
+		
 		if ( !indexCache || !indexCache.id || !indexCache.key ) {
 			return dataChanged();
 		}
 		if ( isCacheExpired() ) {
 			loadCache(function(newCache) {
 // 				debug(indexCache,newCache);
-				if ( indexCache.count != newCache.count ) {
-					return dataChanged(newCache);
-				}
-				if ( indexCache.id.length != newCache.id.length || indexCache.key.length != newCache.key.length ) {
-					return dataChanged(newCache);
-				}
-				for ( var index in indexCache.id ) {
-					if ( indexCache.id[index] != newCache.id[index] ) {
-						return dataChanged(newCache);
-					}
+				if ( isCacheDifferent(newCache) ) {
+					setCache(newCache);
+					pagesCache = {};
+					dataChanged(newCache);
 				}
 				indexCacheLastUpdate = new Date().getTime();
 			});
