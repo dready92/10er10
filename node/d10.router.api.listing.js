@@ -486,7 +486,7 @@ exports.api = function(app) {
 	});
 	
 	app.get("/api/album",function(request,response) {
-		var db = d10.db.db("d10").inclusive_end(false);
+// 		var db = d10.db.db("d10").inclusive_end(false);
 		var query = {inclusive_end: false};
 		if ( request.query.start && request.query.start.length ) {
 			var q = d10.ucwords(request.query.start);

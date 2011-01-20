@@ -654,6 +654,12 @@ exports.api = function(app) {
 			d10.couch.d10.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
 				if ( err) { return d10.rest.err(423,err,request.ctx); }
 				var star = null;
+				if ( !doc.dislikes ) {
+					doc.dislikes = {};
+				}
+				if ( !doc.likes ) {
+					doc.likes = {};
+				}
 				if ( doc.dislikes["aa"+request.params.id] ) {
 					delete doc.dislikes["aa"+request.params.id];
 				}
@@ -718,6 +724,12 @@ exports.api = function(app) {
 			d10.couch.d10.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
 				if ( err ) { return d10.rest.err(423,err,request.ctx); }
 				var star = null;
+				if ( !doc.dislikes ) {
+					doc.dislikes = {};
+				}
+				if ( !doc.likes ) {
+					doc.likes = {};
+				}
 				if ( doc.likes["aa"+request.params.id] ) {
 					delete doc.likes["aa"+request.params.id];
 				}
