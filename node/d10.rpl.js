@@ -82,8 +82,8 @@ exports.update = function(playlist, songs, then) {
 	var save = function() {
 		playlist.songs = songs;
 		d10.couch.d10.storeDoc(playlist,function(err,resp) {
-			if ( err ) { return then(4); }
-			playlist._rev = resp.rev;
+			if ( err ) {  d10.log("debug",err);return then(4); }
+// 			playlist._rev = resp.rev;
 			then(null,playlist);
 			
 		});
@@ -209,13 +209,12 @@ exports.create = function(login, name, songs, then) {
 				return then(430);
 			}
 			var playlist = { _id: "pl"+d10.uid(), name: name, user: login, songs: [] };
-			
 			d10.couch.d10.storeDoc(playlist,function(err,resp) {
 				if ( err ) { 	return then(423); }
-				playlist._rev = resp.rev;
 				if ( !songs || !songs.length ) {
 					return then(null,playlist);
 				}
+// 				d10.log("calling exports.update",playlist, songs);
 				exports.update(playlist,songs,then);
 			});
 			/*

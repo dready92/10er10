@@ -45,27 +45,6 @@ exports.api = function(app) {
 					return d10.rest.err(423,null,request.ctx);
 				});
 			});
-			/*
-			d10.db.db("d10").getDoc(
-				{
-					success: function(playlist) {
-						if ( playlist.user != request.ctx.user._id ) {
-							return d10.rest.err(403,null,request.ctx);
-						}
-						rpl.update(playlist, songs, function(err,playlist) {
-							if ( !err ) {
-								return d10.rest.success({playlist: playlist}, request.ctx);
-							}
-							return d10.rest.err(423,null,request.ctx);
-						});
-					},
-					error: function(resp) {
-						return d10.rest.err(423,resp,request.ctx);
-					}
-				},
-				request.body.playlist
-			);
-		*/
 		});
 	});
 	
@@ -98,27 +77,6 @@ exports.api = function(app) {
 					return d10.rest.err(423,null,request.ctx);
 				});
 			});
-			/*
-			d10.db.db("d10").getDoc(
-				{
-					success: function(playlist) {
-						if ( playlist.user != request.ctx.user._id ) {
-							return d10.rest.err(403,null,request.ctx);
-						}
-						rpl.append(playlist, request.body.song, function(err,resp) {
-							if ( !err ) {
-								return d10.rest.success({playlist: resp.playlist,song: resp.song }, request.ctx);
-							}
-							return d10.rest.err(423,null,request.ctx);
-						});
-					},
-					error: function(resp) {
-						return d10.rest.err(423,resp,request.ctx);
-					}
-				},
-				request.body.playlist
-			);
-		*/
 		});
 	});
 	
@@ -195,48 +153,7 @@ exports.api = function(app) {
 // 					playlist._rev = resp.rev;
 					d10.rest.success({playlist: playlist}, request.ctx);
 				});
-				/*
-				d10.db.db("d10").deleteDoc(
-					{
-						success: function(resp) {
-							playlist._rev = resp.rev;
-							d10.rest.success({playlist: playlist}, request.ctx);
-						},
-						error: function(err) {
-							d10.rest.err(423,err,request.ctx);
-						}
-					},
-					playlist
-				);
-				*/
 			});
-			/*
-			d10.db.db("d10").getDoc(
-				{
-					success: function(playlist) {
-						if ( playlist.user != request.ctx.user._id ) {
-							return d10.rest.err(403,"",request.ctx);
-						}
-						d10.db.db("d10").deleteDoc(
-							{
-								success: function(resp) {
-									playlist._rev = resp.rev;
-									d10.rest.success({playlist: playlist}, request.ctx);
-								},
-								error: function(err) {
-									d10.rest.err(423,err,request.ctx);
-								}
-							},
-							playlist
-						);
-					},
-					error: function(err) {
-						d10.rest.err(423,err,request.ctx);
-					}
-				},
-				request.body.playlist
-			);
-			*/
 		});
 	});
 };

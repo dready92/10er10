@@ -685,13 +685,10 @@ article div.pagination ul > li.active {
   margin-right: 1px; 
   padding-left: 1px;
   background-color: #232323;
-/*   position: relative; */
 }
 
 #my .plm-content-container .rpl {
 	padding: 20px 0 10px 0;
-/* 	position: absolute; */
-	
 }
 
 #my .plm-content-container .rpl .empty{
