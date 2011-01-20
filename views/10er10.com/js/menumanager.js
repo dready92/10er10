@@ -9,13 +9,15 @@
 	'container': jQuery : content container
 	'active_class' : the CSS class to set on menu elements when active
 	'default_active_label' : to fire up a label on init
-	''
+	'effect': enable effects
 */
 
 
 d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_class_arg, default_active_label_arg ) {
 	var that = this;
-
+	
+	
+	
 	var switchLabel = function (label,arg,active){
 		var menuitem = $('*[action='+label+']',options.menu);
 		// show the right div
@@ -71,9 +73,9 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 		},
 		"routeAlreadyActive": function(){}
 	};
-  
+	
 	options = $.extend(options,settings);
-
+	
 
 	options.menu.bind('click', function (e) {
 		var menuItem = $(e.target).closest('*[action]');
@@ -157,6 +159,10 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 		return back;
 	}
 
+	this.menuitem = function(label) {
+		return $('*[action='+label+']',options.menu);
+	};
+
 	this.getContainer = function(label) {
 		if ( options.property == 'id' )
 			return $('#'+label,options.container);
@@ -164,7 +170,7 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 			return $('> *['+options.property+'='+label+']',options.container);
 		}
 	}
-
+/*
 	this.toggleDisplay = function (label, arg ) {
 // 		debug("toggleDisplay: "+label);
 		if ( typeof label != 'string' ) {
@@ -188,6 +194,7 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 		}
 	};
 
+*/
 	this.route = function (route, opts) {
 // 		debug("route request",route,opts);
 		var settings = {"originalRoute": null, "rootLabel": null};
@@ -209,13 +216,13 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 		}
 		var event = options.rootRouteHandler ? "route." : "subroute." ;
 		event += label;
-// 		debug("menumanager triggering event ",event,options);
+		debug("menumanager triggering event ",event,options);
 		if ( options.rootRouteHandler ) {
 			$(document).trigger( event , {"route": route, "label": label, "segments": segments, "active": active == label , "env": settings });
 			var url = "#"+d10.routeEncode(route);
 			this.updateHash(url);
 		} else {
-	//       debug("triggering container event on ",options.container );
+	       debug("triggering container event on ",options.container );
 			this.trigger( event , {"route": route, "label": label, "segments": segments, "active": active == label , "env": settings });
 		}
 
@@ -224,8 +231,24 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 		else { options.routeActivate(label,segments,settings); }
 	};
 
-	if ( options.default_active_label ) {
-		this.toggleDisplay(options.default_active_label);
+	if ( options.default_active_label && typeof options.default_active_label == 'string' ) {
+// 		this.toggleDisplay(options.default_active_label);
+		
+		var menuitem = $('*[action='+options.default_active_label+']',options.menu);
+		var containeritem = this.getContainer(options.default_active_label);
+		
+		//send the event
+		options.displayEvent.call(this,options.default_active_label);
+		
+		//find active label
+		var active = this.current_label();
+		if ( active == options.default_active_label )	{// label is already active
+			// 		debug ("label "+label+" is already active");
+			options.displayAlreadyActive.call(this,options.default_active_label);
+		} else {
+			// 			debug ("label is "+active+", should set to "+label);
+			options.displayActivate.call(this,options.default_active_label,null,active);
+		}
 	}
 
 

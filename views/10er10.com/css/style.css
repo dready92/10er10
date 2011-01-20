@@ -417,15 +417,40 @@ article.songlist div.controls div.pushAll{
 	position: absolute;	right: 20px;
 }
 
-
 #main {
 	min-width: 705px;	/* #container.width - aside.width */
-  margin-right: 310px;
+	margin-right: 310px;
 	background-color: #343434;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
-  margin-bottom: 10px;
+	margin-bottom: 10px;
 }
+
+html.cssanimations #main > div {
+	-moz-transition-property: -moz-transform, opacity;
+	-webkit-transition-property: -webkit-transform, opacity;
+	-moz-transition-duration: 0.3s;
+	-webkit-transition-duration: 0.3s;
+	/*-moz-transform: scale(0) translateY(-400px);*/
+	-moz-transform: scale(1,0) ;
+/* 	-moz-transform: matrix(1,1,0,1,0,0); */
+	-webkit-transform: scale(1,0);
+	opacity: 0;
+}
+
+html.cssanimations #main > div.active {
+	-moz-transition-property: -moz-transform, opacity;
+	-webkit-transition-property: -webkit-transform,opacity;
+	-moz-transition-duration: 0.5s;
+	-webkit-transition-duration: 0.5s;
+	
+/* 	-moz-transform: matrix(1,0,0,1,0,0); */
+	-moz-transform: scale(1,1);
+	-webkit-transform: scale(1,1);
+	opacity: 1;
+}
+
+
 
 #main div.pleaseWait{
   text-align: center;
@@ -656,13 +681,17 @@ article div.pagination ul > li.active {
 
 /*#my .plm-content-container { margin-left: 113px; margin-right: 1px; }*/
 #my .plm-content-container { 
-  margin-left: 112px; margin-right: 1px; 
+  margin-left: 112px; 
+  margin-right: 1px; 
   padding-left: 1px;
   background-color: #232323;
+/*   position: relative; */
 }
 
 #my .plm-content-container .rpl {
 	padding: 20px 0 10px 0;
+/* 	position: absolute; */
+	
 }
 
 #my .plm-content-container .rpl .empty{

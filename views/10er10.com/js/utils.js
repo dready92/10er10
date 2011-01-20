@@ -83,9 +83,13 @@ var step2 = function () {
 		var allgood = true;
 
 		if ( !d10.localcache.getTemplate('song_template') ) {
-		allgood = false;
+			debug("cache templates");
+			allgood = false;
 		}
-		if ( !d10.user.got_infos() )  allgood = false;
+		if ( !d10.user.got_infos() ) {
+			debug("user infos");
+			allgood = false;
+		}
 		if ( allgood ) {
 		launchMeBaby();
 		} else {
@@ -149,15 +153,56 @@ var step2 = function () {
 		// prepare la vue "playlists"
 		//
 		d10.my.plmanager.init_topic_plm ($("#my div[name=plm]"));
+
+
 		
-		d10.globalMenu = new d10.fn.menuManager ({
-		'menu':$('#container > nav'), 
-		'container':$('#main'), 
-		'active_class': 'active', 
-		'default_active_label': 'welcome' ,
-		"rootRouteHandler": true,
-		"useRouteAPI": true
-		});
+// 		$("#main > div").css("display","block");
+		var menuOptions = {
+			'menu':$('#container > nav'), 
+			'container':$('#main'), 
+			'active_class': 'active', 
+			'default_active_label': 'welcome' ,
+			"rootRouteHandler": true,
+			"useRouteAPI": true
+		}
+		
+		if ( $("html").hasClass("cssanimations") ) {
+			var switchLabelTrans = function(label,arg,active) {
+// 				debug("scitchLabelTrans",arguments);
+				var prev = active ? this.getContainer(active) : null,
+				next = this.getContainer(label);
+				if ( prev && prev.hasClass("active") ) {
+// 					debug("in a transition with previous thing");
+					prev.one("transitionend webkitTransitionEnd",function() {
+// 						debug("transitionend event for previous thing",next);
+						$('#main>div').hide();
+						next.show();
+						setTimeout(function() {
+							next.addClass("active");
+						},15);
+					});
+					prev.removeClass("active");
+					$('#container > nav .active').removeClass("active");
+					d10.globalMenu.menuitem(label).addClass("active");
+// 					
+				} else {
+// 					debug("transition without previous element");
+					$('#main>div').hide();
+					next.show();
+					next.addClass("active");
+					$('#container > nav .active').removeClass("active");
+					this.menuitem(label).addClass("active");
+				}
+			};
+			$("#welcome").addClass("active");
+			menuOptions.displayActivate = switchLabelTrans;
+			menuOptions.routeActivate = function(label,segments,settings) {
+				switchLabelTrans.call(d10.globalMenu,label,null,d10.globalMenu.current_label());
+			};
+		}
+		
+		d10.globalMenu = new d10.fn.menuManager (menuOptions);
+		debug("menumanager ok");
 		$('#container').css("display","block").animate({"opacity": 1}, 1500,visibleBaby);
 		$('#initialLoading').html("Let's go !");
 		$('#beautyFade').fadeOut(1500);
@@ -183,10 +228,8 @@ var checkBrowser = function() {
 
 
 $(document).ready(function() {
-
 	// trap esc key
 	$(document).keydown(function(e) { if (e.keyCode && e.keyCode == 27 ) return false; });
-	
 
 	if ( !checkBrowser() ) {
 		$("#initialLoading").fadeOut(function() {
