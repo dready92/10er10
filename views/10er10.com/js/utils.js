@@ -174,12 +174,12 @@ var step2 = function () {
 				if ( prev && prev.hasClass("active") ) {
 // 					debug("in a transition with previous thing");
 					prev.one("transitionend webkitTransitionEnd",function() {
-						debug("transitionend event for previous thing",next);
+						debug("transitionend event for previous thing",prev,next);
 						$('#main>div').hide();
 						next.show();
-						setTimeout(function() {
+// 						setTimeout(function() {
 							next.addClass("active");
-						},15);
+// 						},15);
 					});
 					prev.removeClass("active");
 					$('#container > nav .active').removeClass("active");
