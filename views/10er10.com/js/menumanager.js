@@ -228,7 +228,11 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 
 
 		if ( active == label )	{ options.routeAlreadyActive(label, segments, settings); } 
-		else { options.routeActivate(label,segments,settings); }
+		else { 
+// 			setTimeout(function() {
+				options.routeActivate(label,segments,settings);
+// 			},7);
+		}
 	};
 
 	if ( options.default_active_label && typeof options.default_active_label == 'string' ) {

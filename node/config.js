@@ -45,7 +45,7 @@ exports.cmds = {
 
 exports.javascript = {
 	includes : [
-		"modernizr-1.5.min.js",
+		"modernizr-1.6.min.js",
 		"jquery.sprintf.js",
 		"jquery.tools.min.js",
 		"jquery.csstransform.js",

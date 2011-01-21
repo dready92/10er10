@@ -166,7 +166,7 @@ var step2 = function () {
 			"useRouteAPI": true
 		}
 		
-		if ( $("html").hasClass("cssanimations") ) {
+		if ( $("html").hasClass("csstransitions") ) {
 			var switchLabelTrans = function(label,arg,active) {
 // 				debug("scitchLabelTrans",arguments);
 				var prev = active ? this.getContainer(active) : null,
@@ -174,7 +174,7 @@ var step2 = function () {
 				if ( prev && prev.hasClass("active") ) {
 // 					debug("in a transition with previous thing");
 					prev.one("transitionend webkitTransitionEnd",function() {
-// 						debug("transitionend event for previous thing",next);
+						debug("transitionend event for previous thing",next);
 						$('#main>div').hide();
 						next.show();
 						setTimeout(function() {

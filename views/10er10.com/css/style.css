@@ -1090,11 +1090,9 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 	-webkit-transition-property: -webkit-transform;
 	-webkit-transition-duration: 0.6s;
 	position: relative;
-}
-
-html.cssanimations #search {
 	z-index:1;
 }
+
 
 #search.active {
 	-moz-transform: translate(260px, 74px);
@@ -1406,6 +1404,7 @@ div.hoverbox hr {
 	-webkit-border-radius: 3px;
 	opacity: 1;
 	text-align: right;
+	position: relative;
 }
 
 #results div.searchBackground img.next {
@@ -1416,7 +1415,7 @@ div.hoverbox hr {
 #results div.searchBackground img.loop {
 	position: absolute;
 	left: 500px;
-	top: 139px;
+	top: 9px;
 	visibility: hidden;
 	opacity: .7;
 }
