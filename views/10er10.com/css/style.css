@@ -429,13 +429,14 @@ article.songlist div.controls div.pushAll{
 html.csstransitions #main > div {
 	-moz-transition-property: -moz-transform, opacity;
 	-webkit-transition-property: -webkit-transform, opacity;
-	-moz-transition-duration: 0.3s;
-	-webkit-transition-duration: 0.3s;
+	-moz-transition-duration: 0s;
+	-webkit-transition-duration: 0s;
 	/*-moz-transform: scale(0) translateY(-400px);*/
-	-moz-transform: scale(0,1) ;
+	-moz-transform: scale(0,0) ;
+	-moz-transform-origin: 50% 0;
 /* 	-moz-transform-origin: 50% 0; */
 /* 	-moz-transform: matrix(1,1,0,1,0,0); */
-	-webkit-transform: scale(0,0);
+	-webkit-transform: scale(0.2,0.2);
 	-webkit-transform-origin: 50% 0;
 	opacity: 0;
 }
@@ -443,13 +444,20 @@ html.csstransitions #main > div {
 html.csstransitions #main > div.active {
 	-moz-transition-property: -moz-transform, opacity;
 	-webkit-transition-property: -webkit-transform,opacity;
-	-moz-transition-duration: 0s,0.5s;
-	-webkit-transition-duration: 0s,0.5s;
+	-moz-transition-duration: 0.4s;
+	-webkit-transition-duration: 0.4s;
 	
 /* 	-moz-transform: matrix(1,0,0,1,0,0); */
 	-moz-transform: scale(1,1);
 /* 	-moz-transform-origin: 100% 100%; */
+	-moz-transform-origin: 50% 0;
+	-moz-transition-timing-function: ease-in;
+	
+	
 	-webkit-transform: scale(1,1);
+/* 	-webkit-transform-origin: 50% 50%; */
+	-webkit-transform-origin: 50% 0;
+	-webkit-transition-timing-function: ease-in;
 	opacity: 1;
 }
 

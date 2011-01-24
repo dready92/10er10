@@ -165,7 +165,7 @@ var step2 = function () {
 			"rootRouteHandler": true,
 			"useRouteAPI": true
 		}
-		
+/*		
 		if ( $("html").hasClass("csstransitions") ) {
 			var switchLabelTrans = function(label,arg,active) {
 // 				debug("scitchLabelTrans",arguments);
@@ -200,7 +200,42 @@ var step2 = function () {
 				switchLabelTrans.call(d10.globalMenu,label,null,d10.globalMenu.current_label());
 			};
 		}
-		
+	*/	
+		if ( $("html").hasClass("csstransitions") ) {
+			var switchLabelTrans = function(label,arg,active) {
+				// 				debug("scitchLabelTrans",arguments);
+				var prev = active ? this.getContainer(active) : null,
+				next = this.getContainer(label);
+				if ( prev && prev.hasClass("active") ) {
+					// 					debug("in a transition with previous thing");
+					debug("transitionend event for previous thing",prev,next);
+					prev.removeClass("active");
+					$('#main>div').hide();
+					next.show();
+											setTimeout(function() {
+					next.addClass("active");
+											},15);
+				
+					
+					$('#container > nav .active').removeClass("active");
+					d10.globalMenu.menuitem(label).addClass("active");
+					// 					
+				} else {
+					// 					debug("transition without previous element");
+					$('#main>div').hide();
+					next.show();
+					next.addClass("active");
+					$('#container > nav .active').removeClass("active");
+					this.menuitem(label).addClass("active");
+				}
+			};
+			$("#welcome").addClass("active");
+			menuOptions.displayActivate = switchLabelTrans;
+			menuOptions.routeActivate = function(label,segments,settings) {
+				switchLabelTrans.call(d10.globalMenu,label,null,d10.globalMenu.current_label());
+			};
+		}
+
 		d10.globalMenu = new d10.fn.menuManager (menuOptions);
 		debug("menumanager ok");
 		$('#container').css("display","block").animate({"opacity": 1}, 1500,visibleBaby);
