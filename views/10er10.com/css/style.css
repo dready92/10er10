@@ -1428,6 +1428,21 @@ div.hoverbox hr {
 	
 }
 
+html.csstransitions #welcome div[name=introduction] div.welcomeBox {
+/* 	-webkit-transform: scale(1); */
+	-webkit-transition: -webkit-transform 1s ease-in;
+	-moz-transition: -moz-transform 3s ease-in;
+}
+
+html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
+	/* 	-webkit-transform: scale(1); */
+	-webkit-transform: scale(1.2);
+	-moz-transform: scale(1.2);
+	-webkit-transition: -webkit-transform 1s ease-out;
+	-moz-transition: -moz-transform 3s ease-in;
+}
+
+
 #welcome div[name=introduction] div.welcomeBox div.title {
 	text-align: center;
 	padding: 20px 0 20px 0;
@@ -1445,6 +1460,7 @@ div.hoverbox hr {
 #welcome div[name=introduction] div.welcomeBox div.content {
 	color: #cfcfcf;
 	padding: 0 20px;
+	text-shadow: #121212 0px 1px 1px;
 }
 
 #welcome div[name=introduction] div.welcomeBox:nth-child(1) {
