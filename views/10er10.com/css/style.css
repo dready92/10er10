@@ -1357,7 +1357,7 @@ div.hoverbox hr {
   position:relative;
 }
 
-#welcome div[name=introduction] div.items div{
+#welcome div[name=introduction] div.items> div{
   position: absolute;
   opacity: 0;
 }
@@ -1402,6 +1402,70 @@ div.hoverbox hr {
 
 #welcome div[name=introduction] br {
   clear: both;
+}
+
+
+#welcome div[name=introduction] div.items> div:first-child{
+	text-align: center;
+	
+}
+
+#welcome div[name=introduction] div.welcomeBox {
+	cursor: pointer;
+	display: inline-block;
+	width: 34%;
+	height: 120px;
+	margin: 40px 50px;
+	background-repeat: no-repeat;
+	background-position: 130px 25px,left top;
+	
+/* 	background: -moz-linear-gradient(top, #71aac6 0%, #466777 100%); */
+	-moz-box-shadow: 0 0 1px 2px rgba(84,155,190,0.7);
+	-webkit-box-shadow: 0 0 1px 2px rgba(84,155,190,0.7);
+	vertical-align: middle;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	
+}
+
+#welcome div[name=introduction] div.welcomeBox div.title {
+	text-align: center;
+	padding: 20px 0 20px 0;
+	color: #232323;
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+#welcome div[name=introduction] div.welcomeBox div.title > img {
+	vertical-align: middle;
+	position: relative;
+	left: -30px;
+}
+
+#welcome div[name=introduction] div.welcomeBox div.content {
+	color: #cfcfcf;
+	padding: 0 20px;
+}
+
+#welcome div[name=introduction] div.welcomeBox:nth-child(1) {
+	background-image:  url(folder-sound-grey-128x128.png), -moz-linear-gradient(top, #71aac6 0%, #466777 100%);
+	background-image:  url(folder-sound-grey-128x128.png), -webkit-gradient(linear, left top, left bottom, from(#71aac6), to(#466777));
+}
+
+
+#welcome div[name=introduction] div.welcomeBox:nth-child(2) {
+	background-image:  url(go-jump-grey-128x128.png), -moz-linear-gradient(top, #71aac6 0%, #466777 100%);
+	background-image:  url(go-jump-grey-128x128.png), -webkit-gradient(linear, left top, left bottom, from(#71aac6), to(#466777));
+}
+
+#welcome div[name=introduction] div.welcomeBox:nth-child(3) {
+	background-image:  url(user-home-grey-128x128.png), -moz-linear-gradient(top, #71aac6 0%, #466777 100%);
+	background-image:  url(user-home-grey-128x128.png), -webkit-gradient(linear, left top, left bottom, from(#71aac6), to(#466777));
+}
+
+#welcome div[name=introduction] div.welcomeBox:nth-child(4) {
+	background-image:  url(edit-find-grey-128x128.png), -moz-linear-gradient(top, #71aac6 0%, #466777 100%);
+	background-image:  url(edit-find-grey-128x128.png), -webkit-gradient(linear, left top, left bottom, from(#71aac6), to(#466777));
 }
 
 #welcome div.scrollable {

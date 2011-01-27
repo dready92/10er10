@@ -53,6 +53,10 @@ var welcome = function  () {
 		}
 	});
 
+	$("div.scrollContainer div.welcomeBox[data-target]").click(function() {
+		window.location.hash = "#"+$(this).attr("data-target");
+		return false;
+	});
 
 
 };
