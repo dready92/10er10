@@ -556,15 +556,19 @@ article.review .form_error {
 }
 
 #main > div > nav ul li {
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  display: inline-block; margin: 0px; padding: 1px 3px 1px 3px;
+  -moz-border-radius: 3px; -webkit-border-radius: 3px;
+  display: inline-block; margin: 0px; padding: 5px 5px 5px 5px;
   color: #3CA0D0; cursor: pointer;
-  -moz-user-select: none;
-  -webkit-user-select: none;
+  -moz-user-select: none; -webkit-user-select: none;
+  font-size: 1.1em;
+  -moz-transition: background-color 0.4s;
+  -webkit-transition: background-color 0.4s;
 }
 
-#main > div > nav ul li:hover { background-color: rgba(200,200,200,0.15);} 
+#main > div > nav ul li:hover { background-color: rgba(200,200,200,0.15);
+	-moz-transition: background-color 0.4s;
+	-webkit-transition: background-color 0.4s;
+} 
 
 #main > div > nav ul li.active {
 	cursor: auto; 
@@ -626,19 +630,25 @@ article div.refreshList {
 }
 
 #library div[name=genres] div.genre {
-	padding: 10px 0 0 5px;
+	display: inline-block;
+	width: 48%;
+	vertical-align: top;
+	margin-bottom: 25px;
 }
 
-#library div[name=genres] div.genre span {
+#library div[name=genres] div.genre:nth-child(odd) {
+	padding-right: 10px;
+}
+
+
+#library div[name=genres] div.genre > span {
 	color: #086FA1;
 	font-weight: bold;
 	font-size: 1.1em;
 	cursor: pointer;
+	padding-left: 10px;
 }
 
-#library div[name=genres] div.genresub {
-	padding: 0 0 0 5px;
-}
 
 #library div[name=genres] div.genresub span.artistName:hover {
 	color: #D6A935;

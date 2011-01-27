@@ -113,7 +113,7 @@ var library = function () {
 					location.hash = "#/library/genres/"+encodeURIComponent($(this).text());
 				});
 				topicdiv.delegate("span.all","click",function() {
-					var genre = $(this).closest("div.genresub").prev().find("span").text();
+					var genre = $(this).closest("div.genre").children("span").text();
 					location.hash = "#/library/genres/"+encodeURIComponent(genre);
 				});
 			}
