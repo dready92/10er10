@@ -1,7 +1,7 @@
-var 	bodyDecoder = require("connect/middleware/bodyDecoder"),
+var 	bodyDecoder = require("connect").bodyDecoder,
 		config = require("./config"),
 		hash = require("./hash"),
-		utils = require("connect/utils"),
+		utils = require("connect").utils,
 		d10 = require("./d10");
 		
 		

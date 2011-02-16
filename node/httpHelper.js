@@ -1,7 +1,7 @@
 var fs = require("fs"),
 	path = require("path"),
 	util = require("util"),
-	utils = require("connect/utils"),
+	utils = require("connect").utils,
 	d10 = require("./d10"),
 	files = require("./files");
 

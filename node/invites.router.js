@@ -1,4 +1,4 @@
-var bodyDecoder = require("connect/middleware/bodyDecoder"),
+var bodyDecoder = require("connect").bodyDecoder,
 	hash = require("./hash"),
 	fs=require("fs"),
 	d10 = require("./d10");

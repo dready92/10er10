@@ -1,7 +1,7 @@
 //router-api.js
 
 var d10 = require ("./d10"),
-	bodyDecoder = require("connect/middleware/bodyDecoder"),
+	bodyDecoder = require("connect").bodyDecoder,
 	querystring = require("querystring"),
 	fs = require("fs"),
 	os = require("os"),

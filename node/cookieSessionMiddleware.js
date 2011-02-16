@@ -1,5 +1,5 @@
 var d10 = require("./d10"),
-	utils = require("connect/utils");
+	utils = require("connect").utils;
 
 	/*
 	 * {
