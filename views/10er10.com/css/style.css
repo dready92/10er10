@@ -1445,6 +1445,7 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 
 #welcome div[name=introduction] div.welcomeBox div.title {
 	text-align: center;
+	text-shadow: #565656 0px 1px 1px;
 	padding: 20px 0 20px 0;
 	color: #232323;
 	font-size: 1.2em;
@@ -1482,6 +1483,27 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 #welcome div[name=introduction] div.welcomeBox:nth-child(4) {
 	background-image:  url(edit-find-grey-128x128.png), -moz-linear-gradient(top, #71aac6 0%, #466777 100%);
 	background-image:  url(edit-find-grey-128x128.png), -webkit-gradient(linear, left top, left bottom, from(#71aac6), to(#466777));
+}
+
+#welcome div.imgLeft {
+	margin: 20px 0;
+}
+
+#welcome div.imgLeft > img {
+	float: left;
+	max-width: 250px;
+/* 	vertical-align: middle; */
+	clear: none;
+	margin-left: 10px;
+}
+
+#welcome div.imgLeft > div {
+	float: left;
+	display: inline-block;
+	max-width: 430px;
+	margin: 30px 0 0 30px;
+/*  	vertical-align: middle;  */
+
 }
 
 #welcome div.scrollable {
