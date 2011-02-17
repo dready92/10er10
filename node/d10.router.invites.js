@@ -73,7 +73,7 @@ exports.api = function(app) {
 				creation_time: new Date().getTime()
 			};
 			
-			d10.couch.auth.storeDoc(invites,function(err,resp) {
+			d10.couch.auth.storeDoc(invite,function(err,resp) {
 				if ( err ) return d10.rest.err(423,err,request.ctx);
 				sendInviteMail(request.body.email,invite,function(err,resp) {
 					if ( err ) {
