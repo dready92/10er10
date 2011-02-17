@@ -71,8 +71,8 @@ var globalSrv = connect.createServer(
 	connect.vhost("invites.10er10.com",invitesServer),
 // 	defaultServer
 	d10Server
-)
-.listen(config.port);
+);
+globalSrv.listen(config.port);
 
 d10Server.on("error",function() {
 	console.log("SERVER ERROR");

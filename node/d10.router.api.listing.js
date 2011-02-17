@@ -1,5 +1,5 @@
 var d10 = require ("./d10"),
-	bodyDecoder = require("connect/middleware/bodyDecoder"),
+	bodyDecoder = require("connect").bodyDecoder,
 	querystring = require("querystring"),
 	exec = require('child_process').exec;
 
