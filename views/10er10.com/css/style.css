@@ -508,7 +508,7 @@ article.review .form_error {
 /* library !!!*/
 
 #library .list, #my .list { display: table; width: 100%; margin: 0; }
-#results .list {display: table; }
+
 #my article.review.empty, #library .list.empty, #my .list.empty { padding: 20px 0 20px 10px; font-size: 1.2em;} 
 #library .song, #my .song, #results .song { display: table-row; }
 #library .song, #my .song, #results .song {
@@ -1601,6 +1601,12 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	-moz-border-radius: 9px;	
 	-moz-transition-property: background-color, width, height, top, left, border-color, border-width;
 	-moz-transition-duration: 0.6s;
+}
+
+#results .list {display: table; }
+
+#results div.resultContainer div.songs div.list {
+	width: 100%;
 }
 
 #results div.resultContainer div div.enlarge {
