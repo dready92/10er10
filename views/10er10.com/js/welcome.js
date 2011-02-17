@@ -35,7 +35,8 @@ var welcome = function  () {
 		"z-index": 90
 	});
 	$("div.scrollContainer a.prev",ui).hide();
-	$("div.scrollContainer a.next",ui).show();
+// 	$("div.scrollContainer a.next",ui).show();
+	$("div.scrollContainer a.next",ui).hide();
 	$("div.scrollContainer a.next",ui).click(function() {
 		var actElem = $(">div",container).filter(function() { return $(this).css("opacity") == 1 ; });
 	//     console.log(actElem);
