@@ -10,17 +10,19 @@
  * public properties
  * - id : id of the wrapper
  * - audio : the Audio HTML5 Object
+ * - duration : the seconds argument exposed
  * 
  * public methods
  * - getProgressPC() : get perdentile of file loaded
  * - destroy() : stop immmediately playing, destroy the inderlying <audio>
  * - volume(vol) : ajust volume (vol: float between 0 and 1)
  * - seek(secs) : immediately switch playback to secipied time (secs: destination playback)
- * - fadeOut(secs) : ajust the volume to go from current situation to 0 in sepcified duration (secs: int seconds the fadeOut lasts)
- * - fadeIn(secs) : ajust the volume to go from 0 to preferences volume in sepcified duration, eventually starting the playback
+ * - fadeOut(secs,callback) : ajust the volume to go from current situation to 0 in sepcified duration (secs: int seconds the fadeOut lasts)
+ * - fadeIn(secs,callback) : ajust the volume to go from 0 to preferences volume in sepcified duration, eventually starting the playback
  *					(secs: int seconds the fadeIn lasts)
  * 					return false if the fadeIn can't be started because we don't have enough data
  * 					return id if the fadeIn is started
+ * - isFadding(): returns true if the current song is currently fading in or out
  */
 
 
@@ -169,9 +171,13 @@ var track = function (id, url, seconds, options) {
   
   this.id = id;
 
+  this.duration = seconds;
+  
   this.getCreationTimestamp = function() {
     return state.created;
   };
+  
+  this.fading = function() { return fadeInterval ? true : false; };
   
   this.getProgressPC = function() {
     return state.progressPC;
@@ -201,7 +207,7 @@ var track = function (id, url, seconds, options) {
 		}
 	}
 
-	this.fadeOut = function (secs) {
+	this.fadeOut = function (secs,callback) {
 		if ( fadeInterval ) {
 			clearInterval(fadeInterval);
 			fadeInterval = null;
@@ -218,6 +224,7 @@ var track = function (id, url, seconds, options) {
 				clearInterval( fadeInterval );
 				fadeInterval = null;
 				debug("fadeOut ended");
+				if ( callback )	callback.call(this);
 				return ;
 			}
 			remaining--;
@@ -243,10 +250,11 @@ var track = function (id, url, seconds, options) {
 
 		var fadeStep = function () {
 			if ( remaining == 0 ) {
-				audio.volume = target_volume;
+				audio.volume = $("body").data("volume");
 				clearInterval( fadeInterval );
 				fadeInterval = null;
 				debug("fadeIn ended");
+				if ( callback )	callback.call(this);
 				return ;
 			}
 			remaining--;
