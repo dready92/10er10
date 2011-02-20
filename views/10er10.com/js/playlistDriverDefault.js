@@ -16,7 +16,7 @@ $(document).trigger('player.mainTimeUpdate',{'currentTime': secs, 'duration': du
 
 d10.playlistDrivers = d10.playlistDrivers || {};
 d10.playlistDrivers.default = function(options) {
-	var settings = $.extend({fade: 15,prefectchMinStartupTime: 29},options),
+	var settings = $.extend({fade: 15,prefectchMinStartupTime: 29},options);
 	var playlist = d10.playlist;
 	var current = null; // current playing track
 	var next = null; // next track
@@ -34,7 +34,7 @@ d10.playlistDrivers.default = function(options) {
 		$.each(events[e],function(i,callback) {
 			try {
 				callback(data);
-			} catch(Exception e) {
+			} catch(e) {
 			}
 		});
 	};
@@ -67,7 +67,7 @@ d10.playlistDrivers.default = function(options) {
 			},
 			"onended": function() {
 				// 					$(document).trigger('audioEnded', {'id': this.id }  );
-				if ( this !=== current ) {	return false; }
+				if ( this !== current ) {	return false; }
 				trigger("ended",{});
 				var nextWidget = playlist.next();
 				if ( nextWidget.length ) {
@@ -104,14 +104,14 @@ d10.playlistDrivers.default = function(options) {
 		if ( nextWidget.length ) {
 			infos = playlist.getTrackParameters(nextWidget);
 			if ( cache[infos[0]] )	return ;
-			cache[id] = createTrack.apply(this,infos));
+			cache[id] = createTrack.apply(this,infos);
 			next = cache[id];
 		}
 		debug("starting prefetch of "+id+" at "+current.audio.currentTime+" s");
 		createAudio(nextone);
 	}
 	
-	var removeFromCache(id) {
+	var removeFromCache=function(id) {
 		var track = null;
 		if ( typeof id == "string" ) {
 			track = cache[id];
@@ -132,7 +132,7 @@ d10.playlistDrivers.default = function(options) {
 			debug("no way to fade: next song doesn't exist");
 			return ;
 		}
-		var d_id = ;
+
 		if ( !next.fadeIn(secs) ) {
 			debug('Fade In startup failed');
 			return ;

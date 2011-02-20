@@ -36,19 +36,23 @@ var dnd = function() {
   // dragleave : other things to do on dragleave
   this.dropTarget = function(container, list, options  ) {
     var settings = {
-      "copyDrop": function(){},
-      "moveDrop": function(){},
-      "dragenter": function(){},
-      "dragleave": function(){},
- "containerHeight": function() { /*debug(container, container.height());*/return container.height(); }
-    };
-    $.extend(settings,options);
+		"copyDrop": function(){},
+		"moveDrop": function(){},
+		"dragenter": function(){},
+		"dragleave": function(){},
+		"dropAllowed": function() {return true;},
+		"containerHeight": function() { /*debug(container, container.height());*/return container.height(); }
+	};
+	$.extend(settings,options);
 
 	var currentDnDposition = null;
 	
 	var onDnd = function (e) {
 		if ( dragging == null ) { return ; }
 		var song = $(e.target).closest('div.song');
+		if ( !settings.dropAllowed({target: song, dragging: dragging}) ) {
+			return true;
+		}
 		if ( dragging.includes(song) ) {
 			$("div.song",list).removeClass("hover");
 			return true;

@@ -42,21 +42,22 @@
 	 * 	current: returns the current playing song jquery obj
 	 * 	next: return the next song jquery object
 	 * 	getUrl(song): return the url object of song
-	 * 	volume(): returns the volume that the UI got
+	 * 	volume(vol): returns / set the volume that the UI got,
+	 * 	seek(secs): immadiately set playback current time to secs
 	 * 	getTrackParameters(song): returns the parameters needed to instanciate a track object, as an array
 	 * 
 	 */
 	
-	var playlist = function(d, ui, options) {
+	d10.fn.playlistProto = function(d, ui, options) {
 		
 		var settings= $.extend({
 			currentClass: "active"
 		}, options);
 		
-		var list = $(".list",ui);
+		var list = $("#playlist",ui);
 		var driver = null;
 		var songId = this.songId = function(song) {
-			var songs = list.children(".song[name="+song.attr("name")"]");
+			var songs = list.children(".song[name="+song.attr("name")+"]");
 			var back = 0;
 			songs.each(function(i) {
 				if ( this === song.get(0) ) {
@@ -91,7 +92,7 @@
 		};
 		var getTrackParameters = this.getTrackParameters = function(song) {
 			return [
-				ongId(song),
+				songId(song),
 				getUrl(song),
 				song.attr("duration"),
 				{}
@@ -99,29 +100,67 @@
 		};
 		
 		var controls = {
+			volumeBar: new volumebar( ui.find('div[name=volume]').eq(0),1),
+			progressBar: new progressbar( ui.find('div[name=progression]') ),
 			setPlay: function(play) {
 				// change the "play" control to play (true) or pause (false)
+				if ( play ) {
+					$('img[name=play]',controls).hide();
+					$('img[name=pause]',controls).show();
+				} else {
+					$('img[name=play]',controls).show();
+					$('img[name=pause]',controls).hide();
+				}
 			},
 			getVolume: function() {
+				return controls.volumeBar.getCurrent();
 				// get the volume bet 0 and 1 the volumebar currently points to
 			}
 		};
-		
-		var volume = this.volume = function() {
+		var volumeUpdateTimeout = null;
+		var volume = this.volume = function(vol,fromPrefs) {
+			if ( arguments.length ) {
+				controls.volumeBar.adjustBar(vol);
+				debug ("playlist : should adjust volume to "+vol);
+				$('body').data('volume',vol);
+// 				audio.volume();
+				if ( fromPrefs ) { return ; }
+				if ( volumeUpdateTimeout ) {
+					clearTimeout(volumeUpdateTimeout);
+				}
+				volumeUpdateTimeout = setTimeout(function() {
+					d10.bghttp.post({
+						"url": site_url+"/api/volume",
+						"data": { "volume": $('body').data('volume') }
+					});
+					volumeUpdateTimeout = null;
+				},10000);
+				return driver.volume(vol);
+			}
 			var prefs= d10.user.get_preferences();
-			return prefs.volume ? prefs.volume : controls.getVolume();
+			return $('body').data('volume');
+		};
+		if ( d10.user.get_preferences().volume ) {
+			volume(d10.user.get_preferences().volume,true);
+		} else {
+			volume(0.5,true);
+		}
+		
+		var seek = this.seek = function(secs) {
+			driver.seek(secs);
 		};
 		
 		var setDriver = this.setDriver = function(newDriver) {
 			if ( driver ) {
 				driver.unbindAll();
 			}
-			driver = newDriver();
+			driver = newDriver;
 			newDriver.bind("currentSongChanged",function(e) {
 				controls.setPlay(driver.current());
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
-				songWidget(e.current).addClass(currentClass);
+				songWidget(e.current).addClass(settings.currentClass);
 				$(document).trigger("playlsit:currentSongChanged",{current: current()});
+				controls.progressBar.setMax( driver.current().duration );
 			});
 			newDriver.bind("ended",function(e) {
 				controls.setPlay(driver.current());
@@ -129,13 +168,195 @@
 // 				songWidget(e.current).addClass(currentClass);
 				$(document).trigger("playlist:ended",{current: current()});
 			});
+			newDriver.bind("currentLoadProgress",function(e) {
+				controls.progressBar.setNetLoadBar(driver.currentLoadProgress());
+				
+			});
+			newDriver.bind("currentTimeUpdate",function(e) {
+				controls.progressBar.setBar(e.track.currentTime);
+				var d = new Date(1970,1,1,0,0,e.track.currentTime);
+				ui.find('span[name=secs]').html(d.getMinutes()+':'+d.getSeconds());
+				
+			});
 		};
 		
-		setDriver(driver);
+		setDriver(d);
+		
+		var playlistAppendPost = function() {
+			if ( ui.find(".emptyPlaylist").is(":visible") ) {
+				ui.find(".emptyPlaylist").hide();
+			}
+// 			if ( p.isRpl() ) {
+// 				p.setPlaylistName(p.noname);
+// 			}
+			$(document).trigger('playlistUpdate', { 'action': 'copy' } );
+		};
+		
+		
+// 		debug("ui",ui,"list",list);
+		d10.dnd.dropTarget (ui,list,{
+			"moveDrop": function (source,target, infos) {
+				if ( infos.wantedNode ) {  
+					infos.wantedNode.after(source);
+				} else {
+					list.prepend(source);
+				}
+				// 				if ( p.isRpl() ) { p.setPlaylistName(p.noname); }
+				$(document).trigger('playlistUpdate', { 'action': "move" } );
+				return true;
+			},
+			"copyDrop": function(source, target,infos) {
+				var item = source.clone().show().css({'display':'',"opacity": 1}).removeClass('current dragging selected');
+				if  ( infos.wantedNode  ) {
+					infos.wantedNode.after(item);
+				} else {
+					list.prepend(item);  
+				}
+				playlistAppendPost();
+				return true;
+			},
+			"dropAllowed": function(e) {return driver.writable(e);}
+		});
+		
+		list.delegate("div.song","dragstart",
+			function(e) {
+				var dt = e.originalEvent.dataTransfer;
+				$(this).toggleClass("selected",true);
+				dt.setData('text/plain','playlist');
+				dt.setDragImage( $('#songitem img')[0], 0, 0);
+				$(this).css('opacity',0.5);
+				d10.dnd.setDragItem(list.find('.song.selected'));
+			}
+		)
+		// 			d10.dnd.onDragDefault)
+		.delegate("div.song","dragend",d10.dnd.removeDragItem)
+		.delegate("div.song",'click', function (e) {
+			$(this).toggleClass("selected");
+		})
+		.delegate("div.song",'dblclick', function (e) {
+			// 	// prevent click / dblclick mess
+			if ( $(this).data("removing") ) {	return; };
+			driver.play.apply(driver, getTrackParameters($(this)));
+			if ( !$('span.remove',$(this)).hasClass('hidden') )   $('span.remove',$(this)).addClass('hidden');
+		})
+		.delegate("div.song",'mouseenter',function() {
+			if ( !$(this).hasClass('current') )                   $('span.remove',$(this)).removeClass('hidden');
+		})
+		.delegate("div.song",'mouseleave',function() {
+			if ( !$('span.remove',$(this)).hasClass('hidden') )   $('span.remove',$(this)).addClass('hidden');
+		})
+		.delegate("div.song span.remove",'click',function() {
+			$(this).closest("div.song").data("removing",true).slideUp(100,function() 
+				{
+					$(this).remove();
+					if ( !list.children("div.song").length && ui.find(".emptyPlaylist").not(":visible") ) {
+						ui.find(".emptyPlaylist").show();
+					}
+				}
+			);
+// 			if ( p.isRpl() ) {		  p.setPlaylistName(p.noname); }
+			$(document).trigger('playlistUpdate', { 'action': 'remove' } );
+		});
 		
 	};
 	
 	
+	
+	
+	
+	
+	
+	
+	function progressbar( widget_arg ) {
+		
+		var ui = widget_arg;
+		var pmax = 0;  // x secs = y pixels
+		var punit = 0; // 1 secs = punit pixels
+		var current = 0;
+		
+		var netload_pmax = 0;  // x secs = y pixels
+		var netload_punit = 0; // 1 secs = punit pixels
+		
+		ui.css({ textAlign: 'left', position: 'relative', overflow: 'hidden' });
+		$('div.netload',ui).css({ position: 'absolute', width: 0, height: '100%', overflow: 'hidden' });
+		$('div.timer',ui).css({ position: 'absolute', width: 0, height: '100%', overflow: 'hidden' });
+		
+		ui.click(function(e) {
+			var offset = ui.offset();
+			var pix = e.pageX-offset.left;
+			d10.playlist.seek(Math.floor(pix/punit));
+			debug(pix+' = '+pix/punit+' secs');
+		});
+			
+		this.getMax = function () { return pmax; }
+		
+		// in seconds
+		this.setMax = function(num) {
+			pmax=parseInt(num);
+			punit=ui.width() / pmax;
+		}
+		
+		this.setBar = function(data) {
+			$('div.timer',ui).css({
+				width: Math.floor(punit*data)
+			});
+		}
+		
+		
+		this.setNetloadMax = function (num) {
+			netload_pmax=parseInt(num);
+			netload_punit=ui.width() / netload_pmax;
+		}
+		this.setNetloadMax(100); // percentile
+		
+		this.setNetloadBar = function(data) {
+// 			this.setNetloadMax(data.total);
+			//     debug("loaded: ",data.loaded," total: ",data.total); 
+			$('div.netload',ui).css({
+				width: Math.floor(netload_punit*data)
+			});
+		}
+	}
+	
+	
+	function volumebar( widget_arg, maxi ) { 
+		
+		var ui = widget_arg;
+		var pmax = 0; 
+		var punit = 0;
+		var current = 0;
+		ui.css({ textAlign: 'left', position: 'relative', overflow: 'hidden' });
+		$('div',ui).css({ position: 'absolute', width: 0, height: '100%', overflow: 'hidden' });
+		ui.click(function(e) {
+			var offset = ui.offset();
+			var pix = e.pageX-offset.left;
+			var volume = $.sprintf('%.2f',pix*punit) ;
+			if ( volume > 1 )
+				volume = 1;
+			else if ( volume < 0 )
+				volume = 0;
+			d10.playlist.volume(volume);
+// 			$('div',ui).css( 'width', pix);
+		});
+		this.setMax = function(num) {
+			pmax=num;
+			punit= pmax / ui.width();
+		}
+		this.setMax(maxi);
+		this.adjustBar = function (vol) {
+			if ( vol > pmax ) return ;
+			$('div',ui).css('width',ui.width() / pmax  * vol);
+		}
+		this.getCurrent = function() {
+			return pmax* 0.1 * $('div',ui).width();
+		};
+	}
+	
+	
+	
+	
+// 	d10.fn.playlist = playlist;
+// 	delete playlist;
 	
 	
 	

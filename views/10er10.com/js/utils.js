@@ -101,6 +101,12 @@ var step2 = function () {
 
 	var visibleBaby = function () {
 // 			console.profile("visible");
+		var driver = new d10.playlistDrivers.default({});
+		
+// 		debug("fn",d10.fn);
+		
+		d10.playlist = new d10.fn.playlistProto(driver, $("aside"),{});
+		/*
 		d10.playlist = new d10.fn.playlist(
 		$('#playlist'),
 		$('#controls'),
@@ -108,7 +114,7 @@ var step2 = function () {
 		$('aside'),
 		$('aside div.manager')
 		);
-
+		*/
 		if ( window.location.hash.length ) {
 		d10.globalMenu.route( window.location.hash.replace(/^#/,"") );
 		}
