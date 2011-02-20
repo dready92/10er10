@@ -1,3 +1,30 @@
+/**
+ * <audio> wrapper
+ * params:
+ * - id : unique id (not the song id)
+ * - url : the urls of resources, as object: {codec: "http://...", [...]}
+ * - seconds : the song length in seconds
+ * - options : object. Supported options :
+ * 		onprogressUpdate: song availability, fired when something changed in the song loading infos
+ * 
+ * public properties
+ * - id : id of the wrapper
+ * - audio : the Audio HTML5 Object
+ * 
+ * public methods
+ * - getProgressPC() : get perdentile of file loaded
+ * - destroy() : stop immmediately playing, destroy the inderlying <audio>
+ * - volume(vol) : ajust volume (vol: float between 0 and 1)
+ * - seek(secs) : immediately switch playback to secipied time (secs: destination playback)
+ * - fadeOut(secs) : ajust the volume to go from current situation to 0 in sepcified duration (secs: int seconds the fadeOut lasts)
+ * - fadeIn(secs) : ajust the volume to go from 0 to preferences volume in sepcified duration, eventually starting the playback
+ *					(secs: int seconds the fadeIn lasts)
+ * 					return false if the fadeIn can't be started because we don't have enough data
+ * 					return id if the fadeIn is started
+ */
+
+
+
 var track = function (id, url, seconds, options) {
 
   var allEvents = [
