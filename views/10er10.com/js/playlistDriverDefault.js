@@ -32,9 +32,11 @@ d10.playlistDrivers.default = function(options) {
 	var trigger = this.trigger = function(e,data) {
 		if ( !events[e] )	return ;
 		$.each(events[e],function(i,callback) {
+// 			debug("playlistDriverDefault:trigger ",e,data,callback);
 			try {
 				callback(data);
-			} catch(e) {
+			} catch(err) {
+				debug(err,e);
 			}
 		});
 	};
@@ -44,22 +46,24 @@ d10.playlistDrivers.default = function(options) {
 	};
 	
 	var createTrack = function(id,url,duration,options) {
+		debug("playlistDriverDefault:createTrack",arguments);
 		return new track(id, url,duration ,{
 			"ontimeupdate":function() {
-				if ( this === current ) {
+// 				debug("playlistDriverDefault:ontimeupdate",this);
+				if ( this === current.audio ) {
 					var secs = Math.floor(this.currentTime);
 					if ( secs == this.last_secs_update ) {return true;}
 					this.last_secs_update = secs;
 					var dur = Math.floor(this.duration);
 					trigger('currentTimeUpdate',{'currentTime': secs, 'duration': dur }	);
 					if ( secs > settings. prefectchMinStartupTime && secs % 8 == 0 ) { optimistPrefetch(); }
-					if ( fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == fade ) {
+					if ( settings.fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == settings.fade ) {
 						beginFade();
 					}
 				}
 			},
 			"oncanplaythrough":function() {
-				if ( this.id == current ) {
+				if ( this === current.audio ) {
 					trigger("currentLoadProgress", {track:current});
 					currentLoadProgressEnded = true;
 					// 						$(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 1, 'loaded':1}  }  );
@@ -67,7 +71,7 @@ d10.playlistDrivers.default = function(options) {
 			},
 			"onended": function() {
 				// 					$(document).trigger('audioEnded', {'id': this.id }  );
-				if ( this !== current ) {	return false; }
+				if ( this !== current.audio ) {	return false; }
 				trigger("ended",{});
 				var nextWidget = playlist.next();
 				if ( nextWidget.length ) {
@@ -80,7 +84,7 @@ d10.playlistDrivers.default = function(options) {
 			},
 			"onprogressUpdate": function(e) {
 				if ( currentLoadProgressEnded )	return ;
-				if ( this === current ) {
+				if ( this === current.audio ) {
 					if ( this.networkState == this.NETWORK_IDLE && this.readyState == this.HAVE_ENOUGH_DATA )  {
 						currentLoadProgressEnded = true;
 						// 							$(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 1, 'loaded':1}  }  );
@@ -146,12 +150,12 @@ d10.playlistDrivers.default = function(options) {
 	}
 	
 	var play = this.play = function(id,url,duration,options) {
+		debug("playlistDriverDefault:play",arguments);
 		if ( !cache[id] ) {
 			cache[id] = createTrack(id,url,duration,options);
 		}
-		
+		debug("playlistDriverDefault:play track",cache[id]);
 		if ( cache[id] === current && !cache[id].audio.paused ) return ;
-		
 
 // 			debug("using cached audio");
 		current = cache[id];
@@ -173,6 +177,7 @@ d10.playlistDrivers.default = function(options) {
 		}
 		current.audio.volume = $('body').data('volume');
 		current.audio.play();
+		debug("playlistDriverDefault:play called play() on audio element : ",current.audio);
 	// 			current_id = audio.track.audio.id;
 	// 			$(document).trigger('player.currentSongChanged',eventData);
 		trigger("currentSongChanged",{current: current});
@@ -219,7 +224,7 @@ d10.playlistDrivers.default = function(options) {
 	var volume = this.volume = function(vol) {
 		if ( vol < 0 || vol > 1 ) 	return false;
 		$.each(cache,function(i,track) {
-			if ( !track.isFading() ) {
+			if ( !track.fading() ) {
 				track.audio.volume = vol;
 			}
 		});

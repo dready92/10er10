@@ -45,6 +45,7 @@
 	 * 	volume(vol): returns / set the volume that the UI got,
 	 * 	seek(secs): immadiately set playback current time to secs
 	 * 	getTrackParameters(song): returns the parameters needed to instanciate a track object, as an array
+	 * 	append(songs): append the song(s) at the end of the playlist
 	 * 
 	 */
 	
@@ -87,7 +88,8 @@
 		};
 		
 		var getUrl = this.getUrl = function(song) {
-			var url = function (id) { return "/audio/"+id.substr(2,1)+"/"+id+".ogg"; } ;
+// 			var url = function (id) { return "/audio/"+id.substr(2,1)+"/"+id+".ogg"; } ;
+			var url = function (id) { return "http://10er10.com/audio/"+id.substr(2,1)+"/"+id+".ogg"; } ;
 			return {"audio/ogg": url(song.attr('name'))};
 		};
 		var getTrackParameters = this.getTrackParameters = function(song) {
@@ -98,6 +100,34 @@
 				{}
 			];
 		};
+
+		var playlistAppendPost = function() {
+			if ( ui.find(".emptyPlaylist").is(":visible") ) {
+				ui.find(".emptyPlaylist").hide();
+			}
+			// 			if ( p.isRpl() ) {
+			// 				p.setPlaylistName(p.noname);
+			// 			}
+			$(document).trigger('playlistUpdate', { 'action': 'copy' } );
+		};
+		
+		
+		var append = this.append = function (item, after) {
+			if ( !driver.writable({target: null,dragging: item}) ) {
+				return false;
+			}
+			var index = -1;
+			if ( after ) { index = after.prevAll().length; }
+			if ( index >= 0 && ui.children().eq(index).length ) {
+				item.insertBefore(list.children().get(index));
+			} else {
+				item.appendTo(list);
+			}
+			//     debug("checking empty thing");
+			playlistAppendPost ();
+		};
+		
+		
 		
 		var controls = {
 			volumeBar: new volumebar( ui.find('div[name=volume]').eq(0),1),
@@ -173,24 +203,14 @@
 				
 			});
 			newDriver.bind("currentTimeUpdate",function(e) {
-				controls.progressBar.setBar(e.track.currentTime);
-				var d = new Date(1970,1,1,0,0,e.track.currentTime);
+				controls.progressBar.setBar(e.currentTime);
+				var d = new Date(1970,1,1,0,0,e.currentTime);
 				ui.find('span[name=secs]').html(d.getMinutes()+':'+d.getSeconds());
 				
 			});
 		};
 		
 		setDriver(d);
-		
-		var playlistAppendPost = function() {
-			if ( ui.find(".emptyPlaylist").is(":visible") ) {
-				ui.find(".emptyPlaylist").hide();
-			}
-// 			if ( p.isRpl() ) {
-// 				p.setPlaylistName(p.noname);
-// 			}
-			$(document).trigger('playlistUpdate', { 'action': 'copy' } );
-		};
 		
 		
 // 		debug("ui",ui,"list",list);
@@ -292,11 +312,13 @@
 		
 		// in seconds
 		this.setMax = function(num) {
+			debug("setMax",ui,num,ui.width()); 
 			pmax=parseInt(num);
 			punit=ui.width() / pmax;
 		}
 		
 		this.setBar = function(data) {
+// 			debug("setBar:",ui,data,punit,punit*data);
 			$('div.timer',ui).css({
 				width: Math.floor(punit*data)
 			});
