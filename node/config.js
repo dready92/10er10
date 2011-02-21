@@ -55,7 +55,7 @@ exports.javascript = {
 		"dnd.js",
 		"utils.js",
 		"track.js",
-		"player.js",
+// 		"player.js",
 		"menumanager.js",
 		"httpbroker.js",
 // 		"playlist.js",

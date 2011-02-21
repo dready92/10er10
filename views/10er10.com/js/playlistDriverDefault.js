@@ -16,8 +16,8 @@ $(document).trigger('player.mainTimeUpdate',{'currentTime': secs, 'duration': du
 
 d10.playlistDrivers = d10.playlistDrivers || {};
 d10.playlistDrivers.default = function(options) {
-	var settings = $.extend({fade: 15,prefectchMinStartupTime: 29},options);
-	var playlist = d10.playlist;
+	var settings = $.extend({fade: 15,prefectchMinStartupTime: 9},options);
+// 	var playlist = d10.playlist;
 	var current = null; // current playing track
 	var next = null; // next track
 	var currentLoadProgressEnded = false;
@@ -43,6 +43,12 @@ d10.playlistDrivers.default = function(options) {
 	
 	var unbindAll = this.unbindAll = function() {
 		events = {};
+	};
+	
+	var getNextId = function() {
+		var widget = d10.playlist.next();
+		if ( widget.length )	return d10.playlist.songId(widget);
+		return false;
 	};
 	
 	var createTrack = function(id,url,duration,options) {
@@ -71,15 +77,17 @@ d10.playlistDrivers.default = function(options) {
 			},
 			"onended": function() {
 				// 					$(document).trigger('audioEnded', {'id': this.id }  );
-				if ( this !== current.audio ) {	return false; }
-				trigger("ended",{});
-				var nextWidget = playlist.next();
+				if ( !current || ! current.audio || this !== current.audio ) {	return false; }
+
+				var nextWidget = d10.playlist.next();
 				if ( nextWidget.length ) {
-					play.apply(this,playlist.getTrackParameters(nextWidget));
+					play.apply(this,d10.playlist.getTrackParameters(nextWidget));
 				} else {
 					current = null;
 					next = null;
 					currentLoadProgressEnded = false;
+					trigger("ended",{});
+					debug("playlistDriverDefault:onended playlist: ",d10.playlist);
 				}
 			},
 			"onprogressUpdate": function(e) {
@@ -104,15 +112,16 @@ d10.playlistDrivers.default = function(options) {
 		if (  current.audio.readyState < current.audio.HAVE_ENOUGH_DATA ) {
 			return;
 		}
-		var nextWidget = playlist.next();
+		debug("playlistDriverDefault:optimistPrefetch playlist: ",d10.playlist);
+		var nextWidget = d10.playlist.next();
 		if ( nextWidget.length ) {
-			infos = playlist.getTrackParameters(nextWidget);
+			var infos = d10.playlist.getTrackParameters(nextWidget);
 			if ( cache[infos[0]] )	return ;
-			cache[id] = createTrack.apply(this,infos);
-			next = cache[id];
+			cache[infos[0]] = createTrack.apply(this,infos);
+			next = cache[infos[0]];
+			debug("starting prefetch of "+infos[0]+" at "+current.audio.currentTime+" s");
+// 			createAudio(nextone);
 		}
-		debug("starting prefetch of "+id+" at "+current.audio.currentTime+" s");
-		createAudio(nextone);
 	}
 	
 	var removeFromCache=function(id) {
@@ -132,10 +141,25 @@ d10.playlistDrivers.default = function(options) {
 	var beginFade = function () {
 		debug("fade algorithm begins");
 		var secs = settings.fade;
+		
+		var nextId = getNextId();
+		if ( !nextId || ! cache[nextId] ) {
+			if ( !nextId ) {
+				debug("no way to fade: no next song");
+			}else{
+				debug("no way to fade: track not in cache",nextId,cache);
+			}
+			return ;
+		}
+		
+		if ( !next || next.id != nextId ) {
+			next = cache[nextId];
+		}
+		/*
 		if ( !next ) {
 			debug("no way to fade: next song doesn't exist");
 			return ;
-		}
+		}*/
 
 		if ( !next.fadeIn(secs) ) {
 			debug('Fade In startup failed');
@@ -157,20 +181,29 @@ d10.playlistDrivers.default = function(options) {
 		debug("playlistDriverDefault:play track",cache[id]);
 		if ( cache[id] === current && !cache[id].audio.paused ) return ;
 
+		if ( current && cache[id] !== current  )	{
+			current.audio.pause();
+			current.audio.currentTime = 0;
+		}
+ 
+ 
+ 
 // 			debug("using cached audio");
-		current = cache[id];
+		if ( cache[id] !== current ) {
+			current = cache[id];
+		}
 		current.audio.cacheTimestamp = new Date().getTime();
 		if ( current.audio.currentTime != 0 ) {
 			try { 
 				current.audio.currentTime=0;
 			} catch (e) {
 				removeFromCache(current.id);
-				var widget = playlist.songWidget(current.id);
+				var widget = d10.playlist.songWidget(current.id);
 				current = null;
 				currentLoadProgressEnded = false;
 				next = null;
 				if( widget.length ) {
-					return play.apply(this, playlist.getTrackParameters(widget));
+					return play.apply(this, d10.playlist.getTrackParameters(widget));
 				}
 				return false;
 			}

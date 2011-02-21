@@ -46,13 +46,14 @@
 	 * 	seek(secs): immadiately set playback current time to secs
 	 * 	getTrackParameters(song): returns the parameters needed to instanciate a track object, as an array
 	 * 	append(songs): append the song(s) at the end of the playlist
+	 * 	driver(): returns current playlist driver
 	 * 
 	 */
 	
 	d10.fn.playlistProto = function(d, ui, options) {
 		
 		var settings= $.extend({
-			currentClass: "active"
+			currentClass: "current"
 		}, options);
 		
 		var list = $("#playlist",ui);
@@ -69,7 +70,11 @@
 			return back+"-"+song.attr("name");
 		};
 		
-		var songWidget = this.songWidget = function(id) {
+		var songWidget = this.songWidget = function(identifier) {
+			debug("playlist:songWidget, id: ",identifier);
+			var id;
+			if ( typeof identifier == "object" && identifier.id ) id = identifier.id;
+			else	id = identifier;
 			var infos = id.split("-");
 			if ( infos.length != 2 ) {
 // 				if ( infos.length )	return list.children(".song[name="+infos[0]+"]").eq(0);
@@ -84,7 +89,7 @@
 			return list.children("."+settings.currentClass).eq(0);
 		};
 		var next = this.next = function() {
-			return current.next();
+			return current().next();
 		};
 		
 		var getUrl = this.getUrl = function(song) {
@@ -96,7 +101,7 @@
 			return [
 				songId(song),
 				getUrl(song),
-				song.attr("duration"),
+				song.find("span.length").attr("seconds"),
 				{}
 			];
 		};
@@ -133,11 +138,22 @@
 			volumeBar: new volumebar( ui.find('div[name=volume]').eq(0),1),
 			progressBar: new progressbar( ui.find('div[name=progression]') ),
 			setPlay: function(play) {
+
+				
 				// change the "play" control to play (true) or pause (false)
 				if ( play ) {
+					this.progressBar.setMax( driver.current().duration );
+					debug("playlist:setPlay current ? ",current());
+					var total_secs = parseInt(current().find('.length').attr('seconds'));
+					var d = new Date(1970,1,1,0,0,total_secs);
+					ui.find("div[name=progressbar] span[name=total]").html(d.getMinutes()+':'+d.getSeconds());
+// 					ui.find("table[name=progressbar] span[name=total]").html();
 					$('img[name=play]',controls).hide();
 					$('img[name=pause]',controls).show();
 				} else {
+					this.progressBar.setBar(0);
+					ui.find("div[name=progressbar] span[name=total]").empty();
+					ui.find("div[name=progressbar] span[name=secs]").empty();
 					$('img[name=play]',controls).show();
 					$('img[name=pause]',controls).hide();
 				}
@@ -186,11 +202,13 @@
 			}
 			driver = newDriver;
 			newDriver.bind("currentSongChanged",function(e) {
-				controls.setPlay(driver.current());
+				debug("playlist:currentSongChanged e: ",e);
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 				songWidget(e.current).addClass(settings.currentClass);
+				controls.setPlay(driver.current());
 				$(document).trigger("playlsit:currentSongChanged",{current: current()});
-				controls.progressBar.setMax( driver.current().duration );
+// 				debug("playlist:currentSongChanged current audio: ",driver.current());
+				
 			});
 			newDriver.bind("ended",function(e) {
 				controls.setPlay(driver.current());
@@ -199,7 +217,7 @@
 				$(document).trigger("playlist:ended",{current: current()});
 			});
 			newDriver.bind("currentLoadProgress",function(e) {
-				controls.progressBar.setNetLoadBar(driver.currentLoadProgress());
+				controls.progressBar.setNetloadBar(driver.currentLoadProgress());
 				
 			});
 			newDriver.bind("currentTimeUpdate",function(e) {
@@ -318,7 +336,7 @@
 		}
 		
 		this.setBar = function(data) {
-// 			debug("setBar:",ui,data,punit,punit*data);
+			debug("setBar:",ui,data,ui.width(),punit,punit*data);
 			$('div.timer',ui).css({
 				width: Math.floor(punit*data)
 			});

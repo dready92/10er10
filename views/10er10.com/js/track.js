@@ -238,7 +238,7 @@ var track = function (id, url, seconds, options) {
 	};
 
 
-	this.fadeIn = function (secs) {
+	this.fadeIn = function (secs,callback) {
 		if ( fadeInterval ) {
 			clearInterval(fadeInterval);
 			fadeInterval = null;
