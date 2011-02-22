@@ -61,6 +61,7 @@ exports.javascript = {
 // 		"playlist.js",
 		"playlistDriverDefault.js",
 		"playlist.new.js",
+		"playlistModuleRadio.js",
 		"paginer.js",
 		"plm.js",
 		"my.js",

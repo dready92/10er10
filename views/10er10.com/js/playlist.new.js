@@ -42,6 +42,7 @@
 	 * 
 	 * public methods:
 	 * 	songId(song): give unique identifier of song song in the playlist
+	 *  songsId(): return all songs id []
 	 * 	songWidget(id) returns the div.song id (or an empty jquery object)
 	 * 	current: returns the current playing song jquery obj
 	 * 	next: return the next song jquery object
@@ -62,6 +63,56 @@
 		
 		var list = $("#playlist",ui);
 		var driver = null;
+		var modules = [];
+		var modulesEventsTree = {};
+		var addModule = this.addModule = function(mod) {
+// 			debug("addmodule");
+			if(!mod || !mod.name || !mod.events || !$.isPlainObject(mod.events) )	return ;
+			modules.push(mod);
+			mod.enabled = false;
+			enableModule(mod.name);
+		};
+		
+		var enableModule = this.enableModule = function(name) {
+			$.each(modules,function(k,mod) {
+				if ( mod.name == name ) {
+					if ( mod.enabled )	return false;
+					mod.enable.call(mod);
+					mod.enabled = true;
+					rebuildModulesEventsTree();
+					
+					return false;
+				}
+			});
+		};
+		
+		var disableModule = this.disableModule = function(name) {
+			$.each(modules,function(k,mod) {
+				if ( mod.name == name ) {
+					if ( !mod.enabled )	return false;
+				   mod.enabled = false;
+				   rebuildModulesEventsTree();
+				   mod.disable.call(mod);
+				   
+				   return false;
+				}
+			});
+		};
+		
+		var rebuildModulesEventsTree = function () {
+			modulesEventsTree = {};
+			$.each(modules,function(k,mod) {
+				debug("each module",k,mod);
+				if ( !mod.enabled ) return;
+				$.each(mod.events,function(e,cb) {
+					
+					debug("each mod.events",e,cb);
+					if ( modulesEventsTree[e] )	modulesEventsTree[e].push(cb);
+					else						modulesEventsTree[e] = [cb];
+				});
+			});
+		};
+		
 		var songId = this.songId = function(song) {
 			var songs = list.children(".song[name="+song.attr("name")+"]");
 			var back = 0;
@@ -73,6 +124,10 @@
 			});
 			return back+"-"+song.attr("name");
 		};
+		
+		var songsIds = this.songsId = function () {
+			return list.children(".song").map(function() {      return $(this).attr('name');    }   ).get()
+		}
 		
 		var songWidget = this.songWidget = function(identifier) {
 			debug("playlist:songWidget, id: ",identifier);
@@ -224,7 +279,14 @@
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 				songWidget(e.current).addClass(settings.currentClass);
 				controls.setPlay(driver.current());
-				$(document).trigger("playlsit:currentSongChanged",{current: current()});
+				if ( modulesEventsTree.currentSongChanged ) {
+					$.each(modulesEventsTree.currentSongChanged,function(k,cb) {
+						try { cb(e); }
+						catch(e) { debug("playlist:currentSongChanged",e); }
+					});
+					
+				}
+				$(document).trigger("playlist:currentSongChanged",{current: current()});
 // 				debug("playlist:currentSongChanged current audio: ",driver.current());
 				
 			});
@@ -232,9 +294,23 @@
 				controls.setPlay(driver.current());
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 // 				songWidget(e.current).addClass(currentClass);
+				if ( modulesEventsTree.ended) {
+					$.each(modulesEventsTree.ended,function(k,cb) {
+						try { cb(e); }
+						catch(e) { debug("playlist:ended",e); }
+					});
+					
+				}
 				$(document).trigger("playlist:ended",{current: current()});
 			});
 			newDriver.bind("currentLoadProgress",function(e) {
+				if ( modulesEventsTree.currentLoadProgress) {
+					$.each(modulesEventsTree.currentLoadProgress,function(k,cb) {
+						try { cb(e); }
+						catch(e) { debug("playlist:currentLoadProgress",e); }
+					});
+					
+				}
 				controls.progressBar.setNetloadBar(driver.currentLoadProgress());
 				
 			});
@@ -242,6 +318,15 @@
 				controls.progressBar.setBar(e.currentTime);
 				var d = new Date(1970,1,1,0,0,e.currentTime);
 				ui.find('span[name=secs]').html(d.getMinutes()+':'+d.getSeconds());
+				debug(modulesEventsTree,modules);
+				if ( modulesEventsTree.currentTimeUpdate) {
+					$.each(modulesEventsTree.currentTimeUpdate,function(k,cb) {
+// 						debug("playlist launching callback",cb);
+						try { cb(e); }
+						catch(e) { debug("playlist:currentTimeUpdate",e); }
+					});
+					
+				}
 				
 			});
 		};

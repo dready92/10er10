@@ -106,6 +106,8 @@ var step2 = function () {
 // 		debug("fn",d10.fn);
 		
 		d10.playlist = new d10.fn.playlistProto(driver, $("aside"),{});
+		var radio = d10.fn.playlistModules.radio({});
+		d10.playlist.addModule(radio);
 		/*
 		d10.playlist = new d10.fn.playlist(
 		$('#playlist'),
