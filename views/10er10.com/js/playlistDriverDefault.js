@@ -346,6 +346,52 @@ d10.playlistDrivers.default = function(options) {
 		// d'n'd allowed
 		return true;
 	};
+
+	var enable = this.enable = function(previousDriver) {
+		var track = previous.current();
+		if ( track && track.audio & track.audio.paused === false ) {
+			cache[track.id] = track;
+			current = track;
+		}	
+	};
+
+	var disable = this.disable = function() {
+	};
+
+	var listModified = this.listModified = function() {
+		var checkNext = function() {
+			var nextWidget = widget.next();
+			if ( !next.length ) {
+				next = null;
+				return ;
+			}
+			var uid = d10.playlist.songId(nextWidget);
+			if ( uid != next.id ) {
+				next = null;
+			}
+		};
+		// check widget of current track
+		var widget = d10.playlist.current();
+		if ( !widget.length ) {
+			pause();
+			current = null;
+			next = null;
+			return ;
+		}
+		var uid = d10.playlist.songId(widget);
+		if ( current ) {
+			if ( uid != current.id ) {
+				pause();
+				current = null;
+				play.apply(this,d10.playlist.getTrackParameters(widget));
+			}
+		} else {
+			pause();
+			play.apply(this,d10.playlist.getTrackParameters(widget));
+		}
+		checkNext();
+	};
+
 };
 
 })(jQuery);

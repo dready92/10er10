@@ -35,7 +35,10 @@
 	 * 										if option purge is true, the driver should also stop all playbacks,
 	 * 										destroy all objects and references
 	 * 	- writable(songIndex): on a file insertion demand (d'n'd,...) or others, tell if insertion is allowed (should return boolean)
-	 *	- handleEvent: called when there is an event on <audio> element. this is set to the <audio> element
+	 *	- handleEvent: called when there is an event on <audio> element. "this" is set to the <audio> element, arguments are event arguments.
+	 * 	- enable(previous): called when this driver is plugged in to drive the playlist
+	 *	- disable(): called when this driver is plugged out from the playlist
+	 *	- listModified(): called when the playlist's list of song has been altered (addition, sorting, or removal)
 	 * 
 	 * public methods:
 	 * 	songId(song): give unique identifier of song song in the playlist
@@ -107,6 +110,16 @@
 			];
 		};
 
+		/*
+		*
+		* the only function triggering playlistUpdate events
+		*
+		*/
+		var sendPlaylistUpdate = function(data) {
+			driver.listModified(data);
+			$(document).trigger('playlistUpdate', data );
+		};
+
 		var playlistAppendPost = function() {
 			if ( ui.find(".emptyPlaylist").is(":visible") ) {
 				ui.find(".emptyPlaylist").hide();
@@ -114,7 +127,8 @@
 			// 			if ( p.isRpl() ) {
 			// 				p.setPlaylistName(p.noname);
 			// 			}
-			$(document).trigger('playlistUpdate', { 'action': 'copy' } );
+			sendPlaylistUpdate({ 'action': 'copy' });
+			// $(document).trigger('playlistUpdate', { 'action': 'copy' } );
 		};
 		
 		
@@ -244,7 +258,8 @@
 					list.prepend(source);
 				}
 				// 				if ( p.isRpl() ) { p.setPlaylistName(p.noname); }
-				$(document).trigger('playlistUpdate', { 'action': "move" } );
+				sendPlaylistUpdate({ 'action': "move" });
+				// $(document).trigger('playlistUpdate', { 'action': "move" } );
 				return true;
 			},
 			"copyDrop": function(source, target,infos) {
@@ -297,7 +312,8 @@
 				}
 			);
 // 			if ( p.isRpl() ) {		  p.setPlaylistName(p.noname); }
-			$(document).trigger('playlistUpdate', { 'action': 'remove' } );
+			sendPlaylistUpdate({ 'action': 'remove' });
+			// $(document).trigger('playlistUpdate', { 'action': 'remove' } );
 		});
 		
 	};
