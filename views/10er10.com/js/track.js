@@ -131,7 +131,7 @@ var track = function (id, url, seconds, options) {
     "oncanplay": function(e) {
       if ( this.networkState == this.NETWORK_IDLE && this.readyState == this.HAVE_ENOUGH_DATA ) {
         state.progressPC = 100;
-        settings.onprogressUpdate.apply(audio);
+        settings.onprogressUpdate.call(audio,{type: "progressUpdate"});
       }
     },
     "onprogress": function(e) {
@@ -146,7 +146,7 @@ var track = function (id, url, seconds, options) {
 				  var prog = progressFromBuffered();
 				  if ( prog == 100 && prog != state.progressPC ) {
 					state.progressPC = prog;
-					settings.onprogressUpdate.apply(audio);
+					settings.onprogressUpdate.call(audio,{type: "progressUpdate"});
 				}
 			  },1000);
 		  }
@@ -155,7 +155,7 @@ var track = function (id, url, seconds, options) {
       }
       if ( progressPC != state.progressPC ) {
         state.progressPC = progressPC;
-        settings.onprogressUpdate.apply(audio);
+        settings.onprogressUpdate.call(audio,{type: "progressUpdate"});
       }
     }
   };

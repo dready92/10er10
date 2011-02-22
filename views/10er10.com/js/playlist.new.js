@@ -35,6 +35,7 @@
 	 * 										if option purge is true, the driver should also stop all playbacks,
 	 * 										destroy all objects and references
 	 * 	- writable(songIndex): on a file insertion demand (d'n'd,...) or others, tell if insertion is allowed (should return boolean)
+	 *	- handleEvent: called when there is an event on <audio> element. this is set to the <audio> element
 	 * 
 	 * public methods:
 	 * 	songId(song): give unique identifier of song song in the playlist
@@ -196,6 +197,9 @@
 			driver.seek(secs);
 		};
 		
+
+		this.driver = function() { return driver; };
+
 		var setDriver = this.setDriver = function(newDriver) {
 			if ( driver ) {
 				driver.unbindAll();
@@ -337,9 +341,12 @@
 		
 		this.setBar = function(data) {
 			debug("setBar:",ui,data,ui.width(),punit,punit*data);
+			$('div.timer',ui).stop(true,true).animate({width: Math.floor(punit*data)},1000);
+			/*
 			$('div.timer',ui).css({
 				width: Math.floor(punit*data)
 			});
+			*/
 		}
 		
 		

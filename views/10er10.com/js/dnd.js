@@ -324,4 +324,43 @@ window.d10.dump = function () {
 	return back;
 }
 
+  var allEvents = [
+    "onloadstart",
+    "onprogress",
+    "onsuspend",
+    "onabort",
+    "onerror",
+    "onemptied",
+    "onstalled",
+    "onplay",
+    "onpause",
+    "onloadedmetadata",
+    "onloadeddata",
+    "onwaiting",
+    "onplaying",
+    "oncanplay",
+    "oncanplaytrough",
+    "onseeking",
+    "onseeked",
+    "ontimeupdate",
+    "onended",
+    "onratechange",
+    "ondurationchange",
+    "onvolumechange",
+    "onprogressUpdate"
+  ];
+
+  var proxyHandler = function() {
+	d10.playlist.driver().handleEvent.apply(this,arguments);
+  };
+
+window.d10.createDriverTrack = function(id,url,duration,options) {
+	options = options || {};
+	$.each(allEvents,function(i,e) {
+		options[e] = proxyHandler;
+	});
+	return new track(id, url,duration , options);
+}; 
+	
+
 })(jQuery);

@@ -23,6 +23,57 @@ d10.playlistDrivers.default = function(options) {
 	var currentLoadProgressEnded = false;
 	var cache = {};
 	var events = {};
+	var trackEvents = {
+                        "timeupdate":function() {
+//                              debug("playlistDriverDefault:ontimeupdate",this);
+                                if ( this === current.audio ) {
+                                        var secs = Math.floor(this.currentTime);
+                                        if ( secs == this.last_secs_update ) {return true;}
+                                        this.last_secs_update = secs;
+                                        var dur = Math.floor(this.duration);
+                                        trigger('currentTimeUpdate',{'currentTime': secs, 'duration': dur }     );
+                                        if ( secs > settings. prefectchMinStartupTime && secs % 8 == 0 ) { optimistPrefetch(); }
+                                        if ( settings.fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == settings.fade ) {
+                                                beginFade();
+                                        }
+                                }
+                        },
+                        "canplaythrough":function() {
+                                if ( this === current.audio ) {
+                                        trigger("currentLoadProgress", {track:current});
+                                        currentLoadProgressEnded = true;
+                                        //                                              $(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 1, 'loaded':1}  }  );
+                                }
+                        },
+                        "ended": function() {
+                                //                                      $(document).trigger('audioEnded', {'id': this.id }  );
+                                if ( !current || ! current.audio || this !== current.audio ) {  return false; }
+
+                                var nextWidget = d10.playlist.next();
+                                if ( nextWidget.length ) {
+                                        play.apply(this,d10.playlist.getTrackParameters(nextWidget));
+                                } else {
+                                        current = null;
+                                        next = null;
+                                        currentLoadProgressEnded = false;
+                                        trigger("ended",{});
+                                        debug("playlistDriverDefault:onended playlist: ",d10.playlist);
+                                }
+                        },
+			"progressUpdate": function(e) {
+                                if ( currentLoadProgressEnded ) return ;
+                                if ( this === current.audio ) {
+                                        if ( this.networkState == this.NETWORK_IDLE && this.readyState == this.HAVE_ENOUGH_DATA )  {
+                                                currentLoadProgressEnded = true;
+                                                //                                                      $(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 1, 'loaded':1}  }  );
+                                                //                                                      return ;
+                                        }
+                                        trigger("currentLoadProgress", {track:current});
+
+                                        //                                              $(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 100, 'loaded': getAudio(this.id).track.getProgressPC()} }  );
+                                }
+                        }
+                };
 	
 	var bind = this.bind = function(e,callback) {
 		if( events[e] ) events[e].push(callback);
@@ -45,6 +96,13 @@ d10.playlistDrivers.default = function(options) {
 		events = {};
 	};
 	
+
+	var handleEvent = this.handleEvent = function(e) {
+		if ( trackEvents[e.type] ) {
+			trackEvents[e.type].apply(this,arguments);
+		}
+	};
+
 	var getNextId = function() {
 		var widget = d10.playlist.next();
 		if ( widget.length )	return d10.playlist.songId(widget);
@@ -52,6 +110,10 @@ d10.playlistDrivers.default = function(options) {
 	};
 	
 	var createTrack = function(id,url,duration,options) {
+		return d10.createDriverTrack(id,url,duration,options);
+	};
+
+	var createTrackOld = function(id,url,duration,options) {
 		debug("playlistDriverDefault:createTrack",arguments);
 		return new track(id, url,duration ,{
 			"ontimeupdate":function() {
