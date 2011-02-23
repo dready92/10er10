@@ -70,16 +70,17 @@
 		
 		var list = $("#playlist",ui);
 		var driver = null;
-		var modules = [];
+		var modules = {};
 		var modulesEventsTree = {};
 		var addModule = this.addModule = function(mod) {
-// 			debug("addmodule");
-			if(!mod || !mod.name || !mod.events || !$.isPlainObject(mod.events) )	return ;
-			modules.push(mod);
-			mod.enabled = false;
-			enableModule(mod.name);
+// // 			debug("addmodule");
+			return ;
+// 			if(!mod || !mod.name || !mod.events || !$.isPlainObject(mod.events) )	return ;
+// 			modules.push(mod);
+// 			mod.enabled = false;
+// 			enableModule(mod.name);
 		};
-		
+		/*
 		var enableModule = this.enableModule = function(name) {
 			$.each(modules,function(k,mod) {
 				if ( mod.name == name ) {
@@ -108,18 +109,19 @@
 		
 		var rebuildModulesEventsTree = function () {
 			modulesEventsTree = {};
+			return ;
 			$.each(modules,function(k,mod) {
-				debug("each module",k,mod);
+// 				debug("each module",k,mod);
 				if ( !mod.enabled ) return;
 				$.each(mod.events,function(e,cb) {
 					
-					debug("each mod.events",e,cb);
+// 					debug("each mod.events",e,cb);
 					if ( modulesEventsTree[e] )	modulesEventsTree[e].push(cb);
 					else						modulesEventsTree[e] = [cb];
 				});
 			});
 		};
-		
+		*/
 		var songId = this.songId = function(song) {
 			var songs = list.children(".song[name="+song.attr("name")+"]");
 			var back = 0;
@@ -159,9 +161,11 @@
 		};
 
 		var all = this.all = function() {
-			return list.children("."+settings.currentClass);
+			return list.children(".song");
 		};
-		
+		var allIds = this.allIds = function() {
+			return list.children('.song').map(function() {      return $(this).attr('name');    }   ).get()
+		};
 		var title = this.title = function(t) {
 			if ( !arguments.length ) {
 				return $("#side > .playlisttitle > span").html();
@@ -205,7 +209,7 @@
 				back = false;
 			else if ( driver.current().audio.paused == false )
 				back = true;
-			else	back = driver.current.resume();
+			else	back = driver.resume();
 			if ( back ) {
 				$(document).trigger("playlist:resumed",{current: current()});
 			}
@@ -264,7 +268,7 @@
 					});
 				}
 
-				if ( fromPrefs ) { return driver.volume(vol); }
+				if ( fromPrefs ) { return driver ? driver.volume(vol) : true; }
 				if ( volumeUpdateTimeout ) {
 					clearTimeout(volumeUpdateTimeout);
 				}
@@ -308,11 +312,13 @@
 						catch(e) { debug("playlist:currentSongChanged",e); }
 					});
 				}
+				debug("currentsongchanges");
 				$(document).trigger("playlist:currentSongChanged",{current: current()});
 // 				debug("playlist:currentSongChanged current audio: ",driver.current());
 				
 			});
 			newDriver.bind("ended",function(e) {
+				debug("playlist:ended of playlist");
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 // 				songWidget(e.current).addClass(currentClass);
 				if ( modulesEventsTree.ended) {
@@ -332,9 +338,10 @@
 					});
 					
 				}
+				$(document).trigger("playlist:currentLoadProgress",{current: current()});
 			});
 			newDriver.bind("currentTimeUpdate",function(e) {
-				debug(modulesEventsTree,modules);
+// 				debug(modulesEventsTree,modules);
 				if ( modulesEventsTree.currentTimeUpdate) {
 					$.each(modulesEventsTree.currentTimeUpdate,function(k,cb) {
 // 						debug("playlist launching callback",cb);
@@ -343,11 +350,12 @@
 					});
 					
 				}
+				$(document).trigger("playlist:currentTimeUpdate",e);
 				
 			});
 		};
 		
-		setDriver(d);
+// 		setDriver(d);
 		
 		
 // 		debug("ui",ui,"list",list);

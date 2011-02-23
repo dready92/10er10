@@ -67,7 +67,7 @@ d10.playlistDrivers.default = function(options) {
 						},
                         "timeupdate":function() {
 //                              debug("playlistDriverDefault:ontimeupdate",this);
-                                if ( this === current.audio ) {
+                                if ( current && this === current.audio ) {
                                         var secs = Math.floor(this.currentTime);
                                         if ( secs == this.last_secs_update ) {return true;}
                                         this.last_secs_update = secs;
@@ -234,6 +234,10 @@ d10.playlistDrivers.default = function(options) {
 	}
 	
 	var play = this.play = function(id,url,duration,options) {
+		if ( id && $.isArray(id) ) {
+			debug("redirectiong play.... ",id,url,duration,options);
+			return play(id.shift(),id.shift(),id.shift(),id.shift());
+		}
 		debug("playlistDriverDefault:play",arguments);
 		if ( !cache[id] ) {
 			cache[id] = createTrack(id,url,duration,options);
@@ -286,8 +290,8 @@ d10.playlistDrivers.default = function(options) {
 
 	var resume = this.resume = function() {
 		if ( current )	{
-			current.play();
-			if ( current.paused )	return false;
+			current.audio.play();
+			if ( current.audio.paused )	return false;
 			return true;
 		} else {
 			return false;

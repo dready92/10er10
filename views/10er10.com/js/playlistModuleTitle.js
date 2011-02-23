@@ -5,7 +5,7 @@ var module = {
 	events: {
 		currentSongChanged: function() {
 			var s = d10.playlist.current();
-			document.title = s.find(".title").text() + ' - '+ s.find(".artist",).text();
+			document.title = s.find(".title").text() + ' - '+ s.find(".artist").text();
 		},
 		ended: function() {
 			document.title = "10er10";

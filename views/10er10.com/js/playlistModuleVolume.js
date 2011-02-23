@@ -4,7 +4,7 @@ var module = {
 	name: "volume",
 	events: {
 		volumeChanged: function() {
-			bar.adjustBar($('body').data('volume',vol));
+			bar.adjustBar($('body').data('volume'));
 		},
 	},
 	enable: function() {},
@@ -14,9 +14,10 @@ var module = {
 var ui,bar;
 
 d10.fn.playlistModules = d10.fn.playlistModules || {};
-d10.fn.playlistModules.volume = function(widget)  {
+d10.fn.playlistModules.volume = function(widget,current)  {
 		ui = widget;
 		bar = new volumebar(ui,1);
+		bar.adjustBar(current);
         return module;
 };
 
