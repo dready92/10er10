@@ -7,8 +7,8 @@
 	 * events : 
 	 * 		"playlist:drop": songs have been dropped into the playlist {songs: array of songs (<div class="song">...)}
 	 * 		"playlist:currentSongChanged": current playing song changed {previous: <div clas="song">..., current: <div class="song">}
-	 * 		"playlist:play": the play button has been pressed
-	 * 		"playlist:pause": the pause button has been paused
+	 * 		"playlist:paused": the current song has been paused
+	 * 		"playlist:resumed": playback of the current song has been resumed
 	 * 		"playlist:empty": the playlist has been cleared
 	 * 		"playlist:volume": the volume has been ajusted
 	 * 		"playlist:ended": the playlist reached its end
@@ -21,6 +21,7 @@
 	 * 	- ended: the playlist reached its end
 	 * 	- currentTimeUpdate {track: track element}: the current playing song playback reached a new second
 	 * 	- currentLoadProgress {track: track element}: the current playing song loading infos changed
+	 *
 	 * 	should implement the following method:
 	 * 	- play(id, url, duration, options): immadiately switch playback to this song
 	 * 	- pause(): immediately pause current song
@@ -46,12 +47,18 @@
 	 * 	songWidget(id) returns the div.song id (or an empty jquery object)
 	 * 	current: returns the current playing song jquery obj
 	 * 	next: return the next song jquery object
+	 * 	all: return all songs 
 	 * 	getUrl(song): return the url object of song
 	 * 	volume(vol): returns / set the volume that the UI got,
 	 * 	seek(secs): immadiately set playback current time to secs
+	 *	pause(): immediately stop playback of the current song
+	 *	resume(): resume playback of the current song
 	 * 	getTrackParameters(song): returns the parameters needed to instanciate a track object, as an array
 	 * 	append(songs): append the song(s) at the end of the playlist
 	 * 	driver(): returns current playlist driver
+	 *	addModule(moduleObject): adds a new playlist module
+	 *	enableModule(name): enables a playlist module
+	 *	disableModule(name): disables a playlist module
 	 * 
 	 */
 	
@@ -150,6 +157,10 @@
 		var next = this.next = function() {
 			return current().next();
 		};
+
+		var all = this.all = function() {
+			return list.children("."+settings.currentClass);
+		};
 		
 		var getUrl = this.getUrl = function(song) {
 // 			var url = function (id) { return "/audio/"+id.substr(2,1)+"/"+id+".ogg"; } ;
@@ -164,6 +175,36 @@
 				{}
 			];
 		};
+
+
+		var pause = this.pause = function() {
+			var back;
+			if ( !driver.current() || !current().length ) {
+				back = false;
+			} else if ( driver.current().audio.paused == true ) {
+				back = true;
+			} else {
+				back = driver.pause();
+			}
+			if ( back ) {
+				$(document).trigger("playlist:paused",{current: current()});
+			}
+			return back;
+		};
+
+		var resume = this.resume = function() {
+			var back;
+			if ( !current().length || !driver.current() )
+				back = false;
+			else if ( driver.current().audio.paused == false )
+				back = true;
+			else	back = driver.current.resume();
+			if ( back ) {
+				$(document).trigger("playlist:resumed",{current: current()});
+			}
+			return back;
+		};
+
 
 		/*
 		*
@@ -212,11 +253,6 @@
 				
 				// change the "play" control to play (true) or pause (false)
 				if ( play ) {
-					this.progressBar.setMax( driver.current().duration );
-					debug("playlist:setPlay current ? ",current());
-					var total_secs = parseInt(current().find('.length').attr('seconds'));
-					var d = new Date(1970,1,1,0,0,total_secs);
-					ui.find("div[name=progressbar] span[name=total]").html(d.getMinutes()+':'+d.getSeconds());
 // 					ui.find("table[name=progressbar] span[name=total]").html();
 					$('img[name=play]',controls).hide();
 					$('img[name=pause]',controls).show();
@@ -278,7 +314,6 @@
 				debug("playlist:currentSongChanged e: ",e);
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 				songWidget(e.current).addClass(settings.currentClass);
-				controls.setPlay(driver.current());
 				if ( modulesEventsTree.currentSongChanged ) {
 					$.each(modulesEventsTree.currentSongChanged,function(k,cb) {
 						try { cb(e); }
@@ -291,7 +326,6 @@
 				
 			});
 			newDriver.bind("ended",function(e) {
-				controls.setPlay(driver.current());
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 // 				songWidget(e.current).addClass(currentClass);
 				if ( modulesEventsTree.ended) {
@@ -311,13 +345,8 @@
 					});
 					
 				}
-				controls.progressBar.setNetloadBar(driver.currentLoadProgress());
-				
 			});
 			newDriver.bind("currentTimeUpdate",function(e) {
-				controls.progressBar.setBar(e.currentTime);
-				var d = new Date(1970,1,1,0,0,e.currentTime);
-				ui.find('span[name=secs]').html(d.getMinutes()+':'+d.getSeconds());
 				debug(modulesEventsTree,modules);
 				if ( modulesEventsTree.currentTimeUpdate) {
 					$.each(modulesEventsTree.currentTimeUpdate,function(k,cb) {
