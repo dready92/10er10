@@ -138,7 +138,3 @@ d10.fn.playlistModules.controls = function()  {
 };
 
 })(jQuery);
-
-
-
-})(jQuery);

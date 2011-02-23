@@ -97,7 +97,3 @@ d10.fn.playlistModules.time = function()  {
 };
 
 })(jQuery);
-
-
-
-})(jQuery);

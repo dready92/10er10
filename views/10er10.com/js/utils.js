@@ -111,6 +111,7 @@ var step2 = function () {
 		d10.playlist.addModule(d10.fn.playlistModules.topinfos());
 		d10.playlist.addModule(d10.fn.playlistModules.controls());
 		d10.playlist.addModule(d10.fn.playlistModules.time());
+		d10.playlist.addModule(d10.fn.playlistModules.volume());
 		/*
 		d10.playlist = new d10.fn.playlist(
 		$('#playlist'),

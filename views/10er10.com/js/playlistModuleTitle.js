@@ -22,7 +22,3 @@ d10.fn.playlistModules.title = function()  {
 };
 
 })(jQuery);
-
-
-
-})(jQuery);

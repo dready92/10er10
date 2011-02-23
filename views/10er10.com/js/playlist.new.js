@@ -1,4 +1,3 @@
-
 (function($){
 	
 	/*
@@ -59,6 +58,7 @@
 	 *	addModule(moduleObject): adds a new playlist module
 	 *	enableModule(name): enables a playlist module
 	 *	disableModule(name): disables a playlist module
+	 * 	title(title): set/get the title of the current playlist
 	 * 
 	 */
 	
@@ -162,6 +162,13 @@
 			return list.children("."+settings.currentClass);
 		};
 		
+		var title = this.title = function(t) {
+			if ( !arguments.length ) {
+				return $("#side > .playlisttitle > span").html();
+			}
+			$("#side > .playlisttitle > span").text(t);
+		};
+		
 		var getUrl = this.getUrl = function(song) {
 // 			var url = function (id) { return "/audio/"+id.substr(2,1)+"/"+id+".ogg"; } ;
 			var url = function (id) { return "http://10er10.com/audio/"+id.substr(2,1)+"/"+id+".ogg"; } ;
@@ -243,39 +250,21 @@
 			playlistAppendPost ();
 		};
 		
-		
-		
-		var controls = {
-			volumeBar: new volumebar( ui.find('div[name=volume]').eq(0),1),
-			setPlay: function(play) {
-
-				
-				// change the "play" control to play (true) or pause (false)
-				if ( play ) {
-// 					ui.find("table[name=progressbar] span[name=total]").html();
-					$('img[name=play]',controls).hide();
-					$('img[name=pause]',controls).show();
-				} else {
-					//this.progressBar.setBar(0);
-					ui.find("div[name=progressbar] span[name=total]").empty();
-					ui.find("div[name=progressbar] span[name=secs]").empty();
-					$('img[name=play]',controls).show();
-					$('img[name=pause]',controls).hide();
-				}
-			},
-			getVolume: function() {
-				return controls.volumeBar.getCurrent();
-				// get the volume bet 0 and 1 the volumebar currently points to
-			}
-		};
 		var volumeUpdateTimeout = null;
 		var volume = this.volume = function(vol,fromPrefs) {
 			if ( arguments.length ) {
-				controls.volumeBar.adjustBar(vol);
+				//controls.volumeBar.adjustBar(vol);
 				debug ("playlist : should adjust volume to "+vol);
 				$('body').data('volume',vol);
-// 				audio.volume();
-				if ( fromPrefs ) { return ; }
+
+				if ( modulesEventsTree.volumeChanged ) {
+					$.each(modulesEventsTree.volumeChanged,function(k,cb) {
+						try { cb({type: "volumeChanged"}); }
+						catch(e) { debug("playlist:currentSongChanged",e); }
+					});
+				}
+
+				if ( fromPrefs ) { return driver.volume(vol); }
 				if ( volumeUpdateTimeout ) {
 					clearTimeout(volumeUpdateTimeout);
 				}
@@ -288,7 +277,6 @@
 				},10000);
 				return driver.volume(vol);
 			}
-			var prefs= d10.user.get_preferences();
 			return $('body').data('volume');
 		};
 		if ( d10.user.get_preferences().volume ) {
@@ -301,14 +289,15 @@
 			driver.seek(secs);
 		};
 		
-
 		this.driver = function() { return driver; };
 
 		var setDriver = this.setDriver = function(newDriver) {
-			if ( driver ) {
-				driver.unbindAll();
+			var oldDriver = driver;
+			if ( oldDriver ) {
+				oldDriver.disable();
 			}
 			driver = newDriver;
+			newDriver.enable(oldDriver);
 			newDriver.bind("currentSongChanged",function(e) {
 				debug("playlist:currentSongChanged e: ",e);
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
@@ -318,7 +307,6 @@
 						try { cb(e); }
 						catch(e) { debug("playlist:currentSongChanged",e); }
 					});
-					
 				}
 				$(document).trigger("playlist:currentSongChanged",{current: current()});
 // 				debug("playlist:currentSongChanged current audio: ",driver.current());
@@ -430,61 +418,5 @@
 		});
 		
 	};
-	
-	function volumebar( widget_arg, maxi ) { 
-		
-		var ui = widget_arg;
-		var pmax = 0; 
-		var punit = 0;
-		var current = 0;
-		ui.css({ textAlign: 'left', position: 'relative', overflow: 'hidden' });
-		$('div',ui).css({ position: 'absolute', width: 0, height: '100%', overflow: 'hidden' });
-		ui.click(function(e) {
-			var offset = ui.offset();
-			var pix = e.pageX-offset.left;
-			var volume = $.sprintf('%.2f',pix*punit) ;
-			if ( volume > 1 )
-				volume = 1;
-			else if ( volume < 0 )
-				volume = 0;
-			d10.playlist.volume(volume);
-// 			$('div',ui).css( 'width', pix);
-		});
-		this.setMax = function(num) {
-			pmax=num;
-			punit= pmax / ui.width();
-		}
-		this.setMax(maxi);
-		this.adjustBar = function (vol) {
-			if ( vol > pmax ) return ;
-			$('div',ui).css('width',ui.width() / pmax  * vol);
-		}
-		this.getCurrent = function() {
-			return pmax* 0.1 * $('div',ui).width();
-		};
-	}
-	
-	
-	
-	
-// 	d10.fn.playlist = playlist;
-// 	delete playlist;
-	
-	
-	
-// 	d10.playlistDrivers = d10.playlistDrivers || {};
-// 	d10.playlistDrivers.default = function(playlist, ui, options) {
-// 		var settings = {};
-// 		$.extend(settings,options);
-		
-		
-		
-		
-		
-		
-// 	};
-	
-	
-	
 	
 })(jQuery);

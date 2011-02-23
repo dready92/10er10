@@ -38,9 +38,11 @@ var allEvents = [
 
 d10.playlistDrivers = d10.playlistDrivers || {};
 d10.playlistDrivers.default = function(options) {
+	options = options || {};
 	var settings = $.extend({
 		fade: 15,
-		prefectchMinStartupTime: 9
+		prefectchMinStartupTime: 9,
+		title: "Playlist non enregistrée"
 	},options);
 // 	var playlist = d10.playlist;
 	var current = null; // current playing track
@@ -218,11 +220,6 @@ d10.playlistDrivers.default = function(options) {
 		if ( !next || next.id != nextId ) {
 			next = cache[nextId];
 		}
-		/*
-		if ( !next ) {
-			debug("no way to fade: next song doesn't exist");
-			return ;
-		}*/
 
 		if ( !next.fadeIn(secs) ) {
 			debug('Fade In startup failed');
@@ -349,11 +346,14 @@ d10.playlistDrivers.default = function(options) {
 	};
 
 	var enable = this.enable = function(previousDriver) {
-		var track = previous.current();
-		if ( track && track.audio & track.audio.paused === false ) {
-			cache[track.id] = track;
-			current = track;
-		}	
+		if ( previousDriver ) {
+			var track = previousDriver.current();
+			if ( track && track.audio & track.audio.paused === false ) {
+				cache[track.id] = track;
+				current = track;
+			}
+		}
+		d10.playlist.title(settings.title);
 	};
 
 	var disable = this.disable = function() {
@@ -394,22 +394,6 @@ d10.playlistDrivers.default = function(options) {
 		}
 		checkNext();
 	};
-/*
-	var addModule  = this.addModule = function(mod) {
-		if ( !mod || !mod.events || !$.isPlainObject(mod.events) ) {
-			return false;
-		}
-		modules.push(mod);
-	};
-	
-	var modulesCallback = function(audio, name, evt) {
-		$.each(modules,function(k,mod) {
-			if ( mod.events[name] ) {
-				mod.events[name].call(audio,name,evt);
-			}
-		});
-	};
-	*/
 };
 
 })(jQuery);

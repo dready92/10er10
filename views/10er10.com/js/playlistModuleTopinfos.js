@@ -31,7 +31,6 @@ var updatePlayingHeader = function (song) {
     }
   };
 
-
 var module = {
 	name: "topinfos",
 	events: {
