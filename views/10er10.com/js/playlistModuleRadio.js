@@ -5,7 +5,7 @@ deprecates:
 $(document).trigger('player.mainTimeUpdate',{'currentTime': secs, 'duration': dur }	);
 */
 
-var ui;
+var ui,overlay;
 
 var appendRandomSongs = function(count, genres) {
 	count = count || 3;
@@ -56,11 +56,31 @@ var module = {
 
 $(document).ready(function() {
 	ui=$("#controls > div.autofill");
-	debug(ui);
+	overlay = ui.find("div.overlay");
+	//debug(ui);
 	ui.find(".off > .link").click(function() {
 		debug("click");
 		$(this).parent().hide().siblings(".on").show();
 	});
+	ui.find(".on > .link").click(function() {
+		if ( overlay.ovlay() ) {
+			return overlay.ovlay().close();
+		}
+		var pos = $(this).position();
+		var top = pos.top-200;
+		if ( top < 10 )  top = 10;
+		overlay.css({"top": top ,"left": pos.left-270, "width": "250px"})
+		.ovlay({"load":true});
+	});
+	$("div.disable",overlay).click(function () {
+		overlay.ovlay().close();
+		ui.find(".on").hide();
+		ui.find(".off").show();
+	});
+	$("div.close",overlay).click(function() {
+		overlay.ovlay().close();
+	});
+	$(".list > div",overlay).click(function() { $(this).toggleClass("checked"); });
 	
 });
 
