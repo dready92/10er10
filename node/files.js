@@ -216,9 +216,9 @@ exports.fileCache = function(options) {
 				if ( c )	fs.readFile(file,e,then);
 				else		fs.readFile(file,then);
 			} else {
-				nextTick(function() {
+				process.nextTick(function() {
 					console.log("file served from cache");
-					callback.call(this,cache.files[file].err, cache.files[file].data);
+					callback.call(this,cache.files[file].data.err, cache.files[file].data.data);
 				});
 			}
 		},
