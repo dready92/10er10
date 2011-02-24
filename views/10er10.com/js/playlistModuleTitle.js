@@ -1,24 +1,22 @@
-(function($){
+$(document).one("bootstrap:playlist",function() {
 
-var module = {
-	name: "title",
-	events: {
-		currentSongChanged: function() {
+	var module = new d10.fn.playlistModule("title",{
+		"playlist:currentSongChanged": function() {
 			var s = d10.playlist.current();
 			document.title = s.find(".title").text() + ' - '+ s.find(".artist").text();
 		},
-		ended: function() {
+		"playlist:ended": function() {
 			document.title = "10er10";
 		}
-	},
-	enable: function() {},
-	disable: function(){}
-};
+	},{});
 
+	playlist.modules[module.name] = module;
+/*
+	d10.fn.playlistModules = d10.fn.playlistModules || {};
+	d10.fn.playlistModules.title = function()  {
+		    return module;
+	};
+*/
 
-d10.fn.playlistModules = d10.fn.playlistModules || {};
-d10.fn.playlistModules.title = function()  {
-        return module;
-};
+});
 
-})(jQuery);

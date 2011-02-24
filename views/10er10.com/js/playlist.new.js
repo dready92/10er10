@@ -47,6 +47,7 @@
 	 * 	current: returns the current playing song jquery obj
 	 * 	next: return the next song jquery object
 	 * 	all: return all songs 
+	 *  allIds: returns an array of all songs name
 	 * 	getUrl(song): return the url object of song
 	 * 	volume(vol): returns / set the volume that the UI got,
 	 * 	seek(secs): immadiately set playback current time to secs
@@ -55,10 +56,8 @@
 	 * 	getTrackParameters(song): returns the parameters needed to instanciate a track object, as an array
 	 * 	append(songs): append the song(s) at the end of the playlist
 	 * 	driver(): returns current playlist driver
-	 *	addModule(moduleObject): adds a new playlist module
-	 *	enableModule(name): enables a playlist module
-	 *	disableModule(name): disables a playlist module
 	 * 	title(title): set/get the title of the current playlist
+	 *	container(): returns the global playlist container
 	 * 
 	 */
 	
@@ -71,57 +70,6 @@
 		var list = $("#playlist",ui);
 		var driver = null;
 		var modules = {};
-		var modulesEventsTree = {};
-		var addModule = this.addModule = function(mod) {
-// // 			debug("addmodule");
-			return ;
-// 			if(!mod || !mod.name || !mod.events || !$.isPlainObject(mod.events) )	return ;
-// 			modules.push(mod);
-// 			mod.enabled = false;
-// 			enableModule(mod.name);
-		};
-		/*
-		var enableModule = this.enableModule = function(name) {
-			$.each(modules,function(k,mod) {
-				if ( mod.name == name ) {
-					if ( mod.enabled )	return false;
-					mod.enable.call(mod);
-					mod.enabled = true;
-					rebuildModulesEventsTree();
-					
-					return false;
-				}
-			});
-		};
-		
-		var disableModule = this.disableModule = function(name) {
-			$.each(modules,function(k,mod) {
-				if ( mod.name == name ) {
-					if ( !mod.enabled )	return false;
-				   mod.enabled = false;
-				   rebuildModulesEventsTree();
-				   mod.disable.call(mod);
-				   
-				   return false;
-				}
-			});
-		};
-		
-		var rebuildModulesEventsTree = function () {
-			modulesEventsTree = {};
-			return ;
-			$.each(modules,function(k,mod) {
-// 				debug("each module",k,mod);
-				if ( !mod.enabled ) return;
-				$.each(mod.events,function(e,cb) {
-					
-// 					debug("each mod.events",e,cb);
-					if ( modulesEventsTree[e] )	modulesEventsTree[e].push(cb);
-					else						modulesEventsTree[e] = [cb];
-				});
-			});
-		};
-		*/
 		var songId = this.songId = function(song) {
 			var songs = list.children(".song[name="+song.attr("name")+"]");
 			var back = 0;
@@ -261,25 +209,20 @@
 				debug ("playlist : should adjust volume to "+vol);
 				$('body').data('volume',vol);
 
-				if ( modulesEventsTree.volumeChanged ) {
-					$.each(modulesEventsTree.volumeChanged,function(k,cb) {
-						try { cb({type: "volumeChanged"}); }
-						catch(e) { debug("playlist:currentSongChanged",e); }
-					});
+				if ( !fromPrefs ) {  
+					if ( volumeUpdateTimeout ) {
+						clearTimeout(volumeUpdateTimeout);
+					}
+					volumeUpdateTimeout = setTimeout(function() {
+						d10.bghttp.post({
+							"url": site_url+"/api/volume",
+							"data": { "volume": $('body').data('volume') }
+						});
+						volumeUpdateTimeout = null;
+					},10000);
 				}
-
-				if ( fromPrefs ) { return driver ? driver.volume(vol) : true; }
-				if ( volumeUpdateTimeout ) {
-					clearTimeout(volumeUpdateTimeout);
-				}
-				volumeUpdateTimeout = setTimeout(function() {
-					d10.bghttp.post({
-						"url": site_url+"/api/volume",
-						"data": { "volume": $('body').data('volume') }
-					});
-					volumeUpdateTimeout = null;
-				},10000);
-				return driver.volume(vol);
+				$(document).trigger("playlist:volumeChanged");
+				return driver ? driver.volume(vol) : true;
 			}
 			return $('body').data('volume');
 		};
@@ -303,53 +246,21 @@
 			driver = newDriver;
 			newDriver.enable(oldDriver);
 			newDriver.bind("currentSongChanged",function(e) {
-				debug("playlist:currentSongChanged e: ",e);
+//				debug("playlist:currentSongChanged e: ",e);
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 				songWidget(e.current).addClass(settings.currentClass);
-				if ( modulesEventsTree.currentSongChanged ) {
-					$.each(modulesEventsTree.currentSongChanged,function(k,cb) {
-						try { cb(e); }
-						catch(e) { debug("playlist:currentSongChanged",e); }
-					});
-				}
-				debug("currentsongchanges");
+				debug("playlist document event playlist:currentSongChanged");
 				$(document).trigger("playlist:currentSongChanged",{current: current()});
-// 				debug("playlist:currentSongChanged current audio: ",driver.current());
-				
 			});
 			newDriver.bind("ended",function(e) {
 				debug("playlist:ended of playlist");
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
-// 				songWidget(e.current).addClass(currentClass);
-				if ( modulesEventsTree.ended) {
-					$.each(modulesEventsTree.ended,function(k,cb) {
-						try { cb(e); }
-						catch(e) { debug("playlist:ended",e); }
-					});
-					
-				}
 				$(document).trigger("playlist:ended",{current: current()});
 			});
 			newDriver.bind("currentLoadProgress",function(e) {
-				if ( modulesEventsTree.currentLoadProgress) {
-					$.each(modulesEventsTree.currentLoadProgress,function(k,cb) {
-						try { cb(e); }
-						catch(e) { debug("playlist:currentLoadProgress",e); }
-					});
-					
-				}
 				$(document).trigger("playlist:currentLoadProgress",{current: current()});
 			});
 			newDriver.bind("currentTimeUpdate",function(e) {
-// 				debug(modulesEventsTree,modules);
-				if ( modulesEventsTree.currentTimeUpdate) {
-					$.each(modulesEventsTree.currentTimeUpdate,function(k,cb) {
-// 						debug("playlist launching callback",cb);
-						try { cb(e); }
-						catch(e) { debug("playlist:currentTimeUpdate",e); }
-					});
-					
-				}
 				$(document).trigger("playlist:currentTimeUpdate",e);
 				
 			});

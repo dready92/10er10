@@ -327,7 +327,12 @@ window.d10.dump = function () {
 
 
 
-
+var inherits = function(ctor, superCtor) {
+  ctor.super_ = superCtor;
+  ctor.prototype = Object.create(superCtor.prototype, {
+    constructor: { value: ctor, enumerable: false }
+  });
+};
 
 
 
@@ -364,6 +369,36 @@ eventsBinder.prototype.unbind = function () {
 	this.enabled = false;
 };
 
+
+var playlistModule = d10.fn.playlistModule = function(name, bindings, hooks) {
+	eventsBinder.call(this);
+	this._playlistModule = {bindings: bindings ? bindings : {}, hooks: hooks ? hooks : {} };
+	this.name = name;
+};
+
+playlistModule.prototype.enable = function() {
+	if ( !this.enabled )	{
+		if ( this._playlistModule.hooks.enable ) {
+			this._playlistModule.hooks.enable.call(this);
+		}
+		this.bind();
+	}
+};
+
+playlistModule.prototype.disable = function() {
+	if ( this.enabled )	{
+		this.unbind();
+		if ( this._playlistModule.hooks.disable ) {
+			this._playlistModule.hooks.disable.call(this);
+		}
+	}
+};
+
+playlistModule.prototype.isEnabled = function() {
+	return this.enabled;
+};
+
+inherits(playlistModule,eventsBinder);
 
 
 })(jQuery);

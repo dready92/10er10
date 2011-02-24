@@ -108,6 +108,9 @@ var step2 = function () {
 		d10.playlist = new d10.fn.playlistProto(driver, $("aside"),{});
 		var driver = new d10.playlistDrivers.default({});
 		d10.playlist.setDriver(driver);
+		
+		$(document).trigger("bootstrap:playlist");
+		
 		// 		d10.playlist.addModule(d10.fn.playlistModules.radio({}));$("#controls > div.autofill")
 		d10.pmRadio = d10.fn.playlistModules.radio($("#controls > div.autofill"),{}).enable();
 // 		d10.playlist.addModule(d10.fn.playlistModules.title());

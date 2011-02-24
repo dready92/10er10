@@ -49,6 +49,13 @@ d10.playlistDrivers.default = function(options) {
 	var next = null; // next track
 	var currentLoadProgressEnded = false;
 	var cache = {};
+	this.fadeSettings = {
+		source_duration: settings.fade,
+		source_startup:  - settings.fade,
+		target_duration: 10,
+		target_startup: - 10,
+		target_starttime: 0
+	};
 	var events = {};
 // 	var modules = [];
 	var trackEvents = {
@@ -71,13 +78,12 @@ d10.playlistDrivers.default = function(options) {
                                         var secs = Math.floor(this.currentTime);
                                         if ( secs == this.last_secs_update ) {return true;}
                                         this.last_secs_update = secs;
-                                        var dur = Math.floor(this.duration);
-                                        trigger('currentTimeUpdate',{'currentTime': secs, 'duration': dur });
+                                        trigger('currentTimeUpdate',{currentTime: secs});
 										if ( !this.prefetchStart ) {
-											this.prefetchStart = secs + settings. prefectchMinStartupTime;
+											this.prefetchStart = secs + settings.prefectchMinStartupTime;
 										} else if ( this.prefetchStart == secs ) {
 											optimistPrefetch();
-											this.prefetchStart = secs + settings. prefectchMinStartupTime;
+											this.prefetchStart = secs + settings.prefectchMinStartupTime;
 										}
 //                                         if ( secs > settings. prefectchMinStartupTime && secs % 8 == 0 ) { optimistPrefetch(); }
                                         if ( settings.fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == settings.fade ) {
@@ -115,10 +121,8 @@ d10.playlistDrivers.default = function(options) {
 	};
 	
 	var trigger = this.trigger = function(e,data) {
-// 		modulesCallback(this,e,data);
 		if ( !events[e] )	return ;
 		$.each(events[e],function(i,callback) {
-// 			debug("playlistDriverDefault:trigger ",e,data,callback);
 			try {
 				callback(data);
 			} catch(err) {
@@ -141,9 +145,7 @@ d10.playlistDrivers.default = function(options) {
 		}
 	};
 	
-	var unbindAll = this.unbindAll = function() {
-		events = {};
-	};
+	var unbindAll = this.unbindAll = function() { events = {}; };
 	
 
 	/*
@@ -305,7 +307,13 @@ d10.playlistDrivers.default = function(options) {
 		}
 	};
 	
-	this.current = function() { return current };
+	this.current = function(tr) { 
+		if ( arguments.length ) {
+			current = tr;
+			return this;
+		}
+		return current;
+	};
 	var playing = this.playing = function() {
 		var back = [];
 		$.each(cache,function(i,e) {
@@ -333,11 +341,7 @@ d10.playlistDrivers.default = function(options) {
 	
 	var load = this.load = function(doc, options) {
 		if ( options.purge ) {
-			$.each(cache,function(i,track) {
-				track.destroy();
-				cache[i] = null;
-			});
-			cache = {};
+			cacheEmpty(true);
 			current = null;
 			next = null;
 			currentLoadProgressEnded = false;
@@ -361,6 +365,7 @@ d10.playlistDrivers.default = function(options) {
 	};
 
 	var disable = this.disable = function() {
+		
 	};
 
 	var listModified = this.listModified = function(e) {
@@ -397,6 +402,23 @@ d10.playlistDrivers.default = function(options) {
 			play.apply(this,d10.playlist.getTrackParameters(widget));
 		}
 		checkNext();
+	};
+	
+	var cacheGet = this.cacheGet = function(id) {
+		return cache[id];
+	};
+	
+	var cacheRemove = this.cacheRemove = function(id) {
+		if ( cache[id] )	delete cache[id];
+	};
+	
+	var cacheEmpty = this.cacheEmpty = function(destroyTracks) {
+		if ( destroyTracks ) {
+			$.each(cache,function(k,track) {
+				track.destroy();
+			});
+		}
+		cache = {};
 	};
 };
 
