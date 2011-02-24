@@ -1,10 +1,17 @@
 exports.port = 8888;
 
-exports.couch = {
-	d10: {dsn: "http://localhost:5984/",database:"d10-test"},
-	auth: {dsn: "http://localhost:5984/",database:"auth-test"},
-	track: {dsn: "http://localhost:5984/",database:"track-test"}
+exports.couch_prod = {
+	d10: {dsn: "http://localhost:5984/",database:"d10"},
+	auth: {dsn: "http://localhost:5984/",database:"auth"},
+	track: {dsn: "http://localhost:5984/",database:"track"}
 };
+
+exports.couch_dev = {
+        d10: {dsn: "http://localhost:5984/",database:"d10-test"},
+        auth: {dsn: "http://localhost:5984/",database:"auth-test"},
+        track: {dsn: "http://localhost:5984/",database:"track-test"}
+};
+
 
 // templates path
 exports.templates = {

@@ -1,3 +1,15 @@
+var config = require("./config");
+
+if ( process.getuid() == 502 ) {
+        config.production = true;
+        config.port = 8124;
+        config.couch = config.couch_prod;
+} else {
+        config.couch = config.couch_dev;
+}
+
+
+
 var	connect = require("connect"),
 	httpHelper = require("./httpHelper"),
 	homepage = require("./d10.router.homepage"),
@@ -8,14 +20,11 @@ var	connect = require("connect"),
 	songStuff = require("./d10.router.song"),
 	invites = require("./d10.router.invites"),
 	download = require("./d10.router.audio.download"),
-	invitesRouter = require("./invites.router.js"),
-	config = require("./config")
+	invitesRouter = require("./invites.router.js")
 	;
 
-if ( process.getuid() == 502 ) {
-	config.production = true;
-	config.port = 8124;
-}
+console.log("Database binding: "+config.couch.d10.dsn+"/"+config.couch.d10.database);
+
 // config.production = true;
 function staticRoutes(app) {
 	app.get("/js/*",httpHelper.localPathServer("/js","../views/10er10.com/js",{bypass: config.production ? false : true}));
