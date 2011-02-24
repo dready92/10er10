@@ -69,7 +69,7 @@
 		
 		var list = $("#playlist",ui);
 		var driver = null;
-		var modules = {};
+		var modules = this.modules = {};
 		var songId = this.songId = function(song) {
 			var songs = list.children(".song[name="+song.attr("name")+"]");
 			var back = 0;

@@ -10,7 +10,7 @@ $(document).one("bootstrap:playlist",function() {
 		}
 	},{});
 
-	playlist.modules[module.name] = module;
+	d10.playlist.modules[module.name] = module;
 /*
 	d10.fn.playlistModules = d10.fn.playlistModules || {};
 	d10.fn.playlistModules.title = function()  {

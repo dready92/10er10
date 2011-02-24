@@ -3,6 +3,7 @@ $(document).one("bootstrap:playlist",function() {
 
 	var module = new d10.fn.playlistModule("volume",{
 			"playlist:volumeChanged": function() {
+				debug("volume playlist event");
 				bar.adjustBar($('body').data('volume'));
 			}},
 			{}
@@ -29,6 +30,7 @@ $(document).one("bootstrap:playlist",function() {
 		ui.css({ textAlign: 'left', position: 'relative', overflow: 'hidden' });
 		$('div',ui).css({ position: 'absolute', width: 0, height: '100%', overflow: 'hidden' });
 		ui.click(function(e) {
+			debug("click on ui");
 			if ( !module.isEnabled() )	return ;
 			var offset = ui.offset();
 			var pix = e.pageX-offset.left;
@@ -47,7 +49,7 @@ $(document).one("bootstrap:playlist",function() {
 	var ui = $("#controls div[name=volume]");
 	var bar = new volumebar(ui,1);
 	bar.adjustBar($('body').data('volume') ? $('body').data('volume') : 0.5);
-	playlist.modules[module.name] = module;
+	d10.playlist.modules[module.name] = module;
 
 	
 });

@@ -27,7 +27,7 @@ $(document).one("bootstrap:playlist",function() {
 		}
 	  };
 
-	var binder = new eventsBinder();
+	var binder = new d10.fn.eventsBinder();
 	binder.addBindings({
 			"playlist:currentSongChanged": function() {
 				updatePlayingHeader(d10.playlist.current());

@@ -76,6 +76,7 @@ d10.playlistDrivers.default = function(options) {
 //                              debug("playlistDriverDefault:ontimeupdate",this);
                                 if ( current && this === current.audio ) {
                                         var secs = Math.floor(this.currentTime);
+					var dur = current.duration;
                                         if ( secs == this.last_secs_update ) {return true;}
                                         this.last_secs_update = secs;
                                         trigger('currentTimeUpdate',{currentTime: secs});
