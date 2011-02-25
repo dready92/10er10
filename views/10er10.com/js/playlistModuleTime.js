@@ -1,15 +1,7 @@
-(function($){
-
-
-var instance = null;
-var getInstance = function(container) {
-	if ( instance )	return instance;
-	return createInstance(container);
-}
+$(document).one("bootstrap:playlist",function() {
 var createInstance = function(container) {
-	var binder = new d10.fn.eventsBinder();
 // 	debug(binder);
-	binder.addBindings(
+	var module = new d10.fn.playlistModule("time",
 		{
 			"playlist:currentSongChanged": function() {
 				//var s = d10.playlist.current();
@@ -35,14 +27,9 @@ var createInstance = function(container) {
 			"playlist:currentLoadProgress": function(e) {
 				bar.setNetloadBar(d10.playlist.driver().currentLoadProgress());
 			}
-		}
-		   );
-	var module = {
-		name: "time",
-		enable: function() {binder.bind();return this;},
-		disable: function(){binder.unbind();return this;},
-		enabled: function() {return binder.enabled}
-	};
+		},
+		{}
+	);
 // 	return module;
 // 	binder.addBindings(module.events);
 
@@ -71,7 +58,7 @@ var createInstance = function(container) {
 		$('div.timer',ui).css({ position: 'absolute', width: 0, height: '100%', overflow: 'hidden' });
 
 		ui.click(function(e) {
-			if ( !binder.enabled )	return ;
+			if ( !module.isEnabled() )	return ;
 			var offset = ui.offset();
 			var pix = e.pageX-offset.left;
 			d10.playlist.seek(Math.floor(pix/punit));
@@ -112,10 +99,9 @@ var createInstance = function(container) {
 };
 
 
+var mod = createInstance($("#controls"));
 
-d10.fn.playlistModules = d10.fn.playlistModules || {};
-d10.fn.playlistModules.time = function(container)  {
-        return getInstance(container);
-};
+d10.playlist.modules[mod.name] = mod;
 
-})(jQuery);
+
+});

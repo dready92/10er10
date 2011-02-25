@@ -27,23 +27,14 @@ $(document).one("bootstrap:playlist",function() {
 		}
 	  };
 
-	var binder = new d10.fn.eventsBinder();
-	binder.addBindings({
+	var module = new d10.fn.playlistModule("topinfos",{
 			"playlist:currentSongChanged": function() {
 				updatePlayingHeader(d10.playlist.current());
 			},
 			"playlist:ended": function() {
 				updatePlayingHeader();
 			}
-		});
-
-	var module = {
-		name: "topinfos",
-		enable: function() 	{binder.bind();},
-		disable: function()	{binder.unbind();},
-		enabled: function() { return binder.enabled; }
-	};
-
+		},{});
 
 	d10.playlist.modules[module.name] = module;
 

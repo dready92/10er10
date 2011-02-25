@@ -1,4 +1,4 @@
-(function($){
+$(document).one("bootstrap:playlist",function() {
 
 var module = null;
 var createModule= function (ui) {
@@ -68,24 +68,34 @@ var createModule= function (ui) {
 		}
 	});
 
-	var mod = {
-		name: "radio",
-		enable: function() {ui.css({display:"block"}); binder.bind();return this;},
-		disable: function() {ui.css({display:"none"}); binder.unbind();return this;},
-		enabled: function() {return binder.enabled;}
-	};
+	var module = new d10.fn.playlistModule("radio", {
+                "playlist:currentSongChanged": function(e) {
+                        if ( delayTimeout ) {
+                                clearTimeout(delayTimeout);
+                        }
+                        delayTimeout = setTimeout(function() {
+                                debug("radio1");
+                                if ( ui.find(".on").is(":visible") && d10.playlist.current().nextAll().length < 3 ) {
+                                        debug("radio2");
+                                        appendSongs(settings.count);
+                                }
+                        }, settings.delay);
+                }
+        }, {
+		enable: function() {ui.css({display:"block"});return this;},
+		disable: function() {ui.css({display:"none"});return this;}
+	});
 
-// 	$(document).ready(function() {
-// 		ui=$("#controls > div.autofill");
+
 		overlay = ui.find("div.overlay");
 		//debug(ui);
 		ui.find(".off > .link").click(function() {
-			if ( !binder.enabled )	return ;
+			if ( !module.isEnabled() ) { return ;}
 			debug("click");
 			$(this).parent().hide().siblings(".on").show();
 		});
 		ui.find(".on > .link").click(function() {
-			if ( !binder.enabled )	return ;
+			if ( !module.isEnabled() ) { return ;}
 			if ( overlay.ovlay() ) {
 				return overlay.ovlay().close();
 			}
@@ -96,24 +106,26 @@ var createModule= function (ui) {
 			.ovlay({"load":true});
 		});
 		$("div.disable",overlay).click(function () {
+			if ( !module.isEnabled() ) { return ;}
 			if ( !binder.enabled )	return ;
 			overlay.ovlay().close();
 			ui.find(".on").hide();
 			ui.find(".off").show();
 		});
 		$("div.close",overlay).click(function() {
+			if ( !module.isEnabled() ) { return ;}
 			if ( !binder.enabled )	return ;
 			overlay.ovlay().close();
 		});
-		$(".list > div",overlay).click(function() { 			if ( !binder.enabled )	return ;$(this).toggleClass("checked"); });
+		$(".list > div",overlay).click(function() {
+			if ( !module.isEnabled() ) { return ;}
+ 			$(this).toggleClass("checked"); 
+		});
 		
-// 	});
 		return mod;
 };
 var settings ;
 
-d10.fn.playlistModules = d10.fn.playlistModules || {};
-d10.fn.playlistModules.radio = function(ui, options)  {
 	
 	settings = $.extend(
 		{
@@ -121,13 +133,8 @@ d10.fn.playlistModules.radio = function(ui, options)  {
 			count: 5
 		}
 		
-	,options);
-	if ( module ) {
-		return module;
-	} else {
-		module = createModule(ui);
-		return module;
-	}
-};
+	,{});
 
-})(jQuery);
+	var mod = createModule($("#side"));
+	d10.playlist.modules[mod.name] = mod;
+});

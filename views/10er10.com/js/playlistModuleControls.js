@@ -1,10 +1,9 @@
-(function($){
-
-var instance = null;
+$(document).one("bootstrap:playlist",function() {
 	
 	
 var createModule = function(ui) {	
-	var bindings = {
+
+	var module = new d10.fn.playlistModule("controls",{
 		"playlist:currentSongChanged": function() {
 			debug("here too");
 			play.hide();
@@ -15,17 +14,7 @@ var createModule = function(ui) {
 			pause.hide();
 			play.show();
 		}
-	};
-	var binder = new d10.fn.eventsBinder();
-	binder.addBindings(bindings);
-	
-	var module = {
-		name: "controls",
-		enable: function() {binder.bind();return this;},
-		disable: function(){binder.unbind();return this;},
-		enabled: function(){return binder.enabled;}
-	};
-
+	},{});
 	var starringControls = function () {
 					// test if user likes this song
 					starUp.removeClass('littletrans');
@@ -81,7 +70,7 @@ var createModule = function(ui) {
 	starDown = ui.find('img[name=dislikes]');
 	play.bind("click",function() {
 		debug("click on play",binder.enabled);
-		if ( !binder.enabled )	return ;
+		if ( !module.isEnabled() )	return ;
 		var widget = d10.playlist.current(),
 			track = d10.playlist.driver().current();
 		if ( widget.length ) {
@@ -105,7 +94,7 @@ var createModule = function(ui) {
 	});
 
 	pause.bind("click",function() {
-		if ( !binder.enabled )	return ;
+		if ( !module.isEnabled() )	return ;
 		var ok = d10.playlist.pause();
 		if ( ok ) {
 			pause.hide();
@@ -114,8 +103,8 @@ var createModule = function(ui) {
 	});
 
 	next.bind("click",function() {
-		if ( !binder.enabled )	return ;
-		debug("dcalling next");
+		if ( !module.isEnabled() )	return ;
+		debug("calling next");
 		var widget = d10.playlist.current().next();
 		debug("next: playlist: ",d10.playlist.current(),", next = ",widget);
 		if ( widget.length ) {
@@ -124,30 +113,28 @@ var createModule = function(ui) {
 	});
 
 	prev.bind("click",function() {
-		if ( !binder.enabled )	return ;
+		if ( !module.isEnabled() )	return ;
 		var widget = d10.playlist.current().prev();
 		if ( widget.length ) {
 				d10.playlist.driver().play( d10.playlist.getTrackParameters(widget) );
 		}
 	});
 	starUp.click(function() {
-		if ( !binder.enabled )	return ;
+		if ( !module.isEnabled() )	return ;
 		var test = d10.playlist.current().attr('name');
 		if ( test ) handleStarring('likes',test);
 	});
 	starDown.click(function() {
-		if ( !binder.enabled )	return ;
+		if ( !module.isEnabled() )	return ;
 		var test = d10.playlist.current().attr('name');
 		if ( test ) handleStarring('dislikes',test);
 	});
 	return module;
 };
 
-d10.fn.playlistModules = d10.fn.playlistModules || {};
-d10.fn.playlistModules.controls = function(ui)  {
-		if ( instance )	return instance;
-        instance = createModule(ui);
-		return instance;
-};
 
-})(jQuery);
+var mod = createModule($("#controls"));
+
+d10.playlist.modules[mod.name] = mod;
+
+});

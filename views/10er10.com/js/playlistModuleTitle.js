@@ -11,12 +11,6 @@ $(document).one("bootstrap:playlist",function() {
 	},{});
 
 	d10.playlist.modules[module.name] = module;
-/*
-	d10.fn.playlistModules = d10.fn.playlistModules || {};
-	d10.fn.playlistModules.title = function()  {
-		    return module;
-	};
-*/
 
 });
 
