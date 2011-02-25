@@ -111,15 +111,21 @@ var step2 = function () {
 		
 		$(document).trigger("bootstrap:playlist");
 		
+		$.each(d10.playlist.modules,function(k,mod) {
+			mod.enable();
+		});
+		
+		
+		
 		// 		d10.playlist.addModule(d10.fn.playlistModules.radio({}));$("#controls > div.autofill")
-		d10.pmRadio = d10.fn.playlistModules.radio($("#controls > div.autofill"),{}).enable();
+// 		d10.pmRadio = d10.fn.playlistModules.radio($("#controls > div.autofill"),{}).enable();
 // 		d10.playlist.addModule(d10.fn.playlistModules.title());
 // 		d10.playlist.addModule(d10.fn.playlistModules.topinfos());
 // 		d10.playlist.addModule(d10.fn.playlistModules.controls());
 // 		d10.playlist.addModule(d10.fn.playlistModules.time());
 // 		d10.playlist.addModule(d10.fn.playlistModules.volume($("#controls div[name=volume]"),$('body').data('volume') ? $('body').data('volume') : 0.5 ));
-		d10.pmTime = d10.fn.playlistModules.time($("#side")).enable();
-		d10.pmControls = d10.fn.playlistModules.controls($("#controls")).enable();
+// 		d10.pmTime = d10.fn.playlistModules.time($("#side")).enable();
+// 		d10.pmControls = d10.fn.playlistModules.controls($("#controls")).enable();
 		
 		/*
 		d10.playlist = new d10.fn.playlist(

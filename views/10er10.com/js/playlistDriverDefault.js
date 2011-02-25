@@ -370,6 +370,12 @@ d10.playlistDrivers.default = function(options) {
 	};
 
 	var listModified = this.listModified = function(e) {
+		
+		if ( d10.playlist.allIds().length == 0 ) {
+			cacheEmpty(true);
+			return ;
+		}
+		
 		var checkNext = function() {
 			var nextWidget = widget.next();
 			if ( !nextWidget.length ) {
@@ -421,6 +427,21 @@ d10.playlistDrivers.default = function(options) {
 		}
 		cache = {};
 	};
+	
+	var record = this.record = function() {
+		var options = {
+			method: "PUT",
+			url: site_url+"/...",
+			data: {
+				list: d10.playlist.allIds(),
+				type: "default"
+			}
+		};
+		
+		
+		
+	};
+	
 };
 
 })(jQuery);

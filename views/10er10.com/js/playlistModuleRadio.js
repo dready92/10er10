@@ -44,7 +44,7 @@ var createModule= function (ui) {
 		var genres = overlay.find("div.checked").map(function() {     return $(this).attr('name');    }   ).get();
 		appendRandomSongs(count, genres);
 	};
-
+/*
 	var binder = new d10.fn.eventsBinder();
 	binder.addBindings({
 		// 		currentTimeUpdate: function(e) {
@@ -67,7 +67,7 @@ var createModule= function (ui) {
 			}, settings.delay);
 		}
 	});
-
+*/
 	var module = new d10.fn.playlistModule("radio", {
                 "playlist:currentSongChanged": function(e) {
                         if ( delayTimeout ) {
@@ -122,7 +122,7 @@ var createModule= function (ui) {
  			$(this).toggleClass("checked"); 
 		});
 		
-		return mod;
+		return module;
 };
 var settings ;
 

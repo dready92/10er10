@@ -69,7 +69,7 @@ var createModule = function(ui) {
 	starUp = ui.find('img[name=likes]');
 	starDown = ui.find('img[name=dislikes]');
 	play.bind("click",function() {
-		debug("click on play",binder.enabled);
+// 		debug("click on play",binder.enabled);
 		if ( !module.isEnabled() )	return ;
 		var widget = d10.playlist.current(),
 			track = d10.playlist.driver().current();
