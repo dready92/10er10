@@ -67,6 +67,7 @@ exports.javascript = {
 		"httpbroker.js",
 // 		"playlist.js",
 		"playlistDriverDefault.js",
+		"playlistDriverRpl.js",
 		"playlist.new.js",
 		"playlistModuleRadio.js",
 		"playlistModuleControls.js",

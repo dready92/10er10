@@ -369,7 +369,7 @@ d10.playlistDrivers.default = function(options) {
 		
 	};
 
-	var listModified = this.listModified = function(e) {
+	this.listModified = function(e) {
 		
 		if ( d10.playlist.allIds().length == 0 ) {
 			cacheEmpty(true);

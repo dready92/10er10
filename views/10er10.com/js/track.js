@@ -238,19 +238,22 @@ var track = function (id, url, seconds, options) {
 	};
 
 
-	this.fadeIn = function (secs,callback) {
+	this.fadeIn = function (secs,callback,opts) {
+		var config = $.extend({
+			target_volume: $("body").data("volume"),
+			startTime: 0
+		},opts ? opts: {});
 		if ( fadeInterval ) {
 			clearInterval(fadeInterval);
 			fadeInterval = null;
 		}
 		
-		var target_volume = $("body").data("volume");
 		var remaining = secs;
-		var step = target_volume / secs;
+		var step = config.target_volume / secs;
 
 		var fadeStep = function () {
 			if ( remaining == 0 ) {
-				audio.volume = $("body").data("volume");
+				audio.volume = config.target_volume;
 				clearInterval( fadeInterval );
 				fadeInterval = null;
 				debug("fadeIn ended");
@@ -265,7 +268,7 @@ var track = function (id, url, seconds, options) {
 			debug("don't have enough data to fade in. networkState = "+audio.networkState+' and readyState = '+audio.readyState);
 			return false;
 		}
-		audio.currentTime = 0;
+		audio.currentTime = config.startTime;
 		audio.volume = 0;
 		
 		audio.timestamp = new Date().getTime();
