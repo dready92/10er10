@@ -61,7 +61,7 @@
 	 * 
 	 */
 	
-	d10.fn.playlistProto = function(d, ui, options) {
+	d10.fn.playlistProto = function(ui, options) {
 		
 		var settings= $.extend({
 			currentClass: "current"
@@ -70,6 +70,7 @@
 		var list = $("#playlist",ui);
 		var driver = null;
 		var modules = this.modules = {};
+		var driverRecordTimeout = null;
 		var songId = this.songId = function(song) {
 			var songs = list.children(".song[name="+song.attr("name")+"]");
 			var back = 0;
@@ -171,8 +172,22 @@
 		*
 		*/
 		var sendPlaylistUpdate = function(data) {
+			if ( !list.children("div.song").length ) {
+				ui.find(".emptyPlaylist").show();
+			} else {
+				ui.find(".emptyPlaylist").hide();
+			}
 			driver.listModified(data);
 			$(document).trigger('playlistUpdate', data );
+			if ( driverRecordTimeout ) {
+				clearTimeout(driverRecordTimeout);
+			}
+			driverRecordTimeout = setTimeout(function() {
+				if( driver.writable() ) {
+					driver.record();
+				}
+				driverRecordTimeout=null;
+			},3000);
 		};
 
 		var playlistAppendPost = function() {
@@ -239,9 +254,12 @@
 		this.driver = function() { return driver; };
 
 		var setDriver = this.setDriver = function(newDriver) {
+			if ( !newDriver ) {
+				return ;
+			}
 			var oldDriver = driver;
 			if ( oldDriver ) {
-				oldDriver.disable();
+				oldDriver.disable(newDriver);
 			}
 			driver = newDriver;
 			newDriver.enable(oldDriver);
@@ -265,6 +283,38 @@
 				
 			});
 		};
+		
+		var drivers = {};
+		var loadDriver = this.loadDriver = function(name,driverOptions, loadingOptions, cb) {
+			if ( !name || !name.length ) {
+				return false;
+			}
+			if ( !name in d10.playlistDrivers ) {
+				return false;
+			}
+			if ( name in drivers ) {
+				return drivers[name].load(loadingOptions,cb);
+			}
+			options = options || {};
+			drivers[name] = new d10.playlistDrivers[name](driverOptions);
+			drivers[name].load(loadingOptions,cb);
+			return drivers[name];
+		};
+		
+		var remove = this.remove = function(songs) {
+			var count = songs.length,
+			active = songs.filter("."+settings.currentClass);
+			if ( active ) {
+				driver.pause();
+			}
+			songs.data("removing",true).slideUp(100,function() 
+				{
+					$(this).remove();
+					sendPlaylistUpdate({ 'action': 'remove' });
+				}
+			);
+		};
+		
 		
 // 		setDriver(d);
 		
@@ -325,16 +375,25 @@
 		.delegate("div.song span.remove",'click',function() {
 			$(this).closest("div.song").data("removing",true).slideUp(100,function() 
 				{
-					$(this).remove();
-					if ( !list.children("div.song").length && ui.find(".emptyPlaylist").not(":visible") ) {
-						ui.find(".emptyPlaylist").show();
-					}
+					remove($(this));
 				}
 			);
-// 			if ( p.isRpl() ) {		  p.setPlaylistName(p.noname); }
-			sendPlaylistUpdate({ 'action': 'remove' });
-			// $(document).trigger('playlistUpdate', { 'action': 'remove' } );
 		});
+		
+		this.bootstrap = function() {
+			var infos = d10.user.get_preferences().playlist || {};
+			var drv = loadDriver("default",{},infos,function(err,songs) {
+				$("#playlistLoader").slideUp("fast");
+				list.show();
+				if ( songs && songs.length ) {
+					list.append(songs);
+				} else {
+					ui.find(".emptyPlaylist").show();
+				}
+				setDriver(drv);
+			});
+		};
+		
 		
 	};
 	

@@ -342,7 +342,7 @@ var eventsBinder = d10.fn.eventsBinder = function() {this.enabled = false; this.
 // eventsBinder.prototype.enabled = false;
 
 eventsBinder.prototype.addBindings = function (b) {
-	debug("add bindings",b);
+// 	debug("add bindings",b);
 	var that = this;
 	$.each(b,function(name,cb) {
 		that.addBinding(name,cb);
@@ -350,7 +350,7 @@ eventsBinder.prototype.addBindings = function (b) {
 };
 
 eventsBinder.prototype.addBinding = function (name, cb) {
-	debug("add bindginsdé",name,cb);
+// 	debug("add bindginsdé",name,cb);
 	this._events[name] = cb;
 };
 

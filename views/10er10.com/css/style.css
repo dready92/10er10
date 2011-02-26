@@ -803,6 +803,7 @@ aside div.emptyPlaylist {
   -webkit-border-radius: 3px;  
   border: 2px solid rgba(200,200,200,0.5);
   text-align:center;
+  display: none;
 }
 
 .overlay {
@@ -889,13 +890,18 @@ aside .playlisttitle {
 }
 
 #playlist {
-	display: block;
+	display: none;
 	width: 100%;
 	margin: 0;
 	border-bottom: 2px solid transparent;
 	max-height: 400px;
 	overflow: auto;
 	position: relative;
+}
+
+#playlistLoader {
+	padding: 40px;
+	text-align:center;
 }
 
 aside.hovertop #playlist { border-top: 2px solid #BF9730; }

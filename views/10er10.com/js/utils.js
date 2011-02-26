@@ -105,9 +105,10 @@ var step2 = function () {
 		
 // 		debug("fn",d10.fn);
 		
-		d10.playlist = new d10.fn.playlistProto(driver, $("aside"),{});
-		var driver = new d10.playlistDrivers.default({});
-		d10.playlist.setDriver(driver);
+		d10.playlist = new d10.fn.playlistProto( $("aside"),{});
+// 		var driver = new d10.playlistDrivers.default({});
+// 		d10.playlist.setDriver(driver);
+		d10.playlist.bootstrap();
 		
 		$(document).trigger("bootstrap:playlist");
 		

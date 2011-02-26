@@ -430,16 +430,48 @@ d10.playlistDrivers.default = function(options) {
 	
 	var record = this.record = function() {
 		var options = {
-			method: "PUT",
-			url: site_url+"/...",
+			url: site_url+"/api/current_playlist",
 			data: {
 				list: d10.playlist.allIds(),
 				type: "default"
 			}
 		};
+		d10.bghttp.put(options);
 		
-		
-		
+	};
+	
+	var load = this.load = function(options,cb) {
+// 		var infos = d10.user.get_preferences().playlist;
+		debug("playlistDriverDefault load: ",options);
+		if ( !options ) {
+			return cb();
+		}
+		if ( !options.list || !options.list.length ) {
+			return cb();
+		}
+		debug("posting...");
+		var res = d10.bghttp.post({
+			url: site_url+"/api/songs",
+			dataType: "json",
+			data: { ids: options.list },
+			success: function(resp) {
+				debug("load success: ",resp);
+				var html = "";
+				$.each(resp.data.songs,function(i,song) {
+					html+=d10.song_template(song);
+				});
+				if ( html.length ) {
+					cb(null,$(html));
+				} else {
+					cb();
+				}
+			},
+			error: function(e) {
+				debug("load error: ",e);
+				cb(e);
+			}
+		});
+		debug("posting res: ",res);
 	};
 	
 };
