@@ -380,6 +380,13 @@
 			);
 		});
 		
+		ui.find("div.manager button[name=new]").click(function() {
+			pause();
+			$(document).trigger("playlist:ended",{current: current()});
+			list.empty();
+			sendPlaylistUpdate({ 'action': 'remove' });
+		});
+		
 		this.bootstrap = function() {
 			var infos = d10.user.get_preferences().playlist || {};
 			var drv = loadDriver("default",{},infos,function(err,songs) {
@@ -390,8 +397,8 @@
 				} else {
 					ui.find(".emptyPlaylist").show();
 				}
-				setDriver(drv);
 			});
+			setDriver(drv);
 		};
 		
 		

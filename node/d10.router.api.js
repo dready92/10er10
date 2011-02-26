@@ -29,22 +29,23 @@ exports.api = function(app) {
 		bodyDecoder()(request, response,function() {
 			request.ctx.headers["Content-type"] = "application/json";
 			console.log(request.body);
-			if ( ! request.body["ids[]"] || 
-				Object.prototype.toString.call(request.body["ids[]"]) !== '[object Array]' ||
-				!request.body["ids[]"].length ) {
+			if ( ! request.body["ids"] || 
+				Object.prototype.toString.call(request.body["ids"]) !== '[object Array]' ||
+				!request.body["ids"].length ) {
 				d10.rest.success({songs:[]},request.ctx);
 			} else {
-				for ( var index in request.body["ids[]"] ) {
-					if ( request.body["ids[]"][index].substr(0,2) != "aa" ) {
+				for ( var index in request.body["ids"] ) {
+					if ( request.body["ids"][index].substr(0,2) != "aa" ) {
 						d10.rest.success({songs:[]},request.ctx);
 						return ;
 					}
 				}
-				d10.couch.d10.allDocs({keys:request.body["ids[]"]},function(err,resp) {
+				d10.couch.d10.getAllDocs({keys:request.body["ids"],include_docs: true},function(err,resp) {
 					if ( err ) {
 						d10.rest.err(500,err,request.ctx);
 					} else {
-						d10.rest.success({songs: resp.rows},request.ctx);
+						
+						d10.rest.success({songs: resp.rows.map(function(v) {return v.doc;})},request.ctx);
 					}
 				});
 				
@@ -207,10 +208,9 @@ exports.api = function(app) {
 				
 				var recordDoc = function() {
 					userPreferences.playlist = {};
-					data.forEach(function(v,k) {
-						userPreferences.playlist[k.replace("[]","")] = v;
-						
-					});
+					for ( var k in data) {
+						userPreferences.playlist[k.replace("[]","")] = data[k];
+					}
 					
 					d10.couch.d10.storeDoc(userPreferences,function(err,response) {
 						if ( err ) d10.rest.err(413,err,request.ctx);
