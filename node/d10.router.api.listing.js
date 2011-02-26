@@ -112,9 +112,9 @@ exports.api = function(app) {
 		var query = {include_docs: true, reduce: false, descending: true, limit: d10.config.rpp};
 // 		var db = d10.db.db("d10").include_docs(true).reduce(false).descending(true).limit(d10.config.rpp);
 // 		d10.log("debug",request.query);
-		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
-			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
-			query.startkey = request.query["startkey[]"];
+		if ( request.query.startkey_docid && request.query["startkey"] ) {
+			request.query["startkey"][0] = parseInt(request.query["startkey"][0]);
+			query.startkey = request.query["startkey"];
 			query.startkey_docid = request.query.startkey_docid;
 // 			db.startkey_docid( request.query.startkey_docid ).startkey( request.query["startkey[]"] );
 		}
@@ -124,27 +124,13 @@ exports.api = function(app) {
 			}
 			d10.rest.success(resp,request.ctx);
 		});
-		/*
-		db.getView(
-			{
-				success: function(resp) {
-					d10.rest.success(resp,request.ctx);
-				},
-				error: function(resp) {
-					return d10.rest.err(423, request.params.sort, request.ctx);
-				}
-			},
-			"ts_creation",
-			"name"
-		);
-	*/
-		
 	});
 
 	app.get("/api/hits",function(request,response) {
 		var query = {include_docs: true, reduce: false, descending: true, limit: d10.config.rpp};
 // 		var db = d10.db.db("d10").include_docs(true).reduce(false).descending(true).limit(d10.config.rpp);
 // 		d10.log("debug",request.query);
+		d10.log("/api/hits query: ",request.query);
 		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
 			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
 			query.startkey = request.query["startkey[]"];

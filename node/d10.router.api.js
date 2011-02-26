@@ -228,11 +228,11 @@ exports.api = function(app) {
 						});
 					}
 				}
-				if ( data["list[]"] ) {
+				if ( data.list ) {
 					actions["checkList"] = function(cb) {
-						d10.couch.d10.allDocs({keys: data["list[]"]},function(err,resp) {
+						d10.couch.d10.allDocs({keys: data.list},function(err,resp) {
 							if ( err )	return cb(false);
-							if ( userPreferences.rows.length != data["list[]"].length ) {
+							if ( userPreferences.rows.length != data.list.length ) {
 								return cb(false);
 							}
 							return cb(true);
@@ -375,6 +375,7 @@ exports.api = function(app) {
 		request.on("data",function(chunk) { body+=chunk; });
 		request.on("end",function() {
 			request.body = querystring.parse(body);
+			d10.log("request.body: ",request.body);
 			var count = parseInt(request.body.count);
 			if ( isNaN(count) || count < 1 ){
 				return d10.rest.err(427,"count",request.ctx);
@@ -386,7 +387,7 @@ exports.api = function(app) {
 			}
 			var not = getArray(request.body["not[]"]);
 			var really_not = getArray(request.body["really_not[]"]);
-			d10.couch.d10.view("genre/unsorted",function(err,response) {
+			d10.couch.d10.view("genre/unsorted",data,function(err,response) {
 				if ( err ) {
 					return d10.rest.err(423,err,request.ctx);
 				}
@@ -553,25 +554,26 @@ exports.api = function(app) {
 	
 	app.post("/api/details",function(request,response) {
 		bodyDecoder()(request, response,function() {
-			d10.log("debug","body decoded");
+			
+			d10.log("debug","body decoded",request.body);
 			var artists = [], albums = [], jobs = {};
-			if ( request.body["artists[]"] ) {
-				if ( Object.prototype.toString.call(request.body["artists[]"]) === '[object Array]' ) {
-					artists = request.body["artists[]"];
-				} else if ( request.body["artists[]"].length ) {
-					artists = [ request.body["artists[]"] ];
+			if ( request.body.artists ) {
+				if ( Object.prototype.toString.call(request.body.artists) === '[object Array]' ) {
+					artists = request.body.artists;
+				} else if ( request.body.artists.length ) {
+					artists = [ request.body.artists ];
 				}
 			}
-			if ( request.body["albums[]"] ) {
-				if ( Object.prototype.toString.call(request.body["albums[]"]) === '[object Array]' ) {
-					albums = request.body["albums[]"];
-				} else if ( request.body["albums[]"].length ) {
-					albums = [ request.body["albums[]"] ];
+			if ( request.body.albums ) {
+				if ( Object.prototype.toString.call(request.body.albums) === '[object Array]' ) {
+					albums = request.body.albums;
+				} else if ( request.body.albums.length ) {
+					albums = [ request.body.albums ];
 				}
 			}
 			if ( artists.length ) {
 				jobs.artists=function(cb) {
-					
+					d10.log("launching artists details");
 					d10.couch.d10.view("artist/artist",{reduce: false, include_docs: true, keys: artists}, function(err,resp) {
 						if ( err )	{cb(err);}
 						else	cb(null,resp.rows);
@@ -579,6 +581,8 @@ exports.api = function(app) {
 				};
 			}
 			if ( albums.length ) {
+				d10.log("launching albums details");
+				
 				jobs.albums=function(cb) {
 					d10.couch.d10.view("album/album",{reduce: false, include_docs:true,keys: albums}, function(err,resp) {
 						if ( err )	{cb(err);}
@@ -589,6 +593,7 @@ exports.api = function(app) {
 			d10.when(
 				jobs,
 				function(resp) {
+					d10.log("got when positive response",resp);
 					request.ctx.headers["Content-Type"] = "application/json";
 					response.writeHead(200,request.ctx.headers);
 					response.end(JSON.stringify(resp));
