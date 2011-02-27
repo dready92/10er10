@@ -75,6 +75,7 @@ exports.javascript = {
 		"playlistModuleTitle.js",
 		"playlistModuleTopinfos.js",
 		"playlistModuleVolume.js",
+		"playlistModuleRpl.js",
 		"paginer.js",
 		"plm.js",
 		"my.js",

@@ -71,6 +71,11 @@
 		var driver = null;
 		var modules = this.modules = {};
 		var driverRecordTimeout = null;
+		
+		var container = this.container = function() {
+			return ui;
+		};
+		
 		var songId = this.songId = function(song) {
 			var songs = list.children(".song[name="+song.attr("name")+"]");
 			var back = 0;
@@ -184,6 +189,7 @@
 			}
 			driverRecordTimeout = setTimeout(function() {
 				if( driver.writable() ) {
+					debug("playlist: calling driver.record()",driver);
 					driver.record();
 				}
 				driverRecordTimeout=null;
@@ -215,6 +221,13 @@
 			}
 			//     debug("checking empty thing");
 			playlistAppendPost ();
+		};
+		
+		var empty = this.empty = function() {
+			pause();
+			$(document).trigger("playlist:ended",{current: current()});
+			list.empty();
+			sendPlaylistUpdate({ 'action': 'remove' });
 		};
 		
 		var volumeUpdateTimeout = null;
@@ -297,6 +310,7 @@
 				return drivers[name].load(loadingOptions,cb);
 			}
 			options = options || {};
+			debug("playlist loadDriver: loading ",name);
 			drivers[name] = new d10.playlistDrivers[name](driverOptions);
 			drivers[name].load(loadingOptions,cb);
 			return drivers[name];
@@ -382,23 +396,33 @@
 		});
 		
 		ui.find("div.manager button[name=new]").click(function() {
-			pause();
-			$(document).trigger("playlist:ended",{current: current()});
-			list.empty();
-			sendPlaylistUpdate({ 'action': 'remove' });
+			empty();
 		});
 		
 		this.bootstrap = function() {
 			var infos = d10.user.get_preferences().playlist || {};
-			var drv = loadDriver("default",{},infos,function(err,songs) {
-				$("#playlistLoader").slideUp("fast");
-				list.show();
-				if ( songs && songs.length ) {
-					list.append(songs);
-				} else {
-					ui.find(".emptyPlaylist").show();
-				}
-			});
+			var drv;
+			if ( infos.type && d10.playlistDrivers[infos.type] ) {
+				drv = loadDriver(infos.type,{},infos,function(err,songs) {
+					$("#playlistLoader").slideUp("fast");
+					list.show();
+					if ( songs && songs.length ) {
+						list.append(songs);
+					} else {
+						ui.find(".emptyPlaylist").show();
+					}
+				});
+			} else {
+				drv = loadDriver("default",{},infos,function(err,songs) {
+					$("#playlistLoader").slideUp("fast");
+					list.show();
+					if ( songs && songs.length ) {
+						list.append(songs);
+					} else {
+						ui.find(".emptyPlaylist").show();
+					}
+				});
+			}
 			setDriver(drv);
 		};
 		

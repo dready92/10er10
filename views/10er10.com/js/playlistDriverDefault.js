@@ -443,6 +443,7 @@ d10.playlistDrivers.default = function(options) {
 	var load = this.load = function(options,cb) {
 // 		var infos = d10.user.get_preferences().playlist;
 		debug("playlistDriverDefault load: ",options);
+		d10.playlist.title("Playlist non enregistrée");
 		if ( !options ) {
 			return cb();
 		}
@@ -465,6 +466,7 @@ d10.playlistDrivers.default = function(options) {
 				} else {
 					cb();
 				}
+				
 			},
 			error: function(e) {
 				debug("load error: ",e);

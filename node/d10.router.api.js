@@ -203,6 +203,7 @@ exports.api = function(app) {
 		request.on("data",function(chunk) { body+=chunk; });
 		request.on("end",function() {
 			var data = querystring.parse(body);
+			console.log("/api/current_playlist body: ",data);
 			d10.couch.d10.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,userPreferences) {
 				if ( err ) { return d10.rest.err(413,err,request.ctx);}
 				
@@ -211,10 +212,10 @@ exports.api = function(app) {
 					for ( var k in data) {
 						userPreferences.playlist[k.replace("[]","")] = data[k];
 					}
-					
+					console.log("storing doc ",userPreferences);
 					d10.couch.d10.storeDoc(userPreferences,function(err,response) {
-						if ( err ) d10.rest.err(413,err,request.ctx);
-									   else		d10.rest.success( [], request.ctx );
+						if ( err )	d10.rest.err(413,err,request.ctx);
+						else		d10.rest.success( [], request.ctx );
 					});
 				};
 				
