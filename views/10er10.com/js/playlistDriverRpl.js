@@ -16,9 +16,9 @@ d10.playlistDrivers.rpl = function(options) {
 
 	this.listModified = function(e) {
 		var drv = d10.playlist.loadDriver ("default",{}, {}, 
-			function() {
-			}
+			function() {}
 		);
+		debug("playlistDriverRpl:listModified setting driver default: ",drv);
 		d10.playlist.setDriver(drv);
 	};
 	
