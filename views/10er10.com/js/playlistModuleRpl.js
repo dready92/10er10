@@ -4,12 +4,36 @@ $(document).one("bootstrap:playlist",function() {
 	
 	var loadPlm = function (id) {
 		var driver = d10.playlist.loadDriver("rpl",{},{rpl: id},function(err,resp) {
-			if ( err )	return ;
+			if ( err )	{
+				debug("playlistModuleRpl:loadDriver error",err);
+				return ;
+			}
+			debug("playlistModuleRpl:callback empty()");
 			d10.playlist.empty();
+			debug("playlistModuleRpl:callback append()");
 			d10.playlist.append(resp);
+			debug("playlistModuleRpl:callback setDriver()",driver);
 			d10.playlist.setDriver(driver);
 		});
 	};
+	
+	this.handleSaveClick = function () {
+		
+		d10.playlist.container().find("div.container").slideDown("fast");
+		d10.playlist.container().find("div.saveplaylist").slideUp("fast");
+		
+		d10.playlist.container().find("div.saveplaylist input[type=text]").val('').focus(function() {
+			if ( $(this).val() == $(this).attr('defaultvalue') ) {
+			$(this).val('');
+			}
+		})
+		.blur(function() {
+			if ( $(this).val() == '' ) {
+				$(this).val($(this).attr('defaultvalue'));
+			}
+		}).get(0).focus();
+	};
+	
 	
 	var loadOverlay = function(e) {
 		var elem = $('<div class="hoverbox overlay"><div class="part">Charger...</div></div>');

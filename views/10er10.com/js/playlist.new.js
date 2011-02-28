@@ -209,6 +209,9 @@
 		
 		
 		var append = this.append = function (item, after) {
+			if ( !item || !item.length ) {
+				return false;
+			}
 			if ( !driver.writable({target: null,dragging: item}) ) {
 				return false;
 			}
@@ -278,7 +281,6 @@
 			driver = newDriver;
 			newDriver.enable(oldDriver);
 			newDriver.bind("currentSongChanged",function(e) {
-//				debug("playlist:currentSongChanged e: ",e);
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 				songWidget(e.current).addClass(settings.currentClass);
 				debug("playlist document event playlist:currentSongChanged");
@@ -301,16 +303,20 @@
 		var drivers = {};
 		var loadDriver = this.loadDriver = function(name,driverOptions, loadingOptions, cb) {
 			if ( !name || !name.length ) {
+				debug("playlist:loadDriver name not clean:",name);
 				return false;
 			}
 			if ( !name in d10.playlistDrivers ) {
+				debug("playlist:loadDriver driver not found:",name);
 				return false;
 			}
 			if ( name in drivers ) {
-				return drivers[name].load(loadingOptions,cb);
+				debug("playlist:loadDriver got driver in cache");
+				drivers[name].load(loadingOptions,cb);
+				return drivers[name];
 			}
 			options = options || {};
-			debug("playlist loadDriver: loading ",name);
+			debug("playlist:loadDriver loading: ",name);
 			drivers[name] = new d10.playlistDrivers[name](driverOptions);
 			drivers[name].load(loadingOptions,cb);
 			return drivers[name];
@@ -330,6 +336,72 @@
 			);
 		};
 		
+		var handlePlusClick = function () {
+			var elem = $('<div class="hoverbox overlay"></div>');
+			var node = $(this).closest(".song");
+			if ( node.prevAll().not(".current").length ) {
+				elem.append('<div class="clickable removeAllPrev">Enlever tous les morceaux précédents</div>');
+				$("div.removeAllPrev",elem).click(function() {
+					remove(node.prevAll().not(".current"));
+// 					$(document).trigger('playlistUpdate', { 'action': 'remove' } );
+					elem.ovlay().close();
+				});
+			}
+			if ( node.nextAll().not(".current").length ) {
+				elem.append('<div class="clickable removeAllNext">Enlever tous les morceaux suivants</div>');
+				$("div.removeAllNext",elem).click(function() {
+					remove(node.nextAll().not(".current"));
+// 					if ( p.isRpl() ) {		  p.setPlaylistName(p.noname); }
+// 					$(document).trigger('playlistUpdate', { 'action': 'remove' } );		
+					elem.ovlay().close();
+				});
+					
+			}
+			
+			elem.append("<hr>");
+			elem.append('<div class="clickable fromArtist">Morceaux de cet artiste...</div>');
+			$("div.fromArtist",elem).click(function() {
+				var h = "#/library/artists/"+encodeURIComponent( node.find("span.artist").text() );
+				window.location.hash = h;
+				elem.ovlay().close();
+			});
+			if ( node.find("span.album").text().length ) {
+				elem.append('<div class="clickable fromAlbum">Morceaux de cet album...</div>');
+				$("div.fromAlbum",elem).click(function() {
+					window.location.hash = "#/library/albums/"+encodeURIComponent( node.find("span.album").text() );
+					elem.ovlay().close();
+				});
+			}
+			
+			elem.append("<hr>");
+			elem.append("<a href=\""+site_url+"/audio/download/"+node.attr("name")+"\" class=\"clickable\">Télécharger</a>");
+			
+			// 		elem.css("visibility","hidden");
+			elem.css({visibility:'hidden',top:0,left:0}).appendTo($("body"));
+			var height = elem.outerHeight(false);
+			var width = elem.outerWidth(false);
+			var left = $(this).offset().left - width + 10;
+			var top= $(this).offset().top - height + 10;
+			if ( top < 0 ) top = 0;
+			
+			elem.hide()
+			.css ( { top: top, left : left, visibility:'' } )
+			.ovlay({
+				"onClose":function() {this.getOverlay().remove();} ,
+				"closeOnMouseOut": true
+			});
+		};
+
+		
+		
+		this.currentDriverName = function() {
+			if ( !driver )	return false;
+			for ( var name in drivers ) {
+				if ( drivers[name] === driver ) {
+					return name;
+				}
+			}
+		};
 		
 // 		setDriver(d);
 		
@@ -393,7 +465,12 @@
 					remove($(this));
 				}
 			);
-		});
+		})
+		.delegate("div.song span.options","click", function(e) {
+			handlePlusClick.call(this);
+			return false;
+		})
+;
 		
 		ui.find("div.manager button[name=new]").click(function() {
 			empty();

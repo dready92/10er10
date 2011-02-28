@@ -24,8 +24,6 @@ var step2 = function () {
 		.delegate('.clickable','click',function() {
 			if ( $(this).attr('name') && $(this).attr('name').length ) {
 				$(document).trigger('rplAppendRequest', { 'song': id, 'playlist': $(this).attr('name') } );
-			} else if ( d10.playlist.isRpl() ) {
-				$(document).trigger('rplAppendRequest', { 'song': id, 'playlist': d10.playlist.isRpl() } );
 			} else {
 				d10.playlist.append(song.clone().removeClass("dragging selected"));
 			}
@@ -117,26 +115,6 @@ var step2 = function () {
 		});
 		
 		
-		
-		// 		d10.playlist.addModule(d10.fn.playlistModules.radio({}));$("#controls > div.autofill")
-// 		d10.pmRadio = d10.fn.playlistModules.radio($("#controls > div.autofill"),{}).enable();
-// 		d10.playlist.addModule(d10.fn.playlistModules.title());
-// 		d10.playlist.addModule(d10.fn.playlistModules.topinfos());
-// 		d10.playlist.addModule(d10.fn.playlistModules.controls());
-// 		d10.playlist.addModule(d10.fn.playlistModules.time());
-// 		d10.playlist.addModule(d10.fn.playlistModules.volume($("#controls div[name=volume]"),$('body').data('volume') ? $('body').data('volume') : 0.5 ));
-// 		d10.pmTime = d10.fn.playlistModules.time($("#side")).enable();
-// 		d10.pmControls = d10.fn.playlistModules.controls($("#controls")).enable();
-		
-		/*
-		d10.playlist = new d10.fn.playlist(
-		$('#playlist'),
-		$('#controls'),
-		base_url+"audio/",
-		$('aside'),
-		$('aside div.manager')
-		);
-		*/
 		if ( window.location.hash.length ) {
 		d10.globalMenu.route( window.location.hash.replace(/^#/,"") );
 		}
@@ -178,9 +156,9 @@ var step2 = function () {
 		clearInterval(initialLoadingInterval);
 
 		//
-		// prepare la vue "playlists"
+		// preload la vue "playlists"
 		//
-		d10.my.plmanager.init_topic_plm ($("#my div[name=plm]"));
+		d10.my.plmanager.init_topic_plm ();
 
 
 		
@@ -193,42 +171,7 @@ var step2 = function () {
 			"rootRouteHandler": true,
 			"useRouteAPI": true
 		}
-/*		
-		if ( $("html").hasClass("csstransitions") ) {
-			var switchLabelTrans = function(label,arg,active) {
-// 				debug("scitchLabelTrans",arguments);
-				var prev = active ? this.getContainer(active) : null,
-				next = this.getContainer(label);
-				if ( prev && prev.hasClass("active") ) {
-// 					debug("in a transition with previous thing");
-					prev.one("transitionend webkitTransitionEnd",function() {
-						debug("transitionend event for previous thing",prev,next);
-						$('#main>div').hide();
-						next.show();
-// 						setTimeout(function() {
-							next.addClass("active");
-// 						},15);
-					});
-					prev.removeClass("active");
-					$('#container > nav .active').removeClass("active");
-					d10.globalMenu.menuitem(label).addClass("active");
-// 					
-				} else {
-// 					debug("transition without previous element");
-					$('#main>div').hide();
-					next.show();
-					next.addClass("active");
-					$('#container > nav .active').removeClass("active");
-					this.menuitem(label).addClass("active");
-				}
-			};
-			$("#welcome").addClass("active");
-			menuOptions.displayActivate = switchLabelTrans;
-			menuOptions.routeActivate = function(label,segments,settings) {
-				switchLabelTrans.call(d10.globalMenu,label,null,d10.globalMenu.current_label());
-			};
-		}
-	*/	
+
 		if ( $("html").hasClass("csstransitions") ) {
 			var switchLabelTrans = function(label,arg,active) {
 				// 				debug("scitchLabelTrans",arguments);
