@@ -2,7 +2,7 @@
 
 d10.fn.plm = function (mydiv,mypldiv) {
 	var that = this;
-	this.plmUpdateTimeout = null;
+	var plmUpdateTimeout = null;
 
 // 	$(document).bind('rplCreationRequest',function(e,data) {		that.rplCreationRequestHandler(data);	});
 // 	$(document).bind('rplCreationResponse',function(e,data) {		that.rplCreationResponseHandler(data);	});
@@ -17,10 +17,10 @@ d10.fn.plm = function (mydiv,mypldiv) {
 
 // 	$(document).bind('user.playlist.get',function(e,data) {		that.rplGetEventHandler(data);	});
 
-	$(document).bind('rplAppendRequest',function(e,data) { that.rplAppendRequestHandler(data); }	);
-	$(document).bind('rplAppendResponse',function(e,data) { that.rplAppendResponseHandler(data); }	);
-	$(document).bind('rplAppendSuccess',function(e,data) { that.rplAppendSuccessHandler(data); }	);
-
+//	$(document).bind('rplAppendRequest',function(e,data) { that.rplAppendRequestHandler(data); }	);
+//	$(document).bind('rplAppendResponse',function(e,data) { that.rplAppendResponseHandler(data); }	);
+//	$(document).bind('rplAppendSuccess',function(e,data) { that.rplAppendSuccessHandler(data); }	);
+/*
   $(document).bind('rplUpdateRequest',function(e,data) { 
     if ( that.plmUpdateTimeout ) {
 			window.clearTimeout(that.plmUpdateTimeout);
@@ -32,7 +32,8 @@ d10.fn.plm = function (mydiv,mypldiv) {
 		that.plmUpdateTimeout =	window.setTimeout( that.rplUpdateRequestHandler, 10000, data );
    }
   );
-	$(document).bind('rplUpdateResponse',function(e,data) { that.rplUpdateResponseHandler(data); }	);
+  */
+//	$(document).bind('rplUpdateResponse',function(e,data) { that.rplUpdateResponseHandler(data); }	);
 
 	/*
 	
@@ -78,7 +79,8 @@ d10.fn.plm = function (mydiv,mypldiv) {
 		"moveDrop": function(source,target,infos) {
 			if ( infos.wantedNode ) { infos.wantedNode.after(source); } 
 			else { $('.list',pldiv).prepend(source); }
-			$(document).trigger('rplUpdateRequest', pldiv );
+			that.update_playlist(pldiv.attr("name"));
+//			$(document).trigger('rplUpdateRequest', pldiv );
 			return true;
 		},
 		"copyDrop": function(source,target,infos) {
@@ -92,7 +94,9 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			if ( $('.list:visible',pldiv).length == 0 ) {
 				$('.list',pldiv).removeClass("hidden");
 			}
-			$(document).trigger('rplUpdateRequest', pldiv );
+			
+			that.update_playlist(pldiv.attr("name"));
+//			$(document).trigger('rplUpdateRequest', pldiv );
 			
 			return true;
 		}
@@ -106,7 +110,8 @@ d10.fn.plm = function (mydiv,mypldiv) {
            $('.empty',pldiv).toggleClass("hidden",false);
            $(".list",pldiv).toggleClass("hidden",true);
          }
-         $(document).trigger('rplUpdateRequest', pldiv );
+         that.update_playlist(pldiv.attr("name"));
+//         $(document).trigger('rplUpdateRequest', pldiv );
        });
      })
 
@@ -160,7 +165,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
       pldiv.find('.drop').hide();
       return false;
     });
-    $('button[name=load]',pldiv).click(function() {
+    pldiv.find('button[name=load]').click(function() {
       d10.playlist.loadFromPlm(
         pldiv,
         $('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).html()
@@ -278,29 +283,35 @@ d10.fn.plm = function (mydiv,mypldiv) {
 	*/
 
 	this.create_playlist = function (name,opts) {
-		
+		opts = opts || {};
 		if ( name.length == 0 || d10.user.playlist_exists(name) ) {
 			$('section.plm-list-container img',mypldiv).remove();
 			$('section.plm-list-container button[name=plm-new]',mypldiv).slideDown('fast');
 			return ;
 		}
+		var data = {name: name};
+		if ( opts.songs ) {
+			data["songs[]"] = opts.songs;
+		}
 		d10.bghttp.put(
 			{
 				url: site_url+'/api/plm/create',
-				data: {name:name}, 
+				data: data, 
 				dataType: "json",
 				error: function(e) {
 					debug('trigger; rplCreationFailure');
 					$(document).trigger('rplCreationFailure', e.request);
+					if ( opts.error ) {
+						opts.error.call(e);
+					}
+
 					$('section.plm-list-container img',topicdiv).remove();
 					$('section.plm-list-container button[name=plm-new]',topicdiv).show();
 				},
 				success: function(resp) {
 					
 					var rplCreationSuccessHandler = function(response) {
-// 						var topicdiv=mypldiv;
 						if ( !mypldiv.length )	return ;
-					   
 					   // playlist menu item
 						var pl_item = $('<div class="plm-list-item" name="'+response.playlist._id+'" action="'+response.playlist._id+'"></div>').html(response.playlist.name);
 						
@@ -334,6 +345,9 @@ d10.fn.plm = function (mydiv,mypldiv) {
 					}
 					debug(resp);
 					rplCreationSuccessHandler(resp.data);
+					if ( opts.success ) {
+						opts.success.call(resp.data.playlist);
+					}
 					debug('trigger; rplCreationSuccess');
 					$(document).trigger('rplCreationSuccess', { 'playlist': resp.data.playlist});
 				}
@@ -367,7 +381,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			$('section.plm-list-container button[name=plm-new]',topicdiv).slideDown('fast');
 		}
 	}
-*/
+
 	this.rplCreationSuccessHandler = function(response) {
 		var topicdiv=mypldiv;
 		if ( !topicdiv.length )	return ;
@@ -403,15 +417,51 @@ d10.fn.plm = function (mydiv,mypldiv) {
 		//
 		pl_item.trigger('click');
 	}
-
+*/
   /*
    *
    * Update playlist list
    *
    */
 
+	this.update_playlist = function(name,opts) {
+	
+		var doUpdate = function() {
+			var pldiv = mypldiv.find("section.plm-list-container .plm-list .plm-list-item[name="+name+"]");
+			if ( !pldiv.length ) {
+				if ( opts.error ) {
+					opts.error.call(name);
+				}
+				return;
+			}
+		
+			var songs_id = $('.list .song',pldiv).map(function() { return $(this).attr('name');	}).get();
+			d10.bghttp.put(
+				{
+				  url: site_url+'/api/plm/update',
+				  data:	{ 'playlist': name, 'songs[]': songs_id },
+				  dataType: 'json',
+				  success: function(response) {
+				  	if ( opts.success ) { opts.success.call(response);
+				  	$(document).trigger('rplUpdateSuccess', { 'playlist': response.data.playlist  });
+				  },
+				  error: function(e) {
+    				  	if ( opts.error ) { opts.error.call(e);
+						debug('triggering rplUpdateFailure');
+						$(document).trigger('rplUpdateFailure', response.request);
+				  }
+			  }
+			);
+		};		
+		
+		opts = opts||{};
+		doUpdate();
+
+	};
+
+/*
   this.rplUpdateRequestHandler = function (pldiv) {
-    var songs_id = $('.list .song',pldiv).map(function() {			return $(this).attr('name');		}		).get();
+    var songs_id = $('.list .song',pldiv).map(function() { return $(this).attr('name');	}).get();
     d10.bghttp.put({
       'url': site_url+'/api/plm/update',
       'callback':'triggerEvent:rplUpdateResponse',
@@ -430,7 +480,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			$(document).trigger('rplUpdateFailure', response.request);
 		}
   }
-
+*/
 
   var rplDropRequestHandler = function ( pldiv ) {
     d10.bghttp.put({
@@ -499,7 +549,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
     Necessary to the "Add to playlist" feature
 		
 	*/
-
+/*
 	this.rplAppendSuccessHandler = function (response) {
 		var playlistdiv=$('div[name=plm] .rpl[name='+response.playlist._id+']',mydiv);
 		if ( !playlistdiv.length )	return ;
@@ -520,6 +570,35 @@ d10.fn.plm = function (mydiv,mypldiv) {
 	this.rplAppendRequestHandler = function (data) {
 		d10.bghttp.put({'url': site_url+'/api/plm/append','callback':'triggerEvent:rplAppendResponse', 'data': data, 'dataType': 'json' });
 	}
+	*/
+	this.append_song = function(song_id,playlist_id,opts) {
+		opts = opts || {};
+		d10.bghttp.put(
+			{
+				url: site_url+'/api/plm/append',
+				data: {song: song_id, playlist: playlist_id}, 
+				dataType: 'json',
+				success: function(resp) {
+					var playlistdiv=$('div[name=plm] .rpl[name='+resp.data.playlist._id+']',mydiv);
+					if ( !playlistdiv.length )	return ;
+					_appendSong (resp.data.song, playlistdiv, -1) ;
+					if ( opts.success ) {
+						opts.success.call(resp);
+					}
+					debug('trigger; rplAppendSuccess');
+					$(document).trigger('rplAppendSuccess', { 'playlist': resp.data.playlist, 'song': resp.data.song, 'index': -1 });
+				},
+				error: function(e) {
+					if ( opts.error ) {
+						opts.error.call(e);
+					}
+					debug('trigger; rplAppendFailure');
+					$(document).trigger('rplAppendFailure', e.request);
+				}
+			}
+		);
+	};
+	
 	
 	/*
 	

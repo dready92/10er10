@@ -22,8 +22,10 @@ var step2 = function () {
 		elem.css ( {'top': top,'left' : e.pageX - 10})
 		.hide()
 		.delegate('.clickable','click',function() {
-			if ( $(this).attr('name') && $(this).attr('name').length ) {
-				$(document).trigger('rplAppendRequest', { 'song': id, 'playlist': $(this).attr('name') } );
+			var playlist = $(this).attr('name');
+			if ( playlist && playlist.length ) {
+//				$(document).trigger('rplAppendRequest', { 'song': id, 'playlist': $(this).attr('name') } );
+				d10.my.plm.append_song(id,playlist);
 			} else {
 				d10.playlist.append(song.clone().removeClass("dragging selected"));
 			}

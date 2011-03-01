@@ -16,25 +16,7 @@ $(document).one("bootstrap:playlist",function() {
 			d10.playlist.setDriver(driver);
 		});
 	};
-	
-	this.handleSaveClick = function () {
-		
-		d10.playlist.container().find("div.container").slideDown("fast");
-		d10.playlist.container().find("div.saveplaylist").slideUp("fast");
-		
-		d10.playlist.container().find("div.saveplaylist input[type=text]").val('').focus(function() {
-			if ( $(this).val() == $(this).attr('defaultvalue') ) {
-			$(this).val('');
-			}
-		})
-		.blur(function() {
-			if ( $(this).val() == '' ) {
-				$(this).val($(this).attr('defaultvalue'));
-			}
-		}).get(0).focus();
-	};
-	
-	
+
 	var loadOverlay = function(e) {
 		var elem = $('<div class="hoverbox overlay"><div class="part">Charger...</div></div>');
 		playlists = d10.user.get_playlists();
@@ -77,6 +59,112 @@ $(document).one("bootstrap:playlist",function() {
 	};
 	debug("playlistModuleRpl button:",d10.playlist.container().find("div.manager button[name=load]"));
 	d10.playlist.container().find("div.manager button[name=load]").one("click",loadOverlay);
+
+
+
+
+
+
+
+
+
+
+	this.handleSaveClick = function () {
+		
+		d10.playlist.container().find("div.container").slideUp("fast");
+		d10.playlist.container().find("div.saveplaylist").slideDown("fast");
+		
+		d10.playlist.container().find("div.saveplaylist input[type=text]").val('').focus(function() {
+			if ( $(this).val() == $(this).attr('defaultvalue') ) {
+				$(this).val('');
+			}
+		})
+		.blur(function() {
+			if ( $(this).val() == '' ) {
+				$(this).val($(this).attr('defaultvalue'));
+			}
+		}).get(0).focus();
+	};
+
+	d10.playlist.container().find(".saveplaylist input").keypress(function(e) {
+		if ( e.keyCode == 13 ) { d10.playlist.container().find(".saveplaylist button").click(); }
+	});
+	
+	d10.playlist.container().find(".saveplaylist span.link").click(function() {
+		d10.playlist.container().find(".saveplaylist").slideUp('fast');
+		d10.playlist.container().find(".manager").slideDown('fast');
+	});
+	
+	d10.playlist.container().find(".saveplaylist button").click(function() {
+		var container = d10.playlist.container().find('.saveplaylist');
+		if ( !$('input[type=text]',container).val().length ||
+			$('input[type=text]',container).val() == $('input[type=text]',container).attr('defaultvalue') ) {
+			$('span.link',container).trigger('click');
+			return ;
+		}
+		container.slideUp("fast");
+		if ( d10.user.playlist_exists($('input[type=text]',container).val()) )  {
+			d10.playlist.container().find(".updateplaylist").slideDown("fast");
+		} else {
+			recordRpl($('input[type=text]',container).val());
+		}
+	});
+
+	  var recordRpl = function (name)  {
+		d10.playlist.container().find('.playlisttitle > span').text(name);
+		d10.my.plm.create_playlist(name, {
+				songs: d10.playlist.allIds(),
+				success: function(resp) {
+    			      $('aside .manager').slideDown();
+					d10.playlist.title(name);
+				},
+				error: function() {
+			      $('aside .manager').slideDown();		
+				}
+			}
+		);
+
+	  };
+
+	d10.playlist.container().find(".updateplaylist button").click(function() {
+		d10.playlist.container().find(".updateplaylist").slideUp("fast");
+		var pl = d10.user.get_playlists();
+		var name = d10.playlist.container().find('.saveplaylist input[type=text]').val();
+		for ( var index in pl ) {
+			if ( pl[index].name == name ) {
+				updateRpl(name,pl[index]._id);
+				return false;
+			}
+		}
+		d10.playlist.container().find(".manager").slideDown('fast');
+		return false;
+	});
+
+	d10.playlist.container().find('.updateplaylist span.link').click(function(){
+		d10.playlist.container().find(".updateplaylist").slideUp("fast");
+		d10.playlist.container().find(".saveplaylist").slideDown("fast");
+	});
+
+  var updateRpl = function (name,id)  {
+    d10.playlist.container().find('.playlisttitle > span').text(name);
+    var pldiv = $("<div><div class=\"list\"></div></div>");
+    pldiv.attr("name",id).attr("immediate",true);
+    $(".list",pldiv).append($(".song",ui).clone());
+    $(document).trigger('rplUpdateRequest', pldiv );
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 
 	d10.playlist.modules[module.name] = module;
