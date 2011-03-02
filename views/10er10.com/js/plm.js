@@ -442,13 +442,13 @@ d10.fn.plm = function (mydiv,mypldiv) {
 				  data:	{ 'playlist': name, 'songs[]': songs_id },
 				  dataType: 'json',
 				  success: function(response) {
-				  	if ( opts.success ) { opts.success.call(response);
+				  	if ( opts.success ) { opts.success.call(response); }
 				  	$(document).trigger('rplUpdateSuccess', { 'playlist': response.data.playlist  });
 				  },
 				  error: function(e) {
-    				  	if ( opts.error ) { opts.error.call(e);
-						debug('triggering rplUpdateFailure');
-						$(document).trigger('rplUpdateFailure', response.request);
+    				  	if ( opts.error ) { opts.error.call(e); }
+					debug('triggering rplUpdateFailure');
+					$(document).trigger('rplUpdateFailure', response.request);
 				  }
 			  }
 			);
