@@ -423,6 +423,28 @@ d10.fn.plm = function (mydiv,mypldiv) {
    * Update playlist list
    *
    */
+  
+  
+	var _update_playlist = function(name, songs, opts) {
+		opts = opts || {};
+		d10.bghttp.put(
+			{
+				url: site_url+'/api/plm/update',
+				data:	{ 'playlist': name, 'songs[]': songs },
+				dataType: 'json',
+				success: function(response) {
+					if ( opts.success ) { opts.success.call(response); }
+// 					$(document).trigger('rplUpdateSuccess', { 'playlist': response.data.playlist  });
+				},
+				error: function(e) {
+					if ( opts.error ) { opts.error.call(e); }
+// 					debug('triggering rplUpdateFailure');
+// 					$(document).trigger('rplUpdateFailure', response.request);
+				}
+			}
+		);
+	};
+  
 
 	this.update_playlist = function(name,opts) {
 	
@@ -436,22 +458,17 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			}
 		
 			var songs_id = $('.list .song',pldiv).map(function() { return $(this).attr('name');	}).get();
-			d10.bghttp.put(
-				{
-				  url: site_url+'/api/plm/update',
-				  data:	{ 'playlist': name, 'songs[]': songs_id },
-				  dataType: 'json',
-				  success: function(response) {
-				  	if ( opts.success ) { opts.success.call(response); }
-				  	$(document).trigger('rplUpdateSuccess', { 'playlist': response.data.playlist  });
-				  },
-				  error: function(e) {
-    				  	if ( opts.error ) { opts.error.call(e); }
+			_update_playlist(name, songs_id, {
+				success: function(response) {
+					if ( opts.success ) { opts.success.call(response); }
+					$(document).trigger('rplUpdateSuccess', { 'playlist': response.data.playlist  });
+				},
+				error: function(e) {
+					if ( opts.error ) { opts.error.call(e); }
 					debug('triggering rplUpdateFailure');
 					$(document).trigger('rplUpdateFailure', response.request);
-				  }
-			  }
-			);
+				}
+			}); 
 		};		
 		
 		opts = opts||{};
@@ -459,6 +476,33 @@ d10.fn.plm = function (mydiv,mypldiv) {
 
 	};
 
+	this.replace_playlist = function(name,songs,opts) {
+		opts = opts||{};
+		_update_playlist(name, songs_id, {
+			success: function(response) {
+				var pldiv = mypldiv.find("section.plm-list-container .plm-list .plm-list-item[name="+name+"]");
+				if ( pldiv.length ) {
+					var html = "";
+					for ( var i in response.data.songs ) {
+						html += d10.song_template(response.data.songs[i]);
+					}
+					pldiv.empty();
+					if ( html.length ) {
+						pldiv.html(html);
+					}
+				}
+				if ( opts.success ) { opts.success.call(response); }
+				$(document).trigger('rplUpdateSuccess', {playlist: response.data.playlist  });
+			},
+			error: function(e) {
+				if ( opts.error ) { opts.error.call(e); }
+				debug('triggering rplUpdateFailure');
+				$(document).trigger('rplUpdateFailure', response.request);
+			}
+		}); 
+	};
+	
+	
 /*
   this.rplUpdateRequestHandler = function (pldiv) {
     var songs_id = $('.list .song',pldiv).map(function() { return $(this).attr('name');	}).get();

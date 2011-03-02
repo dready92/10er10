@@ -111,7 +111,7 @@ $(document).one("bootstrap:playlist",function() {
 	});
 
 	  var recordRpl = function (name)  {
-		d10.playlist.container().find('.playlisttitle > span').text(name);
+// 		d10.playlist.container().find('.playlisttitle > span').text(name);
 		d10.my.plm.create_playlist(name, {
 				songs: d10.playlist.allIds(),
 				success: function(resp) {
@@ -145,12 +145,16 @@ $(document).one("bootstrap:playlist",function() {
 		d10.playlist.container().find(".saveplaylist").slideDown("fast");
 	});
 
-  var updateRpl = function (name,id)  {
-    d10.playlist.container().find('.playlisttitle > span').text(name);
-    var pldiv = $("<div><div class=\"list\"></div></div>");
-    pldiv.attr("name",id).attr("immediate",true);
-    $(".list",pldiv).append($(".song",ui).clone());
-    $(document).trigger('rplUpdateRequest', pldiv );
+	var updateRpl = function (name,id)  {
+		d10.playlist.title(name);
+		d10.my.plm.replace_playlist(id, d10.playlist.allIds(),{
+			success: function() {
+			}
+		});
+//     var pldiv = $("<div><div class=\"list\"></div></div>");
+//     pldiv.attr("name",id).attr("immediate",true);
+//     $(".list",pldiv).append($(".song",ui).clone());
+//     $(document).trigger('rplUpdateRequest', pldiv );
   }
 
 
