@@ -481,6 +481,7 @@
 			var drv;
 			if ( infos.type && d10.playlistDrivers[infos.type] ) {
 				drv = loadDriver(infos.type,{},infos,function(err,songs) {
+					setDriver(drv);
 					$("#playlistLoader").slideUp("fast");
 					list.show();
 					if ( songs && songs.length ) {
@@ -499,8 +500,9 @@
 						ui.find(".emptyPlaylist").show();
 					}
 				});
+				setDriver(drv);
 			}
-			setDriver(drv);
+			
 		};
 		
 		

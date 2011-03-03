@@ -98,7 +98,7 @@ exports.api = function(app) {
 						   if ( err ) {
 							   d10.rest.err(423,err,request.ctx);
 						   } else {
-							   d10.rest.success({playlist: playlist}, request.ctx);
+							   d10.rest.success(playlist, request.ctx);
 						   }
 					   }
 				);

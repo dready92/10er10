@@ -69,9 +69,9 @@ $(document).one("bootstrap:playlist",function() {
 
 
 
-	this.handleSaveClick = function () {
+	var handleSaveClick = function () {
 		
-		d10.playlist.container().find("div.container").slideUp("fast");
+		d10.playlist.container().find("div.manager").slideUp("fast");
 		d10.playlist.container().find("div.saveplaylist").slideDown("fast");
 		
 		d10.playlist.container().find("div.saveplaylist input[type=text]").val('').focus(function() {
@@ -112,11 +112,13 @@ $(document).one("bootstrap:playlist",function() {
 
 	  var recordRpl = function (name)  {
 // 		d10.playlist.container().find('.playlisttitle > span').text(name);
-		d10.my.plm.create_playlist(name, {
+		d10.my.plmanager.create_playlist(name, {
 				songs: d10.playlist.allIds(),
 				success: function(resp) {
-    			      $('aside .manager').slideDown();
-					d10.playlist.title(name);
+    			    $('aside .manager').slideDown();
+    			    var drv = d10.playlist.loadDriver("rpl",{},{rpldoc: resp.data},function() {
+						d10.playlist.setDriver(drv);
+					});
 				},
 				error: function() {
 			      $('aside .manager').slideDown();		
@@ -147,8 +149,11 @@ $(document).one("bootstrap:playlist",function() {
 
 	var updateRpl = function (name,id)  {
 		d10.playlist.title(name);
-		d10.my.plm.replace_playlist(id, d10.playlist.allIds(),{
-			success: function() {
+		d10.my.plmanager.replace_playlist(id, d10.playlist.allIds(),{
+			success: function(resp) {
+				var drv = d10.playlist.loadDriver("rpl",{},{rpldoc: resp.data.playlist},function() {
+					d10.playlist.setDriver(drv);
+				});
 			}
 		});
 //     var pldiv = $("<div><div class=\"list\"></div></div>");
@@ -158,6 +163,7 @@ $(document).one("bootstrap:playlist",function() {
   }
 
 
+	d10.playlist.container().find("div.manager button[name=save]").click(handleSaveClick);
 
 
 

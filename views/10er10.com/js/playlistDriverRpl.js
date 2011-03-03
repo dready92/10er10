@@ -34,31 +34,49 @@ d10.playlistDrivers.rpl = function(options) {
 		d10.bghttp.put(options);
 	};
 	
+	this.enable = function() {
+		if ( doc && doc.name ) {
+			d10.playlist.title(doc.name);
+		} else {
+			debug("GRAVE: doc ou doc.name n'existe pas",doc);
+		}
+	};
+	
+	/**
+	* load driver
+	*
+	* options.rpl : the rpl id ( plXXXXXX )
+	* OR
+	* options.rpldoc : the rpl document (assume playlist songs are already in place
+	*/
 	this.load = function(options,cb) {
-		if ( !options.rpl ) {
+		debug("playlistModuleRpl:load options:",options);
+		if ( options.rpldoc ) {
+			doc = options.rpldoc;
+		} else if (options.rpl ) {
+			d10.bghttp.get(
+				{
+					url: site_url+"/api/plm/"+options.rpl,
+					dataType: "json",
+					success: function(resp) {
+						debug(resp);
+						setDoc(resp.data);
+						var html = "";
+						$.each(resp.data.songs,function(k,v) {
+							html+=d10.song_template(v);
+						});
+						if ( html.length )	html = $(html);
+						cb(null,html);
+					},
+					error: function(e) {
+						cb(e);
+					}
+				}
+			);
+			
+		} else {
 			return cb();
 		}
-		
-		d10.bghttp.get(
-			{
-				url: site_url+"/api/plm/"+options.rpl,
-				dataType: "json",
-				success: function(resp) {
-					debug(resp);
-					setDoc(resp.data);
-					var html = "";
-					$.each(resp.data.songs,function(k,v) {
-						html+=d10.song_template(v);
-					});
-					if ( html.length )	html = $(html);
-					cb(null,html);
-					d10.playlist.title(resp.data.name);
-				},
-				error: function(e) {
-					cb(e);
-				}
-			}
-		);
 	};
 	
 };

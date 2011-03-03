@@ -302,7 +302,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 					debug('trigger; rplCreationFailure');
 					$(document).trigger('rplCreationFailure', e.request);
 					if ( opts.error ) {
-						opts.error.call(e);
+						opts.error(e);
 					}
 
 					$('section.plm-list-container img',topicdiv).remove();
@@ -311,10 +311,13 @@ d10.fn.plm = function (mydiv,mypldiv) {
 				success: function(resp) {
 					
 					var rplCreationSuccessHandler = function(response) {
+						debug("plm:rplCreationSuccessHandler response: ",response);
 						if ( !mypldiv.length )	return ;
 					   // playlist menu item
-						var pl_item = $('<div class="plm-list-item" name="'+response.playlist._id+'" action="'+response.playlist._id+'"></div>').html(response.playlist.name);
-						
+						var pl_item = $('<div class="plm-list-item" name="'+response.playlist._id+'" action="'+response.playlist._id+'"></div>');
+						debug("plm:createplaylist pl_item: ",pl_item);
+						pl_item.html(response.playlist.name);
+						debug("plm:createplaylist pl_item: ",pl_item);
 						//
 						// place menu item alphabetically
 						//
@@ -336,17 +339,17 @@ d10.fn.plm = function (mydiv,mypldiv) {
 						// 		if ( response.from && response.from == 'plm' ) {
 						$('section.plm-list-container img',mypldiv).remove();
 						$('section.plm-list-container  button[name=plm-new]',mypldiv).show();
-						pl_item.trigger('click');
 						// 		}
 						//
 						// trigger the click event on newly added list item
 						//
+						debug("plm:createplaylist pl_item: ",pl_item);
 						pl_item.trigger('click');
 					}
 					debug(resp);
 					rplCreationSuccessHandler(resp.data);
 					if ( opts.success ) {
-						opts.success.call(resp.data.playlist);
+						opts.success(resp.data.playlist);
 					}
 					debug('trigger; rplCreationSuccess');
 					$(document).trigger('rplCreationSuccess', { 'playlist': resp.data.playlist});
