@@ -107,14 +107,12 @@ var createModule= function (ui) {
 		});
 		$("div.disable",overlay).click(function () {
 			if ( !module.isEnabled() ) { return ;}
-			if ( !binder.enabled )	return ;
 			overlay.ovlay().close();
 			ui.find(".on").hide();
 			ui.find(".off").show();
 		});
 		$("div.close",overlay).click(function() {
 			if ( !module.isEnabled() ) { return ;}
-			if ( !binder.enabled )	return ;
 			overlay.ovlay().close();
 		});
 		$(".list > div",overlay).click(function() {

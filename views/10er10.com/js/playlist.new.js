@@ -70,6 +70,8 @@
 		var list = $("#playlist",ui);
 		var driver = null;
 		var modules = this.modules = {};
+		
+		// the timeout id for operation of recording current playlist driver state to the database
 		var driverRecordTimeout = null;
 		
 		var container = this.container = function() {
@@ -171,6 +173,21 @@
 		};
 
 
+
+		var recordPlaylistDriver = this.recordPlaylistDriver = function() {
+			if ( driverRecordTimeout ) {
+				clearTimeout(driverRecordTimeout);
+			}
+			driverRecordTimeout = setTimeout(function() {
+				if( driver.writable() ) {
+					debug("playlist: calling driver.record()",driver);
+					driver.record();
+				}
+				driverRecordTimeout=null;
+			},3000);
+		};
+		
+
 		/*
 		*
 		* the only function triggering playlistUpdate events
@@ -184,16 +201,7 @@
 			}
 			driver.listModified(data);
 			$(document).trigger('playlistUpdate', data );
-			if ( driverRecordTimeout ) {
-				clearTimeout(driverRecordTimeout);
-			}
-			driverRecordTimeout = setTimeout(function() {
-				if( driver.writable() ) {
-					debug("playlist: calling driver.record()",driver);
-					driver.record();
-				}
-				driverRecordTimeout=null;
-			},3000);
+			recordPlaylistDriver();
 		};
 
 		var playlistAppendPost = function() {
@@ -298,6 +306,8 @@
 				$(document).trigger("playlist:currentTimeUpdate",e);
 				
 			});
+			//persist driver in database
+			recordPlaylistDriver();
 		};
 		
 		var drivers = {};
@@ -318,7 +328,9 @@
 			options = options || {};
 			debug("playlist:loadDriver loading: ",name);
 			drivers[name] = new d10.playlistDrivers[name](driverOptions);
-			drivers[name].load(loadingOptions,cb);
+			setTimeout(function() {
+				drivers[name].load(loadingOptions,cb);
+			},10);
 			return drivers[name];
 		};
 		

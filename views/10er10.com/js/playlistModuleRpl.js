@@ -115,8 +115,10 @@ $(document).one("bootstrap:playlist",function() {
 		d10.my.plmanager.create_playlist(name, {
 				songs: d10.playlist.allIds(),
 				success: function(resp) {
+					debug("playlistModuleRpl:recordRpl:success resp: ",resp);
     			    $('aside .manager').slideDown();
-    			    var drv = d10.playlist.loadDriver("rpl",{},{rpldoc: resp.data},function() {
+    			    var drv = d10.playlist.loadDriver("rpl",{},{rpldoc: resp},function() {
+    					debug("playlistModuleRpl:recordRpl:success setDriver: ",drv);
 						d10.playlist.setDriver(drv);
 					});
 				},
@@ -151,6 +153,7 @@ $(document).one("bootstrap:playlist",function() {
 		d10.playlist.title(name);
 		d10.my.plmanager.replace_playlist(id, d10.playlist.allIds(),{
 			success: function(resp) {
+   			    $('aside .manager').slideDown();
 				var drv = d10.playlist.loadDriver("rpl",{},{rpldoc: resp.data.playlist},function() {
 					d10.playlist.setDriver(drv);
 				});
@@ -169,7 +172,8 @@ $(document).one("bootstrap:playlist",function() {
 
 
 
-
+	//listen changes from plm module to know if we are still in sync
+	
 
 
 

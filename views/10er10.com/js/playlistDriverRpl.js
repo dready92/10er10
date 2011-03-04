@@ -23,6 +23,9 @@ d10.playlistDrivers.rpl = function(options) {
 	};
 	
 	var record = this.record = function() {
+		if ( !getDoc() || !getDoc()._id ) {
+			return ;
+		}
 		var options = {
 			url: site_url+"/api/current_playlist",
 			dataType: "json",
@@ -47,18 +50,22 @@ d10.playlistDrivers.rpl = function(options) {
 	*
 	* options.rpl : the rpl id ( plXXXXXX )
 	* OR
-	* options.rpldoc : the rpl document (assume playlist songs are already in place
+	* options.rpldoc : the rpl document (assume playlist songs are already in place)
 	*/
 	this.load = function(options,cb) {
 		debug("playlistModuleRpl:load options:",options);
 		if ( options.rpldoc ) {
 			doc = options.rpldoc;
+			cb();
 		} else if (options.rpl ) {
 			d10.bghttp.get(
 				{
 					url: site_url+"/api/plm/"+options.rpl,
 					dataType: "json",
 					success: function(resp) {
+						if ( !resp.status || resp.status == "error" ) {
+							return cb(resp);
+						}
 						debug(resp);
 						setDoc(resp.data);
 						var html = "";
