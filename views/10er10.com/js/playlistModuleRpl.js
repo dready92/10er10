@@ -110,7 +110,7 @@ $(document).one("bootstrap:playlist",function() {
 		}
 	});
 
-	  var recordRpl = function (name)  {
+	var recordRpl = function (name)  {
 // 		d10.playlist.container().find('.playlisttitle > span').text(name);
 		d10.my.plmanager.create_playlist(name, {
 				songs: d10.playlist.allIds(),
@@ -127,8 +127,7 @@ $(document).one("bootstrap:playlist",function() {
 				}
 			}
 		);
-
-	  };
+	};
 
 	d10.playlist.container().find(".updateplaylist button").click(function() {
 		d10.playlist.container().find(".updateplaylist").slideUp("fast");
@@ -174,12 +173,20 @@ $(document).one("bootstrap:playlist",function() {
 
 	//listen changes from plm module to know if we are still in sync
 	
+	$(document).bind("rplDropSuccess",function(e,data) {
+		if ( !module.isEnabled() )	return ;
+		if ( d10.playlist.driver() && d10.playlist.driver().playlistId ) {
+			var id = d10.playlist.driver().playlistId();
+			if ( id && id.substr(0,2) == "pl" && id == data.playlist._id ) {
+				var drv = d10.playlist.loadDriver ("default",{}, {}, function() {} );
+				debug("playlistModuleRpl setting default driver");
+				d10.playlist.setDriver(drv);
+			}
+		}
+	});
 
 
 
-
-
-	
 
 	d10.playlist.modules[module.name] = module;
 

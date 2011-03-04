@@ -284,7 +284,7 @@
 			var oldDriver = driver;
 			if ( oldDriver ) {
 				oldDriver.disable(newDriver);
-				oldDriver.unbindAll();
+				//oldDriver.unbindAll();
 			}
 			driver = newDriver;
 			newDriver.enable(oldDriver);

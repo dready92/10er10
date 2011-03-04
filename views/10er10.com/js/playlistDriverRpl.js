@@ -14,6 +14,13 @@ d10.playlistDrivers.rpl = function(options) {
 		doc = d;
 	};
 
+	this.playlistId = function() {
+		if ( !getDoc() || !getDoc()._id ) {
+			return false;
+		}
+		return getDoc()._id;
+	};
+	
 	this.listModified = function(e) {
 		var drv = d10.playlist.loadDriver ("default",{}, {}, 
 			function() {}
