@@ -1,11 +1,17 @@
 (function($){
 
 /*
-deprecates: 
-$(document).trigger('player.mainTimeUpdate',{'currentTime': secs, 'duration': dur }	);
+
+events binding :
+
+1/ audio [all events] bound to proxyHandler
+2/ proxyHandler calling CURRENT driver's handleEvent
+3/ current driver calling this.trigger to feedback to the playlist 
+
 */
 
 var proxyHandler = function() {
+// 	debug("proxyHandler: ",d10.playlist.currentDriverName() , this,arguments);
 	d10.playlist.driver().handleEvent.apply(this,arguments);
 };
 
@@ -58,7 +64,7 @@ d10.playlistDrivers.default = function(options) {
 	};
 	var events = {};
 // 	var modules = [];
-	var trackEvents = {
+	var trackEvents = this.trackEvents = {
 						"progressUpdate": function(e) {
 							if ( currentLoadProgressEnded ) return ;
 							if ( this === current.audio ) {
@@ -76,7 +82,7 @@ d10.playlistDrivers.default = function(options) {
 //                              debug("playlistDriverDefault:ontimeupdate",this);
                                 if ( current && this === current.audio ) {
                                         var secs = Math.floor(this.currentTime);
-					var dur = current.duration;
+										var dur = current.duration;
                                         if ( secs == this.last_secs_update ) {return true;}
                                         this.last_secs_update = secs;
                                         trigger('currentTimeUpdate',{currentTime: secs});
@@ -238,7 +244,7 @@ d10.playlistDrivers.default = function(options) {
 	
 	var play = this.play = function(id,url,duration,options) {
 		if ( id && $.isArray(id) ) {
-			debug("redirectiong play.... ",id,url,duration,options);
+// 			debug("redirectiong play.... ",id,url,duration,options);
 			return play(id.shift(),id.shift(),id.shift(),id.shift());
 		}
 		debug("playlistDriverDefault:play",arguments);
@@ -308,9 +314,9 @@ d10.playlistDrivers.default = function(options) {
 		}
 	};
 	
-	this.current = function(tr) { 
+	this.current = function(track) { 
 		if ( arguments.length ) {
-			current = tr;
+			current = track;
 			return this;
 		}
 		return current;
@@ -357,7 +363,9 @@ d10.playlistDrivers.default = function(options) {
 	var enable = this.enable = function(previousDriver) {
 		if ( previousDriver ) {
 			var track = previousDriver.current();
-			if ( track && track.audio & track.audio.paused === false ) {
+// 			debug("driver try to get back current song : ",track);
+			if ( track && track.audio && track.audio.paused === false ) {
+// 				debug("driver setting track to current");
 				cache[track.id] = track;
 				current = track;
 			}

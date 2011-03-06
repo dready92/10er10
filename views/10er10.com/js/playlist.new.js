@@ -330,14 +330,14 @@
 			drivers[name] = new d10.playlistDrivers[name](driverOptions);
 			setTimeout(function() {
 				drivers[name].load(loadingOptions,cb);
-			},10);
+			},100);
 			return drivers[name];
 		};
 		
 		var remove = this.remove = function(songs) {
 			var count = songs.length,
 			active = songs.filter("."+settings.currentClass);
-			if ( active ) {
+			if ( active.length ) {
 				driver.pause();
 			}
 			songs.data("removing",true).slideUp(100,function() 
