@@ -275,6 +275,34 @@
 			driver.seek(secs);
 		};
 		
+		var appendRandomSongs = function(count, genres) {
+			count = count || 3;
+			genres = genres || [];
+			var opts = {
+				"url": site_url+"/api/random",
+				"dataType": "json",
+				"data": {
+					"not[]": allIds(),
+					"really_not[]": [],
+					"type": "genre",
+					"count": count
+				},
+				"success": function (response) {
+					if ( response.status == "success" && response.data.songs.length ) {
+						var items = '';
+						for ( var index in response.data.songs ) {
+							items+= d10.song_template( response.data.songs[index] );
+						}
+						append($(items));
+					}
+				}
+			};
+			for ( var index in d10.user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
+			if ( genres && genres.length )  opts.data["name[]"] = genres;
+			d10.bghttp.post(opts);
+		};
+		
+		
 		this.driver = function() { return driver; };
 
 		var setDriver = this.setDriver = function(newDriver) {
@@ -487,6 +515,8 @@
 		ui.find("div.manager button[name=new]").click(function() {
 			empty();
 		});
+		
+		ui.find(".emptyPlaylist span.link").bind("click",function () { appendRandomSongs(10); });
 		
 		this.bootstrap = function() {
 			var infos = d10.user.get_preferences().playlist || {};
