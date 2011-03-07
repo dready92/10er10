@@ -88,17 +88,18 @@ d10.fn.plm = function (mydiv,mypldiv) {
          that.update_playlist(pldiv.attr("name"));
        });
      })
-
+/*
 	.delegate("div.song","click",function(e) {
 		if ( $(e.target).closest(".add").length == 0 )
 			$(this).toggleClass("selected");
 	})
     .delegate("div.song","dblclick",function(e) {
+    	debug("plm dblclick");
         d10.playlist.append(
           $(this).clone()
         );
      });
-
+*/
     pldiv.find('.controls button[name=rename]').click(function() {
       pldiv.find('.controls').hide();
       pldiv.find('.rename').slideDown();

@@ -4,7 +4,10 @@ function user () {
 	var infos = null;
 
 	$(document).bind('user.infos',function(e,data) { infos = data.data.data; debug(infos);	});
-	$(document).bind('user.playlists',function(e,data) { infos.playlists = data.data.data;	});
+	$(document).bind('user.playlists',function(e,data) { 
+		infos.playlists = data.data.data;
+		
+	});
 	$(document).bind('rplAppendSuccess',function(e,data) {
 		infos.playlists = jQuery.map(infos.playlists, function(n, i){
       if ( n._id == data.playlist._id )	return data.playlist;
