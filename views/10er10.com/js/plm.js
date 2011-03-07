@@ -141,10 +141,29 @@ d10.fn.plm = function (mydiv,mypldiv) {
       return false;
     });
     pldiv.find('button[name=load]').click(function() {
+		
+		var rpldoc = {
+			_id: pldiv.attr('name'),
+			name: $('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).html(),
+			songs: pldiv.children(".list").children(".song").map(function() {      return $(this).attr('name');    }   ).get()
+		};
+		
+		var driver = d10.playlist.loadDriver("rpl",{},{rpldoc: rpldoc},function(err,resp) {
+			if ( err )	{
+				debug("playlistModuleRpl:loadDriver error",err);
+				return ;
+			}
+			d10.playlist.empty();
+			d10.playlist.append(pldiv.children(".list").children(".song").clone());
+			debug("plm setting driver",driver);
+			d10.playlist.setDriver(driver);
+		});
+		/*
       d10.playlist.loadFromPlm(
         pldiv,
         $('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).html()
       );
+	*/
       return false;
     });
 		content_container.append(pldiv);

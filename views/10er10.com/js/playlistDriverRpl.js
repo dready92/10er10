@@ -5,7 +5,6 @@
 d10.playlistDrivers = d10.playlistDrivers || {};
 d10.playlistDrivers.rpl = function(options) {
 	d10.playlistDrivers.default.call(this,options);
-	
 	var doc = null;
 	var getDoc = function() {
 		return doc;
@@ -22,6 +21,9 @@ d10.playlistDrivers.rpl = function(options) {
 	};
 	
 	this.listModified = function(e) {
+		if ( ignoreListModified ) {
+			return;
+		}
 		var drv = d10.playlist.loadDriver ("default",{}, {}, 
 			function() {}
 		);
