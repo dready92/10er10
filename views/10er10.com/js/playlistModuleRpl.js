@@ -49,7 +49,7 @@ $(document).one("bootstrap:playlist",function() {
 // 			var opts = {"url": site_url+"/api/plm/"+$(this).attr('name'),"dataType": "json", "success": loadPlm };
 // 			d10.bghttp.get ( opts );
 			loadPlm($(this).attr('name'));
-			d10.playlist.container().find("div.manager button[name=load]").one('click',loadOverlay);
+//			d10.playlist.container().find("div.manager button[name=load]").one('click',loadOverlay);
 			$(this).closest('.overlay').ovlay().close();
 		});
 		//     .appendTo("body")
@@ -57,8 +57,8 @@ $(document).one("bootstrap:playlist",function() {
 		//     elem.fadeIn('fast');
 			
 	};
-	debug("playlistModuleRpl button:",d10.playlist.container().find("div.manager button[name=load]"));
-	d10.playlist.container().find("div.manager button[name=load]").one("click",loadOverlay);
+//	debug("playlistModuleRpl button:",d10.playlist.container().find("div.manager button[name=load]"));
+	d10.playlist.container().find("div.manager button[name=load]").bind("click",loadOverlay);
 
 
 
