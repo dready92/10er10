@@ -92,7 +92,7 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 		window.location.hash = url;
 	});
 
-
+/*
 	//
 	//
 	// this is bind/trigger implementation
@@ -146,7 +146,16 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 		}
 		triggers = nt;
 	};
-	
+*/
+
+	var eventEmitter = d10.fn.eventEmitter();
+
+	this.trigger = eventEmitter.trigger;
+	this.bind = function(selector, cb) {
+		eventEmitter.bind(selector,$.proxy(cb,options.container));
+	}
+	this.unbind = eventEmitter.unbind;
+
 	this.current_label = function() {
 		var back = this.current_menuitem();
 		if ( !back )	return false;

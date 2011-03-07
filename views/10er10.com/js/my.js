@@ -338,8 +338,8 @@ var my = function () {
 		'default_active_label': 'plm',
 		'property': 'name',
 		'effects': false,
-    "routePrepend":["my"],
-    "useRouteAPI": true
+	    "routePrepend":["my"],
+    	"useRouteAPI": true
 	});
 
   // routes

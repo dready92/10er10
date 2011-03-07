@@ -62,7 +62,7 @@ d10.playlistDrivers.default = function(options) {
 		target_startup: - 10,
 		target_starttime: 0
 	};
-	var events = {};
+//	var events = {};
 // 	var modules = [];
 	var trackEvents = this.trackEvents = {
 						"progressUpdate": function(e) {
@@ -122,6 +122,13 @@ d10.playlistDrivers.default = function(options) {
                         }
                 };
 	
+	
+	var eventEmitter = d10.fn.eventEmitter();
+	var bind = this.bind = eventEmitter.bind;
+	var trigger = this.trigger = eventEmitter.trigger;
+	var unbind = this.unbind = eventEmitter.unbind;
+	var unbindAll = this.unbindAll = eventEmitter.unbindAll;
+	/*
 	var bind = this.bind = function(e,callback) {
 		if( events[e] ) events[e].push(callback);
 		else			events[e] = [callback];
@@ -153,7 +160,7 @@ d10.playlistDrivers.default = function(options) {
 	};
 	
 	var unbindAll = this.unbindAll = function() { events = {}; };
-	
+	*/
 
 	/*
 	 * called when this class is the driver , "this" = <audio> element, e = event
