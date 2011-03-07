@@ -105,42 +105,42 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 		var selectors = trigger.selector.replace(/^\s+/,"").replace(/\s+$/,"").split(" ");
 	//     var match = {"name": [], "classes": [] };
 		for (var index in selectors) {
-		var current = selectors[index].replace(/^\s+/,"").replace(/\s+$/,"").split(".");
-		if ( !current.length || current[0] != name && current[0].length > 0 ) {
-			continue;
-		}
-		if ( current.length == 1 ) {
-			return true;
-		}
-		current.shift();
-		var ok = true;
-		for ( var i in current ) {
-			if ( classes.indexOf(current[i]) < 0 ) {
-				ok = false;
+			var current = selectors[index].replace(/^\s+/,"").replace(/\s+$/,"").split(".");
+			if ( !current.length || current[0] != name && current[0].length > 0 ) {
+				continue;
 			}
-		}
-		if ( !ok )  continue;
-		return true;
+			if ( current.length == 1 ) {
+				return true;
+			}
+			current.shift();
+			var ok = true;
+			for ( var i in current ) {
+				if ( classes.indexOf(current[i]) < 0 ) {
+					ok = false;
+				}
+			}
+			if ( !ok )  continue;
+			return true;
 		}
 	};
   
 	var triggers = [];
 	this.trigger = function ( name, data ) {
 		for ( var index in triggers ) {
-		if ( matchTrigger(name, triggers[index]) ) {
-			triggers[index].callback.call(options.container,{"type": name},data);
-		}
+			if ( matchTrigger(name, triggers[index]) ) {
+				triggers[index].callback.call(options.container,{"type": name},data);
+			}
 		}
 	};
   
-	this.bind = function( evts, callback )  {
-		triggers.push({ "selector": evts, "callback": callback  });
+	this.bind = function( selector, callback )  {
+		triggers.push({ "selector": selector, "callback": callback  });
 	};
 
-	this.unbind = function ( evts ) {
+	this.unbind = function ( selector ) {
 		var nt = [];
 		for ( var index in triggers ) {
-			if ( !matchTrigger(name, triggers[index]) ) {
+			if ( !matchTrigger(selector, triggers[index]) ) {
 				nt.push(triggers[index]);
 			}
 		}

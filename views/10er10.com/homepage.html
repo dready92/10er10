@@ -254,7 +254,8 @@ Vous avez <strong></strong> morceaux à valider !
     </div> 
   </div> 
   <div class="playlisttitle"><span></span></div> 
-  <div id="playlist"></div> 
+  <div id="playlist"></div>
+  <div id="playlistLoader">Chargement de la dernière liste de lecture</div>
   <div class="emptyPlaylist">Votre liste de lecture est vide.<BR><span class="link">Remplis-la !</span></div> 
   <div class="manager"> 
     <button name="new" title="Vider la liste de lecture"> 
@@ -331,11 +332,10 @@ function debug() {
 {{/debugloop}}
 }
 debug("site_url : ",site_url);
-</script> 
+</script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>  
-{{#scripts}}
-<script src="/js/{{.}}"></script>  
-{{/scripts}}
+<script src="/js/jquery.js"></script>  
+{{#scripts}}<script src="/js/{{.}}"></script>  {{/scripts}}
 
 </body> 
 </html>

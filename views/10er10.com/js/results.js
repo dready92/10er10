@@ -242,6 +242,7 @@ var results = function (search) {
 			}
 		}
 		if ( details.artists.length || details.albums.length ) {
+			debug("posting details request");
 			var ajax = {
 				"type": "POST",
 				"url": site_url+"/api/details",

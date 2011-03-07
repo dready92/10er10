@@ -47,23 +47,6 @@ exports.api = function(app) {
 				response.end(data);
 			});
 		});
-		/*
-		d10.db.db("d10").getDoc(
-			{
-				success: function(doc) {
-					request.ctx.headers["Content-Type"] = "text/html";
-					response.writeHead(200, request.ctx.headers );
-					d10.view("review/song",doc,{},function(data) {
-						response.end(data);
-					});
-				},
-				error: function(err) {
-					next();
-				}
-			},
-			request.params.id
-						 );
-	*/
 	});
 	
 	app.put("/api/meta/:id",function(request,response,next) {
