@@ -60,7 +60,7 @@ header {
 header > div.logo {
 	font-family: Cartoon;
  	font-size: 24px;
-	padding: 3px 0 0 10px;
+	padding: 3px 0 5px 10px;
 }
 
 header > div.logo > span {
@@ -71,43 +71,31 @@ header > div.logo > span {
 }
 
 
-
+/*
 header > div.logo > .d1 {
 	font-size: 0.9em;
-/* 	font-size: 1.5em; */
-/* 	vertical-align: middle; */
 	-moz-transform: rotate(-30deg);
 	-webkit-transform: rotate(-30deg);
-/* 	color: #549BBE; */
 	color: #C8A64E;
 }
 header > div.logo > .d0 {
 	font-size: 0.9em;
-	
-	/* 	font-size: 1.5em; */
-/* 	-moz-transform: translateY(3px); */
-/* 	-webkit-transform: translateY(3px); */
-  color: #C8A64E;
-/*   color: #62C361; */
+	color: #C8A64E;
 }
-
 header > div.logo > .e3 {
 	font-size: 1.5em;
   color: #c53229;
   -moz-transform: scale(0.9);
   -webkit-transform: scale(0.9);
-/*   color: #62C361; */
 }
 header > div.logo > .r {
 	font-size: 1.5em;
 	-moz-transform: rotate(10deg) translateX(-3px);
   -webkit-transform: rotate(10deg) translateX(-3px);
-/*   color: #62C361; */
   color: #c53229;
 }
 
 header > div.logo > .n1 {
-/*   font-size: 1.5em; */
 font-size: 0.9em;
 
 	-moz-transform: rotate(-20deg);
@@ -116,12 +104,43 @@ font-size: 0.9em;
 }
 header > div.logo > .n0 {
 	font-size: 0.9em;
-	
-	/*   font-size: 1.5em; */
-/*   -moz-transform: translateX(3px); */
-/*   -webkit-transform: translateX(3px); */
-  color: #C8A64E;
+	color: #C8A64E;
 }
+*/
+
+header > div.logo > .d1 {
+	-moz-transform: rotate(-30deg) translateY(5px);
+	-webkit-transform: rotate(-30deg) translateY(5px);
+	color: #C8A64E;
+}
+header > div.logo > .d0 {
+	color: #C8A64E;
+	-moz-transform: rotate(-15deg) translateY(2px);
+	-webkit-transform: rotate(-15deg) translateY(2px);
+
+}
+header > div.logo > .e3 {
+	color: #c53229;
+	-moz-transform: scale(2);
+	-webkit-transform: scale(2);
+}
+header > div.logo > .r {
+	-moz-transform: scale(1.5);
+	-webkit-transform: scale(1.5);
+	color: #c53229;
+}
+header > div.logo > .n1 {
+	-moz-transform: rotate(15deg) scale(0.8);
+	-webkit-transform: rotate(15deg) scale(0.8);
+	color: #C8A64E;
+}
+header > div.logo > .n0 {
+	color: #C8A64E;
+	-moz-transform: rotate(30deg) translateY(5px);
+	-webkit-transform: rotate(30deg) translateY(5px);
+}
+
+
 
 header > div.teaser {
   font-family: Cartoon;

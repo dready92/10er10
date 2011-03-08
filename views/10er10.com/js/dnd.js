@@ -336,37 +336,38 @@ var inherits = function(ctor, superCtor) {
 
 
 
-var eventsBinder = d10.fn.eventsBinder = function() {this.enabled = false; this._events = {}; };
-
-// // eventsBinder.prototype._events = {};
-// eventsBinder.prototype.enabled = false;
-
-eventsBinder.prototype.addBindings = function (b) {
-// 	debug("add bindings",b);
-	var that = this;
-	$.each(b,function(name,cb) {
-		that.addBinding(name,cb);
-	});
-};
-
-eventsBinder.prototype.addBinding = function (name, cb) {
-// 	debug("add bindginsdé",name,cb);
-	this._events[name] = cb;
-};
-
-eventsBinder.prototype.bind = function () {
-	for ( var index in this._events ) {
-		debug("bind",index);
-		$(document).bind(index,this._events[index]);
-	}
-	this.enabled = true;
-};
-eventsBinder.prototype.unbind = function () {
-	for ( var index in this._events ) {
-		$(document).unbind(index,this._events[index]);
-	}
+var eventsBinder = d10.fn.eventsBinder = function() {
+	this.enabled = false; 
+	this._events = {}; 
 	
-	this.enabled = false;
+	this.addBindings = function (b) {
+		var that = this;
+		$.each(b,function(name,cb) {
+			that.addBinding(name,cb);
+		});
+	};
+	
+	this.addBinding = function (name, cb) {
+	// 	debug("add bindginsdé",name,cb);
+		this._events[name] = cb;
+	};
+	
+	this.bind = function () {
+		for ( var index in this._events ) {
+			debug("bind",index);
+			$(document).bind(index,this._events[index]);
+		}
+		this.enabled = true;
+	};
+	
+	this.unbind = function () {
+		for ( var index in this._events ) {
+			$(document).unbind(index,this._events[index]);
+		}
+		this.enabled = false;
+	};
+	
+	
 };
 
 
@@ -375,33 +376,31 @@ var playlistModule = d10.fn.playlistModule = function(name, bindings, hooks) {
 	this._playlistModule = {bindings: bindings ? bindings : {}, hooks: hooks ? hooks : {} };
 	this.addBindings(bindings);
 	this.name = name;
-};
-inherits(playlistModule,eventsBinder);
-
-playlistModule.prototype.enable = function() {
-	debug("enable", this.enabled);
-	if ( !this.enabled )	{
-		if ( this._playlistModule.hooks.enable ) {
-			this._playlistModule.hooks.enable.call(this);
+	
+	this.enable = function() {
+		debug("enable", this.enabled);
+		if ( !this.enabled )	{
+			if ( this._playlistModule.hooks.enable ) {
+				this._playlistModule.hooks.enable.call(this);
+			}
+			this.bind();
 		}
-		this.bind();
-	}
-};
-
-playlistModule.prototype.disable = function() {
-	if ( this.enabled )	{
-		this.unbind();
-		if ( this._playlistModule.hooks.disable ) {
-			this._playlistModule.hooks.disable.call(this);
+	};
+	
+	this.disable = function() {
+		if ( this.enabled )	{
+			this.unbind();
+			if ( this._playlistModule.hooks.disable ) {
+				this._playlistModule.hooks.disable.call(this);
+			}
 		}
-	}
+	};
+	
+	this.isEnabled = function() {
+		return this.enabled;
+	};
+
 };
-
-playlistModule.prototype.isEnabled = function() {
-	return this.enabled;
-};
-
-
 
 })(jQuery);
 
