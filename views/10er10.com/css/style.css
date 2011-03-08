@@ -67,19 +67,24 @@ header > div.logo > span {
 	padding: 0;
 	margin: 0;
 	display: inline-block; /*or chrome does not transform*/
+	vertical-align: middle;
 }
 
 
 
 header > div.logo > .d1 {
-	font-size: 1.5em;
+	font-size: 0.9em;
+/* 	font-size: 1.5em; */
+/* 	vertical-align: middle; */
 	-moz-transform: rotate(-30deg);
 	-webkit-transform: rotate(-30deg);
 /* 	color: #549BBE; */
 	color: #C8A64E;
 }
 header > div.logo > .d0 {
-	font-size: 1.5em;
+	font-size: 0.9em;
+	
+	/* 	font-size: 1.5em; */
 /* 	-moz-transform: translateY(3px); */
 /* 	-webkit-transform: translateY(3px); */
   color: #C8A64E;
@@ -87,12 +92,14 @@ header > div.logo > .d0 {
 }
 
 header > div.logo > .e3 {
+	font-size: 1.5em;
   color: #c53229;
   -moz-transform: scale(0.9);
   -webkit-transform: scale(0.9);
 /*   color: #62C361; */
 }
 header > div.logo > .r {
+	font-size: 1.5em;
 	-moz-transform: rotate(10deg) translateX(-3px);
   -webkit-transform: rotate(10deg) translateX(-3px);
 /*   color: #62C361; */
@@ -100,13 +107,17 @@ header > div.logo > .r {
 }
 
 header > div.logo > .n1 {
-  font-size: 1.5em;
+/*   font-size: 1.5em; */
+font-size: 0.9em;
+
 	-moz-transform: rotate(-20deg);
   -webkit-transform: rotate(-20deg);
   color: #C8A64E;
 }
 header > div.logo > .n0 {
-  font-size: 1.5em;
+	font-size: 0.9em;
+	
+	/*   font-size: 1.5em; */
 /*   -moz-transform: translateX(3px); */
 /*   -webkit-transform: translateX(3px); */
   color: #C8A64E;
@@ -803,6 +814,7 @@ aside div.emptyPlaylist {
   -webkit-border-radius: 3px;  
   border: 2px solid rgba(200,200,200,0.5);
   text-align:center;
+  display: none;
 }
 
 .overlay {
@@ -889,13 +901,18 @@ aside .playlisttitle {
 }
 
 #playlist {
-	display: block;
+	display: none;
 	width: 100%;
 	margin: 0;
 	border-bottom: 2px solid transparent;
 	max-height: 400px;
 	overflow: auto;
 	position: relative;
+}
+
+#playlistLoader {
+	padding: 40px;
+	text-align:center;
 }
 
 aside.hovertop #playlist { border-top: 2px solid #BF9730; }

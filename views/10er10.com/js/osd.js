@@ -9,10 +9,8 @@ function osd () {
 		send('info',"Playlist <b>"+data.playlist.name+"</b> effacée.");
 	});
 	$(document).bind('rplCreationSuccess',function(e,data) {
+		debug("in osd",data);
 		send('info',"Playlist <b>"+data.playlist.name+"</b> créée.");
-	});
-	$(document).bind('rplDropSuccess',function(e,data) {
-		send('info',"Playlist <b>"+data.playlist.name+"</b> effacée.");
 	});
 	$(document).bind('rplAppendSuccess',function(e,data) {
 		send('info',"Playlist <b>"+data.playlist.name+"</b> mise à jour.");

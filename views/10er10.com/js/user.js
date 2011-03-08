@@ -3,8 +3,29 @@
 function user () {
 	var infos = null;
 
-	$(document).bind('user.infos',function(e,data) { infos = data.data.data; debug(infos);	});
-	$(document).bind('user.playlists',function(e,data) { infos.playlists = data.data.data;	});
+
+	var orderPlaylists = function(playlists) {
+		var pl = [];
+		$.each(playlists,function(k,v) {
+			var inserted = false;
+			$.each(pl,function(pk,pv) {
+				if ( v.name < pv.name ) {
+					inserted = true;
+					pl.splice(pk,0,v);
+					return false;
+				}
+			});
+			if ( !inserted )	{
+				pl.push(v);
+			}
+		});
+		return pl;
+	};
+
+	$(document).bind('user.infos',function(e,data) { infos = data.data.data; debug(infos); infos.playlists = orderPlaylists(infos.playlists);	});
+	$(document).bind('user.playlists',function(e,data) {
+		infos.playlists = orderPlaylists(data.data.data);
+	});
 	$(document).bind('rplAppendSuccess',function(e,data) {
 		infos.playlists = jQuery.map(infos.playlists, function(n, i){
       if ( n._id == data.playlist._id )	return data.playlist;

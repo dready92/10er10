@@ -38,9 +38,9 @@ exports.api = function(app) {
 				if ( playlist.user != request.ctx.user._id ) {
 					return d10.rest.err(403,null,request.ctx);
 				}
-				rpl.update(playlist, songs, function(err,playlist) {
+				rpl.update(playlist, songs, function(err,response) {
 					if ( !err ) {
-						return d10.rest.success({playlist: playlist}, request.ctx);
+						return d10.rest.success(response, request.ctx);
 					}
 					return d10.rest.err(423,null,request.ctx);
 				});
@@ -98,7 +98,7 @@ exports.api = function(app) {
 						   if ( err ) {
 							   d10.rest.err(423,err,request.ctx);
 						   } else {
-							   d10.rest.success({playlist: playlist}, request.ctx);
+							   d10.rest.success(playlist, request.ctx);
 						   }
 					   }
 				);

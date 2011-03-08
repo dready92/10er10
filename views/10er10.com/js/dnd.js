@@ -36,19 +36,23 @@ var dnd = function() {
   // dragleave : other things to do on dragleave
   this.dropTarget = function(container, list, options  ) {
     var settings = {
-      "copyDrop": function(){},
-      "moveDrop": function(){},
-      "dragenter": function(){},
-      "dragleave": function(){},
- "containerHeight": function() { /*debug(container, container.height());*/return container.height(); }
-    };
-    $.extend(settings,options);
+		"copyDrop": function(){},
+		"moveDrop": function(){},
+		"dragenter": function(){},
+		"dragleave": function(){},
+		"dropAllowed": function() {return true;},
+		"containerHeight": function() { /*debug(container, container.height());*/return container.height(); }
+	};
+	$.extend(settings,options);
 
 	var currentDnDposition = null;
 	
 	var onDnd = function (e) {
 		if ( dragging == null ) { return ; }
 		var song = $(e.target).closest('div.song');
+		if ( !settings.dropAllowed({target: song, dragging: dragging}) ) {
+			return true;
+		}
 		if ( dragging.includes(song) ) {
 			$("div.song",list).removeClass("hover");
 			return true;
@@ -319,5 +323,84 @@ window.d10.dump = function () {
 	back.player = d10.player.dump();
 	return back;
 }
+	
+
+
+
+var inherits = function(ctor, superCtor) {
+  ctor.super_ = superCtor;
+  ctor.prototype = Object.create(superCtor.prototype, {
+    constructor: { value: ctor, enumerable: false }
+  });
+};
+
+
+
+var eventsBinder = d10.fn.eventsBinder = function() {this.enabled = false; this._events = {}; };
+
+// // eventsBinder.prototype._events = {};
+// eventsBinder.prototype.enabled = false;
+
+eventsBinder.prototype.addBindings = function (b) {
+// 	debug("add bindings",b);
+	var that = this;
+	$.each(b,function(name,cb) {
+		that.addBinding(name,cb);
+	});
+};
+
+eventsBinder.prototype.addBinding = function (name, cb) {
+// 	debug("add bindginsdé",name,cb);
+	this._events[name] = cb;
+};
+
+eventsBinder.prototype.bind = function () {
+	for ( var index in this._events ) {
+		debug("bind",index);
+		$(document).bind(index,this._events[index]);
+	}
+	this.enabled = true;
+};
+eventsBinder.prototype.unbind = function () {
+	for ( var index in this._events ) {
+		$(document).unbind(index,this._events[index]);
+	}
+	
+	this.enabled = false;
+};
+
+
+var playlistModule = d10.fn.playlistModule = function(name, bindings, hooks) {
+	eventsBinder.call(this);
+	this._playlistModule = {bindings: bindings ? bindings : {}, hooks: hooks ? hooks : {} };
+	this.addBindings(bindings);
+	this.name = name;
+};
+inherits(playlistModule,eventsBinder);
+
+playlistModule.prototype.enable = function() {
+	debug("enable", this.enabled);
+	if ( !this.enabled )	{
+		if ( this._playlistModule.hooks.enable ) {
+			this._playlistModule.hooks.enable.call(this);
+		}
+		this.bind();
+	}
+};
+
+playlistModule.prototype.disable = function() {
+	if ( this.enabled )	{
+		this.unbind();
+		if ( this._playlistModule.hooks.disable ) {
+			this._playlistModule.hooks.disable.call(this);
+		}
+	}
+};
+
+playlistModule.prototype.isEnabled = function() {
+	return this.enabled;
+};
+
+
 
 })(jQuery);
