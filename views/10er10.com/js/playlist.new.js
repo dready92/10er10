@@ -199,6 +199,7 @@
 			} else {
 				ui.find(".emptyPlaylist").hide();
 			}
+			debug("playlist: sending listModified to driver", d10.playlist.currentDriverName());
 			driver.listModified(data);
 			$(document).trigger('playlistUpdate', data );
 			recordPlaylistDriver();
@@ -313,6 +314,7 @@
 			if ( oldDriver ) {
 				oldDriver.disable(newDriver);
 			}
+			debug("---------- playlist: setDriver",newDriver);
 			driver = newDriver;
 			newDriver.enable(oldDriver);
 			//persist driver in database
@@ -329,9 +331,12 @@
 				debug("playlist:loadDriver driver not found:",name);
 				return false;
 			}
+			debug("============== loading driver : ",name);
 			if ( name in drivers ) {
 				debug("playlist:loadDriver got driver in cache");
-				drivers[name].load(loadingOptions,cb);
+				setTimeout(function() {
+					drivers[name].load(loadingOptions,cb);
+				},100);
 				return drivers[name];
 			}
 			options = options || {};
@@ -355,9 +360,11 @@
 			drivers[name].bind("currentTimeUpdate",function(e, data) {
 				$(document).trigger("playlist:currentTimeUpdate",data);
 			});
+
 			setTimeout(function() {
 				drivers[name].load(loadingOptions,cb);
 			},100);
+			debug("playlist: returning driver");
 			return drivers[name];
 		};
 		
