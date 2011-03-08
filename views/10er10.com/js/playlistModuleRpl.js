@@ -3,15 +3,16 @@ $(document).one("bootstrap:playlist",function() {
 	var module = new d10.fn.playlistModule("rpl",{},{});
 	
 	var loadPlm = function (id) {
+		debug("playlistModuleRpl:callback empty()");
+		d10.playlist.empty();
 		var driver = d10.playlist.loadDriver("rpl",{},{rpl: id},function(err,resp) {
 			if ( err )	{
 				debug("playlistModuleRpl:loadDriver error",err);
 				return ;
 			}
-			debug("playlistModuleRpl:callback empty()");
-			d10.playlist.empty();
 			debug("playlistModuleRpl:callback append()");
 			d10.playlist.append(resp);
+
 			debug("playlistModuleRpl:callback setDriver()",driver);
 			d10.playlist.setDriver(driver);
 		});
