@@ -318,24 +318,6 @@
 			debug("---------- playlist: setDriver",newDriver);
 			driver = newDriver;
 			newDriver.enable(oldDriver);
-			newDriver.bind("currentSongChanged",function(e) {
-				list.children("."+settings.currentClass).removeClass(settings.currentClass);
-				songWidget(e.current).addClass(settings.currentClass);
-				debug("playlist document event playlist:currentSongChanged");
-				$(document).trigger("playlist:currentSongChanged",{current: current()});
-			});
-			newDriver.bind("ended",function(e) {
-				debug("playlist:ended of playlist");
-				list.children("."+settings.currentClass).removeClass(settings.currentClass);
-				$(document).trigger("playlist:ended",{current: current()});
-			});
-			newDriver.bind("currentLoadProgress",function(e) {
-				$(document).trigger("playlist:currentLoadProgress",{current: current()});
-			});
-			newDriver.bind("currentTimeUpdate",function(e) {
-				$(document).trigger("playlist:currentTimeUpdate",e);
-				
-			});
 			//persist driver in database
 			recordPlaylistDriver();
 		};
@@ -361,6 +343,26 @@
 			options = options || {};
 			debug("playlist:loadDriver loading: ",name);
 			drivers[name] = new d10.playlistDrivers[name](driverOptions);
+			
+			drivers[name].bind("currentSongChanged",function(e) {
+				list.children("."+settings.currentClass).removeClass(settings.currentClass);
+				songWidget(e.current).addClass(settings.currentClass);
+				debug("playlist document event playlist:currentSongChanged");
+				$(document).trigger("playlist:currentSongChanged",{current: current()});
+			});
+			drivers[name].bind("ended",function(e) {
+				debug("playlist:ended of playlist");
+				list.children("."+settings.currentClass).removeClass(settings.currentClass);
+				$(document).trigger("playlist:ended",{current: current()});
+			});
+			drivers[name].bind("currentLoadProgress",function(e) {
+				$(document).trigger("playlist:currentLoadProgress",{current: current()});
+			});
+			drivers[name].bind("currentTimeUpdate",function(e) {
+				$(document).trigger("playlist:currentTimeUpdate",e);
+				
+			});
+			
 			setTimeout(function() {
 				drivers[name].load(loadingOptions,cb);
 			},100);
