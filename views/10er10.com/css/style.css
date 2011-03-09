@@ -69,45 +69,7 @@ header > div.logo > span {
 	display: inline-block; /*or chrome does not transform*/
 	vertical-align: middle;
 }
-
-
-/*
-header > div.logo > .d1 {
-	font-size: 0.9em;
-	-moz-transform: rotate(-30deg);
-	-webkit-transform: rotate(-30deg);
-	color: #C8A64E;
-}
-header > div.logo > .d0 {
-	font-size: 0.9em;
-	color: #C8A64E;
-}
-header > div.logo > .e3 {
-	font-size: 1.5em;
-  color: #c53229;
-  -moz-transform: scale(0.9);
-  -webkit-transform: scale(0.9);
-}
-header > div.logo > .r {
-	font-size: 1.5em;
-	-moz-transform: rotate(10deg) translateX(-3px);
-  -webkit-transform: rotate(10deg) translateX(-3px);
-  color: #c53229;
-}
-
-header > div.logo > .n1 {
-font-size: 0.9em;
-
-	-moz-transform: rotate(-20deg);
-  -webkit-transform: rotate(-20deg);
-  color: #C8A64E;
-}
-header > div.logo > .n0 {
-	font-size: 0.9em;
-	color: #C8A64E;
-}
-*/
-
+/*  */
 header > div.logo > .d1 {
 	-moz-transform: rotate(-30deg) translateY(5px);
 	-webkit-transform: rotate(-30deg) translateY(5px);
@@ -806,6 +768,17 @@ aside {
   -webkit-border-radius: 3px;
   padding: 0px 1px 10px 1px;
   margin-bottom: 10px;
+  -webkit-transition: box-shadow 0.5s ease-out;
+  -moz-transition: -moz-box-shadow 0.5s ease-out;
+  
+}
+
+
+aside.highlighted {
+	box-shadow: inset 0 0 10px #F9C53E;
+	-moz-box-shadow: inset 0 0 10px #F9C53E;
+	-webkit-transition: box-shadow 0.5s ease-in;
+	-moz-transition: -moz-box-shadow 0.5s ease-in;
 }
 
 aside .manager {

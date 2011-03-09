@@ -213,6 +213,14 @@
 			// 				p.setPlaylistName(p.noname);
 			// 			}
 			sendPlaylistUpdate({ 'action': 'copy' });
+			if( $("html").hasClass("csstransforms") ) {
+				ui.one("transitionend webkitTransitionEnd",function() {
+					debug("got transitionend");
+					ui.unbind("transitionend webkitTransitionEnd");
+					ui.removeClass("highlighted");
+				});
+				ui.addClass("highlighted");
+			}
 			// $(document).trigger('playlistUpdate', { 'action': 'copy' } );
 		};
 		
