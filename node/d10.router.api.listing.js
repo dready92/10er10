@@ -75,12 +75,14 @@ exports.api = function(app) {
 
 
 	app.get("/api/ts_creation",function(request,response) {
+		console.log(request.query);
 		var query = {include_docs: true, reduce: false, descending: true, limit: d10.config.rpp};
-		if ( request.query.startkey_docid && request.query["startkey"] ) {
-			request.query["startkey"][0] = parseInt(request.query["startkey"][0]);
-			query.startkey = request.query["startkey"];
+		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
+			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
+			query.startkey = request.query["startkey[]"];
 			query.startkey_docid = request.query.startkey_docid;
 		}
+		console.log(query);
 		d10.couch.d10.view("ts_creation/name",query,function(err,resp) {
 			if ( err ) {
 				return d10.rest.err(423, request.params.sort, request.ctx);
