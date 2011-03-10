@@ -123,37 +123,6 @@ exports.api = function(app) {
 					}
 				});
 			});
-			/*
-			d10.db.db("d10").getDoc(
-				{
-					success: function(doc) {
-// 						d10.log("debug","getDoc success");
-						for ( var i in fields ) {
-							doc[i] = fields[i];
-						}
-						d10.db.db("d10").storeDoc(
-							{
-								success: function(resp) {
-									d10.log("debug","storeDoc success");
-									d10.rest.success("recorded",request.ctx);
-								},
-								error: function(foo,err) {
-									d10.log("debug","storeDoc error");
-									d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
-								}
-							},
-							doc
-										 );
-						
-					},
-					error: function(foo,err) {
-						d10.log("debug","getDoc error");
-						d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
-					}
-				}
-				, request.params.id
-							 );
-			*/
 		});
 	});
 	
@@ -194,7 +163,6 @@ exports.api = function(app) {
 			oggLength: null,
 			fileWriter: null,
 			lameWriter: null,
-// 			lameWriterEnd: false,
 			requestEnd: false,
 			oggWriter: null,
 			bufferJoin: 8,
@@ -228,18 +196,13 @@ exports.api = function(app) {
 								return ;
 							}
 							
-			// 				var buffer = files.bufferSum(job.lameBuffer.buffer);job.lameBuffer.buffer = [];
-			// 				var pfusion =3;
-			// 				var buffer = job.lameBuffer.buffer.shift();
 							d10.log("debug","Size: ",job.lameBuffer.buffer.length," bufferJoin: ",job.bufferJoin);
 							var buffer = files.bufferSum(
 								job.lameBuffer.buffer.splice(0, job.lameBuffer.buffer.length <= job.bufferJoin ? job.lameBuffer.buffer.length : job.bufferJoin)
 							);
-			// 				d10.log("debug","writing "+buffer.length+" bytes to lameWriter");
 							var writeOk = job.lameWriter.stdin.write(buffer);
 							if ( writeOk ) { writeBuffer(); } 
 							else {
-// 								d10.log("debug",".");
 								job.lameWriter.stdin.once("drain",function() {writeBuffer();});
 							}
 						};
@@ -303,12 +266,6 @@ exports.api = function(app) {
 				sha1Check: {
 					status: null,
 					run: function(then) {
-						/*
-						$view = $this->couch_ci->key((string)$sha1)->getView("song","sha1");
-						if ( count($view->rows) ) {
-							return json_error(14);
-						}
-						*/
 						if ( this.tasks.sha1File.err ) {
 							return then(err);
 						} else if ( !this.tasks.sha1File.response || !this.tasks.sha1File.response.length ) {
@@ -323,27 +280,6 @@ exports.api = function(app) {
 								then(null,null);
 							}
 						});
-						/*
-						d10.db.db("d10").key( this.tasks.sha1File.response ).getView(
-							{
-								success: function(resp) {
-// 									d10.log("debug","sha1Check couch response ");
-// 									d10.log("debug",resp);
-									if (!resp.rows || resp.rows.length) {
-										then(433);
-									} else {
-										then(null,null);
-									}
-									
-								},
-								error: function(err) {
-									then(501);
-								}
-							},
-							"song",
-							"sha1"
-						);
-						*/
 					}
 				},
 				cleanupTags: {
@@ -353,8 +289,7 @@ exports.api = function(app) {
 							cleanupFileSystem();
 							return ;
 						}
-// 						d10.log("debug","cleanup tags");
-// 						d10.log("debug",this.tasks.fileMeta.response);
+
 						var tags = null;
 						try {
 							tags = JSON.parse(JSON.stringify(this.tasks.fileMeta.response));
@@ -362,8 +297,6 @@ exports.api = function(app) {
 							d10.log("debug","parsing failed for ",this.tasks.fileMeta.response);
 						}
 						
-// 						var tags = {};
-// 						d10.log("debug",tags);
 						if ( tags.genre ) {
 							var value = "";
 							d10.config.genres.forEach(function(v,k) {
@@ -437,12 +370,8 @@ exports.api = function(app) {
 							!isNaN(parseFloat(resp[1])) && 
 							!isNaN(parseFloat(resp[2])) 
 						) {
-// 							d10.log("ogglength is an array");
 							duration = parseFloat(resp[1])*60 + parseFloat(resp[2]);
 						} else {
-// 							d10.log("ogglength is not an array");
-// 							d10.log(this.tasks.oggLength.response);
-// 							d10.log(typeof this.tasks.oggLength.response);
 							duration = this.tasks.oggLength.response;
 						}
 						
@@ -479,29 +408,11 @@ exports.api = function(app) {
 								then(null,doc);
 							}
 						});
-						/*
-						d10.db.db("d10").storeDoc(
-							{
-								success: function(resp) {
-// 									d10.log("debug","doc storage: ");
-// 									d10.log("debug",resp);
-									doc._rev = resp.rev;
-									then(null,doc);
-								},
-								error: function(err) {
-									then(err);
-								}
-							},
-							doc
-						);
-						*/
-// 						then(null,doc);
 					}
 				}
 			},
 			queue: [],
 			run: function(taskName) {
-// 				d10.log("debug","JOB: run "+taskName);
 				if ( this.tasks[taskName] && this.tasks[taskName].status === null &&  this.queue.indexOf(taskName) < 0 ) {
 					this.queue.push(taskName);
 					this.tasks[taskName].run.call(this, function(err,resp) { job.endOfTask.call(job,taskName,err,resp); });
@@ -582,22 +493,19 @@ exports.api = function(app) {
 			}
 			if ( resp == "audio/mpeg" ) {
 				job.run("oggEncode");
-				job.run("fileMeta");
+// 				job.run("fileMeta");
 			} else {
 				job.lameBuffer.status = false;
 				job.lameBuffer.buffer = [];
-				if ( resp == "application/ogg" ) {
-					job.run("fileMeta");
-				} else {
+				if ( resp != "application/ogg" ) {
+// 					job.run("fileMeta");
+// 				} else {
 					job.allComplete(function() { safeErrResp(415,resp,request.ctx); });
 				}
 			}
 		});
 
 		job.complete("fileMeta",function(err,data) {
-// 			d10./*log*/("debug","fileMeta : ");
-// 			d10.log("debug",err);
-// 			d10.log("debug",data);
 			if ( err ) {
 				return safeErrResp(503,err,request.ctx);
 			}
@@ -653,8 +561,6 @@ exports.api = function(app) {
 			var steps = ["oggLength","sha1File","fileMeta"],
 				complete = 0,
 				onAllComplete = function() {
-// 					d10.log("oggLength response ");
-// 					d10.log(job.tasks.oggLength.response);
 					if ( job.tasks.sha1File.err ) {
 						safeErrResp(503,job.tasks.sha1File.err,request.ctx);
 					} else if ( job.tasks.oggLength.err || job.tasks.oggLength.response == 0 ) {
@@ -736,11 +642,6 @@ exports.api = function(app) {
 				} else {
 					job.fileWriter.close();
 				}
-				/*
-				if ( job.tasks.fileType.status === null ) {
-					job.run("fileType");
-				}
-				*/
 			} else {
 				response.writeHead(200, {'Content-Type': 'text/plain'});
 				response.end('Nothing sent\n');
@@ -780,7 +681,6 @@ exports.api = function(app) {
 					d10.log("debug","fileWriter end event");
 				});
 			}
-
 			if ( job.lameBuffer.status ) { job.lameBuffer.buffer.push(chunk); }
 			job.fileWriter.write(chunk);
 		});
