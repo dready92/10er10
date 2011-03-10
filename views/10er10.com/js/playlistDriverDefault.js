@@ -128,39 +128,6 @@ d10.playlistDrivers.default = function(options) {
 	var trigger = this.trigger = eventEmitter.trigger;
 	var unbind = this.unbind = eventEmitter.unbind;
 	var unbindAll = this.unbindAll = eventEmitter.unbindAll;
-	/*
-	var bind = this.bind = function(e,callback) {
-		if( events[e] ) events[e].push(callback);
-		else			events[e] = [callback];
-	};
-	
-	var trigger = this.trigger = function(e,data) {
-		if ( !events[e] )	return ;
-		$.each(events[e],function(i,callback) {
-			try {
-				callback(data);
-			} catch(err) {
-				debug(err,e);
-			}
-		});
-	};
-	
-	var unbind = this.unbind = function(e,callback) {
-		if ( !events[e] )	return ;
-		var index = -1;
-		$.each(events[e],function(i,v) {
-			if ( v === callback ) {
-				index = i;
-				return false;
-			}
-		});
-		if ( index >= 0 ) {
-			events[e].splice(index,1);
-		}
-	};
-	
-	var unbindAll = this.unbindAll = function() { events = {}; };
-	*/
 
 	/*
 	 * called when this class is the driver , "this" = <audio> element, e = event
@@ -352,16 +319,7 @@ d10.playlistDrivers.default = function(options) {
 	var seek = this.seek = function(secs) {
 		if ( current )	current.seek(secs);
 	};
-	
-	var load = this.load = function(doc, options) {
-		if ( options.purge ) {
-			cacheEmpty(true);
-			current = null;
-			next = null;
-			currentLoadProgressEnded = false;
-		}
-	};
-	
+
 	var writable = this.writable = function() {
 		// d'n'd allowed
 		return true;
@@ -455,17 +413,18 @@ d10.playlistDrivers.default = function(options) {
 		
 	};
 	
-	var load = this.load = function(options,cb) {
+	this.load = function(options,cb) {
 // 		var infos = d10.user.get_preferences().playlist;
 		debug("playlistDriverDefault load: ",options);
 		d10.playlist.title("Playlist non enregistrée");
 		if ( !options ) {
-			return cb();
+			return cb.call(this);
 		}
 		if ( !options.list || !options.list.length ) {
-			return cb();
+			return cb.call(this);
 		}
 		debug("posting...");
+		var self = this;
 		var res = d10.bghttp.post({
 			url: site_url+"/api/songs",
 			dataType: "json",
@@ -477,15 +436,15 @@ d10.playlistDrivers.default = function(options) {
 					html+=d10.song_template(song);
 				});
 				if ( html.length ) {
-					cb(null,$(html));
+					cb.call(self,null,$(html));
 				} else {
-					cb();
+					cb.call(self);
 				}
 				
 			},
 			error: function(e) {
 				debug("load error: ",e);
-				cb(e);
+				cb.call(self,e);
 			}
 		});
 		debug("posting res: ",res);

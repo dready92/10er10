@@ -150,13 +150,13 @@ d10.fn.plm = function (mydiv,mypldiv) {
 
 		d10.playlist.empty();
 		d10.playlist.append(pldiv.children(".list").children(".song").clone());		
-		var driver = d10.playlist.loadDriver("rpl",{},{rpldoc: rpldoc},function(err,resp) {
+		d10.playlist.loadDriver("rpl",{},{rpldoc: rpldoc},function(err,resp) {
 			if ( err )	{
 				debug("playlistModuleRpl:loadDriver error",err);
 				return ;
 			}
-			debug("plm setting driver",driver);
-			d10.playlist.setDriver(driver);
+			debug("plm setting driver",this);
+			d10.playlist.setDriver(this);
 		});
 		/*
       d10.playlist.loadFromPlm(

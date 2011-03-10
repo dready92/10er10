@@ -5,7 +5,7 @@ $(document).one("bootstrap:playlist",function() {
 	var loadPlm = function (id) {
 		debug("playlistModuleRpl:callback empty()");
 		d10.playlist.empty();
-		var driver = d10.playlist.loadDriver("rpl",{},{rpl: id},function(err,resp) {
+		d10.playlist.loadDriver("rpl",{},{rpl: id},function(err,resp) {
 			if ( err )	{
 				debug("playlistModuleRpl:loadDriver error",err);
 				return ;
@@ -13,8 +13,8 @@ $(document).one("bootstrap:playlist",function() {
 			debug("playlistModuleRpl:callback append()");
 			d10.playlist.append(resp);
 
-			debug("playlistModuleRpl:callback setDriver()",driver);
-			d10.playlist.setDriver(driver);
+			debug("playlistModuleRpl:callback setDriver()",this);
+			d10.playlist.setDriver(this);
 		});
 	};
 
@@ -43,22 +43,14 @@ $(document).one("bootstrap:playlist",function() {
 			'left' : left,
 			'visibility':''
 		})
-		//     .mouseleave(function() {$(this).remove();})
 		.find('.clickable')
 		.click(function() {
-			//       ui.data('waitRpl',$(this).attr('name'));
-// 			var opts = {"url": site_url+"/api/plm/"+$(this).attr('name'),"dataType": "json", "success": loadPlm };
-// 			d10.bghttp.get ( opts );
 			loadPlm($(this).attr('name'));
-//			d10.playlist.container().find("div.manager button[name=load]").one('click',loadOverlay);
 			$(this).closest('.overlay').ovlay().close();
 		});
-		//     .appendTo("body")
 		elem.ovlay({"onClose":function() {this.getOverlay().remove();} });
-		//     elem.fadeIn('fast');
 			
 	};
-//	debug("playlistModuleRpl button:",d10.playlist.container().find("div.manager button[name=load]"));
 	d10.playlist.container().find("div.manager button[name=load]").bind("click",loadOverlay);
 
 
@@ -118,9 +110,9 @@ $(document).one("bootstrap:playlist",function() {
 				success: function(resp) {
 					debug("playlistModuleRpl:recordRpl:success resp: ",resp);
     			    $('aside .manager').slideDown();
-    			    var drv = d10.playlist.loadDriver("rpl",{},{rpldoc: resp},function() {
-    					debug("playlistModuleRpl:recordRpl:success setDriver: ",drv);
-						d10.playlist.setDriver(drv);
+    			    d10.playlist.loadDriver("rpl",{},{rpldoc: resp},function() {
+    					debug("playlistModuleRpl:recordRpl:success setDriver: ",this);
+						d10.playlist.setDriver(this);
 					});
 				},
 				error: function() {
@@ -154,15 +146,11 @@ $(document).one("bootstrap:playlist",function() {
 		d10.my.plmanager.replace_playlist(id, d10.playlist.allIds(),{
 			success: function(resp) {
    			    $('aside .manager').slideDown();
-				var drv = d10.playlist.loadDriver("rpl",{},{rpldoc: resp.data.playlist},function() {
-					d10.playlist.setDriver(drv);
+				d10.playlist.loadDriver("rpl",{},{rpldoc: resp.data.playlist},function() {
+					d10.playlist.setDriver(this);
 				});
 			}
 		});
-//     var pldiv = $("<div><div class=\"list\"></div></div>");
-//     pldiv.attr("name",id).attr("immediate",true);
-//     $(".list",pldiv).append($(".song",ui).clone());
-//     $(document).trigger('rplUpdateRequest', pldiv );
   }
 
 
@@ -179,9 +167,9 @@ $(document).one("bootstrap:playlist",function() {
 		if ( d10.playlist.driver() && d10.playlist.driver().playlistId ) {
 			var id = d10.playlist.driver().playlistId();
 			if ( id && id.substr(0,2) == "pl" && id == data.playlist._id ) {
-				var drv = d10.playlist.loadDriver ("default",{}, {}, function() {} );
-				debug("playlistModuleRpl setting default driver");
-				d10.playlist.setDriver(drv);
+				d10.playlist.loadDriver ("default",{}, {}, function() {d10.playlist.setDriver(this);} );
+					debug("playlistModuleRpl setting default driver");
+					
 			}
 		}
 	});

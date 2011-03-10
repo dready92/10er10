@@ -534,10 +534,9 @@
 		
 		this.bootstrap = function() {
 			var infos = d10.user.get_preferences().playlist || {};
-			var drv;
 			if ( infos.type && d10.playlistDrivers[infos.type] ) {
-				drv = loadDriver(infos.type,{},infos,function(err,songs) {
-					setDriver(drv);
+				loadDriver(infos.type,{},infos,function(err,songs) {
+					setDriver(this);
 					$("#playlistLoader").slideUp("fast");
 					list.show();
 					if ( songs && songs.length ) {
@@ -547,7 +546,7 @@
 					}
 				});
 			} else {
-				drv = loadDriver("default",{},infos,function(err,songs) {
+				loadDriver("default",{},infos,function(err,songs) {
 					$("#playlistLoader").slideUp("fast");
 					list.show();
 					if ( songs && songs.length ) {
@@ -555,8 +554,9 @@
 					} else {
 						ui.find(".emptyPlaylist").show();
 					}
+					setDriver(this);
 				});
-				setDriver(drv);
+
 			}
 			
 		};

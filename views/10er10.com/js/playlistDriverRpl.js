@@ -21,9 +21,9 @@ d10.playlistDrivers.rpl = function(options) {
 	};
 	
 	this.listModified = function(e) {
-		var drv = d10.playlist.loadDriver ("default",{}, {}, function() {} );
+		d10.playlist.loadDriver ("default",{}, {}, function() {d10.playlist.setDriver(this);} );
 		debug("playlistDriverRpl:listModified setting default driver");
-		d10.playlist.setDriver(drv);
+		
 	};
 	
 	var record = this.record = function() {
@@ -60,15 +60,16 @@ d10.playlistDrivers.rpl = function(options) {
 		debug("playlistModuleRpl:load options:",options);
 		if ( options.rpldoc ) {
 			doc = options.rpldoc;
-			cb();
+			cb.call(this);
 		} else if (options.rpl ) {
+			var self = this;
 			d10.bghttp.get(
 				{
 					url: site_url+"/api/plm/"+options.rpl,
 					dataType: "json",
 					success: function(resp) {
 						if ( !resp.status || resp.status == "error" ) {
-							return cb(resp);
+							return cb.call(self,resp);
 						}
 						debug(resp);
 						setDoc(resp.data);
@@ -77,16 +78,16 @@ d10.playlistDrivers.rpl = function(options) {
 							html+=d10.song_template(v);
 						});
 						if ( html.length )	html = $(html);
-						cb(null,html);
+						cb.call(self,null,html);
 					},
 					error: function(e) {
-						cb(e);
+						cb.call(self,e);
 					}
 				}
 			);
 			
 		} else {
-			return cb();
+			return cb.call(this);
 		}
 	};
 	
