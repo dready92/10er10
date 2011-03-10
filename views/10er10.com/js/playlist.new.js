@@ -209,19 +209,7 @@
 			if ( ui.find(".emptyPlaylist").is(":visible") ) {
 				ui.find(".emptyPlaylist").hide();
 			}
-			// 			if ( p.isRpl() ) {
-			// 				p.setPlaylistName(p.noname);
-			// 			}
 			sendPlaylistUpdate({ 'action': 'copy' });
-			if( $("html").hasClass("csstransforms") ) {
-				ui.one("transitionend webkitTransitionEnd",function() {
-					debug("got transitionend");
-					ui.unbind("transitionend webkitTransitionEnd");
-					ui.removeClass("highlighted");
-				});
-				ui.addClass("highlighted");
-			}
-			// $(document).trigger('playlistUpdate', { 'action': 'copy' } );
 		};
 		
 		
@@ -239,7 +227,7 @@
 			} else {
 				item.appendTo(list);
 			}
-			//     debug("checking empty thing");
+
 			playlistAppendPost ();
 		};
 		
