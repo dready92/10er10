@@ -342,9 +342,9 @@
 			debug("============== loading driver : ",name);
 			if ( name in drivers ) {
 				debug("playlist:loadDriver got driver in cache");
-				setTimeout(function() {
+//				setTimeout(function() {
 					drivers[name].load(loadingOptions,cb);
-				},100);
+//				},100);
 				return drivers[name];
 			}
 			options = options || {};
@@ -369,9 +369,9 @@
 				$(document).trigger("playlist:currentTimeUpdate",data);
 			});
 
-			setTimeout(function() {
+//			setTimeout(function() {
 				drivers[name].load(loadingOptions,cb);
-			},100);
+//			},100);
 			debug("playlist: returning driver");
 			return drivers[name];
 		};
