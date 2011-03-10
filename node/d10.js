@@ -277,6 +277,9 @@ exports.oggLength = function(file,cb) {
 exports.id3tags = function(file, cb) {
 	var tagsPipe = exec(config.cmds.taginfo+" "+file+" | "+config.cmds.utrac+" -t UTF-8",function(err,stdout,stderr) {
 		if ( err )	{
+			if ( err.message.indexOf("error 303") > -1 ) {
+				return cb(null,{});
+			}
 			return cb(err);
 		}
 		var tagnames = ['ALBUM','TRACK','ARTIST','TITLE','GENRE','YEAR'],
@@ -300,6 +303,9 @@ exports.id3tags = function(file, cb) {
 exports.oggtags = function(file, cb) {
 	var tagsPipe = exec(config.cmds.vorbiscomment+" -l "+file+" | "+config.cmds.utrac+" -t UTF-8",function(err,stdout,stderr) {
 		if ( err )	{
+			if ( err.message.indexOf("error 303") > -1 ) {
+				return cb(null,{});
+			}
 			return cb(err);
 		}
 		var tags = {};
