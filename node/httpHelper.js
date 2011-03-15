@@ -1,7 +1,7 @@
 var fs = require("fs"),
 	path = require("path"),
 	util = require("util"),
-	utils = require("connect").utils,
+	mime = require("mime"),
 	d10 = require("./d10"),
 	files = require("./files");
 
@@ -38,7 +38,7 @@ exports.localPathServer = function ( uri, localuri, cacheSettings ) {
 			if(!err) {
 				request.ctx.stats = stats;
 				request.ctx.status = 200;
-				request.ctx.headers["Content-Type"] = utils.mime.type(localFile);
+				request.ctx.headers["Content-Type"] = mime.lookup(localFile);
 				sendStatic(localFile,stats,request.ctx,cache);
 			} else {
 				return next();
