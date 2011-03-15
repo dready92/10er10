@@ -1,4 +1,4 @@
-var bodyDecoder = require("connect").bodyDecoder,
+var bodyDecoder = require("connect").bodyParser,
 	hash = require("./hash"),
 	fs=require("fs"),
 	d10 = require("./d10");

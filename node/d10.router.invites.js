@@ -1,4 +1,4 @@
-var bodyDecoder = require("connect").bodyDecoder,
+var bodyDecoder = require("connect").bodyParser,
 	spawn = require('child_process').spawn,
 	d10 = require("./d10");
 
