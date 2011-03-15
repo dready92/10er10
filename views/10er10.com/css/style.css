@@ -286,6 +286,7 @@ div.tooltip > p {
 	min-width: 1024px;
 	margin:0px 10px;
 	opacity: 0;
+/* 	position: relative; */
 }
 
 #beautyFade {
@@ -418,6 +419,14 @@ article.songlist div.controls div.pushAll{
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	margin-bottom: 10px;
+	-moz-transition: margin-right 0.5s;
+	-webkit-transition: margin-right 0.5s;
+}
+
+body.noplaylist #main {
+	margin-right: 0px;
+	-moz-transform: margin-right 0.5s;
+	-webkit-transform: margin-right 0.5s;
 }
 
 html.csstransitions #main > div {
@@ -763,16 +772,26 @@ aside {
   background: -moz-linear-gradient(top,  
                 rgb(100,100,100) 0%,
                 rgb(52,52,52) 10px);
-  float: right;
+
+    float: right;
+
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   padding: 0px 1px 10px 1px;
   margin-bottom: 10px;
-  -webkit-transition: box-shadow 0.5s ease-out;
-  -moz-transition: -moz-box-shadow 0.5s ease-out;
+  -webkit-transition: box-shadow 0.5s ease-out, opacity 0.5s;
+  -moz-transition: -moz-box-shadow 0.5s ease-out, opacity 0.5s;
   
 }
 
+
+body.noplaylist aside {
+/* 	display: none; */
+	opacity: 0;
+	-webkit-transition:  opacity 0.5s;
+	-moz-transition: opacity 0.5s;
+	
+}
 
 aside.highlighted {
 	box-shadow: inset 0 0 10px #F9C53E;

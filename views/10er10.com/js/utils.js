@@ -151,7 +151,9 @@ var step2 = function () {
 		
 		pos = $("#search > div").eq(0).position();
 		height = $("#search > div").eq(0).height();
-		$("#search > div").eq(1).css({"top": pos.top + height, "left": pos.left,"min-width": $("#search input").width() })
+		$("#search > div").eq(1).css({"top": pos.top + height, "left": pos.left,"min-width": $("#search input").width() });
+		
+		$("#side").css("display","");
 	};
 
 	var launchMeBaby = function() {
@@ -211,9 +213,9 @@ var step2 = function () {
 
 		d10.globalMenu = new d10.fn.menuManager (menuOptions);
 		debug("menumanager ok");
-		$('#container').css("display","block").animate({"opacity": 1}, 1500,visibleBaby);
+		$('#container').css("display","block").animate({"opacity": 1}, 1000,visibleBaby);
 		$('#initialLoading').html("Let's go !");
-		$('#beautyFade').fadeOut(1500);
+		$('#beautyFade').fadeOut(1000);
 		
 	};
 }
