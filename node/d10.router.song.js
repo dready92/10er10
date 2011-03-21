@@ -3,6 +3,7 @@ var d10 = require ("./d10"),
 	fs = require("fs"),
 	files = require("./files"),
 	util = require("util"),
+	audioUtils = require("./audioFileUtils"),
 	spawn = require('child_process').spawn,
 	exec = require('child_process').exec;
 
@@ -162,11 +163,12 @@ exports.api = function(app) {
 			oggName: jobid+".ogg",
 			oggLength: null,
 			fileWriter: null,
-			lameWriter: null,
+			spawns: [],
 			requestEnd: false,
+			decoder: null,
 			oggWriter: null,
 			bufferJoin: 8,
-			lameBuffer: {status: true, buffer: []},
+			inputFileBuffer: {status: true, buffer: []},
 			tasks: {
 				oggEncode: {
 					status: null, // null (rien), true (running) or false (stopped)
@@ -174,36 +176,41 @@ exports.api = function(app) {
 						d10.log("debug","-----------------------------------------------");
 						d10.log("debug","-------      Create OGG encoding        -------");
 						d10.log("debug","-----------------------------------------------");
+						if ( !job.decoder ) {
+							d10.log("debug","error: job.decoder not set");
+							then({message: "decoder not initialized"});
+							return ;
+						}
 						var args = d10.config.cmds.oggenc_opts.slice();
 						args.push(d10.config.audio.tmpdir+"/"+this.oggName,"-");
-						job.lameWriter = spawn(d10.config.cmds.lame, d10.config.cmds.lame_opts);
+
 						job.oggWriter = spawn(d10.config.cmds.oggenc, args);
 						job.oggWriter.on("exit",function(code) {
 							d10.log("debug","launching oggwriter end of operation callback");
 							then(code ? code : null,null);
 						});
-						job.lameWriter.on("exit",function() { d10.log("debug","lamewriter exited"); });
-						util.pump(job.lameWriter.stdout, job.oggWriter.stdin,function(c) { d10.log("debug","encoding pump stopped",c); });
+						job.decoder.on("exit",function() { d10.log("debug","job.decoder exited"); });
+						util.pump(job.decoder.stdout, job.oggWriter.stdin,function(c) { d10.log("debug","encoding pump stopped",c); });
 						function writeBuffer() {
-							if ( ! job.lameBuffer.buffer.length ) {
+							if ( ! job.inputFileBuffer.buffer.length ) {
 								if ( job.requestEnd ) {
-									job.lameWriter.stdin.end();
+									job.decoder.stdin.end();
 								} else {
 									d10.log("debug","================= Lame pumping from request ===============");
-									util.pump(request, job.lameWriter.stdin);
-									job.lameBuffer.status = false;
+									util.pump(request, job.decoder.stdin);
+									job.inputFileBuffer.status = false;
 								}
 								return ;
 							}
 							
-							d10.log("debug","Size: ",job.lameBuffer.buffer.length," bufferJoin: ",job.bufferJoin);
+							d10.log("debug","Size: ",job.inputFileBuffer.buffer.length," bufferJoin: ",job.bufferJoin);
 							var buffer = files.bufferSum(
-								job.lameBuffer.buffer.splice(0, job.lameBuffer.buffer.length <= job.bufferJoin ? job.lameBuffer.buffer.length : job.bufferJoin)
+								job.inputFileBuffer.buffer.splice(0, job.inputFileBuffer.buffer.length <= job.bufferJoin ? job.inputFileBuffer.buffer.length : job.bufferJoin)
 							);
-							var writeOk = job.lameWriter.stdin.write(buffer);
+							var writeOk = job.decoder.stdin.write(buffer);
 							if ( writeOk ) { writeBuffer(); } 
 							else {
-								job.lameWriter.stdin.once("drain",function() {writeBuffer();});
+								job.decoder.stdin.once("drain",function() {writeBuffer();});
 							}
 						};
 						writeBuffer();
@@ -225,11 +232,11 @@ exports.api = function(app) {
 					status: null,
 					run: function(then) {
 						if ( this.tasks.fileType.response == "audio/mpeg" )  {
-							d10.id3tags(d10.config.audio.tmpdir+"/"+this.fileName,function(err,cb) {
+							audioUtils.id3tags(d10.config.audio.tmpdir+"/"+this.fileName,function(err,cb) {
 								then(err,cb);
 							});
 						} else if ( this.tasks.fileType.response == "application/ogg" )  {
-							d10.oggtags(d10.config.audio.tmpdir+"/"+this.fileName,function(err,cb) {
+							audioUtils.oggtags(d10.config.audio.tmpdir+"/"+this.fileName,function(err,cb) {
 								then(err,cb);
 							});
 						} else {
@@ -241,7 +248,7 @@ exports.api = function(app) {
 					status: null,
 					run: function(then) {
 						var file = (this.tasks.fileType.response == "application/ogg" ) ? this.fileName : this.oggName ;
-						d10.oggLength(d10.config.audio.tmpdir+"/"+file,function(err,len) {
+						audioUtils.oggLength(d10.config.audio.tmpdir+"/"+file,function(err,len) {
 							if ( !err ) {
 								if ( len && len.length && len.length > 2 ) {
 									len = 60*parseInt(len[1],10) + parseInt(len[2],10);
@@ -354,7 +361,7 @@ exports.api = function(app) {
 				applyTagsToFile: {
 					status: null,
 					run: function(then) {
-						d10.setOggtags(d10.config.audio.dir+"/"+this.oggName,this.tasks.cleanupTags.response,function(err,cb) {
+						audioUtils.setOggtags(d10.config.audio.dir+"/"+this.oggName,this.tasks.cleanupTags.response,function(err,cb) {
 							then(err,cb);
 						});
 					}
@@ -492,14 +499,14 @@ exports.api = function(app) {
 				job.allComplete(function() { safeErrResp(421,err,request.ctx); });
 			}
 			if ( resp == "audio/mpeg" ) {
+				job.decoder = spawn(d10.config.cmds.lame, d10.config.cmds.lame_opts);
+				job.spawns.push(job.decoder);
 				job.run("oggEncode");
 // 				job.run("fileMeta");
 			} else {
-				job.lameBuffer.status = false;
-				job.lameBuffer.buffer = [];
+				job.inputFileBuffer.status = false;
+				job.inputFileBuffer.buffer = [];
 				if ( resp != "application/ogg" ) {
-// 					job.run("fileMeta");
-// 				} else {
 					job.allComplete(function() { safeErrResp(415,resp,request.ctx); });
 				}
 			}
@@ -613,9 +620,16 @@ exports.api = function(app) {
 		});
 		
 		var cleanupFileSystem = function() {
-			if ( job.lameWriter ) {
-				job.lameWriter.kill();
+			
+			if ( job.spawns.length ) {
+				var j;
+				while ( j = job.spawns.pop() ) {
+					try {
+						j.kill();
+					} catch(e) {}
+				}
 			}
+			
 			if ( job.oggWriter ) {
 				job.oggWriter.kill();
 			}
@@ -681,7 +695,7 @@ exports.api = function(app) {
 					d10.log("debug","fileWriter end event");
 				});
 			}
-			if ( job.lameBuffer.status ) { job.lameBuffer.buffer.push(chunk); }
+			if ( job.inputFileBuffer.status ) { job.inputFileBuffer.buffer.push(chunk); }
 			job.fileWriter.write(chunk);
 		});
 
