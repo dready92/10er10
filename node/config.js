@@ -35,6 +35,9 @@ exports.audio = {
 	dir: "../audio/files"
 };
 
+// used to set the ogg path
+exports.audio_root = "/audio/";
+
 exports.cmds = {
 	file: "/usr/bin/file",
 	file_options: "-bi",
@@ -45,7 +48,10 @@ exports.cmds = {
 	ogginfo: "/usr/bin/ogginfo",
 	utrac: "/usr/local/bin/utrac",
 	taginfo: "/usr/local/bin/taginfo",
-	vorbiscomment: "/usr/bin/vorbiscomment"
+	vorbiscomment: "/usr/bin/vorbiscomment",
+	metaflac: "/usr/bin/metaflac",
+	flac: "/usr/bin/flac",
+	flac_opts: ["-d","--totally-silent","-"]
 	
 }
 

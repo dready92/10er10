@@ -19,7 +19,12 @@ exports.homepage = function(app) {
 		if ( request.ctx.session && "_id" in request.ctx.session ) {
 			// 		d10.log("debug",request.headers);
 			var debug = request.query && request.query.debug ? true : false ;
-			var vars = {scripts: config.javascript.includes, dbg: debug ? "true":"false", base_url: request.basepath };
+			var vars = {
+				scripts: config.javascript.includes, 
+				dbg: debug ? "true":"false", 
+				base_url: request.basepath,
+				audio_root: d10.config.audio_root
+			};
 			if ( request.query.o && request.query.o.indexOf("a") >= 0 ) {
 				vars.debugAudio = true;
 			}
@@ -120,10 +125,7 @@ exports.homepage = function(app) {
 								return ;
 							}
 							d10.log("debug","session recorded : ",storeResponse);
-							// 									response.rows.push(doc);
-// 							if ( storeResponse.rev ) {
-// 								doc._rev = storeResponse.rev;
-// 							}
+
 							d10.fillUserCtx(request.ctx,loginResponse,doc);
 							var infos = {
 								user: request.ctx.user.login,
@@ -134,30 +136,6 @@ exports.homepage = function(app) {
 							request.ctx.headers["Set-Cookie"] = config.cookieName+"="+escape(JSON.stringify(infos))+"; expires="+d.toUTCString()+"; path="+config.cookiePath;
 							displayHomepage(request,response,next);
 						});
-						/*
-						d10.db.db("auth").storeDoc({
-							success: function(storeResponse) {
-								d10.log("debug","session recorded : ",storeResponse);
-								// 									response.rows.push(doc);
-								if ( storeResponse.rev ) {
-									doc._rev = storeResponse.rev;
-								}
-								d10.fillUserCtx(request.ctx,loginResponse,doc);
-								var infos = {
-									user: request.ctx.user.login,
-									session: sessionId
-								};
-								var d = new Date();
-								d.setTime ( d.getTime() + config.cookieTtl );
-								request.ctx.headers["Set-Cookie"] = config.cookieName+"="+escape(JSON.stringify(infos))+"; expires="+d.toUTCString()+"; path="+config.cookiePath;
-								displayHomepage(request,response,next);
-							},
-							error: function(a,b) {
-								d10.log("debug","error on session recording",a,b);
-								displayHomepage(request,response,next);
-							}
-						},doc);
-						*/
 					} else {
 						displayHomepage(request,response,next);
 					}

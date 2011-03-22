@@ -8,7 +8,7 @@ function upload () {
   // load template
   var ui=$('#upload');
   var $dropbox = $('div.uploadDropBox',ui);
-  var audioTypes = ["audio/mp3","audio/ogg","video/ogg","audio/mpeg"];
+  var audioTypes = ["audio/mp3","audio/ogg","video/ogg","audio/mpeg", "audio/x-flac","audio/flac"];
   var uploader = new uploadManager();
   var uploadCandidates = [];
   var intervalID = null;

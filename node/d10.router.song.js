@@ -239,6 +239,10 @@ exports.api = function(app) {
 							audioUtils.oggtags(d10.config.audio.tmpdir+"/"+this.fileName,function(err,cb) {
 								then(err,cb);
 							});
+						} else if ( this.tasks.fileType.response == "audio/x-flac" )  {
+							audioUtils.flactags(d10.config.audio.tmpdir+"/"+this.fileName,function(err,cb) {
+								then(err,cb);
+							});
 						} else {
 							then("invalid file type");
 						}
@@ -407,7 +411,7 @@ exports.api = function(app) {
 							typeof doc.artist == "string" && doc.artist.length ) {
 							doc.valid = true;
 						}
-// 						return then(null,doc);
+//  						return then(null,doc);
 						d10.couch.d10.storeDoc(doc,function(err,resp) {
 							if ( err ) { then(err); }
 							else {
@@ -502,7 +506,11 @@ exports.api = function(app) {
 				job.decoder = spawn(d10.config.cmds.lame, d10.config.cmds.lame_opts);
 				job.spawns.push(job.decoder);
 				job.run("oggEncode");
-// 				job.run("fileMeta");
+				job.run("fileMeta");
+			} else if ( resp == "audio/x-flac" ) {
+				job.decoder = spawn(d10.config.cmds.flac, d10.config.cmds.flac_opts);
+				job.spawns.push(job.decoder);
+				job.run("oggEncode");
 			} else {
 				job.inputFileBuffer.status = false;
 				job.inputFileBuffer.buffer = [];

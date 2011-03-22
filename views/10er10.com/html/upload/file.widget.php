@@ -7,7 +7,7 @@
     <span class="size"></span>
   </div>
   <div class="typeError">
-    Le fichier ne sera pas transmis au serveur : ce n'est ni un mp3 ni un ogg.
+    Le fichier ne sera pas transmis au serveur : ce n'est ni un mp3, ni un flac, ni un ogg.
   </div>
   <div class="controls">
     <span class="status">En attente</span>

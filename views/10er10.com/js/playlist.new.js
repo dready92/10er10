@@ -131,7 +131,7 @@
 		
 		var getUrl = this.getUrl = function(song) {
 // 			var url = function (id) { return "/audio/"+id.substr(2,1)+"/"+id+".ogg"; } ;
-			var url = function (id) { return "http://10er10.com/audio/"+id.substr(2,1)+"/"+id+".ogg"; } ;
+			var url = function (id) { return d10.config.audio_root+id.substr(2,1)+"/"+id+".ogg"; } ;
 			return {"audio/ogg": url(song.attr('name'))};
 		};
 		var getTrackParameters = this.getTrackParameters = function(song) {
