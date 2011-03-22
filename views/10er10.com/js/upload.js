@@ -83,6 +83,8 @@ function upload () {
 			return false;
 		});
       widget.data('file',file);
+	  debug("file type: ",file.type);
+	  debug("file",file);
       var typeOK = false;
       for ( var index in audioTypes ) {
         if ( audioTypes[index] == file.type ) {
