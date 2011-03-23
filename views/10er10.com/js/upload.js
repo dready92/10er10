@@ -83,14 +83,20 @@ function upload () {
 			return false;
 		});
       widget.data('file',file);
-	  debug("file type: ",file.type);
-	  debug("file",file);
+	  //debug("file type: ",file.type);
+	  //debug("file",file);
       var typeOK = false;
       for ( var index in audioTypes ) {
         if ( audioTypes[index] == file.type ) {
           typeOK = true;
         }
       }
+      
+      // fuckin osX does not know the mime type of flac files
+      if ( file.name.match(/\.flac$/) ) {
+		  typeOK = true;
+	  }
+      
       if ( typeOK ) {
         $("div.typeError",widget).hide();
         $("button.close",widget).hide();
