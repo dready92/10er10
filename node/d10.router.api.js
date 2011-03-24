@@ -599,7 +599,7 @@ exports.api = function(app) {
 					});
 				};
 			}
-			d10.when(
+			when(
 				jobs,
 				function(err,resp) {
 					if ( err ){
