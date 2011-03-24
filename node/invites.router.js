@@ -1,7 +1,8 @@
 var bodyDecoder = require("connect").bodyParser,
 	hash = require("./hash"),
 	fs=require("fs"),
-	d10 = require("./d10");
+	d10 = require("./d10"),
+	when = require("./when");
 
 var errCodes = {
 	430: "Login already registered",
@@ -75,7 +76,7 @@ var isValidPassword = function(password, callback) {
 };
 
 var createAccount = function(request,response,invite) {
-	d10.when(
+	when(
 		{
 			parent: function(cb) {
 				d10.couch.auth.getDoc(invite.from,cb);
@@ -84,7 +85,12 @@ var createAccount = function(request,response,invite) {
 				d10.couch.auth.getDoc(invite.from.replace(/^us/,"pr"),cb);
 			}
 		},
-		function(d) {
+		function(errs) {
+			if ( errs ) {
+				response.writeHead(500,{});
+				response.end(JSON.stringify(errs));
+				return ;
+			}
 			var uid = d10.uid();
 			var user = {
 				_id: "us"+uid,
@@ -104,10 +110,6 @@ var createAccount = function(request,response,invite) {
 					createD10UserDocs(request,response,user,invite);
 				}
 			});
-		},
-		function(errs) {
-			response.writeHead(500,{});
-			response.end(JSON.stringify(errs));
 		}
 	);
 }
@@ -187,7 +189,7 @@ exports.api = function(app) {
 			isValidCode(request.body.code,function(err,doc) {
 				if ( err ) { return next(); }
 
-				d10.when(
+				when(
 					{
 						login: function(cb) {
 							isValidLogin(request.body.login,cb);
@@ -196,18 +198,20 @@ exports.api = function(app) {
 							isValidPassword(request.body.password,cb);
 						}
 					},
-					function() {
-						createAccount(request,response,doc);
-					},
 					function(errs) {
-						var err;
-						if ( errs.login )	err = errs.login;
-						else				err = errs.password;
-						if ( errCodes[err] ) {
-							response.writeHead(err,errCodes[err],{});
-						} else {
-							response.writeHead(err,{});
+						if ( errs ) {
+							var err;
+							if ( errs.login )	err = errs.login;
+							else				err = errs.password;
+							if ( errCodes[err] ) {
+								response.writeHead(err,errCodes[err],{});
+							} else {
+								response.writeHead(err,{});
+							}
+							response.end();
+							return ;
 						}
+						createAccount(request,response,doc);
 					}
 				);
 

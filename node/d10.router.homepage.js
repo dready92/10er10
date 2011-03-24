@@ -2,7 +2,8 @@ var 	bodyDecoder = require("connect").bodyParser,
 		config = require("./config"),
 		hash = require("./hash"),
 		utils = require("connect").utils,
-		d10 = require("./d10");
+		d10 = require("./d10"),
+		when = require("./when");
 		
 		
 exports.homepage = function(app) {
@@ -35,7 +36,7 @@ exports.homepage = function(app) {
 				vars.debugloop = true;
 			}
 			vars.username = request.ctx.user.login;
-			d10.when(
+			when(
 				{
 					resultsContainer: function(cb) {
 						d10.view("html/results/container",{},function(data) {cb(null,data);} );
@@ -53,13 +54,16 @@ exports.homepage = function(app) {
 						d10.view("html/welcome/container",{},function(data) {cb(null,data);} );
 					}
 				},
-				 function(responses) {
-					d10.view("homepage",vars,responses,function(html) {
-						response.end(html);
-					});
-				},
-				function(errs) {
-					console.log("READ ERROR : ",errs);
+				 function(errs,responses) {
+					 if ( errs ) {
+						 console.log("READ ERROR : ",errs);
+						 response.writeHead(501, request.ctx.headers );
+						 response.end ("Filesystem error");
+					 } else {
+						d10.view("homepage",vars,responses,function(html) {
+							response.end(html);
+						});
+					 }
 				}
 			);
 			

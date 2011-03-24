@@ -5,6 +5,7 @@ var d10 = require ("./d10"),
 	querystring = require("querystring"),
 	fs = require("fs"),
 	os = require("os"),
+	when = require("./when"),
 	exec = require('child_process').exec;
 
 exports.api = function(app) {
@@ -56,7 +57,7 @@ exports.api = function(app) {
 	});
 	
 	app.get("/api/userinfos", function(request,response) {
-		d10.when ( 
+		when ( 
 			{
 				preferences: function(cb) {
 					d10.couch.d10.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,data) {
@@ -75,13 +76,14 @@ exports.api = function(app) {
 					);
 				}
 			},
-			function(responses) {
-				responses.user = request.ctx.user;
-				d10.rest.success(responses,request.ctx);
-			},
 			function(errors,responses) {
-				d10.log("debug",errors);
-				d10.rest.err(423,null,request.ctx);
+				if ( errors ) {
+					d10.log("debug",errors);
+					d10.rest.err(423,null,request.ctx);
+				} else {
+					responses.user = request.ctx.user;
+					d10.rest.success(responses,request.ctx);
+				}
 			}
 		);
 	}); // /api/userinfos
@@ -99,15 +101,16 @@ exports.api = function(app) {
 							})(d10.config.templates.clientList[jobname],jobname);
 		}
 		request.ctx.headers["Content-type"] = "application/json";
-		d10.when(
+		when(
 			jobs,
-			function(responses) {
-				d10.log("success");
-				d10.rest.success(responses,request.ctx);
-			},
-			function(e,r) {
-				d10.log("error");d10.log(e);
-				d10.rest.err(500,e,request.ctx);
+			function(e,responses) {
+				if ( e ) {
+					d10.log("error");d10.log(e);
+					d10.rest.err(500,e,request.ctx);
+				} else {
+					d10.log("success");
+					d10.rest.success(responses,request.ctx);
+				}
 			}
 		);
 	});
@@ -243,8 +246,12 @@ exports.api = function(app) {
 				}
 				
 				if ( actions.length ) {
-					d10.when(actions,recordDoc,function(err) {
-						d10.rest.err(413,err,request.ctx);
+					when(actions,function(err,responses) {
+						if ( err ) {
+							d10.rest.err(413,err,request.ctx);
+						} else {
+							recordDoc()
+						}
 					});
 				} else {
 					recordDoc();
@@ -594,15 +601,16 @@ exports.api = function(app) {
 			}
 			d10.when(
 				jobs,
-				function(resp) {
-					d10.log("got when positive response",resp);
-					request.ctx.headers["Content-Type"] = "application/json";
-					response.writeHead(200,request.ctx.headers);
-					response.end(JSON.stringify(resp));
-				},
-				function(err) {
-					d10.log("got details error",err);
-					d10.rest.err(427,err,request.ctx);
+				function(err,resp) {
+					if ( err ){
+						d10.log("got details error",err);
+						d10.rest.err(427,err,request.ctx);
+					} else {
+						d10.log("got when positive response",resp);
+						request.ctx.headers["Content-Type"] = "application/json";
+						response.writeHead(200,request.ctx.headers);
+						response.end(JSON.stringify(resp));
+					}
 				}
 			);
 		});

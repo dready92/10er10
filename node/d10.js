@@ -3,6 +3,7 @@ var fs = require("fs"),
 	ncouch = require("./ncouch"),
 	files = require("./files"),
 	exec = require('child_process').exec;
+	
 exports.mustache = require("./mustache");
 var config = exports.config = require("./config");
 var fileCache = files.fileCache( config.production ? null : {bypass: true} );
@@ -180,44 +181,8 @@ exports.ucwords = function(str) {
     return (str + '').replace(/^([a-z])|\s+([a-z])/g, function ($1) {
         return $1.toUpperCase();
     });
-}
-
-exports.when = function(elems, success, failure) {
-	var responses = {};
-	var errors = {};
-	
-	var checkEOT = function() {
-		if ( exports.count(responses) + exports.count(errors) == exports.count(elems) ) {
-			if ( exports.count(errors) ) {
-				failure.call(this,errors, responses);
-			} else {
-				success.call(this,responses);
-			}
-		}
-	};
-	
-// 	elements.forEach(function(v,k) {
-	for ( var k in elems) {
-		(function(callback, key){
-			callback.call(this,function(err,response) {
-				if( err ) {	errors[key] = err; }
-				else		{ responses[key] = response;}
-				checkEOT();
-			});
-		})(elems[k],k);
-	}
-	return {
-		active: function() {  return (elems.length - responses.length - errors.length ); },
-		total: function() { return elems.length},
-		complete: function() { return (responses.length + errors.length); },
-		completeNames: function() {
-			var back = [];
-			for ( var index in responses ) { back.push(index); }
-			for ( var index in errors ) { back.push(index); }
-			return back;
-		}
-	};
 };
+
 
 /*
  * setup ctx.session
