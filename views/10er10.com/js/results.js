@@ -78,15 +78,11 @@ var results = function (search) {
 		})
 		.delegate("button[name=loadNow]","click",function() {
 			var cur = d10.playlist.current();
-			if ( !cur.length ) {
-				cur = d10.playlist.first();
+			if ( cur.length ) {
 				return d10.playlist.append($(this).closest(".rItem").find("div.song").clone(),cur);
+			}else {
+				return d10.playlist.append($(this).closest(".rItem").find("div.song").clone());
 			}
-			var next = cur.next();
-			if ( next.length ) {
-				return d10.playlist.append($(this).closest(".rItem").find("div.song").clone(),next);
-			}
-			return d10.playlist.append($(this).closest(".rItem").find("div.song").clone());
 		})
 		;
 		
