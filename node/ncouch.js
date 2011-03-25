@@ -177,6 +177,9 @@ function ncouch (url) {
 				wrapper.emit("get",resp,meta);
 			};
 			options.url = dburl+"/"+encodeURIComponent(id);
+			if ( id.match(/^_design\//) ) {
+				options.url = dburl+"/"+id;
+			}
 			_query(options,null,cb);
 		};
 
@@ -231,7 +234,9 @@ function ncouch (url) {
 					return doc;
 				}
 			};
-			
+			if ( doc._id.match(/^_design\//) ) {
+                                options.url = dburl+"/"+doc._id;
+                        }	
 			_query(options,[200],cb);	
 		};
 		
