@@ -126,6 +126,8 @@ function ncouch (url) {
 				}
 			}
 		});
+		settings.url = settings.url.replace(/^\/+/,"/");
+		
 		var query = querystring.stringify(keys);
 		if ( query && query.length )	settings.url += "?"+query;
 		
@@ -158,6 +160,7 @@ function ncouch (url) {
 				callback(err,body,meta);
 			}
 		};
+		console.log(query);
 		return serverQuery(query);
 	}
 	
@@ -248,9 +251,9 @@ function ncouch (url) {
 			var options = {
 				body: {docs:[]},
 				type: "POST",
-				url: dburl+"/bulk_docs",
+				url: dburl+"/_bulk_docs",
 				dataFilter: function(resp) {
-					if ( Object.prototype.toString.call(v) !== '[object Array]' ) {
+					if ( Object.prototype.toString.call(resp) !== '[object Array]' ) {
 						return resp;
 					}
 					options.body.docs.forEach(function(d,k) {
