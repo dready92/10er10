@@ -1,6 +1,8 @@
 var config = require("./config");
 
-if ( process.getuid() == 502 ) {
+
+// production test
+if ( process.argv.length > 2 && process.argv[2] == "-p" ) {
         config.production = true;
         config.port = 8124;
         config.couch = config.couch_prod;

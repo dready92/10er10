@@ -1,6 +1,6 @@
 var config = require("../config");
 
-if ( process.getuid() == 502 ) {
+if ( process.argv.length > 4 && process.argv[4] == "-p" ) {
         config.production = true;
         config.port = 8124;
         config.couch = config.couch_prod;
@@ -13,7 +13,7 @@ var d10 = require("../d10"),
 	users = require("../d10.users");
 
 if ( process.argv.length < 4 ) {
-	console.log("Usage: "+process.argv[0]+" "+process.argv[1]+" login passwd");
+	console.log("Usage: "+process.argv[0]+" "+process.argv[1]+" login passwd [-p]");
 	process.exit(1);
 }
 
