@@ -152,10 +152,6 @@ if ( !window.d10.mustacheView ) {
 
 
 window.d10.dnd = new dnd();
-window.d10.loadView = function (name,doc) {
-  if ( typeof doc != 'object' ) doc = {};
-  return $.sprintf(window.d10.localcache.getTemplate(name),doc);
-}
 window.d10.song_template = function (doc) {
   var d = new Date(1970,1,1,0,0,doc.duration);
   doc.human_length = d.getMinutes()+':'+d.getSeconds();
