@@ -1,7 +1,5 @@
-var stat = require("./serverstat"),
-	path = require("path"),
-	url = require("url"),
-	querystring = require("querystring");
+var 	path = require("path"),
+	url = require("url");
 
 
 exports.context = function (req,res,next) { 
