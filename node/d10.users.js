@@ -115,7 +115,7 @@ var createUser = function(login,password,opts) {
 					});
 				},
 				d10: function(cb) {
-					d10.couch.d10.storeDocs( [ d10PreferencesDoc, d10PrivateDoc ], function(err,resp) {
+					d10.couch.d10wi.storeDocs( [ d10PreferencesDoc, d10PrivateDoc ], function(err,resp) {
 						if ( err ) {
 												console.log(err,resp);
 							cb(500,err);

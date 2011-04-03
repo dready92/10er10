@@ -121,6 +121,7 @@ exports.api = function(app) {
 					}else {
 						d10.log("debug","storeDoc success");
 						d10.rest.success("recorded",request.ctx);
+						d10.couch.d10wi.storeDoc({_id: doc._id, hits: 0});
 					}
 				});
 			});
@@ -418,7 +419,7 @@ exports.api = function(app) {
 								doc._rev = resp.rev;
 								then(null,doc);
 							}
-						});
+						});						
 					}
 				}
 			},

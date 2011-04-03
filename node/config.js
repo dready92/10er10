@@ -2,12 +2,14 @@ exports.port = 8888;
 
 exports.couch_prod = {
 	d10: {dsn: "http://localhost:5984/",database:"d10"},
+	d10wi: {dsn: "http://localhost:5984/",database:"d10wi"},
 	auth: {dsn: "http://localhost:5984/",database:"auth"},
 	track: {dsn: "http://localhost:5984/",database:"track"}
 };
 
 exports.couch_dev = {
         d10: {dsn: "http://localhost:5984/",database:"d10-test"},
+        d10wi: {dsn: "http://localhost:5984/",database:"d10wi-test"},
         auth: {dsn: "http://localhost:5984/",database:"auth-test"},
         track: {dsn: "http://localhost:5984/",database:"track-test"}
 };

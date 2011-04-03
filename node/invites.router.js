@@ -115,7 +115,7 @@ var createAccount = function(request,response,invite) {
 }
 
 var createD10UserDocs = function(request,response,user,invite) {
-	d10.couch.d10.storeDocs( [ {_id: user._id.replace(/^us/,"up")}, {_id: user._id.replace(/^us/,"pr")} ], function(err,resp) {
+	d10.couch.d10wi.storeDocs( [ {_id: user._id.replace(/^us/,"up")}, {_id: user._id.replace(/^us/,"pr")} ], function(err,resp) {
 		if ( err ) {
 			tryToRemoveAuthDocs(user);
 			response.writeHead(500,{});

@@ -143,6 +143,7 @@ function ncouch (url) {
 	var _query = function(query, statusCodes, callback) {
 		statusCodes = statusCodes || [200];
 		query = prepareCouchQuery(query);
+		callback = callback || function() {};
 		
 		query.complete = function(err, resp, meta) {
 			if ( statusCodes.indexOf( parseInt(meta.statusCode,10) ) > -1 ) {
@@ -160,7 +161,7 @@ function ncouch (url) {
 				callback(err,body,meta);
 			}
 		};
-		console.log(query);
+// 		console.log(query);
 		return serverQuery(query);
 	}
 	
