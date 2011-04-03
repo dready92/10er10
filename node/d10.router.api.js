@@ -221,6 +221,7 @@ exports.api = function(app) {
 		request.on("end",function() {d10.log("debug","ping end reached");});
 		var updateAliveDoc = function() {
 			d10.couch.track.updateDoc("tracking/ping/"+request.ctx.user._id.replace(/^us/,"pi"),function(err,resp) {
+				if ( err ) d10.log(err);
 				d10.log("debug", err ? "error updating tracking ping" : "tracking ping updated");
 			});
 		};

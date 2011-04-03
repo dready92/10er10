@@ -55,6 +55,7 @@ exports.api = function(app) {
 			s_user_likes: function () {
 				query.startkey = [request.ctx.user._id];
 				query.endkey = [request.ctx.user._id,[]];
+				db = d10.couch.d10wi;
 			}
 		};
 		
@@ -67,6 +68,7 @@ exports.api = function(app) {
 		
 		db.list("pagination/mapping/"+request.params.sort+"/name",query,function(err,resp) {
 			if ( err ) {
+				d10.log(err);
 				d10.rest.err(423, request.params.sort, request.ctx);
 			} else {
 				d10.rest.success(resp.pages,request.ctx);
@@ -201,15 +203,23 @@ exports.api = function(app) {
 			query.startkey_docid = request.query.startkey_docid;
 		}
 		
-		d10.couch.d10.view("s_user_likes/name",query,function(err,resp) {
+		d10.couch.d10wi.view("s_user_likes/name",query,function(err,resp) {
 			if ( err ) {
 				return d10.rest.err(423, err, request.ctx);
 			}
-			d10.rest.success(resp,request.ctx);
+			var keys = [];
+			for ( var  i in resp.rows ) {
+				keys.push(resp.rows[i].value);
+			}
+			
+			d10.couch.d10.getAllDocs({include_docs: true, keys: keys},function(err,resp) {
+				if ( err ) {
+					return d10.rest.err(423, err, request.ctx);
+				}
+				d10.rest.success(resp,request.ctx);
+			});
 		});
 	});
-	
-	
 	
 	app.get("/api/genres/genres",function(request,response) {
 		if ( !request.query.genre || d10.config.genres.indexOf(request.query.genre) < 0 ) {
