@@ -104,7 +104,7 @@ var jobs = {
     // data : {"id", "creation","duration","events"}
     "job":  function(data) {
 
-      var id = data.id.replace(/-.*/,'');
+      var id = data.id.replace(/^.*-/,'');
       var play = jobs.player.getEvent(data.events,"play");
       if ( play ) {
         if ( jobs.player.shortPath(data.events, data.duration) == true ) {

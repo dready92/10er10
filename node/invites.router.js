@@ -85,7 +85,7 @@ var createAccount = function(request,response,invite) {
 				d10.couch.auth.getDoc(invite.from.replace(/^us/,"pr"),cb);
 			}
 		},
-		function(errs) {
+		function(errs,d) {
 			if ( errs ) {
 				response.writeHead(500,{});
 				response.end(JSON.stringify(errs));

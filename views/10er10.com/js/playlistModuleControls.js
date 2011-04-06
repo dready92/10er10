@@ -5,7 +5,6 @@ var createModule = function(ui) {
 
 	var module = new d10.fn.playlistModule("controls",{
 		"playlist:currentSongChanged": function() {
-			debug("here too");
 			play.hide();
 			pause.show();
 			starringControls();

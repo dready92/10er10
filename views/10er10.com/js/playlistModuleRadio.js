@@ -74,7 +74,7 @@ var createModule= function (ui) {
                                 clearTimeout(delayTimeout);
                         }
                         delayTimeout = setTimeout(function() {
-                                debug("radio1");
+//                                 debug("radio1");
                                 if ( ui.find(".on").is(":visible") && d10.playlist.current().nextAll().length < 3 ) {
                                         debug("radio2");
                                         appendSongs(settings.count);

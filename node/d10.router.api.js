@@ -261,6 +261,9 @@ exports.api = function(app) {
 			};
 			
 			infos.forEach(function(v,k) {
+				if ( v.id.substr(0,2) != "aa" ) {
+					return ;
+				}
 				updateHits(v.id);
 				updateUserData(v.id);
 				v.song = v.id;
