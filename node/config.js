@@ -8,10 +8,10 @@ exports.couch_prod = {
 };
 
 exports.couch_dev = {
-        d10: {dsn: "http://localhost:5984/",database:"d10-test"},
-        d10wi: {dsn: "http://localhost:5984/",database:"d10wi-test"},
-        auth: {dsn: "http://localhost:5984/",database:"auth-test"},
-        track: {dsn: "http://localhost:5984/",database:"track-test"}
+        d10: {dsn: "http://localhost:5984/",database:"d10-test2"},
+        d10wi: {dsn: "http://localhost:5984/",database:"d10wi-test2"},
+        auth: {dsn: "http://localhost:5984/",database:"auth-test2"},
+        track: {dsn: "http://localhost:5984/",database:"track-test2"}
 };
 
 

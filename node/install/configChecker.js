@@ -28,21 +28,23 @@ for ( var i in config.couch_prod ) {
 	var parsed = Url.parse(url);
 	couchServers.push(
 		{
-			host: parsed.hostname,
+			hostname: parsed.hostname,
 			port: parsed.port ? parsed.port : 80,
-			path: parsed.pathname ? parsed.pathname : "/"
+			pathname: parsed.pathname ? parsed.pathname : "/"
 		}
 				 );
 }
+
+// console.log(couchServers);
 
 for ( var i in config.couch_dev ) {
 	var url = config.couch_prod[i].dsn;
 	var parsed = Url.parse(url);
 	couchServers.push(
 		{
-			host: parsed.hostname,
+			hostname: parsed.hostname,
 			port: parsed.port ? parsed.port : 80,
-			path: parsed.pathname ? parsed.pathname : "/"
+			pathname: parsed.pathname ? parsed.pathname : "/"
 		}
 				 );
 }
@@ -96,16 +98,26 @@ checks.push(
 			var opts = couchServers[i];
 			whenTests[opts.hostname+":"+opts.port+opts.pathname] = (function(opts) {
 					return function(cb) {
-						http.get(opts,function(res) {
-							if ( res.statusCode != 200 ) {
+						try {
+							http.get(opts,function(res) {
+								if ( res.statusCode != 200 ) {
+									cb(new Error("Server unreachable"));
+								} else {
+									cb();
+								}
+							}).on("error",function(e) {
+								console.log("http://"+opts.hostname+":"+opts.port + opts.pathname+" is unreachable");
 								cb(new Error("Server unreachable"));
-							}
-						});
+							});;
+						} catch ( e ) {
+							console.log(opts.hostname+":"+opts.port+opts.pathname+" is unreachable");
+							cb(new Error("Server unreachable"));
+						}
 					}
 				})(opts);
 		}
 		when(whenTests,function(errs,resp) {
-			console.log("responses on when");
+// 			console.log("responses on when");
 			if ( errs ) {
 				console.log("Configured CouchDB Server unreachable error : ");
 				for ( var i in errs ) {
@@ -137,6 +149,7 @@ exports.check = function(result) {
 			result();
 			return ;
 		}
+// 		console.log("next check");
 		// next check
 		checks[i](then);
 	};

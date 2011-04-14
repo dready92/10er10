@@ -11,7 +11,7 @@ var CONNECTION_DEFAULTS = {
 };
 
 var REMOVE_ON_DOC_STORAGE = [ '_conflicts','_revisions','_revs_info' ];
-var DO_NOT_JSON_ENCODE = [ "rev" ];
+var DO_NOT_JSON_ENCODE = [ "rev", "startkey_docid", "endkey_docid" ];
 
 var serverInstances = {};
 
@@ -168,7 +168,7 @@ function ncouch (url) {
 	
 	var createDatabase = function(name,cb) {
 		var dburl = srvurl+"/"+encodeURIComponent(name);
-		_query({url: dburl, type: "PUT"},null,cb);
+		_query({url: dburl, type: "PUT"},[201],cb);
 	};
 	
 	var databaseExists = function(name,cb) {
@@ -183,7 +183,7 @@ function ncouch (url) {
 				return cb(null,false);
 			}
 		};
-		_query({url: dburl, type: "GET"},[200,404],cb);
+		_query({url: dburl, type: "GET"},[200,404],callback);
 	};
 				
 	var _database = function(name) {

@@ -161,6 +161,9 @@ exports.api = function(app) {
 					for ( var k in data) {
 						userPreferences.playlist[k.replace("[]","")] = data[k];
 					}
+					if ( userPreferences.playlist.list && typeof userPreferences.playlist.list == "string" ) {
+						userPreferences.playlist.list = [ userPreferences.playlist.list ];
+					}
 					console.log("storing doc ",userPreferences);
 					d10.couch.d10wi.storeDoc(userPreferences,function(err,response) {
 						if ( err )	d10.rest.err(413,err,request.ctx);

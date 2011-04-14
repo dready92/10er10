@@ -86,7 +86,8 @@ exports.api = function(app) {
 			query.startkey_docid = request.query.startkey_docid;
 		}
 		console.log(query);
-		d10.couch.d10.view("ts_creation/name",query,function(err,resp) {
+		d10.couch.d10.view("ts_creation/name",query,function(err,resp,meta) {
+			d10.log(err,resp,meta);
 			if ( err ) {
 				return d10.rest.err(423, request.params.sort, request.ctx);
 			}
