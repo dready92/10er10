@@ -542,6 +542,10 @@ article.review .form_error {
 
 #my .edit { display: table-cell; padding: 1px 0px 1px 5px; }
 
+#library {
+	position: relative;
+}
+
 #library .add, #my .add, #my span.review  { cursor: pointer; }
 
 #library > nav ul, #my > nav ul, #welcome > nav ul { 
