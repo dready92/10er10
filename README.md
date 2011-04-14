@@ -139,7 +139,7 @@ To launch the prod instance :
     node server.js -p
 
 
-You can fire you browser and go to http://<your server>:8888/ if you launched the dev instance, http://<your server>:8124/ if you launched the prod server.
+You can fire you browser and go to http://[your server]:8888/ if you launched the dev instance, http://[your server]:8124/ if you launched the prod server.
 
 What else ?
 -----------
