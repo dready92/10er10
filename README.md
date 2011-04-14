@@ -51,11 +51,11 @@ About 10er10 running environments
 Configure 10er10
 ----------------
 
-Unzip/tar your 10er10 download and open node/config.js 
+Unzip/tar your 10er10 download and open **node/config.js** 
 
 * setup your databases configuration
 
-10er10 uses 4 couchdb databases. Look at exports.couch_prod and exports.couch_dev objects, and be sure to point the DSN to your CouchDB server. Databases will be created by the installer.
+10er10 uses 4 couchdb databases. Look at **exports.couch_prod** and **exports.couch_dev** objects, and be sure to point the DSN to your CouchDB server. Databases will be created by the installer.
 
 * configure audio path
 
