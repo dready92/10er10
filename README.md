@@ -39,7 +39,7 @@ Install audio utilities
 
 * install **vorbiscomment** executable : it's certainly available from your distribution packages
 
-* install **metaflac** executable : it's certainly available from your distribution packages
+* install **flac** and **metaflac** executables : they're certainly available from your distribution packages
 
 About 10er10 running environments
 ---------------------------------
