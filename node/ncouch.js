@@ -165,6 +165,26 @@ function ncouch (url) {
 		return serverQuery(query);
 	}
 	
+	
+	var createDatabase = function(name,cb) {
+		var dburl = srvurl+"/"+encodeURIComponent(name);
+		_query({url: dburl, type: "PUT"},null,cb);
+	};
+	
+	var databaseExists = function(name,cb) {
+		var dburl = srvurl+"/"+encodeURIComponent(name);
+		var callback = function(err,resp,meta) {
+			if ( err ) {
+				return cb(err,resp);
+			}
+			if ( meta.statusCode == 200 ) {
+				return cb(null,true);
+			} else {
+				return cb(null,false);
+			}
+		};
+		_query({url: dburl, type: "GET"},[200,404],cb);
+	};
 				
 	var _database = function(name) {
 		var dburl = srvurl+"/"+encodeURIComponent(name);
@@ -409,6 +429,10 @@ function ncouch (url) {
 		debug = arguments[0] ? true : false;
 		return this;
 	}
+	
+	this.createDatabase = createDatabase;
+	this.databaseExists = databaseExists;
+	
 };
 
 exports.server = function(url) {
