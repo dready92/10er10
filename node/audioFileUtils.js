@@ -2,7 +2,7 @@ var d10 = require("./d10"),
 	exec = require('child_process').exec;
 
 exports.oggLength = function(file,cb) {
-	var ogginfo = exec(d10.config.cmds.ogginfo+" "+file,function(err,stdout,stderr) {
+	var ogginfo = exec(d10.config.cmds.ogginfo+" "+file,{maxBuffer: 2000*1024},function(err,stdout,stderr) {
 		if ( stdout.length ) {
 			var back = stdout.match(/Playback length: ([0-9]+)m:([0-9]+)/);
 			if ( !back ) {
@@ -22,7 +22,7 @@ exports.oggLength = function(file,cb) {
 };
 
 exports.id3tags = function(file, cb) {
-	var tagsPipe = exec(d10.config.cmds.taginfo+" "+file+" | "+d10.config.cmds.utrac+" -t UTF-8",function(err,stdout,stderr) {
+	var tagsPipe = exec(d10.config.cmds.taginfo+" "+file+" | "+d10.config.cmds.utrac+" -t UTF-8",{maxBuffer: 2000*1024},function(err,stdout,stderr) {
 		if ( err )	{
 			if ( err.message.indexOf("error 303") > -1 ) {
 				return cb(null,{});
@@ -48,7 +48,7 @@ exports.id3tags = function(file, cb) {
 };
 
 exports.oggtags = function(file, cb) {
-	var tagsPipe = exec(d10.config.cmds.vorbiscomment+" -l "+file+" | "+d10.config.cmds.utrac+" -t UTF-8",function(err,stdout,stderr) {
+	var tagsPipe = exec(d10.config.cmds.vorbiscomment+" -l "+file+" | "+d10.config.cmds.utrac+" -t UTF-8",{maxBuffer: 2000*1024},function(err,stdout,stderr) {
 		if ( err )	{
 			if ( err.message.indexOf("error 303") > -1 ) {
 				return cb(null,{});
@@ -70,7 +70,7 @@ exports.oggtags = function(file, cb) {
 
 exports.flactags = function(file,cb) {
 	d10.log("launching flactags");
-	var tagsPipe = exec(d10.config.cmds.metaflac+" --list "+file+" | grep -F comment[ | "+d10.config.cmds.utrac+" -t UTF-8",function(err,stdout,stderr) {
+	var tagsPipe = exec(d10.config.cmds.metaflac+" --list "+file+" | grep -F comment[ | "+d10.config.cmds.utrac+" -t UTF-8",{maxBuffer: 2000*1024},function(err,stdout,stderr) {
 		if ( err )	{
 			d10.log("err",err);
 			if ( err.message.indexOf("error 303") > -1 ) {
