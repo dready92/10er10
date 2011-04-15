@@ -34,7 +34,7 @@ function staticRoutes(app) {
 };
 
 function staticAudio (app) {
-	app.get("/audio/*",httpHelper.localPathServer("/audio","/var/www/html/audio",{bypass: true}));
+	app.get("/audio/*",httpHelper.localPathServer("/audio",config.audio.dir,{bypass: true}));
 };
 
 function staticInvites(app) {
