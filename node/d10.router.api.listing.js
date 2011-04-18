@@ -1,14 +1,14 @@
 var d10 = require ("./d10"),
 	querystring = require("querystring"),
+	qs = require("qs"),
 	exec = require('child_process').exec;
 
 exports.api = function(app) {
-
 	app.get("/api/pagination/:sort", function(request,response) {
 		var sortTypes = [ "hits","ts_creation","album","artist","genre","title","s_user","s_user_likes" ],
 		query = {rpp: d10.config.rpp},
 		db = d10.couch.d10;
-		
+
 		var preHooks = {
 			hits: function() {
 				query.reduce = false;

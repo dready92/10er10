@@ -249,7 +249,7 @@ var results = function (search) {
 			};
 			setTimeout(function() {
 				if ( ajax.route == lastRoute ) {
-					$.ajax(ajax);
+					d10.bghttp.post(ajax);
 				}
 			} , 50);
 		}
@@ -325,7 +325,7 @@ var results = function (search) {
 			};
 			
 			debug("testing animated");
-			$.ajax(request);
+			d10.bghttp.get(request);
 			debug("testing animated");
 			if ( !animated ) {
 				animated = true;

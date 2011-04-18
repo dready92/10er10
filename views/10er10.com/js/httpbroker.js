@@ -122,7 +122,7 @@ function httpmanager ( base_url ) {
 
 
     if ( options.data ) {
-      if ( typeof options.data == 'object' )  request.toSend = $.param(options.data);
+      if ( typeof options.data == 'object' )  request.toSend = $.d10param(options.data);
       else                                    request.toSend = options.data;
     }
     //debug(request);

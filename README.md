@@ -67,6 +67,11 @@ Unzip/tar your 10er10 download and open **node/config.js**
 
 Of course, those two folders should be writable by the unix user that will launch the node server.
 
+* configure audio URI
+
+**exports.audio_root** is used by the browser to know where is the path to the audio files. If your 10er10 root is "/", then the audio_root is "/audio". If your 10er10 root is "/somewhere/10er10", set audio_root to "/somewhere/10er10/audio". You can also set the complete URL ( eg http://my.domain.com/10er10/audio ).
+
+
 * configure Unix utilities
 
 Look at exports.cmds.

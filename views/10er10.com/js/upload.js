@@ -140,7 +140,7 @@ function upload () {
       var file = widget.data('file');
       var waitText = "Le morceau est en cours de traitement, merci de patienter...";
       widget.data("status",1);
-      var url = site_url+'/api/song?'+$.param({"filesize": file.size, "filename": file.name } );
+      var url = site_url+'/api/song?'+$.d10param({"filesize": file.size, "filename": file.name } );
 	  $("span.cancel",widget).hide();
 	  $("span.progress",widget).show();
       xhr.upload.addEventListener("progress", function(e) { 

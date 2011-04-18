@@ -13,7 +13,7 @@ d10.fn.paginer = function (
 	var indexCache = null, indexCacheLastUpdate = 0, pagesCache = {};
 	
 	var getUniqId = function () {
-		if ( data != null ) { return url+'?'+$.param(data); }
+		if ( data != null ) { return url+'?'+$.d10param(data); }
 		return url;
 	};
 
