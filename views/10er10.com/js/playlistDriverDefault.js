@@ -46,7 +46,7 @@ d10.playlistDrivers = d10.playlistDrivers || {};
 d10.playlistDrivers.default = function(options) {
 	options = options || {};
 	var settings = $.extend({
-		fade: 15,
+		fade: function() { return $("body").data("audioFade") },
 		prefectchMinStartupTime: 9,
 		title: "Playlist non enregistrée"
 	},options);
@@ -56,8 +56,8 @@ d10.playlistDrivers.default = function(options) {
 	var currentLoadProgressEnded = false;
 	var cache = {};
 	this.fadeSettings = {
-		source_duration: settings.fade,
-		source_startup:  - settings.fade,
+		source_duration: settings.fade(),
+		source_startup:  - settings.fade(),
 		target_duration: 10,
 		target_startup: - 10,
 		target_starttime: 0
@@ -93,7 +93,8 @@ d10.playlistDrivers.default = function(options) {
 											this.prefetchStart = secs + settings.prefectchMinStartupTime;
 										}
 //                                         if ( secs > settings. prefectchMinStartupTime && secs % 8 == 0 ) { optimistPrefetch(); }
-                                        if ( settings.fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == settings.fade ) {
+										var fade = settings.fade();
+                                        if ( fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == fade ) {
                                                 beginFade();
                                         }
                                 }
@@ -111,7 +112,7 @@ d10.playlistDrivers.default = function(options) {
 //                                 trigger("songEnded",{});
                                 var nextWidget = d10.playlist.next();
                                 if ( nextWidget.length ) {
-                                        play.apply(this,d10.playlist.getTrackParameters(nextWidget));
+                                        play(d10.playlist.getTrackParameters(nextWidget));
                                 } else {
                                         current = null;
                                         next = null;
@@ -188,7 +189,7 @@ d10.playlistDrivers.default = function(options) {
 	
 	var beginFade = function () {
 		debug("fade algorithm begins");
-		var secs = settings.fade;
+		var secs = settings.fade();
 		
 		var nextId = getNextId();
 		if ( !nextId || ! cache[nextId] ) {
