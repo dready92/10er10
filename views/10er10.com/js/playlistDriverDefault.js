@@ -46,7 +46,10 @@ d10.playlistDrivers = d10.playlistDrivers || {};
 d10.playlistDrivers.default = function(options) {
 	options = options || {};
 	var settings = $.extend({
-		fade: function() { return $("body").data("audioFade") },
+		fade: (function() {
+					var body = $("body");
+					return function() { return body.data("audioFade") }
+		})(),
 		prefectchMinStartupTime: 9,
 		title: "Playlist non enregistrée"
 	},options);
