@@ -23,6 +23,9 @@ exports.db.loginInfos = function(login, cb, ecb) {
 			}
 			return ;
 		}
+		if ( resp.rows.length < 1 ) {
+			return ecb.call(this,err,resp);
+		}
 		exports.couch.auth.view(
 			"infos/all",
 			{

@@ -44,10 +44,10 @@ a:active { color: #FFCA40 }
 .littletrans { opacity: 0.6; }
 .pointer { cursor: pointer; }
 .smaller { font-size: 0.9em;}
-.link {	cursor: pointer;	color: #BF9730; }
 .clear { clear: both; color: rgba(0,0,0,0); }
 .overmeup > span{ padding-top: 5px; border-top: 2px solid #BF9730; }
 .floatright { float: right;}
+.link {	cursor: pointer;	color: #BF9730; }
 
 header, nav, article, footer, section, aside {	display: block;}
 
@@ -421,6 +421,11 @@ article.songlist div.controls div.pushAll{
 	margin-bottom: 10px;
 	-moz-transition: margin-right 0.5s;
 	-webkit-transition: margin-right 0.5s;
+}
+
+#main .song > span.artist:hover {
+	cursor: pointer;
+	color: #BF9730;
 }
 
 body.noplaylist #main {
@@ -1907,5 +1912,6 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 #results div.resultContainer div.rCenter.artists div.rItem div.details div.list span.artist {
 	display: none;
 }
+
 
 /* http://colorschemedesigner.com/#3s31Tw0w0w0w0 */

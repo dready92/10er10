@@ -16,7 +16,8 @@ var my = function () {
 	ui.delegate("div.song",'dragstart', d10.dnd.onDragDefault)
 	.delegate("div.song","dragend",d10.dnd.removeDragItem)
 	.delegate("div.song","click",function(e) {
-		if ( $(e.target).closest(".add").length == 0 )
+		var target = $(e.target);
+		if ( target.closest(".add").length == 0 && target.closest(".artist").length == 0 && target.closest(".album").length == 0 )
 			$(this).toggleClass("selected");
 	})
 	.delegate("div.song","dblclick",function(e) {

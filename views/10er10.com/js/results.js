@@ -70,7 +70,8 @@ var results = function (search) {
 			d10.playlist.append($(this).clone());
 		})
 		.delegate("div.song","click",function(e) {
-			if ( $(e.target).closest(".add").length == 0 )
+			var target = $(e.target);
+			if ( target.closest(".add").length == 0 && target.closest(".artist").length == 0 && target.closest(".album").length == 0 )
 				$(this).toggleClass("selected");
 		})
 		.delegate("button[name=load]","click",function() {

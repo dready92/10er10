@@ -36,6 +36,32 @@ var step2 = function () {
 		return false;
   });
 
+	
+	$("#main").delegate("div.song > span.artist","click",function(e) {
+	// 		var artist = encodeURIComponent($(this).html());
+		location.hash = "#/library/artists/"+encodeURIComponent($(this).text());
+	});
+
+	$("#main").delegate("div.song > span.album","click",function(e) {
+	// 		var artist = encodeURIComponent($(this).html());
+		var album = encodeURIComponent($(this).text());
+		if ( album.length ) {
+			location.hash = "#/library/albums/"+album;
+		}
+	});
+
+	$("#main").delegate("div.song > span.album","mouseenter",function(e) {
+	// 		var artist = encodeURIComponent($(this).html());
+		var album = encodeURIComponent($(this).text());
+		if ( album.length ) {
+			$(this).addClass("link");
+		}
+	});
+
+	$("#main").delegate("div.song > span.album","mouseleave",function(e) {
+		$(this).removeClass("link");
+	});
+	
 	//
 	// tooltips
 	//
