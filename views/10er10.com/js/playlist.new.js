@@ -520,6 +520,17 @@
 		
 		ui.find(".emptyPlaylist span.link").bind("click",function () { appendRandomSongs(10); });
 		
+		ui.find(".showOtherOptions").click(function() {
+			ui.find(".otherOptionsContainer").slideDown("fast");
+			$(this).slideUp("fast");
+		});
+		
+		ui.find(".hideOtherOptions").click(function() {
+			ui.find(".showOtherOptions").slideDown("fast");
+			$(this).closest(".otherOptionsContainer").slideUp("fast");
+		});
+		
+		
 		this.bootstrap = function() {
 			var infos = d10.user.get_preferences().playlist || {};
 			if ( infos.type && d10.playlistDrivers[infos.type] ) {

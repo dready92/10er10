@@ -906,7 +906,7 @@ aside div.emptyPlaylist {
 aside .playlisttitle {
   text-align: center;
   padding: 3px 0 10px 0;
-  margin: 10px 0px 0px 0px;
+/*   margin: 10px 0px 0px 0px; */
   background-color:  #121212;
   -moz-border-radius-topright: 5px;
   -moz-border-radius-topleft: 5px;
@@ -991,7 +991,7 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 #playlist .song.current .artist:after { content: " -"; }
 
 #controls {
-  margin: 10px;
+  margin: 10px 10px 0 10px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   padding: 5px;
@@ -1070,6 +1070,44 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 
 #controls div[name=volume] > div{
 	background: url(volume.png);
+}
+
+#controls div.showOtherOptions {
+	padding: 5px 5px 5px 5px;
+/* 	margin-bottom: 5px; */
+	text-align:center;
+	font-size: 0.8em;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 0.3s;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 0.3s; 
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}
+#controls div.hideOtherOptions {
+	text-align:center;
+	padding: 5px;
+	font-size: 0.8em;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 0.3s;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 0.3s; 
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}
+
+#controls div.otherOptionsContainer {
+	margin-bottom: 5px;
+}
+
+#controls div.showOtherOptions:hover, #controls div.hideOtherOptions:hover {
+	background-color: rgba(100,100,100,0.75);
+}
+
+#controls div.otherOptionsContainer {
+	display: none;
 }
 
 #controls div.autofill {

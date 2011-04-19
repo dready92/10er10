@@ -91,17 +91,23 @@ Vous avez <strong></strong> morceaux à valider !
           <div class="cell"><div name="volume"><div name="volumein"></div></div></div> 
         </div> 
       </div> 
-    </div> 
-    <div class="autofill" title="Mode radio : ajoute des morceaux à la fin de la playlist"> 
-      <div class="off center"><span>Mode radio: désactivé</span> <span class="link">Activer</span></div> 
-      <div class="on center hidden"><span>Mode radio: activé</span> <span class="link">Options</span></div> 
-      <div class="overlay hidden"> 
-        <div class="center vertical-little-air">Limiter les morceaux ajoutés à la playlist aux genres suivants :</div> 
-        <div class="list">{{#genres}}<div name="{{.}}">{{.}}</div>{{/genres}}</div> 
-      <div class="close center vertical-little-air"><span class="link">fermer cette fenêtre</span></div> 
-      <div class="disable center vertical-little-air"><span class="link">Désactiver le mode radio</span></div> 
-    </div> 
-    </div> 
+    </div>
+	<div class="otherOptions">
+		<div class="showOtherOptions link">Plus d'options...</div>
+		<div class="otherOptionsContainer">
+			<div class="hideOtherOptions link">Cacher les options</div>
+			<div class="autofill" title="Mode radio : ajoute des morceaux à la fin de la playlist"> 
+				<div class="off center"><span>Mode radio: désactivé</span> <span class="link">Activer</span></div> 
+				<div class="on center hidden"><span>Mode radio: activé</span> <span class="link">Options</span></div> 
+				<div class="overlay hidden"> 
+					<div class="center vertical-little-air">Limiter les morceaux ajoutés à la playlist aux genres suivants :</div>
+					<div class="list">{{#genres}}<div name="{{.}}">{{.}}</div>{{/genres}}</div>
+					<div class="close center vertical-little-air"><span class="link">fermer cette fenêtre</span></div> 
+					<div class="disable center vertical-little-air"><span class="link">Désactiver le mode radio</span></div> 
+				</div> 
+			</div>
+		</div>
+	</div>
   </div> 
   <div class="playlisttitle"><span></span></div> 
   <div id="playlist"></div>
