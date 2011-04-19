@@ -19,12 +19,15 @@ exports.homepage = function(app) {
 
 		if ( request.ctx.session && "_id" in request.ctx.session ) {
 			// 		d10.log("debug",request.headers);
+			var genres = config.genres;
+			genres.sort();
 			var debug = request.query && request.query.debug ? true : false ;
 			var vars = {
 				scripts: config.javascript.includes, 
 				dbg: debug ? "true":"false", 
 				base_url: request.basepath,
-				audio_root: d10.config.audio_root
+				audio_root: d10.config.audio_root,
+				genres: genres
 			};
 			if ( request.query.o && request.query.o.indexOf("a") >= 0 ) {
 				vars.debugAudio = true;
