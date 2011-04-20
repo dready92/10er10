@@ -95,10 +95,9 @@ Vous avez <strong></strong> morceaux à valider !
 	<div class="otherOptions">
 		<div class="showOtherOptions link">Plus d'options...</div>
 		<div class="otherOptionsContainer">
-			<div class="hideOtherOptions link">Cacher les options</div>
 			<div class="autofill" title="Mode radio : ajoute des morceaux à la fin de la playlist"> 
-				<div class="off center"><span>Mode radio: désactivé</span> <span class="link">Activer</span></div> 
-				<div class="on center hidden"><span>Mode radio: activé</span> <span class="link">Options</span></div> 
+				<div class="off"><span><strong>Mode radio</strong>: désactivé</span> <br> <span class="link">Activer le mode radio</span></div> 
+				<div class="on hidden"><span><strong>Mode radio</strong>: activé</span> <br> <span class="link">Options du mode radio</span></div> 
 				<div class="overlay hidden"> 
 					<div class="center vertical-little-air">Limiter les morceaux ajoutés à la playlist aux genres suivants :</div>
 					<div class="list">{{#genres}}<div name="{{.}}">{{.}}</div>{{/genres}}</div>
@@ -106,6 +105,11 @@ Vous avez <strong></strong> morceaux à valider !
 					<div class="disable center vertical-little-air"><span class="link">Désactiver le mode radio</span></div> 
 				</div> 
 			</div>
+			<div class="audioFade">
+				<div class="label"><strong>Fondu</strong> entre les morceaux</div>
+				<div class="rangeSelector center"><input type="range" name="fade" min="0" max="60" value="15" size="3"/> <span class="fadeValue"></span> seconde(s)</div>
+			</div>
+			<div class="hideOtherOptions link">Cacher les options</div>
 		</div>
 	</div>
   </div> 
