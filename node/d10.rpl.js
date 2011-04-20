@@ -114,7 +114,7 @@ exports.create = function(login, name, songs, then) {
 			d10.couch.d10.storeDoc(playlist,function(err,resp) {
 				if ( err ) { 	return then(423); }
 				if ( !songs || !songs.length ) {
-					return then(null,playlist);
+					return then(null,{playlist: playlist, songs: []});
 				}
 				exports.update(playlist,songs,then);
 			});
