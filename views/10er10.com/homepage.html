@@ -96,8 +96,14 @@ Vous avez <strong></strong> morceaux à valider !
 		<div class="showOtherOptions link">Plus d'options...</div>
 		<div class="otherOptionsContainer">
 			<div class="autofill" title="Mode radio : ajoute des morceaux à la fin de la playlist"> 
-				<div class="off"><span><strong>Mode radio</strong>: désactivé</span> <br> <span class="link">Activer le mode radio</span></div> 
-				<div class="on hidden"><span><strong>Mode radio</strong>: activé</span> <br> <span class="link">Options du mode radio</span></div> 
+				<div class="off">
+					<div class="label"><strong>Mode radio</strong>: désactivé</div>
+					<div class="link center">Activer le mode radio</div>
+				</div> 
+				<div class="on hidden">
+					<div class="label"><strong>Mode radio</strong>: activé</div>
+					<div class="link center">Options du mode radio</div>
+				</div> 
 				<div class="overlay hidden"> 
 					<div class="center vertical-little-air">Limiter les morceaux ajoutés à la playlist aux genres suivants :</div>
 					<div class="list">{{#genres}}<div name="{{.}}">{{.}}</div>{{/genres}}</div>
