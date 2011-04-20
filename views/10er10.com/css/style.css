@@ -1107,9 +1107,17 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 	margin-bottom: 5px;
 }
 
+#controls div.otherOptionsContainer .label {
+	padding: 3px 0;
+	font-size: 0.9em;
+	text-align: center;
+/* 	margin-bottom: 5px; */
+}
+
 #controls div.showOtherOptions:hover, #controls div.hideOtherOptions:hover,
 #controls div.autofill:hover, #controls div.audioFade:hover {
 	background-color: rgba(100,100,100,0.75);
+/* 	padding: 10px 5px; */
 }
 
 #controls div.otherOptionsContainer {
@@ -1117,27 +1125,41 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 	background: #454545;
 	margin: 10px 0;
 	-moz-transition-property: background-color;
-	-moz-transition-duration: 0.3s;
+	-moz-transition-duration: 0.5s;
 	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 0.3s; 
+	-webkit-transition-duration: 0.5s; 
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
 }
 
-div.autofill {
-	padding: 10px 5px;
+#controls div.autofill {
+	padding: 10px 5px 0px 5px;
 	-moz-transition-property: background-color;
-	-moz-transition-duration: 0.3s;
+	-moz-transition-duration: 0.5s;
 	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 0.3s; 
+	-webkit-transition-duration: 0.5s; 
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
 }
 
-#controls div.autofill span.link { padding-left: 40px; }
+#controls div.autofill .expandable {
+	-moz-transition-property: opacity padding;
+	-moz-transition-duration: 0.5s;
+	-webkit-transition-property: opacity padding;
+	-webkit-transition-duration: 0.5s; 
+	font-size: 1px;
+	opacity: 0;
+	padding-bottom: 0;
+}
 
+
+#controls div.autofill:hover .expandable {
+	font-size: 1em;
+	opacity: 1;
+	padding-bottom: 5px;
+}
 
 #controls div.autofill div.overlay div.list {
   max-height: 300px;
@@ -1162,7 +1184,7 @@ div.autofill {
 
 
 #controls .audioFade {
-	padding: 10px 5px;
+	padding: 0px 5px 0px 5px;
 	-moz-transition-property: background-color;
 	-moz-transition-duration: 0.3s;
 	-webkit-transition-property: background-color;
@@ -1172,18 +1194,34 @@ div.autofill {
 	border-radius: 10px;
 }
 
-#controls div.otherOptionsContainer .label {
-	padding: 3px 0;
-	margin-bottom: 5px;
-}
-#controls .audioFade .rangeSelector {
-	
-}
-
 #controls .audioFade input {
 	width: auto;
+	height: 1px;
 	vertical-align:middle;
+	-moz-transition-property: height color;
+	-moz-transition-duration: 0.5s;
 }
+
+#controls div.audioFade .expandable {
+	-moz-transition-property: opacity padding;
+	-moz-transition-duration: 0.5s;
+	-webkit-transition-property: opacity padding;
+	-webkit-transition-duration: 0.5s; 
+	font-size: 1px;
+	opacity: 0;
+	padding-bottom: 0;
+}
+
+#controls div.audioFade:hover .expandable {
+	font-size: 0.9em;
+	opacity: 1;
+	padding-bottom: 5px;
+}
+
+#controls .audioFade:hover input {
+	height: auto;
+}
+
 
 #reviewReminder {
 /*   background-color: #BF9730; */
