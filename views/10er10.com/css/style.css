@@ -1107,14 +1107,26 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 	margin-bottom: 5px;
 }
 
-#controls div.showOtherOptions:hover, #controls div.hideOtherOptions:hover {
+#controls div.showOtherOptions:hover, #controls div.hideOtherOptions:hover,
+#controls div.autofill:hover, #controls div.audioFade:hover {
 	background-color: rgba(100,100,100,0.75);
 }
 
 #controls div.otherOptionsContainer {
 	display: none;
+	background: #454545;
+	margin: 10px 0;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 0.3s;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 0.3s; 
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
 }
 
+
+/*
 #controls div.autofill {
   margin-top: 5px;
   margin: 10px 15px 0 15px;
@@ -1135,8 +1147,20 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
   -webkit-transition-property: background-color;
   -webkit-transition-duration: 0.3s; 
 }
+*/
 
-#controls div.autofill span.link { padding-left: 8px; }
+div.autofill {
+	padding: 10px 5px;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 0.3s;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 0.3s; 
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}
+
+#controls div.autofill span.link { padding-left: 40px; }
 
 
 #controls div.autofill div.overlay div.list {
@@ -1161,6 +1185,50 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 }
 
 
+#controls .audioFade {
+	padding: 10px 5px;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 0.3s;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 0.3s; 
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}
+/*
+#controls .audioFade {
+	margin: 10px 15px 0 15px;
+	background-color: #4A4A4A;
+	padding: 5px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	background-color: rgba(100,100,100,0.5);
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 0.3s;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 0.3s; 
+}
+
+#controls .audioFade:hover {
+	background-color: rgba(100,100,100,0.75);
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 0.3s;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 0.3s; 
+}
+*/
+#controls .audioFade .label {
+	padding: 3px 0;
+	margin-bottom: 5px;
+}
+#controls .audioFade .rangeSelector {
+	
+}
+
+#controls .audioFade input {
+	width: auto;
+	vertical-align:middle;
+}
 
 #reviewReminder {
 /*   background-color: #BF9730; */
