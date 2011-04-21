@@ -107,7 +107,7 @@ var createUser = function(login,password,opts) {
 				auth: function(cb) {
 					d10.couch.auth.storeDocs( [ authUserDoc, authPrivDoc ], function(err,resp) {
 						if ( err ) {
-												console.log(err,resp);
+							console.log(err,resp);
 							cb(500,err);
 						} else {
 							cb();
@@ -117,7 +117,9 @@ var createUser = function(login,password,opts) {
 				d10: function(cb) {
 					d10.couch.d10wi.storeDocs( [ d10PreferencesDoc, d10PrivateDoc ], function(err,resp) {
 						if ( err ) {
-												console.log(err,resp);
+							console.log(err,resp);
+							d10.couch.auth.deleteDoc(authUserDoc._id);
+							d10.couch.auth.deleteDoc(authPrivDoc._id);
 							cb(500,err);
 						} else {
 							cb();
@@ -125,14 +127,13 @@ var createUser = function(login,password,opts) {
 					});
 				}
 			},
-				function(err,resp) {
-					if ( err ) {
-						sendResponse(err,resp);
-					} else {
-						sendResponse(null,uuid);
-					}
+			function(err,resp) {
+				if ( err ) {
+					sendResponse(err,resp);
+				} else {
+					sendResponse(null,uuid);
 				}
-			);
+			});
 		}
 	);
 

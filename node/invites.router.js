@@ -2,7 +2,8 @@ var bodyDecoder = require("connect").bodyParser,
 	hash = require("./hash"),
 	fs=require("fs"),
 	d10 = require("./d10"),
-	when = require("./when");
+	when = require("./when"),
+	users = require("./d10.users");
 
 var errCodes = {
 	430: "Login already registered",
@@ -29,7 +30,7 @@ var isValidCode = function(code, callback) {
 		callback(false,doc);
 	});
 };
-
+/*
 var isValidLogin = function(login, callback) {
 	if ( login.length < 3 ) {	return callback(431); }
 	if ( 
@@ -56,9 +57,9 @@ var isValidLogin = function(login, callback) {
 		}
 	});
 };
+*/
 
-
-
+/*
 var isValidPassword = function(password, callback) {
 	if ( password.length < 8 ) {
 		return callback(440);
@@ -74,6 +75,7 @@ var isValidPassword = function(password, callback) {
 	}
 	callback();
 };
+*/
 
 var createAccount = function(request,response,invite) {
 	when(
@@ -85,6 +87,7 @@ var createAccount = function(request,response,invite) {
 				d10.couch.auth.getDoc(invite.from.replace(/^us/,"pr"),cb);
 			}
 		},
+		/*
 		function(errs,d) {
 			if ( errs ) {
 				response.writeHead(500,{});
@@ -111,9 +114,34 @@ var createAccount = function(request,response,invite) {
 				}
 			});
 		}
+		*/
+		function(errs,d) {
+			if ( errs ) {
+				response.writeHead(500,{});
+				response.end(JSON.stringify(errs));
+				return ;
+			}
+			var uid = d10.uid();
+			var opts = {
+				parent: d.parent._id,
+				depth: d.parentPriv.depth ? d.parentPriv.depth+1: 1,
+				uuid: uid,
+				callback: function(err,resp) {
+					if ( err ) {
+						response.writeHead(500,{});
+						response.end(JSON.stringify(err));
+					} else {
+						response.writeHead(200,{});
+						response.end("ok");
+						d10.couch.auth.deleteDoc(invite,function(){});
+					}
+				}
+			};
+			users.createUser(request.body.login, request.body.password, opts);
+		}
 	);
 }
-
+/*
 var createD10UserDocs = function(request,response,user,invite) {
 	d10.couch.d10wi.storeDocs( [ {_id: user._id.replace(/^us/,"up")}, {_id: user._id.replace(/^us/,"pr")} ], function(err,resp) {
 		if ( err ) {
@@ -140,7 +168,7 @@ var tryToRemoveAuthDocs = function (user) {
 		}
 	});
 };
-
+*/
 		
 exports.api = function(app) {
 	app.post("/code/checkLogin",function(request,response,next) {
@@ -149,7 +177,7 @@ exports.api = function(app) {
 			var db;
 			isValidCode( request.body.code,function(err,doc) {
 				if ( err ) { return next(); }
-				isValidLogin( request.body.login, function(err) {
+				users.isValidLogin( request.body.login, function(err) {
 					if ( err ) {
 						if ( errCodes[err] ) {
 							response.writeHead(err,errCodes[err],{});
@@ -169,7 +197,7 @@ exports.api = function(app) {
 		bodyDecoder()(request, response,function() {
 			isValidCode( request.body.code,function(err,doc) {
 				if ( err ) { return next(); }
-				isValidPassword( request.body.password, function(err) {
+				users.isValidPassword( request.body.password, function(err) {
 					if ( err ) {
 						if ( errCodes[err] ) {
 							response.writeHead(err,errCodes[err],{});
@@ -192,10 +220,10 @@ exports.api = function(app) {
 				when(
 					{
 						login: function(cb) {
-							isValidLogin(request.body.login,cb);
+							users.isValidLogin(request.body.login,cb);
 						},
 						password: function(cb) {
-							isValidPassword(request.body.password,cb);
+							users.isValidPassword(request.body.password,cb);
 						}
 					},
 					function(errs) {
