@@ -92,62 +92,6 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 		window.location.hash = url;
 	});
 
-/*
-	//
-	//
-	// this is bind/trigger implementation
-	//
-	//
-	var matchTrigger = function (name, trigger) {
-		var classes = name.replace(/^\s+/,"").replace(/\s+$/,"").split(".");
-		name = classes.shift();
-		if ( !name )  return false;
-		var selectors = trigger.selector.replace(/^\s+/,"").replace(/\s+$/,"").split(" ");
-	//     var match = {"name": [], "classes": [] };
-		for (var index in selectors) {
-			var current = selectors[index].replace(/^\s+/,"").replace(/\s+$/,"").split(".");
-			if ( !current.length || current[0] != name && current[0].length > 0 ) {
-				continue;
-			}
-			if ( current.length == 1 ) {
-				return true;
-			}
-			current.shift();
-			var ok = true;
-			for ( var i in current ) {
-				if ( classes.indexOf(current[i]) < 0 ) {
-					ok = false;
-				}
-			}
-			if ( !ok )  continue;
-			return true;
-		}
-	};
-  
-	var triggers = [];
-	this.trigger = function ( name, data ) {
-		for ( var index in triggers ) {
-			if ( matchTrigger(name, triggers[index]) ) {
-				triggers[index].callback.call(options.container,{"type": name},data);
-			}
-		}
-	};
-  
-	this.bind = function( selector, callback )  {
-		triggers.push({ "selector": selector, "callback": callback  });
-	};
-
-	this.unbind = function ( selector ) {
-		var nt = [];
-		for ( var index in triggers ) {
-			if ( !matchTrigger(selector, triggers[index]) ) {
-				nt.push(triggers[index]);
-			}
-		}
-		triggers = nt;
-	};
-*/
-
 	var eventEmitter = d10.fn.eventEmitter();
 
 	this.trigger = eventEmitter.trigger;
@@ -179,33 +123,8 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 			return $('> *['+options.property+'='+label+']',options.container);
 		}
 	}
-/*
-	this.toggleDisplay = function (label, arg ) {
-// 		debug("toggleDisplay: "+label);
-		if ( typeof label != 'string' ) {
-			return false;
-		}
 
-		var menuitem = $('*[action='+label+']',options.menu);
-		var containeritem = this.getContainer(label);
-
-		//send the event
-		options.displayEvent.call(this,label,arg);
-
-		//find active label
-		var active = this.current_label();
-		if ( active == label )	{// label is already active
-// 		debug ("label "+label+" is already active");
-			options.displayAlreadyActive.call(this,label,arg);
-		} else {
-// 			debug ("label is "+active+", should set to "+label);
-			options.displayActivate.call(this,label,arg,active);
-		}
-	};
-
-*/
 	this.route = function (route, opts) {
-// 		debug("route request",route,opts);
 		var settings = {"originalRoute": null, "rootLabel": null};
 		opts = opts || {};
 		$.extend(settings,opts);
@@ -276,8 +195,6 @@ d10.fn.menuManager = function ( settings ) {// menu_arg, container_arg, active_c
 			if ( externHashChange ) { that.route( location.href.split("#")[1] || "" ); }
 		};
 	}
-
-
 }
 
 })(jQuery);
