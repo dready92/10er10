@@ -231,6 +231,21 @@
 			playlistAppendPost ();
 		};
 		
+		var appendToCurrent = this.appendToCurrent = function(items) {
+			var c = current();
+			if ( c && c.length ) {
+				var n = c.next();
+				if ( n.length ) {
+					append(items,n);
+				} else {
+					append(items);
+				}
+			}else {
+				list.prepend(items);
+				playlistAppendPost();
+			}
+		};
+		
 		var empty = this.empty = function() {
 			pause();
 			$(document).trigger("playlist:ended",{current: current()});

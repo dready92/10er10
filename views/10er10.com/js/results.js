@@ -78,12 +78,16 @@ var results = function (search) {
 			d10.playlist.append($(this).closest(".rItem").find("div.song").clone());
 		})
 		.delegate("button[name=loadNow]","click",function() {
+			
+			return d10.playlist.appendToCurrent($(this).closest(".rItem").find("div.song").clone());
+			/*
 			var cur = d10.playlist.current();
 			if ( cur.length ) {
 				return d10.playlist.append($(this).closest(".rItem").find("div.song").clone(),cur);
 			}else {
 				return d10.playlist.append($(this).closest(".rItem").find("div.song").clone());
 			}
+			*/
 		})
 		;
 		
