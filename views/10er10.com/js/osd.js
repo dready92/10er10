@@ -60,6 +60,8 @@ function osd () {
 		}); 
 	}
 
+	this.send = send;
+
 }
 
 d10.osd = new osd();

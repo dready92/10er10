@@ -37,8 +37,14 @@ exports.audio = {
 	dir: "../audio/files"
 };
 
-// used to set the ogg path
+// used to set the ogg path in the URL of the browser
 exports.audio_root = "/audio/";
+
+exports.images = {
+	tmpdir: "../audio/tmp",
+	dir: "../audio/images"
+};
+
 
 exports.cmds = {
 	file: "/usr/bin/file",
