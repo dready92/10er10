@@ -155,10 +155,6 @@ header div.playing.small {
 	-webkit-transform:  scale(0.01);
 	-moz-transform-origin: right center;
 	-webkit-transform-origin: right center;
-	-moz-transition-property: -moz-transform;
-	-moz-transition-duration: 0.5s;
-	-webkit-transition-property: -webkit-transform;
-	-webkit-transition-duration: 0.5s; 
 }
 
 header div.playing span {  display: inline-block; }
@@ -358,11 +354,6 @@ div.tooltip > p {
 	-moz-border-radius-bottomleft: 5px;
   -webkit-border-bottom-right-radius: 5px;
   -webkit-border-bottom-left-radius: 5px;
-  -moz-transition-property: background-color;
-  -moz-transition-duration: 0.8s;
-  -webkit-transition-property: background-color;
-  -webkit-transition-duration: 0.8s;
-
 }
 
 #container > nav > ul > li.active {
@@ -371,17 +362,8 @@ div.tooltip > p {
 	color: #343434;
 	-moz-border-radius-bottomright: 5px;
 	-moz-border-radius-bottomleft: 5px;
-  -webkit-border-bottom-right-radius: 5px;
-  -webkit-border-bottom-left-radius: 5px;
-
-  -moz-transition-property: background-color;
-  -moz-transition-duration: 0.8s;
-  -webkit-transition-property: background-color;
-  -webkit-transition-duration: 0.8s;
-
-/*   -moz-transform: scale(1.1); */
-/*   -webkit-transform: scale(1.1); */
-
+	-webkit-border-bottom-right-radius: 5px;
+	-webkit-border-bottom-left-radius: 5px;
 }
 
 
@@ -454,16 +436,10 @@ html.csstransitions #main > div.active {
 	-webkit-transition-property: -webkit-transform,opacity;
 	-moz-transition-duration: 0.4s;
 	-webkit-transition-duration: 0.4s;
-	
-/* 	-moz-transform: matrix(1,0,0,1,0,0); */
 	-moz-transform: scale(1,1);
-/* 	-moz-transform-origin: 100% 100%; */
 	-moz-transform-origin: 50% 0;
 	-moz-transition-timing-function: ease-in;
-	
-	
 	-webkit-transform: scale(1,1);
-/* 	-webkit-transform-origin: 50% 50%; */
 	-webkit-transform-origin: 50% 0;
 	-webkit-transition-timing-function: ease-in;
 	opacity: 1;
@@ -563,8 +539,6 @@ article.review .form_error {
   background: -moz-linear-gradient(top,  
                 rgb(100,100,100) 0%,
                 rgb(52,52,52) 10px);
-/*   background: -webkit-gradient(linear, left top, left bottom, from(#232323), to(#292929)); */
-/*   background: -moz-linear-gradient(top,  #232323,  #292929); */
 }
 
 #main > div > nav ul li {
@@ -577,10 +551,7 @@ article.review .form_error {
   -webkit-transition: background-color 0.4s;
 }
 
-#main > div > nav ul li:hover { background-color: rgba(200,200,200,0.15);
-	-moz-transition: background-color 0.4s;
-	-webkit-transition: background-color 0.4s;
-} 
+#main > div > nav ul li:hover { background-color: rgba(200,200,200,0.15);} 
 
 #main > div > nav ul li.active {
 	cursor: auto; 
@@ -1082,10 +1053,8 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 /* 	margin-bottom: 5px; */
 	text-align:center;
 	font-size: 0.8em;
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 0.3s;
-	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 0.3s; 
+	-moz-transition: background-color 0.3s ease-in;
+	-webkit-transition: background-color 0.3s ease-in;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
@@ -1094,10 +1063,8 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 	text-align:center;
 	padding: 5px;
 	font-size: 0.8em;
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 0.3s;
-	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 0.3s; 
+	-moz-transition: background-color 0.3s ease-in;
+	-webkit-transition: background-color 0.3s ease-in;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
@@ -1111,23 +1078,19 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 	padding: 3px 0;
 	font-size: 0.9em;
 	text-align: center;
-/* 	margin-bottom: 5px; */
 }
 
 #controls div.showOtherOptions:hover, #controls div.hideOtherOptions:hover,
 #controls div.autofill:hover, #controls div.audioFade:hover {
 	background-color: rgba(100,100,100,0.75);
-/* 	padding: 10px 5px; */
 }
 
 #controls div.otherOptionsContainer {
 	display: none;
 	background: #454545;
 	margin: 10px 0;
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 0.5s;
-	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 0.5s; 
+	-moz-transition: background-color 0.5s ease-in;
+	-webkit-transition: background-color 0.5s ease-in;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
@@ -1135,20 +1098,16 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 
 #controls div.autofill {
 	padding: 10px 5px 0px 5px;
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 0.5s;
-	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 0.5s; 
+	-moz-transition: background-color, 0.3s ease-in;
+	-webkit-transition: background-color, 0.3s ease-in;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
 }
 
 #controls div.autofill .expandable {
-	-moz-transition-property: opacity padding;
-	-moz-transition-duration: 0.5s;
-	-webkit-transition-property: opacity padding;
-	-webkit-transition-duration: 0.5s; 
+	-moz-transition: opacity 0.3s, padding 0.3s, font-size 0.3s;
+	-webkit-transition:  opacity 0.3s, padding 0.3s, font-size 0.3s;
 	font-size: 1px;
 	opacity: 0;
 	padding-bottom: 0;
@@ -1185,10 +1144,8 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 
 #controls .audioFade {
 	padding: 0px 5px 0px 5px;
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 0.3s;
-	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 0.3s; 
+	-moz-transition: background-color 0.3s;
+	-webkit-transition: background-color 0.3s; 
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
@@ -1198,15 +1155,12 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 	width: auto;
 	height: 1px;
 	vertical-align:middle;
-	-moz-transition-property: height color;
-	-moz-transition-duration: 0.5s;
+	-moz-transition: height 0.3s, color 0.3s;
 }
 
 #controls div.audioFade .expandable {
-	-moz-transition-property: opacity padding;
-	-moz-transition-duration: 0.5s;
-	-webkit-transition-property: opacity padding;
-	-webkit-transition-duration: 0.5s; 
+	-moz-transition: opacity 0.3s, padding 0.3s, font-size 0.3s;
+	-webkit-transition: opacity 0.3s, padding 0.3s, font-size 0.3s;
 	font-size: 1px;
 	opacity: 0;
 	padding-bottom: 0;
@@ -1224,7 +1178,6 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 
 
 #reviewReminder {
-/*   background-color: #BF9730; */
   background-color:rgb(191,151,48);
   text-align: center;
   margin: 10px auto 20px auto;
@@ -1235,8 +1188,6 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
   -webkit-border-radius: 3px;
   cursor: pointer;
   padding: 10px;
-/*   -moz-box-shadow: rgb(191,151,48) 0px 0px 5px; */
-/*   -webkit-box-shadow: rgb(191,151,48) 0px 0px 5px; */
 }
 
 
@@ -1256,10 +1207,6 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 #search.active {
 	-moz-transform: translate(260px, 74px);
 	-webkit-transform: translate(260px, 74px);
-	-moz-transition-property: -moz-transform;
-	-moz-transition-duration: 0.6s;
-	-webkit-transition-property: -webkit-transform;
-	-webkit-transition-duration: 0.6s;
 }
 
 #search img {
@@ -1275,11 +1222,6 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 #search.active img {
 	opacity: 0;
 	width: 0px;
-	-moz-transition-property: opacity, width;
-	-moz-transition-duration: 0.6s;
-	-webkit-transition-property: opacity, width;
-	-webkit-transition-duration: 0.6s;
-
 }
 
 #search  input {
@@ -1298,10 +1240,6 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 
 #search.active input,#search.active input:hover {
 	padding: 4px 8px;
-	-moz-transition-property: padding;
-	-moz-transition-duration: 0.6s;
-	-webkit-transition-property: padding;
-	-webkit-transition-duration: 0.6s;
 	color: #121212;
 }
 
@@ -1328,10 +1266,6 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 	opacity: 1;
 	-moz-transform: translate(-260px, -15px);
 	-webkit-transform: translate(-260px, -15px);
-	-moz-transition-property: -moz-transform, opacity;
-	-moz-transition-duration: 0.6s;
-	-webkit-transition-property: -webkit-transform, opacity;
-	-webkit-transition-duration: 0.6s;
 }
 
 #search > div:last-child {
@@ -1344,11 +1278,6 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 
 #search.active > div:last-child {
 	opacity: 0;
-	-moz-transition-property: opacity;
-	-moz-transition-duration: 0.6s;
-	-webkit-transition-property: opacity;
-	-webkit-transition-duration: 0.6s;
-
 }
 
 #search > div:first-child img:first-child {
@@ -1519,13 +1448,7 @@ div.hoverbox hr {
   -webkit-transition-duration: 0.5s;
 }
 
-#welcome div[name=introduction] div.scrollContainer:hover a {
-  opacity: 0.8;
-  -moz-transition-property: opacity;
-  -moz-transition-duration: 0.5s;
-  -webkit-transition-property: opacity;
-  -webkit-transition-duration: 0.5s;
-}
+#welcome div[name=introduction] div.scrollContainer:hover a { opacity: 0.8; }
 
 #welcome div[name=introduction] a.prev {
   background: #232323 url("32x32/actions/arrow-previous-double.png") center center no-repeat;
