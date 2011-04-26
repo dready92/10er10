@@ -8,7 +8,9 @@ var my = function () {
 	var ui=$('#my');
 	this.plmanager = new d10.fn.plm(ui,$('div[name=plm]',ui));
 	//$('#main').append(ui);
-  
+	
+	d10.config.imagePx = 48;
+	
 	$(document).one("user.infos",function() {
 		if ( !d10.user.get_invites_count() ) { $("ul li[action=invites]",ui).hide(); }
 	});
@@ -217,6 +219,103 @@ var my = function () {
     });
   };
 
+	var init_songreview_imagesbox = function(topicdiv, song_id) {
+		var dropbox = topicdiv.find(".uploadDropBox");
+		dropbox.get(0).addEventListener("dragenter", dragenter, false);
+		dropbox.get(0).addEventListener("dragleave", dragleave, false);    
+		dropbox.get(0).addEventListener("dragover", dragover, false);  
+		dropbox.get(0).addEventListener("drop", drop, false);  
+
+		function dragenter(e) {
+			dropbox.addClass("hover");
+			e.stopPropagation();  
+			e.preventDefault();  
+		}  
+			
+		function dragover(e) {  
+			e.stopPropagation();  
+			e.preventDefault();  
+		}  
+
+		function dragleave (e) {
+			dropbox.removeClass("hover");
+		}
+
+		function drop(e) {  
+			e.stopPropagation();  
+			e.preventDefault();  
+			dropbox.removeClass("hover");
+			var dt = e.dataTransfer;  
+			var files = dt.files;
+			handleFiles(files);
+		}
+		
+		function isImage(file) {
+			return file.type.match(/^image/);
+		}
+		
+		function getImageRatio (width,height) {
+			if ( width == 0 || height == 0 ) { return 0; }
+			var ratio;
+			if ( width > height ) {
+				ratio = width / height;
+			} else {
+				ratio = height / width;
+			}
+			debug("image ratio : ",ratio);
+			return ratio;
+		}
+		
+		function handleFiles(files) {
+			debug("handling file upload, nr of files: ",files.length);
+			for (var i = 0; i < files.length; i++) { 
+				debug("reading ",i);
+				var file = files[i];
+				if ( !isImage(file) ) {
+					continue;
+				}
+				var reader = new FileReader();
+				
+				// Closure to capture the file information.
+				reader.onload = (function(file) {
+					return function(e) {
+						debug("reader.onload");
+						// Render thumbnail.
+						var img = $("<img />").attr("src",e.target.result).css(
+							{
+								"visibility":"none",
+								"position": "absolute"
+							}
+						);
+						
+						$("body").append(img);
+						var w = img.width(), h = img.height();
+						debug("image size: ",w,h);
+						var ratio = getImageRatio(img.width(),img.height());
+						if ( ratio > 1.5 ) {
+							d10.osd.send("error",file.name+": merci de choisir une image a peu pres carré...");
+							return ;
+						}
+						if ( w > h ) {
+							h = h / w * d10.config.imagePx;
+							w = d10.config.imagePx;
+						} else {
+							w = w / h * d10.config.imagePx;
+							h = d10.config.imagePx;
+						}
+						img.width(w).height(h).css("position","static").appendTo(dropbox.find(".images")).css("visibility","visible");
+						
+					};
+				})(file);
+
+				// Read in the image file as a data URL.
+				reader.readAsDataURL(file);
+
+			}
+		}
+		
+	};
+  
 	this.init_topic_songreview = function (topicdiv, song_id ) {
 //     console.log("init_topic_songreview",topicdiv,arg);
 		topicdiv.html(d10.mustacheView("loading"));
@@ -224,6 +323,7 @@ var my = function () {
 			url: site_url+"/html/my/review/"+song_id,
 			success: function(msg) {
 		topicdiv.html(msg);
+		init_songreview_imagesbox (topicdiv,song_id);
 		$("button[name=my]",topicdiv).click(function() { 
 			window.location.hash = "#/my/review";
 		});
