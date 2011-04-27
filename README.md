@@ -6,15 +6,17 @@ Install
 Install servers
 ---------------
 
-* CouchDB : install CouchDB from source ( http://couchdb.apache.org ), via your package manager, or by downloading the CouchBase Server ( http://www.couchbase.com/ ).
+* CouchDB : the safe way is to install CouchDB by downloading the CouchBase Server ( http://www.couchbase.com/ ). You can also try from source ( http://couchdb.apache.org ), or via your package manager.
 
 Minimum required version : 1.0.1
 
 * Node.js : install node.js ( http://nodejs.org ) from source or with your package manager.
 
-Minimum required version : 0.4
+Minimum required version : 0.4.2
 
 Don't forget to add the node binary folder to the path of the Unix user which will run 10er10.
+
+Debian squeeze users, using the nodejs deb package : you should create a symlink from /usr/lib/nodejs to /usr/lib/node for connect to work.
 
 * NPM : install the Node package manager ( http://npmjs.org ). Hint : **curl http://npmjs.org/install.sh | sh**
 
@@ -35,7 +37,7 @@ Install audio utilities
 
 * install **utrac** executable : it's a utlity to convert whatever the f**** encoding of id3 tags to utf8. Download it from here : http://utrac.sourceforge.net/
 
-* install **taginfo** executable : it's a utility using taglib id3 library to parse id3 tags. ( http://grecni.com/software/taginfo/ ).
+* install **taginfo** executable : it's a utility using taglib id3 library to parse id3 tags. ( http://grecni.com/software/taginfo/ ). (Debian users : you have to install libtagc0-dev to compile taginfo)
 
 * install **vorbiscomment** executable : it's certainly available from your distribution packages
 
