@@ -292,6 +292,7 @@ var my = function () {
 						var ratio = getImageRatio(img.width(),img.height());
 						if ( ratio > 1.5 ) {
 							d10.osd.send("error",file.name+": merci de choisir une image a peu pres carré...");
+							img.remove();
 							return ;
 						}
 						if ( w > h ) {
@@ -329,9 +330,12 @@ var my = function () {
 									debug("xhr response : ",back);
 									xhr = null;
 									
-									var srvImg = $("<img />").attr("src",d10.config.img_root+"/"+back.data.filename);
+									
 									img.remove();
-									srvImg.appendTo(dropbox.find(".images"));
+
+									dropbox.find(".images").append(
+										d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+back.data.filename})
+															);
 								}
 							},false);
 							xhr.open("POST",url);
