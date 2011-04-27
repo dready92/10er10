@@ -29,7 +29,27 @@ exports.api = function(app) {
 					// image not in the list of images for this doc
 					return d10.rest.success(responses.doc, request.ctx);
 				}
-				
+				//remove image from doc
+				doc.images = doc.images.filter(function(img) {
+					if ( img.filename == request.params.filename ) {
+						return false;
+					}
+					return true;
+				});
+				d10.couch.d10.storeDoc(doc,function(err,resp) {
+					if ( err ) {
+						return d10.rest.err(423,errs,request.ctx);
+					}
+					d10.rest.success(doc, request.ctx);
+					if ( responses.used.length == 1 ) {
+						// I can remove the image
+						fs.unlink(d10.config.images.dir+"/"+request.params.filename,function(err) {
+							if ( err ) {
+								d10.log("image unlink failed",d10.config.images.dir+"/"+request.params.filename);
+							}
+						});
+					}
+				});
 			}
 		);
 	});
@@ -39,7 +59,7 @@ exports.api = function(app) {
 			|| !request.query.filesize || !request.query.filesize.length ) {
 			return d10.rest.err(427,"filename and filesize arguments required",request.ctx);
 		}
-		var fileName = d10.uid() + request.query.filename.split(".").pop();
+		var fileName = d10.uid() + "." + request.query.filename.split(".").pop();
 		var writer = fs.createWriteStream( d10.config.images.tmpdir+"/"+fileName );
 		var doc, onDoc = null ;
 		d10.couch.d10.getDoc(request.params.id,function(err,resp) {
@@ -90,6 +110,7 @@ exports.api = function(app) {
 				};
 				
 				var processAndRecord = function(doc, fileName, sha1) {
+					console.log("resizing image");
 					gm(d10.config.images.tmpdir+"/"+fileName).size(function(err,size) {
 						if ( err ) {
 							d10.rest.err(500,"image manipulation error (get image size failed)",request.ctx);
@@ -100,15 +121,18 @@ exports.api = function(app) {
 						}
 						var newH, newW;
 						if ( size.height > size.width ) {
-							newH = size.height;
+							newH = d10.config.images.maxSize;
 							newW = size.width / size.height * newH;
 						} else {
-							newW = size.width;
+							newW = d10.config.images.maxSize;
 							newH = size.height / size.width * newW;
 						}
+						newH = Math.round(newH);
+						newW = Math.round(newW);
 						if ( !newH || !newW ) {
 							return d10.rest.err(500,"image manipulation error (new image size returns null)",request.ctx);
 						}
+						console.log("resizing image to ",newW,newH);
 						gm(d10.config.images.tmpdir+"/"+fileName)
 						.resize(newW,newH)
 						.write(d10.config.images.dir+"/"+fileName,function(err) {
@@ -116,6 +140,7 @@ exports.api = function(app) {
 								console.log("image writing failed",err);
 								return d10.rest.err(500,"image manipulation error (writing modified image)",request.ctx);
 							}
+							console.log("image written to disk");
 							recordDoc(doc, fileName, sha1);
 						});
 
@@ -134,10 +159,13 @@ exports.api = function(app) {
 							if ( view.rows.length ) {
 								recordDoc(doc,view.rows[0].filename, sha1);
 							} else {
+								processAndRecord(doc,fileName, sha1);
+								/*
 								fs.rename(d10.config.images.tmpdir+"/"+fileName, d10.config.images.dir+"/"+fileName, function(err) {
 									if ( err ) { return d10.rest.err(500,"filesystem error (move failed)",request.ctx); }
 									recordDoc(doc, fileName, sha1);
 								});
+								*/
 							}
 						});
 					});

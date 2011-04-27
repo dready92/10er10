@@ -155,7 +155,7 @@ function upload () {
           }
         }  
       }, false);
-	  xhr.upload.addEventListener("progress", function(e) {  
+	  xhr.upload.addEventListener("end", function(e) {  
 		  debug("File transfer completed");
 	  },false);
       xhr.addEventListener("readystatechange",function() {
