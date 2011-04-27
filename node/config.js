@@ -286,6 +286,7 @@ exports.templates.clientList = {
     'my.song_template_review_trailer': 'html/my/song_template_review_trailer.php',
 	'my.plm': 'html/my/plm.php',
     'my.plm.rpl': 'html/my/plm_rpl.php',
+	'my.image.widget':'html/my/image.widget.html',
 	'library.content.simple': 'html/library/content_simple.php',
 	'library.content.genre': 'html/library/content_genre.php',
     'library.content.none':'html/library/content_none.php',
