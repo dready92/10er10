@@ -27,8 +27,9 @@ exports.api = function(app) {
 				var backOffset = responses.used.indexOf( responses.doc._id);
 				if ( backOffset < 0 ) {
 					// image not in the list of images for this doc
-					d10.rest.success(responses.doc, request.ctx);
+					return d10.rest.success(responses.doc, request.ctx);
 				}
+				
 			}
 		);
 	});
