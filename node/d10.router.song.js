@@ -709,50 +709,6 @@ exports.api = function(app) {
 		});
 
 	});
-	
-	app.put("/api/songImage/:id",function(request,response) {
-		if ( !request.query.filename || !request.query.filename.length 
-			|| !request.query.filesize || !request.query.filesize.length ) {
-			return d10.rest.err(427,"filename and filesize arguments required",request.ctx);
-		}
-		var fileName = d10.uid() + request.query.filename.split(".").pop();
-		var writer = fs.createWriteStream( d10.config.images.tmpdir+"/"+fileName );
-		var doc, onDoc = null ;
-		d10.couch.d10.getDoc(request.params.id,function(err,resp) {
-			if ( err ) { 
-				return d10.rest.err(500,"filesystem error",request.ctx);
-			}
-			doc = resp;
-			if ( onDoc ) {
-				onDoc(doc);
-			}
-		});
-		
-		writer.on("close",function() {
-			fs.stat(d10.config.images.tmpdir+"/"+fileName,function(err,stat) {
-				if ( err ) {
-					return d10.rest.err(500,"filesystem error",request.ctx);
-				}
-				if ( stat.size != request.query.filesize ) {
-					return d10.rest.err(500,"filesystem error (filesize does not match)",request.ctx);
-				}
-				
-			});
-			
-			onDoc = function(doc) {
-				if ( !doc.images ) {
-					doc.images = [];
-					
-				}
-			};
-			
-			
-		});
-		
-		request.pipe(writer);
-		
-	});
-	
 };
 
 
