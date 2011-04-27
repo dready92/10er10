@@ -9,8 +9,6 @@ var my = function () {
 	this.plmanager = new d10.fn.plm(ui,$('div[name=plm]',ui));
 	//$('#main').append(ui);
 	
-	d10.config.imagePx = 48;
-	
 	$(document).one("user.infos",function() {
 		if ( !d10.user.get_invites_count() ) { $("ul li[action=invites]",ui).hide(); }
 	});
@@ -297,13 +295,49 @@ var my = function () {
 							return ;
 						}
 						if ( w > h ) {
-							h = h / w * d10.config.imagePx;
-							w = d10.config.imagePx;
+							h = h / w * d10.config.img_size;
+							w = d10.config.img_size;
 						} else {
-							w = w / h * d10.config.imagePx;
-							h = d10.config.imagePx;
+							w = w / h * d10.config.img_size;
+							h = d10.config.img_size;
 						}
 						img.width(w).height(h).css("position","static").appendTo(dropbox.find(".images")).css("visibility","visible");
+						
+						var binReader = new FileReader();
+						binReader.onload = function(e) {
+							var xhr = new XMLHttpRequest();
+							var url = site_url+"/api/songImage/"+song_id+"?"+$.d10param({"filesize": file.size, "filename": file.name } );
+							xhr.upload.addEventListener("end", function(e) {  
+								debug("File transfer completed");
+							},false);
+							xhr.addEventListener("readystatechange",function() {
+								//         console.log("ready state changed : ", xhr.readyState);
+								if ( xhr.readyState == 4 ) {
+									if ( xhr.status == 200 ) {
+										debug("image upload got status 200");
+									} else {
+										debug("image upload failed",xhr.status,xhr.responseText);
+										xhr = null;
+										return ;
+									}
+									var back = null;
+									try {
+										back = JSON.parse(xhr.responseText);
+									} catch (e) {
+										back = {'status': 'error'};
+									}
+									debug("xhr response : ",back);
+									xhr = null;
+									
+									var srvImg = $("<img />").attr("src",d10.config.img_root+"/"+back.data.filename);
+									img.remove();
+									srvImg.appendTo(dropbox.find(".images"));
+								}
+							},false);
+							xhr.open("POST",url);
+							xhr.sendAsBinary(binReader.result);
+						};
+						binReader.readAsBinaryString(file);
 						
 					};
 				})(file);

@@ -20,6 +20,7 @@ var	connect = require("connect"),
 	plmApi = require("./d10.router.api.plm"),
 	listingApi = require("./d10.router.api.listing"),
 	songStuff = require("./d10.router.song"),
+	imagesStuff = require("./d10.router.images"),
 	invites = require("./d10.router.invites"),
 	download = require("./d10.router.audio.download"),
 	invitesRouter = require("./invites.router.js")
@@ -37,6 +38,10 @@ function staticAudio (app) {
 	app.get("/audio/*",httpHelper.localPathServer("/audio",config.audio.dir,{bypass: true}));
 };
 
+function staticImages (app) {
+	app.get("/audioImages/*",httpHelper.localPathServer("/audioImages",config.images.dir));
+};
+
 function staticInvites(app) {
 	app.get("/static/*",httpHelper.localPathServer("/static","../views/invites.10er10.com/static"));
 };
@@ -47,11 +52,13 @@ var stack = [
 	cookieSession.cookieSession,
 	connect.router(download.api),
 	connect.router(staticAudio),
+	connect.router(staticImages),
 	connect.router(homepage.homepage),
 	connect.router(api.api),
 	connect.router(plmApi.api),
 	connect.router(listingApi.api),
 	connect.router(songStuff.api),
+	connect.router(imagesStuff.api),
 	connect.router(invites.api)
 ];
 

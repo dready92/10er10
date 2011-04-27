@@ -27,6 +27,8 @@ exports.homepage = function(app) {
 				dbg: debug ? "true":"false", 
 				base_url: request.basepath,
 				audio_root: d10.config.audio_root,
+				img_root: "audioImages",
+				img_size: d10.config.images.maxSize,
 				genres: genres
 			};
 			if ( request.query.o && request.query.o.indexOf("a") >= 0 ) {
