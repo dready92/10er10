@@ -329,8 +329,12 @@ var my = function () {
 									}
 									debug("xhr response : ",back);
 									xhr = null;
-									
-									
+									if ( back.status == "error" ) {
+										d10.osd.send("error",back.data.infos);
+										img.remove();
+										return ;
+									}
+									d10.osd.send("info","Image "+file.name+" enregistrée");
 									img.remove();
 
 									dropbox.find(".images").append(

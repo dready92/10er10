@@ -744,6 +744,49 @@ article div.pagination ul > li.active {
   padding: 5px;
 }
 
+
+#my div.uploadDropBox {
+/*   width: 200px; */
+  height: 100px;
+  margin: 20px;
+  padding: 10px;
+  border: 2px solid rgba(200,200,200,0.3);
+/*   background: url("128x128/actions/go-jump.png") center center no-repeat; */
+  background-color: #121212;
+  vertical-align:middle;
+  text-align:center;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  color: #CCC;
+  text-shadow: #121212 1px 1px 2px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
+#my div.uploadDropBox .imageReview {
+	display: inline-block;
+	width: 64px;
+	height: 64px;
+	position: relative;
+	
+}
+#my div.uploadDropBox .remove { 
+	position: absolute;
+	top: 16px;
+	left: 16px;
+	display: none;
+	cursor: pointer;
+}
+
+#my div.uploadDropBox .imageReview:hover .remove { 
+	display: block;
+}
+
+#my div.uploadDropBox .imageReview:hover img:first-child { 
+	opacity: 0.7;
+}
+
+/* #my div.uploadDropBox:hover { border: 2px solid rgba(200,200,200,1); } */
+
 /* playlist */
 
 aside {
