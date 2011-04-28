@@ -3,6 +3,7 @@ var d10 = require ("./d10"),
 	fs = require("fs"),
 	files = require("./files"),
 	util = require("util"),
+	when = require("./when"),
 	audioUtils = require("./audioFileUtils"),
 	spawn = require('child_process').spawn,
 	exec = require('child_process').exec;
@@ -42,11 +43,35 @@ exports.api = function(app) {
 				next();
 				return ;
 			}
+			var images = resp.images || [];
+			resp.images = [];
+			var fns = {};
+			images.forEach(function(v,k) {
+				fns[k] = (function(image) {
+					return function(cb) {
+						d10.view("html/my/image.widget",{
+							url: "audioImages/"+v.filename
+						},{},function(data) { cb(null,data); });
+					}
+				})(v);
+			});
+
 			request.ctx.headers["Content-Type"] = "text/html";
 			response.writeHead(200, request.ctx.headers );
-			d10.view("review/song",resp,{},function(data) {
-				response.end(data);
-			});
+			if (images.length == 0 ) {
+				d10.view("review/song",resp,{},function(data) {
+					response.end(data);
+				});
+			} else {
+				when(fns,function(errs,responses) {
+					for ( var i in responses ) {
+						resp.images.push(responses[i]);
+					}
+					d10.view("review/song",resp,{},function(data) {
+					response.end(data);
+				});
+				});
+			}
 		});
 	});
 	
