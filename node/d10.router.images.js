@@ -1,6 +1,7 @@
 var d10 = require("./d10"),
 			fs = require("fs"),
 			files = require("./files"),
+			when = require("./when"),
 			gm = require("gm");
 
 exports.api = function(app) {
@@ -16,18 +17,24 @@ exports.api = function(app) {
 						if ( err ) {return then(err);}
 						var back = [];
 						view.rows.forEach(function(v) { back.push(v.id); });
-						then(back);
+						then(null, back);
 					});
 				}
 			},
 			function(errs,responses) {
+				
+				console.log("when backs : ",responses.used  );
+				
 				if ( errs ) {
 					return d10.rest.err(423,errs,request.ctx);
 				}
-				var backOffset = responses.used.indexOf( responses.doc._id);
+				
+				var doc = responses.doc;
+				
+				var backOffset = responses.used.indexOf( doc._id);
 				if ( backOffset < 0 ) {
 					// image not in the list of images for this doc
-					return d10.rest.success(responses.doc, request.ctx);
+					return d10.rest.success(doc, request.ctx);
 				}
 				//remove image from doc
 				doc.images = doc.images.filter(function(img) {
@@ -36,6 +43,9 @@ exports.api = function(app) {
 					}
 					return true;
 				});
+				
+				d10.log("Image found in ",responses.used);
+				
 				d10.couch.d10.storeDoc(doc,function(err,resp) {
 					if ( err ) {
 						return d10.rest.err(423,errs,request.ctx);
@@ -88,8 +98,9 @@ exports.api = function(app) {
 				}
 				
 				var recordDoc = function(doc, fileName, sha1) {
+					var toSet = null;
 					if ( !doc.images ) {
-						doc.images = [ {filename: fileName, sha1: sha1} ]
+						toSet = [ {filename: fileName, sha1: sha1} ];
 					} else {
 						var alreadyIn = false;
 						doc.images.forEach(function(v) {
@@ -100,17 +111,25 @@ exports.api = function(app) {
 						if ( alreadyIn ) {
 							return d10.rest.success({filename: alreadyIn, sha1: sha1}, request.ctx);
 						} else {
-							doc.images.push({filename: fileName, sha1: sha1});
+							toSet = [{filename: fileName, sha1: sha1}];
 						}
 					}
-					d10.couch.d10.storeDoc(doc, function(err,resp) {
+					// re-get doc to have the good _rev
+					d10.couch.d10.getDoc(doc._id,function(err,lastVerDoc) {
 						if ( err ) {return d10.rest.err(423,err,request.ctx);}
-						return d10.rest.success({filename: fileName, sha1: sha1}, request.ctx);
+						doc._rev = lastVerDoc._rev;
+// 						console.log("doc.images: ",lastVerDoc.images);
+						doc.images = lastVerDoc.images && lastVerDoc.images.length ? lastVerDoc.images.concat(toSet) : toSet;
+// 						console.log("doc.images 2: ",doc.images);
+						d10.couch.d10.storeDoc(doc, function(err,resp) {
+							if ( err ) {return d10.rest.err(423,err,request.ctx);}
+							return d10.rest.success({filename: fileName, sha1: sha1}, request.ctx);
+						});
 					});
 				};
 				
 				var processAndRecord = function(doc, fileName, sha1) {
-					console.log("resizing image");
+// 					console.log("resizing image");
 					gm(d10.config.images.tmpdir+"/"+fileName).size(function(err,size) {
 						if ( err ) {
 							d10.rest.err(500,"image manipulation error (get image size failed)",request.ctx);
@@ -132,15 +151,15 @@ exports.api = function(app) {
 						if ( !newH || !newW ) {
 							return d10.rest.err(500,"image manipulation error (new image size returns null)",request.ctx);
 						}
-						console.log("resizing image to ",newW,newH);
+// 						console.log("resizing image to ",newW,newH);
 						gm(d10.config.images.tmpdir+"/"+fileName)
 						.resize(newW,newH)
 						.write(d10.config.images.dir+"/"+fileName,function(err) {
 							if ( err ) {
-								console.log("image writing failed",err);
+// 								console.log("image writing failed",err);
 								return d10.rest.err(500,"image manipulation error (writing modified image)",request.ctx);
 							}
-							console.log("image written to disk");
+// 							console.log("image written to disk");
 							recordDoc(doc, fileName, sha1);
 						});
 
@@ -156,9 +175,15 @@ exports.api = function(app) {
 						sha1 = sha1.split(" ",2).shift();
 						d10.couch.d10.view("images/sha1",{key: sha1}, function(err,view) {
 							if ( err ) {return d10.rest.err(423,err,request.ctx);}
+// 							console.log("view images/sha1, for ",sha1);
+// 							console.log(view);
+							
 							if ( view.rows.length ) {
-								recordDoc(doc,view.rows[0].filename, sha1);
+// 								console.log("image already in db : ", sha1);
+// 								console.log(view);
+								recordDoc(doc,view.rows[0].value, sha1);
 							} else {
+// 								console.log("image is not already in db",view);
 								processAndRecord(doc,fileName, sha1);
 								/*
 								fs.rename(d10.config.images.tmpdir+"/"+fileName, d10.config.images.dir+"/"+fileName, function(err) {

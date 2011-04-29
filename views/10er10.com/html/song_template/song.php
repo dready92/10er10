@@ -1,4 +1,4 @@
-<div class="song middle" draggable="true" name="{{_id}}" data-valid="{{valid}}" data-reviewed="{{reviewed}}">
+<div class="song middle" draggable="true" name="{{_id}}" data-valid="{{valid}}" data-reviewed="{{reviewed}}" data-images="{{images}}">
 	<span class="add pointer">
 		<img src="css/16x16/actions/list-add.png" name="plmadd" class="plmadd middle">
 	</span>

@@ -20,13 +20,13 @@ send back a JSON object :
 
 /* worker onmessage callback */
 onmessage = function(e){
-  var data = null;
-  try {
-    data = JSON.parse(e.data);
-  } catch (e) {
-    sendError({}, 'bad data format');
-  }
-	if ( ! data.method ||	( data.method != 'GET' && data.method != 'POST' && data.method != 'PUT' ) ) {
+	var data = null;
+	try {
+		data = JSON.parse(e.data);
+	} catch (e) {
+		sendError({}, 'bad data format');
+	}
+	if ( ! data.method ||	( data.method != 'GET' && data.method != 'POST' && data.method != 'PUT' && data.method != 'DELETE' ) ) {
 		sendError(data,'bad method');
 		return ;
 	} else if (  ! data.url ) {

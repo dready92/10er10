@@ -777,6 +777,10 @@ article div.pagination ul > li.active {
 	cursor: pointer;
 }
 
+#my div.uploadDropBox .imageReview img {
+	vertical-align: middle;
+}
+
 #my div.uploadDropBox .imageReview:hover .remove { 
 	display: block;
 }
@@ -785,6 +789,10 @@ article div.pagination ul > li.active {
 	opacity: 0.7;
 }
 
+#my div.uploadDropBox div.label {
+	margin-bottom: 10px;
+	color: #3CA0D0;
+}
 /* #my div.uploadDropBox:hover { border: 2px solid rgba(200,200,200,1); } */
 
 /* playlist */
