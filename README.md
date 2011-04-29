@@ -20,9 +20,9 @@ Debian squeeze users, using the nodejs deb package : you should create a symlink
 
 * NPM : install the Node package manager ( http://npmjs.org ). Hint : **curl http://npmjs.org/install.sh | sh**
 
-* connect & prompt : install node packages connect and prompt :
+* node modules : install node packages gm, connect and prompt :
 
-    npm install connect prompt
+    npm install gm connect prompt
 
 Install audio utilities
 -----------------------
@@ -42,6 +42,13 @@ Install audio utilities
 * install **vorbiscomment** executable : it's certainly available from your distribution packages
 
 * install **flac** and **metaflac** executables : they're certainly available from your distribution packages
+
+Install granphics utilities
+---------------------------
+
+10er10 website allows you to upload images related to songs (eg. album artwork).
+
+* install **GraphicsMagick** executables : it's certainly available from your distribution packages
 
 About 10er10 running environments
 ---------------------------------
@@ -68,6 +75,14 @@ Unzip/tar your 10er10 download and open **node/config.js**
 - exports.audio.dir : this is where the ogg files are stored. 
 
 Of course, those two folders should be writable by the unix user that will launch the node server.
+
+* configure images path
+
+10er10 needs two distinct folders to store images:
+
+- exports.images.tmpdir : the temporary folder is where the uploaded files are stored (could be the same than exports.audio.tmpdir)
+- exports.images.dir : this is where the images are stored. 
+
 
 * configure audio URI
 
