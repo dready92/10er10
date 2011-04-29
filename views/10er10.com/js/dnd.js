@@ -155,6 +155,14 @@ window.d10.dnd = new dnd();
 window.d10.song_template = function (doc) {
   var d = new Date(1970,1,1,0,0,doc.duration);
   doc.human_length = d.getMinutes()+':'+d.getSeconds();
+  
+  var images = [];
+  if ( doc.images ) {
+	  doc.images.forEach(function(img) {
+		  images.push(img.filename);
+	  });
+  }
+  doc.images = images.join(",");
   return window.d10.mustacheView('song_template',doc);
 }
 

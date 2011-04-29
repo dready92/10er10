@@ -266,98 +266,145 @@ var my = function () {
 		
 		function handleFiles(files) {
 			debug("handling file upload, nr of files: ",files.length);
+			var jobs = [];
 			for (var i = 0; i < files.length; i++) { 
 				debug("reading ",i);
 				var file = files[i];
 				if ( !isImage(file) ) {
 					continue;
 				}
-				var reader = new FileReader();
 				
-				// Closure to capture the file information.
-				reader.onload = (function(file) {
-					return function(e) {
-						debug("reader.onload");
-						// Render thumbnail.
-						var img = $("<img />").attr("src",e.target.result).css(
-							{
-								"visibility":"none",
-								"position": "absolute"
-							}
-						);
-						
-						$("body").append(img);
-						var w = img.width(), h = img.height();
-						debug("image size: ",w,h);
-						var ratio = getImageRatio(img.width(),img.height());
-						if ( ratio > 1.5 ) {
-							d10.osd.send("error",file.name+": merci de choisir une image a peu pres carré...");
-							img.remove();
-							return ;
-						}
-						if ( w > h ) {
-							h = h / w * d10.config.img_size;
-							w = d10.config.img_size;
-						} else {
-							w = w / h * d10.config.img_size;
-							h = d10.config.img_size;
-						}
-						img.width(w).height(h).css("position","static").appendTo(dropbox.find(".images")).css("visibility","visible");
-						
-						var binReader = new FileReader();
-						binReader.onload = function(e) {
-							var xhr = new XMLHttpRequest();
-							var url = site_url+"/api/songImage/"+song_id+"?"+$.d10param({"filesize": file.size, "filename": file.name } );
-							xhr.upload.addEventListener("end", function(e) {  
-								debug("File transfer completed");
-							},false);
-							xhr.addEventListener("readystatechange",function() {
-								//         console.log("ready state changed : ", xhr.readyState);
-								if ( xhr.readyState == 4 ) {
-									if ( xhr.status == 200 ) {
-										debug("image upload got status 200");
-									} else {
-										debug("image upload failed",xhr.status,xhr.responseText);
-										xhr = null;
-										return ;
-									}
-									var back = null;
-									try {
-										back = JSON.parse(xhr.responseText);
-									} catch (e) {
-										back = {'status': 'error'};
-									}
-									debug("xhr response : ",back);
-									xhr = null;
-									if ( back.status == "error" ) {
-										d10.osd.send("error",back.data.infos);
-										img.remove();
-										return ;
-									}
-									d10.osd.send("info","Image "+file.name+" enregistrée");
-									img.remove();
-
-									dropbox.find(".images").append(
-										d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+back.data.filename})
-															);
+				jobs.push( (function(file) { 
+					return function() {
+						var reader = new FileReader();
+						// Closure to capture the file information.
+						reader.onload = function(e) {
+// 							debug("reader.onload");
+							// Render thumbnail.
+							var img = $("<img />").attr("src",e.target.result).css(
+								{
+									"visibility":"none",
+									"position": "absolute",
+									"top": 0,
+									"left": -10000
 								}
-							},false);
-							xhr.open("POST",url);
-							xhr.sendAsBinary(binReader.result);
+							);
+							
+							$("body").append(img);
+							
+							
+							
+							
+							// timeout for chrome to get img width & height properly
+							var doTheRest = function() {
+								var w = img.width(), h = img.height();
+// 								debug("image size: ",w,h);						
+								var ratio = getImageRatio(w,h);
+								if ( ratio > 1.5 ) {
+									d10.osd.send("error",file.name+": merci de choisir une image a peu pres carré...");
+									img.remove();
+									return ;
+								}
+								if ( w > h ) {
+									h = h / w * d10.config.img_size;
+									w = d10.config.img_size;
+								} else {
+									w = w / h * d10.config.img_size;
+									h = d10.config.img_size;
+								}
+								img.width(w).height(h).css("position","static").appendTo(dropbox.find(".images")).css("visibility","visible");
+								
+								var binReader = new FileReader();
+								binReader.onload = function(e) {
+									var xhr = new XMLHttpRequest();
+									var url = site_url+"/api/songImage/"+song_id+"?"+$.d10param({"filesize": file.size, "filename": file.name } );
+									xhr.upload.addEventListener("load", function(e) {  
+										debug("File transfer completed");
+									},false);
+									xhr.addEventListener("readystatechange",function() {
+										//         console.log("ready state changed : ", xhr.readyState);
+										if ( xhr.readyState == 4 ) {
+											if ( xhr.status == 200 ) {
+												debug("image upload got status 200");
+											} else {
+												debug("image upload failed",xhr.status,xhr.responseText);
+												d10.osd.send("error","Impossible d'envoyer l'image au serveur");
+												xhr = null;
+												return ;
+											}
+											var back = null;
+											try {
+												back = JSON.parse(xhr.responseText);
+											} catch (e) {
+												back = {'status': 'error'};
+											}
+											debug("xhr response : ",back);
+											xhr = null;
+											if ( back.status == "error" ) {
+												d10.osd.send("error",back.data.infos);
+												img.remove();
+												return ;
+											}
+											d10.osd.send("info","Image "+file.name+" enregistrée");
+											img.remove();
+
+											dropbox.find(".images").append(
+												d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+back.data.filename})
+																	);
+										}
+									},false);
+									xhr.open("POST",url);
+									if ( "sendAsBinary" in xhr ) {
+										xhr.sendAsBinary(binReader.result);
+									} else {
+										xhr.send(file);
+									}
+								};
+								binReader.readAsBinaryString(file);
+							};
+// 							debug("setting timeout");
+							setTimeout(doTheRest,1000);
 						};
-						binReader.readAsBinaryString(file);
-						
-					};
-				})(file);
-
-				// Read in the image file as a data URL.
-				reader.readAsDataURL(file);
-
+						// Read in the image file as a data URL.
+						reader.readAsDataURL(file);
+						if ( jobs.length ) {
+// 							debug("launching next job, currently job length is",jobs.length);
+							setTimeout(jobs.pop(),1000);
+						}
+					}
+				})(file) );
+			}
+			debug("jobs length",jobs.length);
+			if ( jobs.length ) {
+				jobs.pop()();
 			}
 		}
 		
 	};
-  
+
+	var init_reviewImage_remove = function(topicdiv, song_id) {
+		topicdiv.delegate("img.remove","click",function() {
+			var img = $(this);
+			var filename = img.siblings().eq(0).attr("src").split("/").pop();
+			if ( !filename || !filename.length ) {
+				return ;
+			}
+			
+			d10.bghttp.del({
+				url: "/api/songImage/"+song_id+"/"+filename,
+				success: function(resp) {
+					img.closest("div.imageReview").remove();
+				},
+				error: function(err,resp) {
+					d10.osd.send("error",err+" "+resp);
+				}
+			});
+			
+		});
+		
+		
+	};
+	
 	this.init_topic_songreview = function (topicdiv, song_id ) {
 //     console.log("init_topic_songreview",topicdiv,arg);
 		topicdiv.html(d10.mustacheView("loading"));
@@ -366,6 +413,7 @@ var my = function () {
 			success: function(msg) {
 		topicdiv.html(msg);
 		init_songreview_imagesbox (topicdiv,song_id);
+		init_reviewImage_remove (topicdiv,song_id);
 		$("button[name=my]",topicdiv).click(function() { 
 			window.location.hash = "#/my/review";
 		});
