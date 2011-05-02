@@ -1,5 +1,4 @@
 $(document).one("bootstrap:playlist",function() {
-
 	var module = new d10.fn.playlistModule("title",{
 		"playlist:currentSongChanged": function() {
 			var s = d10.playlist.current();

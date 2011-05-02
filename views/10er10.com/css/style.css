@@ -808,7 +808,7 @@ aside {
 
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
-  padding: 0px 1px 10px 1px;
+  padding: 10px 1px 10px 1px;
   margin-bottom: 10px;
   -webkit-transition: box-shadow 0.5s ease-out, opacity 0.5s;
   -moz-transition: -moz-box-shadow 0.5s ease-out, opacity 0.5s;
@@ -1018,7 +1018,7 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 #playlist .song.current .artist:after { content: " -"; }
 
 #controls {
-  margin: 10px 10px 0 10px;
+  margin: 5px 10px 0 10px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   padding: 5px;
@@ -1231,7 +1231,7 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 #reviewReminder {
   background-color:rgb(191,151,48);
   text-align: center;
-  margin: 10px auto 20px auto;
+  margin: 0px auto 10px auto;
   width: 100px;
   color: #000;
   border: 4px solid rgb(175,138,44);

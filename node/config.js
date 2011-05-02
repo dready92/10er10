@@ -93,6 +93,7 @@ exports.javascript = {
 		"playlistModuleRpl.js",
 		"playlistModuleHighlight.js",
 		"playlistModuleFade.js",
+		"playlistModuleImage.js",
 		"paginer.js",
 		"plm.js",
 		"my.js",
