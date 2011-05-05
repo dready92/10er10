@@ -476,7 +476,7 @@ exports.api = function(app) {
 			resp.rows.forEach(function(v,k) {
 				var doc = v.doc;
 				var field = v.value.json.field;
-				if ( field == "album" || field == "artist" ) {
+				if ( field == "album" ) {
 					var put = false;
 					for (i=0,len=results[field].length; i<len; i++ ) {
 						if ( results[field][i].doc[field] ==  doc[field] ) {
@@ -491,6 +491,22 @@ exports.api = function(app) {
 					if ( !put ) {
 						results[field].push( {doc: doc, value: v.value} );
 					}
+				} else if ( field == "artist" ) {
+					var put = false;
+					for (i=0,len=results[field].length; i<len; i++ ) {
+						if ( results[field][i].value.json.value ==  v.value.json.value ) {
+							put = true;
+							break;
+						} else if ( results[field][i].value.json.value > v.value.json.value ) {
+							put = true;
+							results[field].splice(i,0,{doc: doc, value: v.value});
+							break;
+						}
+					}
+					if ( !put ) {
+						results[field].push( {doc: doc, value: v.value} );
+					}
+
 				} else {
 					var put = false;
 					for (i=0,len=results[field].length; i<len; i++ ) {
