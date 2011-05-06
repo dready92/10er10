@@ -235,8 +235,8 @@ var results = function (search) {
 		if ( data.artist ) {
 			html = '';
 			for ( var index in data.artist ) {
-				html+= d10.mustacheView ( "results.artist", {"name": data.artist[index].doc.artist, "ename": escape(data.artist[index].doc.artist) } ) ;
-				details.artists.push(data.artist[index].doc.artist);
+				html+= d10.mustacheView ( "results.artist", {"name": data.artist[index].value.json.value, "ename": escape(data.artist[index].value.json.value) } ) ;
+				details.artists.push(data.artist[index].value.json.value);
 			}
 			if ( html.length ) {
 				$("div.rBox.artists div.items",ui).html(html);

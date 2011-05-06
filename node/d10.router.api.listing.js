@@ -334,7 +334,7 @@ exports.api = function(app) {
 	app.get("/api/artistsListing",function(request,response) {
 		
 		var query = {group:true, group_level: 1};
-		d10.couch.d10.view("artist/name",query,function(err,resp) {
+		d10.couch.d10.view("artist/tokenized",query,function(err,resp) {
 			if ( err ) {
 				d10.rest.err(423, err, request.ctx);
 			}else {
