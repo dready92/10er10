@@ -21,13 +21,19 @@ exports.oggLength = function(file,cb) {
 	});
 };
 
-exports.id3tags = function(file, cb) {
-	var tagsPipe = exec(d10.config.cmds.taginfo+" "+file+" | "+d10.config.cmds.utrac+" -t UTF-8",{maxBuffer: 2000*1024},function(err,stdout,stderr) {
+exports.id3tags = function(file, cb, secondTry) {
+	var utrac_opts = " -t UTF-8";
+	if ( secondTry ) {
+		utrac_opts += " -f LATIN1";
+	}
+	var tagsPipe = exec(d10.config.cmds.taginfo+" "+file+" | "+d10.config.cmds.utrac+utrac_opts,{maxBuffer: 2000*1024},function(err,stdout,stderr) {
 		if ( err )	{
 			if ( err.message.indexOf("error 303") > -1 ) {
 				return cb(null,{});
+			} else if ( !secondTry && err.message.indexOf("Command failed: Segmentation fault") > -1 ) {
+				return exports.id3tags(file,cb,true);
 			}
-			return cb(err);
+			return cb(null,{});
 		}
 		var tagnames = ['ALBUM','TRACK','ARTIST','TITLE','GENRE','YEAR'],
 			tags = {};
