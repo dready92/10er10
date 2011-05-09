@@ -320,9 +320,19 @@ var Mustache = function() {
       if(!send_fun) {
         return renderer.buffer.join("\n");
       }
+    },
+    lang_to_html: function(template, view, partials, send_fun) {
+      var renderer = new Renderer();
+      renderer.set_delimiters("[[ ]]");
+      if(send_fun) {
+        renderer.send = send_fun;
+      }
+      renderer.render(template, view, partials);
+      if(!send_fun) {
+        return renderer.buffer.join("\n");
+      }
     }
   });
 }();
 
-// console.log(Mustache);
 exports.to_html = Mustache.to_html;
