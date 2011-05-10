@@ -101,5 +101,31 @@ exports = module.exports = {
 		playlists_body: "vos playlists dans votre espace dédié",
 		search_title: "Recherchez",
 		search_body: "des artistes, des titres de morceaux, ou des albums"
+	},
+	"html/my/song_template_trailer.html": {
+		edit: "edit"
+	},
+	"html/my/song_template_review_trailer.html": {
+		review: "review"
+	},
+	"html/my/plm.html": {
+		playlist_new_button: "Nouvelle",
+		playlist_new_label: "Nom de la nouvelle playlist :",
+		playlist_create: "Créer",
+		playlist_cancel: "Annuler"
+	},
+	"html/my/plm_rpl.html": {
+		playlist_empty: "Cette playlist est vide !",
+		load_in_player: "Charger la playlist dans le lecteur",
+		rename_button: "Renommer",
+		remove_button: "Supprimer",
+		rename_playlist_label: "Renommer la playlist : ",
+		cancel_button: "Euh non désolé",
+		remove_playlist_label: "Attention ! Vous êtes sur le point d'effacer <strong>définitivement</strong> cette playlist. Etes-vous bien certain ?",
+		remove_playlist_ok_button: "Oui",
+		loading: "Chargement de la playlist..."
+	},
+	"html/my/image.widget.html": {
+		remove: "Enlever cette image"
 	}
 };

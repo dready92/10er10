@@ -1,1 +1,0 @@
-<span class="edit link">review</span>
