@@ -1,9 +1,15 @@
 // in templates :
-// ==website_title== => escaped
-// =={website_title== => unescaped
+// ((website_title)) => escaped
+// (({website_title})) => unescaped
 
 exports = module.exports = {
-	
+	"login.html": {
+		title: "Login",
+		form_label: "Please login",
+		form_username: "Username",
+		form_password: "Password",
+		form_submit: "Go !"
+	},
 	"homepage.html": {
 		website_title: "Bienvenue",
 		website_loading_message: "Chargement en cours",
@@ -57,6 +63,43 @@ exports = module.exports = {
 		website_logged_as: "Logged as",
 		website_logout: "se déconnecter",
 		website_total_playing_length: "heures de musique"
+	},
+	"html/results/container.html": {
+		artists_details_button: "Voir en détail",
+		artists: "Artistes",
+		albums_details_button: "Voir en détail",
+		albums: "Albums",
+		songs_details_button: "Voir en détail",
+		songs: "Morceaux"
+	},
+	"html/library/container.html": {
+		newest: "Ajouts récents",
+		popular: "Populaires",
+		by_title: "Par titre",
+		by_genre: "Par genre",
+		by_artist: "Par artiste",
+		by_album: "Par album"
+	},
+	"html/my/container.html": {
+		to_review: "A valider",
+		my_songs: "Mes morceaux",
+		my_playlists: "Mes playlists",
+		my_favorite_songs: "Les morceaux que j'aime",
+		my_invites: "Invitations"
+	},
+	"html/upload/container.html": {
+		box_label: "Faites glisser vos morceaux de musique dans cette boite",
+		video_link: "Comment ça marche ?",
+		video_close: "Fermer"
+	},
+	"html/welcome/container.html": {
+		listen_title: "Ecoutez",
+		listen_body: "les morceaux disponibles dans le catalogue",
+		upload_title: "Ajoutez",
+		upload_body: "vos morceaux dans le catalogue",
+		playlists_title: "Créez",
+		playlists_body: "vos playlists dans votre espace dédié",
+		search_title: "Recherchez",
+		search_body: "des artistes, des titres de morceaux, ou des albums"
 	}
-	
 };

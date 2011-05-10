@@ -45,19 +45,24 @@ exports.homepage = function(app) {
 			when(
 				{
 					resultsContainer: function(cb) {
-						d10.view("html/results/container",{},function(data) {cb(null,data);} );
+						lang.parseServerTemplate(request,"html/results/container.html",cb);
+// 						d10.view("html/results/container",{},function(data) {cb(null,data);} );
 					},
 					libraryContainer: function(cb) {
-						d10.view("html/library/container",{},function(data) {cb(null,data);} );
+						lang.parseServerTemplate(request,"html/library/container.html",cb);
+// 						d10.view("html/library/container",{},function(data) {cb(null,data);} );
 					},
 					myContainer: function(cb) {
-						d10.view("html/my/container",{},function(data) {cb(null,data);} );
+						lang.parseServerTemplate(request,"html/my/container.html",cb);
+// 						d10.view("html/my/container",{},function(data) {cb(null,data);} );
 					},
 					uploadContainer: function(cb) {
-						d10.view("html/upload/container",{},function(data) {cb(null,data);} );
+						lang.parseServerTemplate(request,"html/upload/container.html",cb);
+// 						d10.view("html/upload/container",{},function(data) {cb(null,data);} );
 					},
 					welcomeContainer: function(cb) {
-						d10.view("html/welcome/container",{},function(data) {cb(null,data);} );
+						lang.parseServerTemplate(request,"html/welcome/container.html",cb);
+// 						d10.view("html/welcome/container",{},function(data) {cb(null,data);} );
 					}
 				},
 				 function(errs,responses) {
@@ -71,9 +76,7 @@ exports.homepage = function(app) {
 								console.log(err);
 								return response.end("An error occured");
 							}
-							response.end(
-								d10.mustache.to_html(resp,vars,responses)
-									 );
+							response.end(d10.mustache.to_html(resp,vars,responses));
 						});
 // 						d10.view("homepage",vars,responses,function(html) {
 // 							response.end(html);
@@ -84,9 +87,12 @@ exports.homepage = function(app) {
 			
 		} else {
 			d10.log("debug","sending login");
-			d10.view("login",vars,function(html) {
+			lang.parseServerTemplate(request,"login.html",function(err,html) {
 				response.end(html);
 			});
+// 			d10.view("login",vars,function(html) {
+// 				response.end(html);
+// 			});
 		}
 	}
 	app.get("/welcome/goodbye",function(request,response,next) {
