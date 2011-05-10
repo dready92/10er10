@@ -1,1 +1,0 @@
-<div><span class="link">{{artist}}</span> {{songs}} song(s)</div>

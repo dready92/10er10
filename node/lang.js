@@ -63,13 +63,15 @@ var loadTemplate = function ( lng, type, cb ) {
 exports.parseServerTemplate = function(request, tpl, cb) {
 	getHeadersLang(request,function(lng) {
 		loadTemplate(lng,"server",function(err,hash) {
-			console.log("hash",hash);
+// 			console.log("hash",hash);
 			if ( err ) {
 				return cb(err);
 			}
+			console.log("reading ",d10.config.templates.node+"/"+tpl);
 			fs.readFile(d10.config.templates.node+"/"+tpl, function(err,template) {
+				console.log("reading ",d10.config.templates.node+"/"+tpl);
 				template = template.toString();
-				console.log(template);
+// 				console.log(template);
 				if ( err ) { return cb(err); }
 				if ( ! tpl in hash ) { return cb(null,template); }
 // 				console.log("sending to mustache", typeof template, hash[tpl]);

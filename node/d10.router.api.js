@@ -6,6 +6,7 @@ var d10 = require ("./d10"),
 	fs = require("fs"),
 	os = require("os"),
 	when = require("./when"),
+	lang = require("./lang")
 	exec = require('child_process').exec;
 
 exports.api = function(app) {
@@ -94,9 +95,10 @@ exports.api = function(app) {
 		for ( var jobname in d10.config.templates.clientList ) {
 			jobs[jobname] = (function(tpl,j) {
 								return function(cb) {
-									fs.readFile(d10.config.templates.client+"/"+tpl,"utf8",function(err,data) {
-										cb(err,data);
-									});
+// 									fs.readFile(d10.config.templates.client+"/"+tpl,"utf8",function(err,data) {
+// 										cb(err,data);
+// 									});
+									lang.parseServerTemplate(request,tpl,cb);
 								};
 							})(d10.config.templates.clientList[jobname],jobname);
 		}

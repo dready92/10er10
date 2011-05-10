@@ -1,1 +1,0 @@
- <div class="refreshList">Cette liste n'est plus à jour. Cliquer ici pour la rafraichir.</div>

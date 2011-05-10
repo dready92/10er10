@@ -127,5 +127,66 @@ exports = module.exports = {
 	},
 	"html/my/image.widget.html": {
 		remove: "Enlever cette image"
+	},
+	"html/library/content_simple.html": {
+		add_to_playlist: "Tout ajouter à la lecture en cours"
+	},
+	"html/library/content_genre.html": {
+		back_to_list: "Revenir à la liste des genres",
+		add_to_playlist: "Tout ajouter à la lecture en cours"
+	},
+	"html/library/content_none.html": {
+		no_song: "Aucun morceau"
+	},
+	"html/library/control_genre.html": {
+		loading: "Chargement en cours..."
+	},
+	"html/library/control_artist.html": {
+		artist_placeholder: "Artist name...",
+		all_artists: "Tous les artistes",
+		loading: "chargement...",
+		no_result: "Aucun artiste trouvé"
+	},
+	"html/library/control_artist.html": {
+		album_placeholder: "Album name...",
+		loading: "chargement...",
+		no_result: "Aucun album trouvé"
+	},
+	"html/library/control_title.html": {
+		title_placeholder: "Song title...",
+		loading: "chargement...",
+		no_result: "Aucun titre trouvé"
+	},
+	"html/library/listing_artist_line.html": {
+		songs: "song(s)"
+	},
+	"html/library/listing_genre.html": {
+		songs_link: "Voir les {{count}} morceaux"
+	},
+	"html/hoverbox/addsong.container.html": {
+		add_to_header: "Ajouter à",
+		current_playlist: "lecture en cours",
+		playlist_header: "playlist"
+	},
+	"html/upload/file.widget.html": {
+		review_button: "Valider le morceau",
+		close_button: "Fermer",
+		type_error: "Le fichier ne sera pas transmis au serveur : ce n'est ni un mp3, ni un flac, ni un ogg.",
+		waiting: "En attente",
+		cancel_link: "Ne pas envoyer ce morceau"
+	},
+	"html/pleaseWait.html": {
+		loading: "Chargement en cours..."
+	},
+	"html/refresh.html": {
+		refresh_list: "Cette liste n'est plus à jour. Cliquer ici pour la rafraichir."
+	},
+	"html/results/album.html": {
+		open: "voir les morceaux",
+		close: "cacher les morceaux",
+		songs: "morceau(x)",
+		minutes: "minute(s)",
+		add_to_player: "Ajouter à la lecture en cours",
+		add_after_current_song: "Ajouter juste après le morceau en écoute"
 	}
 };
