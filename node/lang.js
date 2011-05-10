@@ -1,6 +1,7 @@
 var fs = require("fs"),
 	d10 = require("./d10"),
-	when = require("./when"); 
+	mustache = require("./mustache"),
+	when = require("./when");
 
 var langRoot = "../views/10er10.com/lang";
 var langs = {};
@@ -48,16 +49,34 @@ var loadTemplate = function ( lng, type, cb ) {
 		cb (null, langs[lng][type]);
 		return ;
 	}
-	when({
-		"server": function(then) {
-			fs.readFile(langRoot+"/lng/server.js",function(err,resp) {
-			});
-		}
-	},function(errs,responses) {
-	});
+	
+	langs[lng] = langs[lng] || {};
+	langs[lng].server = require( langRoot+"/"+lng+"/server.js" );
+	cb(null,langs[lng][type]);
 };
 
-exports.getServerTemplate = function(request, tpl, cb) {
+/**
+* Parses the server template hash 
+*
+*
+*/
+exports.parseServerTemplate = function(request, tpl, cb) {
+	getHeadersLang(request,function(lng) {
+		loadTemplate(lng,"server",function(err,hash) {
+			console.log("hash",hash);
+			if ( err ) {
+				return cb(err);
+			}
+			fs.readFile(d10.config.templates.node+"/"+tpl, function(err,template) {
+				template = template.toString();
+				console.log(template);
+				if ( err ) { return cb(err); }
+				if ( ! tpl in hash ) { return cb(null,template); }
+// 				console.log("sending to mustache", typeof template, hash[tpl]);
+				return cb(null,mustache.lang_to_html(template, hash[tpl]));
+			});
+		});
+	});
 };
 
 

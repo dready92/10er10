@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html> 
 <head> 
-<title>{{l:welcome}}</title> 
+<title>((website_title))</title> 
 <META http-equiv="Content-Type" Content="text/html; charset=utf-8"> 
 <!--<link rel="stylesheet" type="text/css" href="/css/style.css" />--> 
  
@@ -10,14 +10,12 @@
 <body><div id="containerWrap"> 
 <div id="beautyFade"> 
 <div id="initialLoading"> 
-	<p>Loading interface</p> 
+	<p>((website_loading_message))</p> 
 </div> 
 </div> 
 <div id="browserNotSupported"> 
   <div> 
-    Votre navigateur ne supporte pas les fonctionnalités HTML5 nécessaires pour ce site !
-<BR> 
-Ce site a été testé sous <a href="http://getfirefox.com">Mozilla Firefox</a> et <a href="http://www.google.com/chrome">Google Chrome</a>. Si vous voulez plus d'informations concernant les navigateurs, <a href="http://www.whatbrowser.org/fr/">cliquez ici</a>.
+    (({err_browser_not_supported}))
   </div> 
 </div> 
 <div id="osd"></div> 
@@ -26,31 +24,31 @@ Ce site a été testé sous <a href="http://getfirefox.com">Mozilla Firefox</a> 
   <div class="logo"> 
     <span class="d1">1</span><span class="d0">0</span><span class="e3">E</span><span class="r">R</span><span class="n1">1</span><span class="n0">0</span> 
   </div> 
-  <div class="teaser">Ça va sonner.</div> 
+  <div class="teaser">((website_teaser))</div> 
   <div class="playing"></div> 
 </header> 
  
 <nav> 
 	<div id="search" action="results" data-no-active-click="1" data-mm-in-effect="fadeIn"> 
 		<div> 
-			<input type="text" name="q" defaultvalue="Rechercher..." autocomplete="off"> <img class="middle" src="/css/16x16/actions/edit-find.png"> 
+			<input type="text" name="q" defaultvalue="((search_placeholder))" autocomplete="off"> <img class="middle" src="/css/16x16/actions/edit-find.png"> 
 		</div> 
-		<div class="label">Recherche : </div> 
-		<div>Rechercher des morceaux par titre, artiste, ...</div> 
+		<div class="label">((search_label))</div> 
+		<div>((search_teaser))</div> 
 	</div> 
 	<ul class="nomark"> 
 		<li  action="upload" actiontype="toggle"> 
-			<div><img class="middle" src="/css/22x22/actions/go-jump.png"> Uploader</div> 
-			<div>Ajouter des morceaux</div> 
+			<div><img class="middle" src="/css/22x22/actions/go-jump.png">((upload_title))</div> 
+			<div>((upload_teaser))</div> 
 		</li><li action="my" actiontype="toggle"> 
-			<div><img class="middle" src="/css/22x22/places/user-home.png"> Mon espace</div> 
-			<div>Mes chansons, mes playlists...</div> 
+			<div><img class="middle" src="/css/22x22/places/user-home.png">((my_title))</div> 
+			<div>((my_teaser))</div> 
 		</li><li action="library" actiontype="toggle"> 
-			<div><img class="middle" src="/css/22x22/places/folder-sound.png"> Catalogue</div> 
-			<div>Classements par genre, popularité,...</div> 
+			<div><img class="middle" src="/css/22x22/places/folder-sound.png">((library_title))</div> 
+			<div>((library_teaser))</div> 
 		</li><li action="welcome" actiontype="toggle"> 
-			<div><img class="middle" src="/css/22x22/categories/system-help.png"> Bienvenue</div> 
-			<div>Aide, Mode d'emploi</div> 
+			<div><img class="middle" src="/css/22x22/categories/system-help.png">((welcome_title))</div> 
+			<div>((welcome_teaser))</div> 
 		</li> 
  
 	</ul> 
@@ -58,7 +56,7 @@ Ce site a été testé sous <a href="http://getfirefox.com">Mozilla Firefox</a> 
  
 <aside id="side"> 
   <div id="reviewReminder" class="hidden"> 
-Vous avez <strong></strong> morceaux à valider !
+(({side_review_reminder}))
   </div> 
   <div id="controls"> 
     <div class="table" name="progressbar"> 
@@ -78,78 +76,78 @@ Vous avez <strong></strong> morceaux à valider !
         <div class="row"> 
           <div class="cell"> 
             <img src="/css/22x22/actions/get-hot-new-stuff.png" name="likes"> 
-            <div class="tooltip"><p>J'aime ce morceau</p>Ce morceau apparaitra dans<br>"Mon espace / Les morceaux que j'aime"</div> 
+            <div class="tooltip">(({side_likes_tooltip}))</div> 
             <img src="/css/22x22/actions/mail-mark-junk.png" name="dislikes"> 
-            <div class="tooltip"><p>Je n'aime pas ce morceau</p>Permet de spécifier que ce morceau est mauvais.</div> 
+            <div class="tooltip">(({side_tooltip_dislikes}))</div> 
           </div> 
           <div class="cell"> 
-            <img src="/css/22x22/actions/player_start.png" name="previous" title="Morceau précédent"> 
-            <img src="/css/32x32/actions/player_play.png" name="play" title="Musique ! Jouer les morceaux de la playlist"> 
-            <img src="/css/32x32/actions/player_pause.png" name="pause" class="hidden" title="Mettre sur pause"> 
-            <img src="/css/22x22/actions/player_end.png" name="next" title="Morceau suivant"> 
+            <img src="/css/22x22/actions/player_start.png" name="previous" title="((side_previous_title))"> 
+            <img src="/css/32x32/actions/player_play.png" name="play" title="((side_play_title))"> 
+            <img src="/css/32x32/actions/player_pause.png" name="pause" class="hidden" title="((side_pause_title))"> 
+            <img src="/css/22x22/actions/player_end.png" name="next" title="((side_next_title))"> 
           </div> 
           <div class="cell"><div name="volume"><div name="volumein"></div></div></div> 
         </div> 
       </div> 
     </div>
 	<div class="otherOptions">
-		<div class="showOtherOptions link">Plus d'options...</div>
+		<div class="showOtherOptions link">((side_options_show))</div>
 		<div class="otherOptionsContainer">
-			<div class="autofill" title="Mode radio : ajoute des morceaux à la fin de la playlist"> 
+			<div class="autofill" title="((side_options_radiomode_title))"> 
 				<div class="off">
-					<div class="label"><strong>Mode radio</strong>: désactivé</div>
-					<div class="link center expandable">Activer le mode radio</div>
+					<div class="label">(({side_options_radiomode_disabled}))</div>
+					<div class="link center expandable">((side_options_radiomode_enable))</div>
 				</div> 
 				<div class="on hidden">
-					<div class="label"><strong>Mode radio</strong>: activé</div>
-					<div class="link center expandable">Options du mode radio</div>
+					<div class="label">(({side_options_radiomode_enabled}))</div>
+					<div class="link center expandable">((side_options_radiomode_options))</div>
 				</div> 
 				<div class="overlay hidden"> 
-					<div class="center vertical-little-air">Limiter les morceaux ajoutés à la playlist aux genres suivants :</div>
+					<div class="center vertical-little-air">((side_radiomode_genre_selector_title))</div>
 					<div class="list">{{#genres}}<div name="{{.}}">{{.}}</div>{{/genres}}</div>
-					<div class="close center vertical-little-air"><span class="link">fermer cette fenêtre</span></div> 
-					<div class="disable center vertical-little-air"><span class="link">Désactiver le mode radio</span></div> 
+					<div class="close center vertical-little-air"><span class="link">((side_radiomode_close))</span></div> 
+					<div class="disable center vertical-little-air"><span class="link">((side_radiomode_disable))</span></div> 
 				</div> 
 			</div>
 			<div class="audioFade">
-				<div class="label"><strong>Fondu</strong> entre les morceaux</div>
-				<div class="rangeSelector center expandable"><input type="range" name="fade" min="0" max="60" value="15" size="3"/> <span class="fadeValue"></span> seconde(s)</div>
+				<div class="label">(({side_options_audiofade_title}))</div>
+				<div class="rangeSelector center expandable"><input type="range" name="fade" min="0" max="60" value="15" size="3"/> <span class="fadeValue"></span> ((side_options_audiofade_seconds))</div>
 			</div>
-			<div class="hideOtherOptions link">Cacher les options</div>
+			<div class="hideOtherOptions link">((side_options_hide))</div>
 		</div>
 	</div>
   </div> 
 	<div class="audioImage center"></div>
   <div class="playlisttitle"><span></span></div> 
   <div id="playlist"></div>
-  <div id="playlistLoader">Chargement de la dernière liste de lecture</div>
-  <div class="emptyPlaylist">Votre liste de lecture est vide.<BR><span class="link">Remplis-la !</span></div> 
+  <div id="playlistLoader">((side_playlistloader))</div>
+  <div class="emptyPlaylist">((side_playlist_empty))<BR><span class="link">((side_playlist_fill))</span></div> 
   <div class="manager"> 
-    <button name="new" title="Vider la liste de lecture"> 
+    <button name="new" title="((side_playlist_empty_title))"> 
       <img src="/css/22x22/actions/edit-clear.png" class="middle"> 
-   Vider</button> 
-    <button name="load" title="Charger une playlist"> 
+((side_playlist_empty_button))</button> 
+    <button name="load" title="((side_playlist_load_title))"> 
       <img src="/css/22x22/actions/document-open.png" class="middle"> 
-    Ouvrir</button> 
-    <button name="save" title="Enregistrer la playlist"> 
+((side_playlist_load_button))</button> 
+    <button name="save" title="((side_playlist_record_title))"> 
     <img src="/css/22x22/actions/document-save.png" class="middle"> 
-    Sauver</button> 
+((side_playlist_record_button))</button> 
   </div> 
   <div class="saveplaylist hidden"> 
     <div class="center"> 
       <p class="airin"> 
-        Enregistrer sous : <input type="text" name="name" defaultvalue="playlist name..."> 
+        ((side_playlistrecord_title))<input type="text" name="name" defaultvalue="((side_playlistrecord_placeholder))"> 
       </p> 
-      <button><img src="/css/22x22/actions/document-save.png" class="middle"> Enregistrer</button> 
-      <span class="link">Euh non désolé</span> 
+      <button><img src="/css/22x22/actions/document-save.png" class="middle">((side_playlistrecord_button))</button> 
+      <span class="link">((side_playlistrecord_cancel))</span> 
     </div> 
   </div> 
   <div class="updateplaylist hidden center"> 
     <p class="airin"> 
-      Il éxiste déjà une playlist portant ce nom... 
+      ((side_playlistrecord_playlist_name_exists))
     </p> 
-    <button name="save"><img src="/css/22x22/actions/document-save.png" class="middle"> Enregistrer quand même</button> 
-    <span class="link">Euh non désolé</span> 
+    <button name="save"><img src="/css/22x22/actions/document-save.png" class="middle">((side_playlistrecord_playlist_name_exists_button</button> 
+    <span class="link">((side_playlistrecord_cancel))</span> 
   </div> 
 </aside> 
  
@@ -164,13 +162,10 @@ Vous avez <strong></strong> morceaux à valider !
 {{>resultsContainer}}
 
 </div> 
-<div id="mainerror" class="hidden"> 
-	<h1>Ouplaya !</h1><p>Le système a rencontré une erreur... :</p><div name="error"></div><span name="retry" class="link" actiontype="open">Recommencer</span> 
-</div> 
  
 <footer> 
-Logged as {{username}} - 
-<a href="{{base_url}}welcome/goodbye">logout</a> - 10er10 - <span class="hours"></span> heures de musique
+((website_logged_as)) {{username}} - 
+<a href="{{base_url}}welcome/goodbye">((website_logout))</a> - 10er10 - <span class="hours"></span> ((website_total_playing_length))
 </footer> 
  
 </div></div> 

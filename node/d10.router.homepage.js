@@ -3,7 +3,8 @@ var 	bodyDecoder = require("connect").bodyParser,
 		hash = require("./hash"),
 		utils = require("connect").utils,
 		d10 = require("./d10"),
-		when = require("./when");
+		when = require("./when"),
+		lang = require("./lang");
 		
 		
 exports.homepage = function(app) {
@@ -65,9 +66,18 @@ exports.homepage = function(app) {
 						 response.writeHead(501, request.ctx.headers );
 						 response.end ("Filesystem error");
 					 } else {
-						d10.view("homepage",vars,responses,function(html) {
-							response.end(html);
+						lang.parseServerTemplate(request,"homepage.html",function(err,resp) {
+							if ( err ) {
+								console.log(err);
+								return response.end("An error occured");
+							}
+							response.end(
+								d10.mustache.to_html(resp,vars,responses)
+									 );
 						});
+// 						d10.view("homepage",vars,responses,function(html) {
+// 							response.end(html);
+// 						});
 					 }
 				}
 			);
