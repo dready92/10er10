@@ -1,5 +1,7 @@
 var 	path = require("path"),
-	url = require("url");
+		url = require("url"),
+		lang = require("./lang"),
+		utils = require("connect").utils;
 
 
 exports.context = function (req,res,next) { 
@@ -13,5 +15,15 @@ exports.context = function (req,res,next) {
 	var u = url.parse("http://"+req.headers.host+req.url, true);
 	req.query = u.query || {};
  	req.basepath =  path.dirname(u.pathname);
- 	next();
+//  	next();
+	var passTheCoochie = function() {
+		pause.end();
+		next();
+		pause.resume();
+	};
+	var pause = utils.pause(req);
+	lang.getHeadersLang(req,function(lng) {
+		req.ctx.lang = lng;
+		passTheCoochie();
+	});
 };

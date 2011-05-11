@@ -20,6 +20,7 @@ exports.homepage = function(app) {
 
 		if ( request.ctx.session && "_id" in request.ctx.session ) {
 			// 		d10.log("debug",request.headers);
+			
 			var genres = config.genres;
 			genres.sort();
 			var debug = request.query && request.query.debug ? true : false ;
