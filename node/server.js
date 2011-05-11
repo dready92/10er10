@@ -23,7 +23,8 @@ var	connect = require("connect"),
 	imagesStuff = require("./d10.router.images"),
 	invites = require("./d10.router.invites"),
 	download = require("./d10.router.audio.download"),
-	invitesRouter = require("./invites.router.js")
+	invitesRouter = require("./invites.router.js"),
+	lang = require("./lang")
 	;
 
 console.log("Database binding: "+config.couch.d10.dsn+"/"+config.couch.d10.database);
@@ -50,6 +51,7 @@ var stack = [
 	require("./contextMiddleware").context,
 	connect.router(staticRoutes), 
 	cookieSession.cookieSession,
+	lang.middleware,
 	connect.router(download.api),
 	connect.router(staticAudio),
 	connect.router(staticImages),

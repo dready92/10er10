@@ -67,7 +67,6 @@ var checkAuth = function (ctx,passTheCoochie) {
 						ctx.user = sessionCache[cookieData.user].us;
 						ctx.userPrivateConfig = sessionCache[cookieData.user].pr;
 						ctx.session = sessionCache[cookieData.user].se;
-						if ( ctx.user.lang ) { ctx.lang = ctx.user.lang ;}
 						d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged");
 						d10.log("debug","loggged from the session cache");
 						return passTheCoochie();
@@ -82,7 +81,6 @@ var checkAuth = function (ctx,passTheCoochie) {
 							if ( !found && v.doc._id == "se"+cookieData.session ) {
 								d10.fillUserCtx(ctx,response,v.doc);
 								sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session);
-								if ( ctx.user.lang ) { ctx.lang = ctx.user.lang ;}
 								d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged");
 								found = true;
 							}

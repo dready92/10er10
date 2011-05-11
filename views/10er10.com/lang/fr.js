@@ -2,7 +2,7 @@
 // ((website_title)) => escaped
 // (({website_title})) => unescaped
 
-exports = module.exports = {
+exports.server = {
 	"login.html": {
 		title: "Login",
 		form_label: "Please login",
