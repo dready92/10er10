@@ -190,3 +190,9 @@ exports.server = {
 		add_after_current_song: "Ajouter juste après le morceau en écoute"
 	}
 };
+
+exports.client = {
+	"my.review.error.imagesize": "merci de choisir une image a peu pres carré...",
+	"my.review.error.filetransfert": "Impossible d'envoyer l'image au serveur",
+	"my.review.success.filetransfert": "Image {{filename}} enregistrée"
+};

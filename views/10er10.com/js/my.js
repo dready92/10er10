@@ -301,7 +301,7 @@ var my = function () {
 // 								debug("image size: ",w,h);						
 								var ratio = getImageRatio(w,h);
 								if ( ratio > 1.5 ) {
-									d10.osd.send("error",file.name+": merci de choisir une image a peu pres carré...");
+									d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
 									img.remove();
 									return ;
 								}
@@ -328,7 +328,7 @@ var my = function () {
 												debug("image upload got status 200");
 											} else {
 												debug("image upload failed",xhr.status,xhr.responseText);
-												d10.osd.send("error","Impossible d'envoyer l'image au serveur");
+												d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
 												xhr = null;
 												return ;
 											}
@@ -345,7 +345,7 @@ var my = function () {
 												img.remove();
 												return ;
 											}
-											d10.osd.send("info","Image "+file.name+" enregistrée");
+											d10.osd.send("info",d10.mustacheView("my.review.success.filetransfert",{filename: file.name}));
 											img.remove();
 
 											dropbox.find(".images").append(

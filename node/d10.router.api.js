@@ -102,6 +102,7 @@ exports.api = function(app) {
 								};
 							})(d10.config.templates.clientList[jobname],jobname);
 		}
+		jobs.dynamic = function(cb) { lang.loadLang(request.ctx.lang, "client",cb); };
 		request.ctx.headers["Content-type"] = "application/json";
 		when(
 			jobs,
@@ -111,6 +112,12 @@ exports.api = function(app) {
 					d10.rest.err(500,e,request.ctx);
 				} else {
 					d10.log("success");
+					console.log("responses: ",responses);
+					var dynamic = responses.dynamic;
+					delete responses.dynamic;
+					for ( var i in dynamic ) {
+						responses[i] = dynamic[i];
+					}
 					d10.rest.success(responses,request.ctx);
 				}
 			}

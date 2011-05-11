@@ -5,7 +5,9 @@ var fs = require("fs"),
 	utils = require("connect").utils;;
 
 var langRoot = "../views/10er10.com/lang";
-var langs = null;
+var langs = false;
+var loadingLangs = false;
+var loadingLangsCb = [];
 
 /*
  * parse Accept-Language headers & returns the available matching language or the default language
@@ -35,20 +37,32 @@ var getHeadersLang = function(request,cb) {
 };
 
 var loadLangFiles = function(cb) {
-	if ( langs ) {
+	console.log("typeof langs ? ", typeof langs);
+	if ( langs !== false ) {
+// 		console.log("LANG: loadLangFiles langs is already set ",langs);
 		return cb() ;
 	}
-	langs = {};
+	loadingLangsCb.push(cb);
+
+	if ( loadingLangs ) {
+		return ;
+	}
+	loadingLangs = true;
+	console.log("LANG: launching readdir");
 	fs.readdir(langRoot,function(err,files) {
+		console.log("LANG: loadLangFiles reading directory ");
+		langs = {};
 		if ( err ) { console.log("LANG readdir failed: ",err); return cb(); }
 		for ( var i in files ) {
 			var f = files[i];
 			if ( f.match(/\.js$/) ) {
+				console.log("LANG: including ",f);
 				langs[ f.replace(/\.js$/,"") ] = require(langRoot+"/"+f);
 			}
 		}
 		console.log("LANG langs: ", langs);
-		return cb();
+		loadingLangs = false;
+		loadingLangsCb.forEach(function(cb) { cb()});
 	});
 };
 
@@ -78,7 +92,8 @@ var langExists = exports.langExists = function(lng, cb) {
  * eg. : loadLang("en","server",function(err,resp) { console.log(resp["homepage.html"]["l:welcome"]); });
  * 
  */
-var loadLang = function ( lng, type, cb ) {
+var loadLang = this.loadLang = function ( lng, type, cb ) {
+	console.log("LANG loadLang: ",lng,type);
 // 	if ( langs[lng] ) {
 // 		cb (null, langs[lng][type]);
 // 		return ;
@@ -88,6 +103,7 @@ var loadLang = function ( lng, type, cb ) {
 // 	langs[lng].server = require( langRoot+"/"+lng+".js" );
 // 	cb(null,langs[lng][type]);
 	loadLangFiles(function() {
+		console.log("loadLangFiles returns");
 		if ( ! lng in langs ) {
 			console.log("LANG unknown : ",lng);
 			return cb(new Error("lang not found: "+lng));
@@ -108,7 +124,7 @@ var loadLang = function ( lng, type, cb ) {
 exports.parseServerTemplate = function(request, tpl, cb) {
 // 	getHeadersLang(request,function(lng) {
 // 	var lng = request.ctx.lang ? request.ctx.lang : d10.config.templates.defaultLang;
-// 	console.log("LANG parseServerTemplate: ",request.url,request.ctx.lang);
+ 	console.log("LANG parseServerTemplate: ",tpl,request.url,request.ctx.lang);
 	loadLang(request.ctx.lang,"server",function(err,hash) {
 // 			console.log("hash",hash);
 		if ( err ) {
