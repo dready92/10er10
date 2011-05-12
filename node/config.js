@@ -19,7 +19,7 @@ exports.couch_dev = {
 exports.templates = {
 	node: "../views/10er10.com/",
 	client: "../views/10er10.com/",
-	defaultLang: "fr",
+	defaultLang: "en",
 	invites: "../views/invites.10er10.com/"
 };
 

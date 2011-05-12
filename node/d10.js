@@ -2,6 +2,7 @@ var fs = require("fs"),
 // 	cradle = require('cradle'),
 	ncouch = require("./ncouch"),
 	files = require("./files"),
+	lang = require("./lang"),
 	exec = require('child_process').exec;
 	
 exports.mustache = require("./mustache");
@@ -155,12 +156,31 @@ exports.view = function(n,d,p,cb) {
 		cb = p;
 		p = null;
 	}
+	
 	fileCache.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
+		if (err) throw err;
+		data = 
+		data = exports.mustache.to_html(data,d,p);
+		if ( cb )	cb.call(data,data);
+	});
+};
+
+exports.lngView = function(request, n, d, p, cb) {
+	console.log("lngView, request.ctx: ",request);
+	console.log("view");
+	console.log(d,p);
+	if ( !cb && p ) {
+		cb = p;
+		p = null;
+	}
+	lang.parseServerTemplate(request, n+".html",function(err,data) {
+// 	fileCache.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
 		if (err) throw err;
 		data = exports.mustache.to_html(data,d,p);
 		if ( cb )	cb.call(data,data);
 	});
 };
+
 
 exports.nextWord = function(w) {
 	var charCode = w.charCodeAt(w.length-1);

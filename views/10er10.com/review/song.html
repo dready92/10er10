@@ -1,84 +1,81 @@
 <article class="review">
 <div name="form">
-<h1 class="airin">Informations sur le morceau</h1>
+<h1 class="airin">((title))</h1>
 <p class="airin">
 {{#reviewed}}
-Cette page permet de modifier les informations sur le morceau {{filename}}.
+((reviewed))<BR>
 {{/reviewed}}
-Il est essentiel de bien renseigner les différentes informations sur ce morceau : de cette façon le catalogue renverra des données pertinentes.
-<BR>
-Les champs les plus importants sont le <strong>titre</strong> du morceau, le nom de l'<strong>artiste</strong>, et le <strong>genre</strong>.
-<? } ?>
+(({introduction}))
 </p>
-<p class="airin center">Validation du morceau : {{filename}}</p>
+<p class="airin center">((review_file))</p>
 <form method="post" action="#">
 <input type="hidden" name="_id" value="{{_id}}">
 <div class="table">
 	<div class="row center">
 		<div class="cell airin">
-			<span class="formlabel">Titre du morceau</span><br>
+			<span class="formlabel">((song_title))</span><br>
 			<input type="text" name="title" value="{{title}}" autocomplete="off">
       <br>
 			<div class="form_error hidden" name="title"></div>
 		</div>
 		<div class="cell airin">
-			<span class="formlabel">Artiste</span><br>
+			<span class="formlabel">((song_artist))</span><br>
 			<input type="text" name="artist" value="{{artist}}" autocomplete="off">
-      <div class="overlay resized"><div class="loading hidden">chargement...</div><div class="noResult hidden">Aucun artiste connu</div><ul></ul></div><br>
+      <div class="overlay resized"><div class="loading hidden">((loading))</div><div class="noResult hidden">((no_artist))</div><ul></ul></div><br>
 			<div class="form_error hidden" name="artist"></div>
 		</div>
 	</div>
 	<div class="row center">
 		<div class="cell airin">
-			<span class="formlabel">Album</span><br>
+			<span class="formlabel">((song_album))</span><br>
 			<input type="text" name="album" value="{{album}}" autocomplete="off"><br>
-			<div class="overlay resized"><div class="loading hidden">chargement...</div><div class="noResult hidden">Aucun album connu</div><ul></ul></div>
+			<div class="overlay resized"><div class="loading hidden">((loading))</div><div class="noResult hidden">((no_album))</div><ul></ul></div>
 		</div>
 		<div class="cell airin">
-			<span class="formlabel">Numéro de piste</span><br>
+			<span class="formlabel">((song_tracknumber))</span><br>
 			<input type="text" name="tracknumber" value="{{tracknumber}}" autocomplete="off"><br>
 		</div>
 	</div>
 	<div class="row center">
 		<div class="cell airin">
-			<span class="formlabel">Genre</span><br>
+			<span class="formlabel">((song_genre))</span><br>
 			<input type="text" name="genre" value="{{genre}}"  autocomplete="off">
-<div class="overlay resized"><div class="loading hidden">chargement...</div><div class="noResult hidden">Aucun genre correspondant</div><ul></ul></div><br>
+<div class="overlay resized"><div class="loading hidden">((loading))</div><div class="noResult hidden">((no_genre))</div><ul></ul></div><br>
 			<div class="form_error hidden" name="genre"></div>
 		</div>
 		<div class="cell airin">
-			<span class="formlabel">Année</span><br>
+			<span class="formlabel">((song_date))</span><br>
 			<input type="text" name="date" value="{{date}}" autocomplete="off"><br>
 		</div>
 	</div>
 		<div class="row center">
 		<div class="cell airin">
 <!--       <input type="button" name="gooooo" value="Valider"> -->
-      <button name="review">Valider</button>
+      <button name="review">((review_button))</button>
 		</div>
 		<div class="cell airin">
-      <button name="reviewNext" class="hidden">Valider &amp; montrer le suivant</button>
-			<span class="uploading hidden actiontext">Validation...</span>
+      <button name="reviewNext" class="hidden">((review_and_show_next_button))</button>
+			<span class="uploading hidden actiontext">((validating))</span>
 		</div>
 	</div>
 </div>
 </form>
 
 <div class="uploadDropBox" name="{{_id}}">
-	<div class="label center">Images associées à ce morceau (glisser des images pour les rajouter)</div>
+	<div class="label center">((song_images))</div>
 	<div class="images center">{{#images}}{{{.}}}{{/images}}</div>
 </div>
 
 <p class="center airin">
-  <button name="my" data-action="review">Revenir à la liste des morceaux à valider</button>
+  <button name="my" data-action="review">((list_button))</button>
 </p>
 </div>
 <div name="ok" class="hidden">
-	<h1>C'est fait !</h1>
-	<p class="airin">Le morceau <span name="artist"></span> - <span name="title"></span> a été validé.</p>
+	<h1>((reviewed_title))</h1>
+	<p class="airin">(({reviewed_message}))</p>
 	<div class="airin center">
-    <button name="my">Valider les informations sur d'autres morceaux</button> 
-    <button name="upload">Aller dans la partie "Uploader"</button>
+    <button name="my">((review_other_button))</button> 
+    <button name="upload">((upload_button))</button>
   </div>
 </div>
 </article>

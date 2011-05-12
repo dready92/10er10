@@ -22,11 +22,11 @@ exports.api = function(app) {
 			if( resp.rows && resp.rows.length ) {
 				var r = [];
 				resp.rows.forEach(function(v) { r.push(v.doc); });
-				d10.view("review/list",{rows: r},{},function(data) {
+				d10.lngView(request,"review/list",{rows: r},{},function(data) {
 					response.end(data);
 				});
 			} else {
-				d10.view("review/none",{},{},function(data) {
+				d10.lngView(request,"review/none",{},{},function(data) {
 					response.end(data);
 				});
 			}
@@ -49,7 +49,7 @@ exports.api = function(app) {
 			images.forEach(function(v,k) {
 				fns[k] = (function(image) {
 					return function(cb) {
-						d10.view("html/my/image.widget",{
+						d10.lngView(request, "html/my/image.widget",{
 							url: "audioImages/"+v.filename
 						},{},function(data) { cb(null,data); });
 					}
@@ -59,7 +59,7 @@ exports.api = function(app) {
 			request.ctx.headers["Content-Type"] = "text/html";
 			response.writeHead(200, request.ctx.headers );
 			if (images.length == 0 ) {
-				d10.view("review/song",resp,{},function(data) {
+				d10.lngView("review/song",resp,{},function(data) {
 					response.end(data);
 				});
 			} else {
@@ -67,9 +67,9 @@ exports.api = function(app) {
 					for ( var i in responses ) {
 						resp.images.push(responses[i]);
 					}
-					d10.view("review/song",resp,{},function(data) {
-					response.end(data);
-				});
+					d10.lngView(request, "review/song",resp,{},function(data) {
+						response.end(data);
+					});
 				});
 			}
 		});
@@ -93,63 +93,94 @@ exports.api = function(app) {
 			request.body = querystring.parse(body);
 			var fields = {};
 			var errors = {};
-			
 			fields.title = request.body.title ? d10.sanitize.string(request.body.title) : "";
-			if ( !fields.title.length ) {	errors.title = "Le morceau doit avoir un titre"; }
 			fields.artist = request.body.artist ? d10.sanitize.string(request.body.artist) : "";
-			if ( !fields.artist.length ) {	errors.artist = "Le morceau doit avoir un artiste"; }
 			fields.genre = request.body.genre? d10.sanitize.genre(request.body.genre) : "";
-			if ( !fields.genre.length ) {	errors.genre = "Genre inconnu"; }
-			
-			if ( d10.count(errors) ) {
-				request.ctx.headers["Content-Type"] = "application/json";
-				response.writeHead(200,request.ctx.headers);
-				response.end(JSON.stringify(
-					{
-						status: "error",
-						data: {
-							code: 6,
-							message: d10.http.statusMessage(425)
-						},
-						fields: errors
+			when (
+				{
+					title: function(cb) {
+						if ( !fields.title.length ) {
+							d10.lngView(request,"inline/review_err_no_title",{},{},cb);
+						} else {
+							cb();
+						}
+					},
+					artist: function(cb) {
+						if ( !fields.artist.length ) {
+							d10.lngView(request,"inline/review_err_no_artist",{},{},cb);
+						} else {
+							cb();
+						}
+					},
+					genre: function(cb) {
+						if ( !fields.genre.length ) {
+							d10.lngView(request,"inline/review_err_unknown_genre",{},{},cb);
+						} else {
+							cb();
+						}
 					}
-								  ));
-				return ;
-			}
-// 			d10.log("debug","And here too");
-			if ( request.body.album ) {
-				fields.album = d10.sanitize.string(request.body.album);
-			}
-			if ( request.body.tracknumber && !isNaN(parseInt(request.body.tracknumber,10)) ) {
-				fields.tracknumber = parseInt(request.body.tracknumber,10);
-			}
-			if ( request.body.date && !isNaN(parseInt(request.body.date,10)) ) {
-				fields.date= parseInt(request.body.date,10);
-			}
-			
-			fields.valid = true;
-			fields.reviewed = true;
-		
-			d10.couch.d10.getDoc(request.params.id,function(err,doc) {
-				if ( err ) {
-					d10.log("debug","getDoc error");
-					d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
-					return ;
-				}
-				for ( var i in fields ) {
-					doc[i] = fields[i];
-				}
-				d10.couch.d10.storeDoc(doc, function(err,resp) {
-					if ( err ) {
-						d10.log("debug","storeDoc error");
-						d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
-					}else {
-						d10.log("debug","storeDoc success");
-						d10.rest.success("recorded",request.ctx);
-						d10.couch.d10wi.storeDoc({_id: doc._id, hits: 0});
+				},
+				function(errs,responses) {
+					if ( responses.title && responses.title.length ) {
+						errors.title = responses.title;
 					}
-				});
-			});
+					if ( responses.artist && responses.artist.length ) {
+						errors.artist = responses.artist;
+					}
+					if ( responses.genre && responses.genre.length ) {
+						errors.genre = responses.genre;
+					}
+					if ( d10.count(errors) ) {
+						request.ctx.headers["Content-Type"] = "application/json";
+						response.writeHead(200,request.ctx.headers);
+						response.end(JSON.stringify(
+							{
+								status: "error",
+								data: {
+									code: 6,
+									message: d10.http.statusMessage(425)
+								},
+								fields: errors
+							}
+										));
+						return ;
+					}
+		// 			d10.log("debug","And here too");
+					if ( request.body.album ) {
+						fields.album = d10.sanitize.string(request.body.album);
+					}
+					if ( request.body.tracknumber && !isNaN(parseInt(request.body.tracknumber,10)) ) {
+						fields.tracknumber = parseInt(request.body.tracknumber,10);
+					}
+					if ( request.body.date && !isNaN(parseInt(request.body.date,10)) ) {
+						fields.date= parseInt(request.body.date,10);
+					}
+					
+					fields.valid = true;
+					fields.reviewed = true;
+				
+					d10.couch.d10.getDoc(request.params.id,function(err,doc) {
+						if ( err ) {
+							d10.log("debug","getDoc error");
+							d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
+							return ;
+						}
+						for ( var i in fields ) {
+							doc[i] = fields[i];
+						}
+						d10.couch.d10.storeDoc(doc, function(err,resp) {
+							if ( err ) {
+								d10.log("debug","storeDoc error");
+								d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
+							}else {
+								d10.log("debug","storeDoc success");
+								d10.rest.success("recorded",request.ctx);
+								d10.couch.d10wi.storeDoc({_id: doc._id, hits: 0});
+							}
+						});
+					});
+				}
+			);
 		});
 	});
 	

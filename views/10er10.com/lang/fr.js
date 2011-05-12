@@ -109,6 +109,7 @@ exports.server = {
 		review: "review"
 	},
 	"html/my/plm.html": {
+		my_playlists_title: "Mes playlists",
 		playlist_new_button: "Nouvelle",
 		playlist_new_label: "Nom de la nouvelle playlist :",
 		playlist_create: "Créer",
@@ -147,7 +148,7 @@ exports.server = {
 		loading: "chargement...",
 		no_result: "Aucun artiste trouvé"
 	},
-	"html/library/control_artist.html": {
+	"html/library/control_album.html": {
 		album_placeholder: "Album name...",
 		loading: "chargement...",
 		no_result: "Aucun album trouvé"
@@ -197,6 +198,45 @@ exports.server = {
 		minutes: "minute(s)",
 		add_to_player: "Ajouter à la lecture en cours",
 		add_after_current_song: "Ajouter juste après le morceau en écoute"
+	},
+	"review/list.html": {
+		title: "Morceaux à valider",
+		unknown_artist: "artiste inconnu",
+		unknown_title: "titre inconnu"
+	},
+	"review/none.html": {
+		message: "Tous vos morceaux ont déjà été validés."
+	},
+	"review/song.html": {
+		title: "Informations sur le morceau",
+		reviewed: "Cette page permet de modifier les informations sur le morceau {{filename}}.",
+		introduction: "Il est essentiel de bien renseigner les différentes informations sur ce morceau : de cette façon le catalogue renverra des données pertinentes.<BR>Les champs les plus importants sont le <strong>titre</strong> du morceau, le nom de l'<strong>artiste</strong>, et le <strong>genre</strong>.",
+		review_file: "Validation du morceau : {{filename}}",
+		song_title: "Titre du morceau",
+		song_artist: "Artiste",
+		loading: "chargement...",
+		no_artist: "Aucun artiste connu",
+		song_album: "Album",
+		no_album: "Aucun album connu",
+		song_tracknumber: "Numéro de piste",
+		song_genre: "Genre",
+		no_genre: "Aucun genre correspondant",
+		song_date: "Année",
+		review_button: "Valider",
+		review_and_show_next_button: "Valider &amp; montrer le suivant",
+		validating: "Validation...",
+		song_images: "Images associées à ce morceau (glisser des images pour les rajouter)",
+		list_button: "Revenir à la liste des morceaux à valider",
+		reviewed_title: "C'est fait !",
+		reviewed_message: "Le morceau <span name=\"artist\"></span> - <span name=\"title\"></span> a été validé.",
+		review_other_button: "Valider les informations sur d'autres morceaux",
+		upload_button: "Aller dans la partie \"Uploader\""
+	},
+	inline: {
+		review_err_no_title: "Le morceau doit avoir un titre",
+		review_err_no_artist: "Le morceau doit avoir un artiste",
+		review_err_unknown_genre: "Genre inconnu"
+		
 	}
 };
 
