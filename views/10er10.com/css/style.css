@@ -1113,10 +1113,11 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 
 #controls div.spectrum canvas{
 		background-color: #232323;
-		color: #343434;
 		-moz-box-shadow: 0 0 6px #232323;
 		box-shadow: 0 0 6px #232323;
 		margin: 5px 0;
+		width: 270px;
+		height: 100px;
 }
 
 #controls div.showOtherOptions {

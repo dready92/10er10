@@ -6,7 +6,7 @@ $(document).one("bootstrap:playlist",function() {
 		return ;
 	}
 	
-	$("#side div.spectrumOption").slideDown("fast").find("input").bind("click",function() {
+	$("#side div.spectrumOption").slideDown("fast").find("input").attr("checked",false).bind("click",function() {
 		if ( $(this).is(":checked") ) {
 			enabled = true;
 			$("#side div.spectrum").slideDown("fast");
@@ -67,10 +67,12 @@ $(document).one("bootstrap:playlist",function() {
 d10.ffSpectrum = function(audio,canvas) {
 	var fft,
 		ctx = canvas.getContext('2d'),
+		widthLimit = canvas.width / 2,
 		channels,
 		rate,
 		frameBufferLength;
-
+// 	ctx.fillStyle = '#9A9A9A';
+// 	ctx.fillStyle = '#466777';
 	function loadedMetadata() {
 		channels          = audio.mozChannels;
 		rate              = audio.mozSampleRate;
@@ -97,7 +99,7 @@ d10.ffSpectrum = function(audio,canvas) {
 			t  = event.time, /* unused, but it's there */
 			signal = new Float32Array(fb.length / channels),
 			magnitude;
-
+// 		var i;
 		for (var i = 0, fbl = frameBufferLength / 16; i < fbl; i++ ) {
 			// Assuming interlaced stereo channels,
 			// need to split and merge into a stero-mix mono signal
@@ -107,14 +109,19 @@ d10.ffSpectrum = function(audio,canvas) {
 		fft.forward(signal);
 		// Clear the canvas before drawing spectrum
 		ctx.clearRect(0,0, canvas.width, canvas.height);
-
-		for (var i = 0; i < fft.spectrum.length / 2; i++ ) {
+		var baseColor = [70,103,155];
+		var i;
+		for (var  i = 0; i < widthLimit; i++ ) {
 			// multiply spectrum by a zoom value
 			magnitude = fft.spectrum[i] * 4000;
-
+			ctx.fillStyle = 'rgb('+ baseColor.join(",")+')';
+			baseColor[0] += 1;
+			baseColor[1] += 1;
+			baseColor[2] -= 1;
 			// Draw rectangle bars for each frequency bin
 			ctx.fillRect(i * 2, canvas.height, 1, -magnitude);
 		}
+// 		debug("i",i);
 	}
 
 // 	var audio = document.getElementById('audio-element');
