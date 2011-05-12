@@ -94,15 +94,16 @@ exports.homepage = function(app) {
 	};
 	
 	var displayHomepage = function(request,response,next) {
-		if ( request.ctx.session && "_id" in request.ctx.session ) {
+		if ( request.ctx.session && "_id" in request.ctx.session && request.ctx.user) {
 			d10.log("debug","LOGGED");
 		} else {
 			d10.log("debug","NOT LOGGED");
 		}
-
+		console.log("session ?", request.ctx.session);
+		console.log("user ?", request.ctx.user);
 		response.writeHead(200, request.ctx.headers );
-
-		if ( request.ctx.session && "_id" in request.ctx.session ) {
+		
+		if ( request.ctx.session && "_id" in request.ctx.session && request.ctx.user ) {
 			// 		d10.log("debug",request.headers);
 			
 			

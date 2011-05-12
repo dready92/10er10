@@ -60,7 +60,7 @@ var loadLangFiles = function(cb) {
 				langs[ f.replace(/\.js$/,"") ] = require(langRoot+"/"+f);
 			}
 		}
-		console.log("LANG langs: ", langs);
+// 		console.log("LANG langs: ", langs);
 		loadingLangs = false;
 		loadingLangsCb.forEach(function(cb) { cb()});
 	});
@@ -124,6 +124,7 @@ var loadLang = this.loadLang = function ( lng, type, cb ) {
 exports.parseServerTemplate = function(request, tpl, cb) {
 // 	getHeadersLang(request,function(lng) {
 // 	var lng = request.ctx.lang ? request.ctx.lang : d10.config.templates.defaultLang;
+// 	var lng = 
  	console.log("LANG parseServerTemplate: ",tpl,request.url,request.ctx.lang);
 	loadLang(request.ctx.lang,"server",function(err,hash) {
 // 			console.log("hash",hash);
@@ -168,6 +169,7 @@ exports.middleware = function(req,res,next) {
 	
 	
 	var fetchFromBrowser = function() {
+				console.log("LANG middleware: set from browser");
 		var passTheCoochie = function() {
 			pause.end();
 			next();
@@ -175,22 +177,29 @@ exports.middleware = function(req,res,next) {
 		};
 		var pause = utils.pause(req);
 		getHeadersLang(req,function(lng) {
+					console.log("LANG middleware: browser sniff: ",lng);
 			req.ctx.lang = lng;
-			req.ctx.session.lang = lng;
-			d10.couch.auth.storeDoc(req.ctx.session, function(err,resp) {
-				if ( err ) {console.log("LANG : session storage failed: ",err,resp);}
+			if ( req.ctx.session ) { 
+				req.ctx.session.lang = lng;
+				d10.couch.auth.storeDoc(req.ctx.session, function(err,resp) {
+					if ( err ) {console.log("LANG : session storage failed: ",err,resp);}
+					passTheCoochie();
+				});
+			} else {
 				passTheCoochie();
-			});
+			}
 		});
 	};
 	
-	if ( !req.ctx.user  || !req.ctx.user._id ) {
-		return next();
-	}
-	if ( req.ctx.user.lang ) {
+// 	if ( !req.ctx.user  || !req.ctx.user._id ) {
+// 		return next();
+// 	}
+	if ( req.ctx.user && req.ctx.user.lang ) {
+		console.log("LANG middleware: set from user");
 		req.ctx.lang = req.ctx.user.lang;
 		return next();
-	} else if ( req.ctx.session.lang ) {
+	} else if ( req.ctx.session && req.ctx.session.lang ) {
+		console.log("LANG middleware: set from session");
 		req.ctx.lang = req.ctx.session.lang;
 		return next();
 	}

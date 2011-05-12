@@ -43,7 +43,7 @@ Install audio utilities
 
 * install **flac** and **metaflac** executables : they're certainly available from your distribution packages
 
-Install granphics utilities
+Install graphics utilities
 ---------------------------
 
 10er10 website allows you to upload images related to songs (eg. album artwork).
