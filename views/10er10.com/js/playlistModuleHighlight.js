@@ -5,7 +5,7 @@ $(document).one("bootstrap:playlist",function() {
 			"playlistUpdate": function() {
 				var ui = d10.playlist.container();
 				ui.one("transitionend webkitTransitionEnd",function() {
-					debug("got transitionend");
+// 					debug("got transitionend");
 					ui.unbind("transitionend webkitTransitionEnd");
 					ui.removeClass("highlighted");
 				});

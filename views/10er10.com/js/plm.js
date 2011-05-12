@@ -54,7 +54,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 		"moveDrop": function(source,target,infos) {
 			if ( infos.wantedNode ) { infos.wantedNode.after(source); } 
 			else { $('.list',pldiv).prepend(source); }
-			that.update_playlist(pldiv.attr("name"));
+			that.update_playlist(pldiv.attr("name"), pldiv.find(".list > .song"));
 //			$(document).trigger('rplUpdateRequest', pldiv );
 			return true;
 		},
@@ -70,7 +70,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 				$('.list',pldiv).removeClass("hidden");
 			}
 			
-			that.update_playlist(pldiv.attr("name"));
+			that.update_playlist(pldiv.attr("name"), pldiv.find(".list > .song"));
 //			$(document).trigger('rplUpdateRequest', pldiv );
 			
 			return true;
@@ -381,15 +381,16 @@ d10.fn.plm = function (mydiv,mypldiv) {
 	this.update_playlist = function(name,opts) {
 	
 		var doUpdate = function() {
-			var pldiv = mypldiv.find("section.plm-list-container .plm-list .plm-list-item[name="+name+"]");
+			var pldiv = mydiv.find(".rpl[name="+name+"]");
 			if ( !pldiv.length ) {
 				if ( opts.error ) {
 					opts.error.call(name);
 				}
 				return;
 			}
-		
-			var songs_id = $('.list .song',pldiv).map(function() { return $(this).attr('name');	}).get();
+// 			debug("doUpdate, pldiv = ",pldiv," and songs = ",pldiv.find(".list>.song"));
+			var songs_id = pldiv.find(".list>.song").map(function() { return $(this).attr('name');	}).get();
+// 			debug("updating playlist",name,songs_id);
 			_update_playlist(name, songs_id, {
 				success: function(response) {
 					if ( opts.success ) { opts.success(response); }

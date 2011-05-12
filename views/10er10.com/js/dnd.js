@@ -64,10 +64,10 @@ var dnd = function() {
 			if ( container.offset().top + (containerHeight  / 2) > e.pageY ) {
 				$("div.song.hover",list).removeClass("hover");
 				container.toggleClass("hovertop",true).toggleClass("hoverbottom",false);
-				debug("before");
+// 				debug("before");
 			} else {
 				container.toggleClass("hoverbottom",true).toggleClass("hovertop",false);
-				debug("after");
+// 				debug("after");
 			}
 			return false;
 		} else {

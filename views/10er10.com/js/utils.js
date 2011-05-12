@@ -209,7 +209,7 @@ var step2 = function () {
 				next = this.getContainer(label);
 				if ( prev && prev.hasClass("active") ) {
 					// 					debug("in a transition with previous thing");
-					debug("transitionend event for previous thing",prev,next);
+// 					debug("transitionend event for previous thing",prev,next);
 					prev.removeClass("active");
 					$('#main>div').hide();
 					next.show();
