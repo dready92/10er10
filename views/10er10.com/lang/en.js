@@ -2,6 +2,8 @@
 // ((website_title)) => escaped
 // (({website_title})) => unescaped
 
+exports.langName = "English";
+
 exports.server = {
 	"login.html": {
 		title: "Login",
@@ -199,6 +201,14 @@ exports.server = {
 		add_to_player: "Add to player queue",
 		add_after_current_song: "Add next to the currently playing song"
 	},
+	"html/results/artist.html": {
+		open: "see songs",
+		close: "hide songs",
+		songs: "song(s)",
+		minutes: "minute(s)",
+		add_to_player: "Add to player queue",
+		add_after_current_song: "Add next to the currently playing song"
+	},
 	"review/list.html": {
 		title: "Songs to review",
 		unknown_artist: "unknown artist",
@@ -223,7 +233,7 @@ exports.server = {
 		no_genre: "no matching genre",
 		song_date: "Year",
 		review_button: "Record",
-		review_and_show_next_button: "Record &amp; show the next song",
+		review_and_show_next_button: "Record & show the next song",
 		validating: "Recording...",
 		song_images: "Images related to this dong (drag'n'drop images here)",
 		list_button: "Back to the list of songs to review",

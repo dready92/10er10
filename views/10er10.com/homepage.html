@@ -31,7 +31,7 @@
 <nav> 
 	<div id="search" action="results" data-no-active-click="1" data-mm-in-effect="fadeIn"> 
 		<div> 
-			<input type="text" name="q" defaultvalue="((search_placeholder))" autocomplete="off"> <img class="middle" src="/css/16x16/actions/edit-find.png"> 
+			<input type="text" name="q" placeholder="((search_placeholder))" autocomplete="off"> <img class="middle" src="/css/16x16/actions/edit-find.png"> 
 		</div> 
 		<div class="label">((search_label))</div> 
 		<div>((search_teaser))</div> 
@@ -166,6 +166,13 @@
 <footer> 
 ((website_logged_as)) {{username}} - 
 <a href="{{base_url}}welcome/goodbye">((website_logout))</a> - 10er10 - <span class="hours"></span> ((website_total_playing_length))
+<div class="langChooser">
+	<select name="lang">
+		{{#langs}}
+		<option value="{{id}}" {{#checked}}selected{{/checked}}>{{label}}</option>
+		{{/langs}}
+	</select>
+</div>
 </footer> 
  
 </div></div> 

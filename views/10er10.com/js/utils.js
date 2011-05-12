@@ -243,6 +243,13 @@ var step2 = function () {
 		$('#initialLoading').html(d10.mustacheView("landing.letsgo"));
 		$('#beautyFade').fadeOut(1000);
 		
+		// language selector
+		$("footer .langChooser select").bind("change",function() {
+			debug("langchooser changed");
+			var lng = $(this).val();
+			location.search = "?lang="+lng;
+		});
+		
 	};
 }
 

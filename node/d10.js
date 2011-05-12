@@ -166,9 +166,9 @@ exports.view = function(n,d,p,cb) {
 };
 
 exports.lngView = function(request, n, d, p, cb) {
-	console.log("lngView, request.ctx: ",request);
-	console.log("view");
-	console.log(d,p);
+// 	console.log("lngView, request.ctx: ",request);
+// 	console.log("view");
+// 	console.log(d,p);
 	if ( !cb && p ) {
 		cb = p;
 		p = null;

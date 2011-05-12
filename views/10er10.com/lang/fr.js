@@ -2,6 +2,8 @@
 // ((website_title)) => escaped
 // (({website_title})) => unescaped
 
+exports.langName = "Français";
+
 exports.server = {
 	"login.html": {
 		title: "Login",
@@ -199,6 +201,14 @@ exports.server = {
 		add_to_player: "Ajouter à la lecture en cours",
 		add_after_current_song: "Ajouter juste après le morceau en écoute"
 	},
+	"html/results/artist.html": {
+		open: "voir les morceaux",
+		close: "cacher les morceaux",
+		songs: "morceau(x)",
+		minutes: "minute(s)",
+		add_to_player: "Ajouter à la lecture en cours",
+		add_after_current_song: "Ajouter juste après le morceau en écoute"
+	},
 	"review/list.html": {
 		title: "Morceaux à valider",
 		unknown_artist: "artiste inconnu",
@@ -223,7 +233,7 @@ exports.server = {
 		no_genre: "Aucun genre correspondant",
 		song_date: "Année",
 		review_button: "Valider",
-		review_and_show_next_button: "Valider &amp; montrer le suivant",
+		review_and_show_next_button: "Valider & montrer le suivant",
 		validating: "Validation...",
 		song_images: "Images associées à ce morceau (glisser des images pour les rajouter)",
 		list_button: "Revenir à la liste des morceaux à valider",

@@ -144,6 +144,25 @@ exports.parseServerTemplate = function(request, tpl, cb) {
 // 	});
 };
 
+var getSupportedLangs = this.getSupportedLangs = function(cb) {
+	loadLangFiles(function() {
+		var back = {};
+		var keys = [];
+		for ( var i in langs ) {
+			keys.push(i);
+// 			back[i] = langs[i].langName;
+		}
+		keys.sort();
+		console.log("keys: ",keys);
+		for (var k in keys ) {
+			i = keys[k];
+			back[i] = langs[i].langName;
+		}
+		cb(null,back);
+	});
+};
+
+
 
 exports.middleware = function(req,res,next) {
 	

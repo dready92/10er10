@@ -13,6 +13,7 @@ exports.homepage = function(app) {
 		var genres = config.genres;
 		genres.sort();
 		var debug = request.query && request.query.debug ? true : false ;
+		
 		var vars = {
 			scripts: config.javascript.includes, 
 			dbg: debug ? "true":"false", 
@@ -20,7 +21,8 @@ exports.homepage = function(app) {
 			audio_root: d10.config.audio_root,
 			img_root: "audioImages",
 			img_size: d10.config.images.maxSize,
-			genres: genres
+			genres: genres,
+			langs: []
 		};
 		if ( request.query.o && request.query.o.indexOf("a") >= 0 ) {
 			vars.debugAudio = true;
@@ -53,6 +55,9 @@ exports.homepage = function(app) {
 				welcomeContainer: function(cb) {
 					lang.parseServerTemplate(request,"html/welcome/container.html",cb);
 // 						d10.view("html/welcome/container",{},function(data) {cb(null,data);} );
+				},
+				langs: function(cb) {
+					lang.getSupportedLangs(cb);
 				}
 			},
 				function(errs,responses) {
@@ -61,13 +66,24 @@ exports.homepage = function(app) {
 						response.writeHead(501, request.ctx.headers );
 						response.end ("Filesystem error");
 					} else {
-					lang.parseServerTemplate(request,"homepage.html",function(err,resp) {
-						if ( err ) {
-							console.log(err);
-							return response.end("An error occured");
+						var lngs = responses.langs;
+						delete responses.langs;
+						console.log("langs response: ",lngs);
+						for ( var l in lngs ) {
+							if ( l == request.ctx.lang ) {
+								vars.langs.push( {id: l, label: lngs[l], checked: true} );
+							} else {
+								vars.langs.push( {id: l, label: lngs[l]} );
+							}
 						}
-						response.end(d10.mustache.to_html(resp,vars,responses));
-					});
+						
+						lang.parseServerTemplate(request,"homepage.html",function(err,resp) {
+							if ( err ) {
+								console.log(err);
+								return response.end("An error occured");
+							}
+							response.end(d10.mustache.to_html(resp,vars,responses));
+						});
 // 						d10.view("homepage",vars,responses,function(html) {
 // 							response.end(html);
 // 						});
