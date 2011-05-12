@@ -173,11 +173,23 @@ exports.lngView = function(request, n, d, p, cb) {
 		cb = p;
 		p = null;
 	}
+	
+	if ( n.match(/^inline\//) ) {
+		return inlineView(request,n,d,p,cb);
+	}
+	
 	lang.parseServerTemplate(request, n+".html",function(err,data) {
 // 	fileCache.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
 		if (err) throw err;
 		data = exports.mustache.to_html(data,d,p);
 		if ( cb )	cb.call(data,data);
+	});
+};
+
+var inlineView = function(request, n, d, p, cb) {
+	lang.loadLang(request.ctx.lang, "server",function(err,resp) {
+		if ( err ) { return cb(err); }
+		return cb(null, resp.inline[ n.replace("inline/","") ]);
 	});
 };
 

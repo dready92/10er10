@@ -59,7 +59,7 @@ exports.api = function(app) {
 			request.ctx.headers["Content-Type"] = "text/html";
 			response.writeHead(200, request.ctx.headers );
 			if (images.length == 0 ) {
-				d10.lngView("review/song",resp,{},function(data) {
+				d10.lngView(request,"review/song",resp,{},function(data) {
 					response.end(data);
 				});
 			} else {
