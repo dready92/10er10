@@ -51,7 +51,7 @@ d10.playlistDrivers.default = function(options) {
 					return function() { return body.data("audioFade") }
 		})(),
 		prefectchMinStartupTime: 9,
-		title: "Playlist non enregistrée"
+		title: d10.mustacheView("playlist.anonymous.name")
 	},options);
 // 	var playlist = d10.playlist;
 	var current = null; // current playing track
@@ -420,7 +420,7 @@ d10.playlistDrivers.default = function(options) {
 	this.load = function(options,cb) {
 // 		var infos = d10.user.get_preferences().playlist;
 		debug("playlistDriverDefault load: ",options);
-		d10.playlist.title("Playlist non enregistrée");
+		d10.playlist.title(settings.title);
 		if ( !options ) {
 			return cb.call(this);
 		}

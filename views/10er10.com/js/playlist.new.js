@@ -393,47 +393,42 @@
 			);
 		};
 		
-		var handlePlusClick = function () {
-			var elem = $('<div class="hoverbox overlay"></div>');
+		var handlePlusClick = function() {
+			var elem = $(d10.mustacheView("hoverbox.playlist.container"));
 			var node = $(this).closest(".song");
-			if ( node.prevAll().not(".current").length ) {
-				elem.append('<div class="clickable removeAllPrev">Enlever tous les morceaux précédents</div>');
-				$("div.removeAllPrev",elem).click(function() {
+			if ( node.prevAll().not(".current").length == 0 ) {
+				elem.find(".removeAllPrev").remove();
+			} else {
+				elem.find(".removeAllPrev").click(function() {
 					remove(node.prevAll().not(".current"));
-// 					$(document).trigger('playlistUpdate', { 'action': 'remove' } );
 					elem.ovlay().close();
 				});
 			}
-			if ( node.nextAll().not(".current").length ) {
-				elem.append('<div class="clickable removeAllNext">Enlever tous les morceaux suivants</div>');
-				$("div.removeAllNext",elem).click(function() {
-					remove(node.nextAll().not(".current"));
-// 					if ( p.isRpl() ) {		  p.setPlaylistName(p.noname); }
-// 					$(document).trigger('playlistUpdate', { 'action': 'remove' } );		
+			if ( node.nextAll().not(".current").length == 0 ) {
+				elem.find(".removeAllNext").remove();
+			} else {
+				elem.find(".removeAllNext").click(function() {
+					remove(node.prevAll().not(".current"));
 					elem.ovlay().close();
 				});
-					
 			}
 			
-			elem.append("<hr>");
-			elem.append('<div class="clickable fromArtist">Morceaux de cet artiste...</div>');
 			$("div.fromArtist",elem).click(function() {
 				var h = "#/library/artists/"+encodeURIComponent( node.find("span.artist").text() );
 				window.location.hash = h;
 				elem.ovlay().close();
 			});
+			
 			if ( node.find("span.album").text().length ) {
-				elem.append('<div class="clickable fromAlbum">Morceaux de cet album...</div>');
+// 				elem.append('<div class="clickable fromAlbum">Morceaux de cet album...</div>');
 				$("div.fromAlbum",elem).click(function() {
 					window.location.hash = "#/library/albums/"+encodeURIComponent( node.find("span.album").text() );
 					elem.ovlay().close();
 				});
+			} else {
+				$("div.fromAlbum",elem).remove();
 			}
 			
-			elem.append("<hr>");
-			elem.append("<a href=\""+site_url+"/audio/download/"+node.attr("name")+"\" class=\"clickable\">Télécharger</a>");
-			
-			// 		elem.css("visibility","hidden");
 			elem.css({visibility:'hidden',top:0,left:0}).appendTo($("body"));
 			var height = elem.outerHeight(false);
 			var width = elem.outerWidth(false);
@@ -448,8 +443,6 @@
 				"closeOnMouseOut": true
 			});
 		};
-
-		
 		
 		this.currentDriverName = function() {
 			if ( !driver )	return false;

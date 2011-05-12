@@ -138,7 +138,7 @@ function upload () {
     function launchUpload (widget) {
       var xhr = new XMLHttpRequest();
       var file = widget.data('file');
-      var waitText = "Le morceau est en cours de traitement, merci de patienter...";
+      var waitText = d10.mustacheView("upload.song.processing");
       widget.data("status",1);
       var url = site_url+'/api/song?'+$.d10param({"filesize": file.size, "filename": file.name } );
 	  $("span.cancel",widget).hide();
@@ -170,7 +170,7 @@ function upload () {
           }
           $("button.close",widget).show();
           if ( back.status == "success" ) {
-            $("div.controls span.status",widget).html("Success");
+            $("div.controls span.status",widget).html(d10.mustacheView("upload.song.success"));
             $("button.review",widget).click(function() {
                   var route = ["my", "review", back.data._id];
                   d10.globalMenu.route( route );
@@ -178,13 +178,13 @@ function upload () {
 
           } else if ( back.data && back.data.code && back.data.code == 14 ) {
             $("div.controls span.progress",widget).hide();
-            $("div.controls span.status",widget).html("Ce morceau est déjà disponible");
+            $("div.controls span.status",widget).html(d10.mustacheView("upload.song.alreadyindb"));
           } else {
             if ( back.data && back.data.message ) {
               $("div.controls span.progress",widget).hide();
               $("div.controls span.status",widget).html(back.data.message);
             } else {
-              $("div.controls span.status",widget).html("unknown error");
+              $("div.controls span.status",widget).html(d10.mustacheView("upload.song.serverError"));
             }
           }
           xhr = null;
@@ -215,7 +215,7 @@ function upload () {
         xhr.send(file);
 		file = null;
       }
-      $("div.controls span.status",widget).html("Transmission du morceau au serveur");
+      $("div.controls span.status",widget).html(d10.mustacheView("upload.song.uploading"));
     }
   }
 

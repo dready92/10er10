@@ -240,7 +240,7 @@ var step2 = function () {
 		d10.globalMenu = new d10.fn.menuManager (menuOptions);
 		debug("menumanager ok");
 		$('#container').css("display","block").animate({"opacity": 1}, 1000,visibleBaby);
-		$('#initialLoading').html("Let's go !");
+		$('#initialLoading').html(d10.mustacheView("landing.letsgo"));
 		$('#beautyFade').fadeOut(1000);
 		
 	};

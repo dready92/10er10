@@ -6,20 +6,20 @@ function osd () {
 	var display_length = 4000;
 
 	$(document).bind('rplDropSuccess',function(e,data) {
-		send('info',"Playlist <b>"+data.playlist.name+"</b> effacée.");
+		send('info', d10.mustacheView("osd.rpl.success.removed",{name: data.playlist.name}) );
 	});
 	$(document).bind('rplCreationSuccess',function(e,data) {
-		debug("in osd",data);
-		send('info',"Playlist <b>"+data.playlist.name+"</b> créée.");
+// 		debug("in osd",data);
+		send('info',d10.mustacheView("osd.rpl.success.created",{name: data.playlist.name}));
 	});
 	$(document).bind('rplAppendSuccess',function(e,data) {
-		send('info',"Playlist <b>"+data.playlist.name+"</b> mise à jour.");
+		send('info',d10.mustacheView("osd.rpl.success.updated",{name: data.playlist.name}));
 	});
 	$(document).bind('rplUpdateSuccess',function(e,data) {
-		send('info',"Playlist <b>"+data.playlist.name+"</b> mise à jour.");
+		send('info',d10.mustacheView("osd.rpl.success.updated",{name: data.playlist.name}));
 	});
 	$(document).bind('rplRenameSuccess',function(e,data) {
-		send('info',"Playlist <b>"+data.playlist.name+"</b> renommée.");
+		send('info',d10.mustacheView("osd.rpl.success.renamed",{name: data.playlist.name}));
 	});
 
 

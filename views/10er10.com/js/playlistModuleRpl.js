@@ -19,16 +19,18 @@ $(document).one("bootstrap:playlist",function() {
 	};
 
 	var loadOverlay = function(e) {
-		var elem = $('<div class="hoverbox overlay"><div class="part">Charger...</div></div>');
+// 		var elem = $('<div class="hoverbox overlay"><div class="part">Charger...</div></div>');
 		playlists = d10.user.get_playlists();
 		if ( !playlists.length ) {
 			return false;
 		}
-		for ( var index in playlists ) {
-			var tt = $('<div class="clickable"></div>');
-			tt.attr("name",playlists[index]._id).html(playlists[index].name);
-			elem.append(tt);
-		}
+// 		for ( var index in playlists ) {
+// 			var tt = $('<div class="clickable"></div>');
+// 			tt.attr("name",playlists[index]._id).html(playlists[index].name);
+// 			elem.append(tt);
+// 		}
+		elem = $( d10.mustacheView("hoverbox.playlist.rpl.container",{rpl: playlists}) );
+
 		elem.css({'visibility':'hidden','top':0,'left':0}).appendTo($('body'));
 		var height = elem.outerHeight(false);
 		var width = elem.outerWidth(false);

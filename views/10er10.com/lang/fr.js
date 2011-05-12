@@ -168,6 +168,15 @@ exports.server = {
 		current_playlist: "lecture en cours",
 		playlist_header: "playlist"
 	},
+	"html/hoverbox/playlist.container.html": {
+		remove_all_previous_songs: "Enlever tous les morceaux précédents",
+		remove_all_next_songs: "Enlever tous les morceaux suivants",
+		artist_songs: "Morceaux de cet artiste...",
+		album_songs: "Morceaux de cet album..."
+	},
+	"html/hoverbox/playlist.rpl.container.html": {
+		load: "Charger..."
+	},
 	"html/upload/file.widget.html": {
 		review_button: "Valider le morceau",
 		close_button: "Fermer",
@@ -192,7 +201,18 @@ exports.server = {
 };
 
 exports.client = {
+	"landing.letsgo": "Let's go !",
 	"my.review.error.imagesize": "merci de choisir une image a peu pres carré...",
 	"my.review.error.filetransfert": "Impossible d'envoyer l'image au serveur",
-	"my.review.success.filetransfert": "Image {{filename}} enregistrée"
+	"my.review.success.filetransfert": "Image {{filename}} enregistrée",
+	"osd.rpl.success.removed": "Playlist <b>{{name}}</b> effacée.",
+	"osd.rpl.success.created": "Playlist <b>{{name}}</b> créée.",
+	"osd.rpl.success.updated": "Playlist <b>{{name}}</b> mise à jour.",
+	"osd.rpl.success.renamed": "Playlist <b>{{name}}</b> renommée.",
+	"playlist.anonymous.name": "Playlist non enregistrée",
+	"upload.song.uploading": "Transmission du morceau au serveur",
+	"upload.song.processing": "Le morceau est en cours de traitement, merci de patienter...",
+	"upload.song.success": "Succès",
+	"upload.song.alreadyindb": "Ce morceau est déjà disponible",
+	"upload.song.serverError": "Erreur du serveur... Essayez de recommencer"
 };
