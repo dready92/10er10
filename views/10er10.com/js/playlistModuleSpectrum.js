@@ -6,10 +6,13 @@ $(document).one("bootstrap:playlist",function() {
 		return ;
 	}
 	
-	$("#side div.spectrumOption").slideDown("fast").find("input").attr("checked",false).bind("click",function() {
-		if ( $(this).is(":checked") ) {
+	$("#side div.spectrumOption").slideDown("fast").find("div.link").bind("click",function() {
+		var that = $(this);
+		if ( that.hasClass("off") ) {
 			enabled = true;
 			$("#side div.spectrum").slideDown("fast");
+			that.siblings(".on").slideDown("fast");
+			that.slideUp("fast");
 			try {
 				var a = d10.playlist.driver().current().audio;
 				if ( a ) {
@@ -22,6 +25,8 @@ $(document).one("bootstrap:playlist",function() {
 				fft.removeListeners();
 				fft = null;
 			}
+			that.siblings(".off").slideDown("fast");
+			that.slideUp("fast");
 			$("#side div.spectrum").slideUp("fast");
 		}
 	});
@@ -85,7 +90,7 @@ d10.ffSpectrum = function(audio,canvas) {
 
 	function audioAvailable(event) {
 		if ( !channels ) {
-			debug("loading metadata");
+// 			debug("loading metadata");
 			loadedMetadata();
 			return ;
 		}
@@ -110,7 +115,8 @@ d10.ffSpectrum = function(audio,canvas) {
 		// Clear the canvas before drawing spectrum
 		ctx.clearRect(0,0, canvas.width, canvas.height);
 		var baseColor = [70,103,155];
-		var i;
+// 		var baseColor = [62,176,0];
+// 		var i;
 		for (var  i = 0; i < widthLimit; i++ ) {
 			// multiply spectrum by a zoom value
 			magnitude = fft.spectrum[i] * 4000;
@@ -118,8 +124,10 @@ d10.ffSpectrum = function(audio,canvas) {
 			baseColor[0] += 1;
 			baseColor[1] += 1;
 			baseColor[2] -= 1;
+			var i2 = i*2;
+// 			baseColor[2] = i2;
 			// Draw rectangle bars for each frequency bin
-			ctx.fillRect(i * 2, canvas.height, 1, -magnitude);
+			ctx.fillRect(i2, canvas.height, 1, -magnitude);
 		}
 // 		debug("i",i);
 	}

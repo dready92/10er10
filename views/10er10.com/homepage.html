@@ -117,8 +117,11 @@
 				<div class="rangeSelector center expandable"><input type="range" name="fade" min="0" max="60" value="15" size="3"/> <span class="fadeValue"></span> ((side_options_audiofade_seconds))</div>
 			</div>
 			<div class="spectrumOption hidden">
-				<div class="label">Spectrum</div>
-				<div class="center expandable"><input type="checkbox" name="spectrum" value="1"/> enable</div>
+				<div class="label">(({side_options_spectrum_title}))</div>
+				<div class="center expandable">
+					<div class="off link center">((side_options_spectrum_enable))</div>
+					<div class="on link center hidden">((side_options_spectrum_disable))</div>
+				</div>
 			</div>
 			<div class="hideOtherOptions link">((side_options_hide))</div>
 		</div>
