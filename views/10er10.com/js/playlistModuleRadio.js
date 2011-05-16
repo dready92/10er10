@@ -47,7 +47,7 @@ var createModule= function (ui) {
                                 clearTimeout(delayTimeout);
                         }
                         delayTimeout = setTimeout(function() {
-                                if ( ui.find(".on").is(":visible") && d10.playlist.current().nextAll().length < 3 ) {
+                                if ( ui.find(".autofill").hasClass("enabled") && d10.playlist.current().nextAll().length < 3 ) {
                                         debug("radio2");
                                         appendSongs(settings.count);
                                 }
@@ -64,7 +64,7 @@ var createModule= function (ui) {
 		ui.find(".off > .link").click(function() {
 			if ( !module.isEnabled() ) { return ;}
 			debug("click");
-			$(this).parent().hide().siblings(".on").show();
+			$(this).closest(".autofill").addClass("enabled");
 		});
 		ui.find(".on > .link").click(function() {
 			if ( !module.isEnabled() ) { return ;}
@@ -80,8 +80,8 @@ var createModule= function (ui) {
 		$("div.disable",overlay).click(function () {
 			if ( !module.isEnabled() ) { return ;}
 			overlay.ovlay().close();
-			ui.find(".on").hide();
-			ui.find(".off").show();
+			ui.find(".autofill").removeClass("enabled");
+// 			ui.find(".off").show();
 		});
 		$("div.close",overlay).click(function() {
 			if ( !module.isEnabled() ) { return ;}
