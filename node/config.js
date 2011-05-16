@@ -44,7 +44,7 @@ exports.audio_root = "/audio/";
 exports.images = {
 	tmpdir: "../audio/tmp",
 	dir: "../audio/images",
-	maxSize: 64			// maximum image size in pixel (width or height, depending which is larger)
+	maxSize: 128			// maximum image size in pixel (width or height, depending which is larger)
 };
 
 
