@@ -2,10 +2,6 @@ $(document).one("bootstrap:playlist",function() {
 
 var module = null;
 var createModule= function (ui) {
-	/*
-	deprecates: 
-	$(document).trigger('player.mainTimeUpdate',{'currentTime': secs, 'duration': dur }	);
-	*/
 
 	var overlay,
 	delayTimeout = null
@@ -44,37 +40,13 @@ var createModule= function (ui) {
 		var genres = overlay.find("div.checked").map(function() {     return $(this).attr('name');    }   ).get();
 		appendRandomSongs(count, genres);
 	};
-/*
-	var binder = new d10.fn.eventsBinder();
-	binder.addBindings({
-		// 		currentTimeUpdate: function(e) {
-		// 			debug("radio currentTimeUpdate");
-		// 			if ( e.currentTime == settings.delay && ui.find(".on").is(":visible") ) {
-		// 				
-		// 				appendSongs(5);
-		// 			}
-		// 		},
-		"playlist:currentSongChanged": function(e) {
-			if ( delayTimeout ) {
-				clearTimeout(delayTimeout);
-			}
-			delayTimeout = setTimeout(function() {
-				debug("radio1");
-				if ( ui.find(".on").is(":visible") && d10.playlist.current().nextAll().length < 3 ) {
-					debug("radio2");
-					appendSongs(settings.count);
-				}
-			}, settings.delay);
-		}
-	});
-*/
+
 	var module = new d10.fn.playlistModule("radio", {
                 "playlist:currentSongChanged": function(e) {
                         if ( delayTimeout ) {
                                 clearTimeout(delayTimeout);
                         }
                         delayTimeout = setTimeout(function() {
-//                                 debug("radio1");
                                 if ( ui.find(".on").is(":visible") && d10.playlist.current().nextAll().length < 3 ) {
                                         debug("radio2");
                                         appendSongs(settings.count);
