@@ -20,6 +20,7 @@ To upgrade your PROD databases, run
 
 - multi-lang capability (currently french & english)
 - playlist recording bugfix
+- graphical spectrum visualizer for FF4+
 
 Upgrade from 0.1 to 0.2
 =======================
