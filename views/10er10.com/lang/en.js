@@ -172,13 +172,16 @@ exports.server = {
 	"html/hoverbox/addsong.container.html": {
 		add_to_header: "Add to",
 		current_playlist: "player queue",
-		playlist_header: "playlist"
+		playlist_header: "playlist",
+		other_actions_header: "Other actions",
+		song_edit: "Edit song metadata"
 	},
 	"html/hoverbox/playlist.container.html": {
 		remove_all_previous_songs: "Remove previous songs",
 		remove_all_next_songs: "Remove next songs",
 		artist_songs: "This artist's songs...",
-		album_songs: "This album..."
+		album_songs: "This album...",
+		song_edit: "Edit song metadata"
 	},
 	"html/hoverbox/playlist.rpl.container.html": {
 		load: "Load..."

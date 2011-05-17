@@ -429,6 +429,16 @@
 				$("div.fromAlbum",elem).remove();
 			}
 			
+			if ( !node.attr("data-owner") ) {
+				elem.find(".edit").remove();
+				elem.find("hr").last().remove();
+			} else {
+				elem.find(".edit").click(function() {
+					window.location.hash = "#/my/review/"+encodeURIComponent( node.attr("name") );
+					elem.ovlay().close();
+				});
+			}
+			
 			elem.css({visibility:'hidden',top:0,left:0}).appendTo($("body"));
 			var height = elem.outerHeight(false);
 			var width = elem.outerWidth(false);

@@ -172,13 +172,16 @@ exports.server = {
 	"html/hoverbox/addsong.container.html": {
 		add_to_header: "Ajouter à",
 		current_playlist: "lecture en cours",
-		playlist_header: "playlist"
+		playlist_header: "playlist",
+		other_actions_header: "Autres actions",
+		song_edit: "Modifier les informations du morceau"
 	},
 	"html/hoverbox/playlist.container.html": {
 		remove_all_previous_songs: "Enlever tous les morceaux précédents",
 		remove_all_next_songs: "Enlever tous les morceaux suivants",
 		artist_songs: "Morceaux de cet artiste...",
-		album_songs: "Morceaux de cet album..."
+		album_songs: "Morceaux de cet album...",
+		song_edit: "Editer les informations de ce morceau"
 	},
 	"html/hoverbox/playlist.rpl.container.html": {
 		load: "Charger..."

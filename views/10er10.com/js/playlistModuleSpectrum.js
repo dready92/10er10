@@ -1,6 +1,5 @@
  
 $(document).one("bootstrap:playlist",function() {
-// 	debug("the test : ","mozFrameBufferLength" in $("<audio />").get(0));
 	if ( "mozFrameBufferLength" in $("<audio />").get(0)  == false ) {
 		debug("not initializong spectrum");
 		return ;
@@ -48,19 +47,11 @@ $(document).one("bootstrap:playlist",function() {
 	var module = new d10.fn.playlistModule("spectrum",{
 		"playlist:currentSongChanged": function() {
 			if ( !enabled ) { return ; }
-// 			if ( fft ) {
-// 				fft.removeListeners();
-// 				fft = null;
-// 			}
-			
 			newFFT(d10.playlist.driver().current().audio);
-// 			var s = d10.playlist.current();
-// 			document.title = s.find(".title").text() + ' - '+ s.find(".artist").text();
 		},
 		"playlist:ended": function() {
-			fft.removeListeners();
+			fft && fft.removeListeners();
 			fft = null;
-// 			document.title = "10er10";
 		}
 	},{});
 
@@ -101,10 +92,9 @@ d10.ffSpectrum = function(audio,canvas) {
 		push = 3;
 
 		var fb = event.frameBuffer,
-			t  = event.time, /* unused, but it's there */
+			//t  = event.time, /* unused, but it's there */
 			signal = new Float32Array(fb.length / channels),
-			magnitude;
-// 		var i;
+			magnitude, lastMagnitude;
 		for (var i = 0, fbl = frameBufferLength / 16; i < fbl; i++ ) {
 			// Assuming interlaced stereo channels,
 			// need to split and merge into a stero-mix mono signal
@@ -115,8 +105,6 @@ d10.ffSpectrum = function(audio,canvas) {
 		// Clear the canvas before drawing spectrum
 		ctx.clearRect(0,0, canvas.width, canvas.height);
 		var baseColor = [70,103,155];
-// 		var baseColor = [62,176,0];
-// 		var i;
 		for (var  i = 0; i < widthLimit; i++ ) {
 			// multiply spectrum by a zoom value
 			magnitude = fft.spectrum[i] * 4000;
@@ -125,11 +113,13 @@ d10.ffSpectrum = function(audio,canvas) {
 			baseColor[1] += 1;
 			baseColor[2] -= 1;
 			var i2 = i*2;
-// 			baseColor[2] = i2;
 			// Draw rectangle bars for each frequency bin
 			ctx.fillRect(i2, canvas.height, 1, -magnitude);
+			if ( i > 0 ) {
+				ctx.fillRect(i2-1, canvas.height, 1, -(lastMagnitude + magnitude)/2);
+			}
+			lastMagnitude = magnitude;
 		}
-// 		debug("i",i);
 	}
 
 // 	var audio = document.getElementById('audio-element');

@@ -302,7 +302,6 @@ exports.templates.clientList = {
     'library.listing.genre':'html/library/listing_genre.html',
     'library.listing.genre.line':'html/library/listing_genre_line.html',
     'hoverbox.addsong.container':'html/hoverbox/addsong.container.html',
-    'hoverbox.playlistrow':'html/hoverbox/playlistrow.html',
 	'hoverbox.playlist.container': 'html/hoverbox/playlist.container.html',
 	'hoverbox.playlist.rpl.container': 'html/hoverbox/playlist.rpl.container.html',
     'upload.file.widget':'html/upload/file.widget.html',

@@ -8,12 +8,18 @@ var step2 = function () {
 	$("#main").delegate('.song .add','click',function  (e) {
 		var song = $(this).closest('.song');
 		var id=song.attr('name');
-		var elem = $(d10.mustacheView('hoverbox.addsong.container'));
+		
 		var playlists = d10.user.get_playlists();
+		var elem = $(d10.mustacheView('hoverbox.addsong.container',{playlist: playlists, _id: id}));
 		if ( playlists.length ) { $('div[name=playlists]',elem).show(); }
-		for ( var index in playlists ) {
-			$('div[name=playlists]',elem).append(d10.mustacheView('hoverbox.playlistrow',playlists[index]));
+		if ( song.attr("data-owner") ) {
+			elem.find("[name=edit]").removeClass("hidden");
 		}
+		
+		
+// 		for ( var index in playlists ) {
+// 			$('div[name=playlists]',elem).append(d10.mustacheView('hoverbox.playlistrow',playlists[index]));
+// 		}
 		var height = parseInt ( elem.css('height').replace(/px$/,'') );
 		var top = e.pageY - 10;
 		if ( top + height  > $(window).height() && $(window).height() + 10 - height > 0 ) {
@@ -22,14 +28,19 @@ var step2 = function () {
 		elem.css ( {'top': top,'left' : e.pageX - 10})
 		.hide()
 		.delegate('.clickable','click',function() {
+			if ( $(this).hasClass("review") ) {
+				window.location.hash = "#/my/review/"+encodeURIComponent( $(this).attr("name") );
+				$(this).closest('.hoverbox').ovlay().close();
+				return ;
+			}
 			var playlist = $(this).attr('name');
 			if ( playlist && playlist.length ) {
 //				$(document).trigger('rplAppendRequest', { 'song': id, 'playlist': $(this).attr('name') } );
-				d10.my.plm.append_song(id,playlist);
+				d10.my.plmanager.append_song(id,playlist);
 			} else {
 				d10.playlist.append(song.clone().removeClass("dragging selected"));
 			}
-		$(this).closest('.hoverbox').ovlay().close();
+			$(this).closest('.hoverbox').ovlay().close();
 		});
 	//     $('body').append(elem.fadeIn('fast'));
 		elem.appendTo("body").ovlay({"onClose": function() {this.getOverlay().remove()}, "closeOnMouseOut": true });
