@@ -50,7 +50,7 @@ $(document).one("bootstrap:playlist",function() {
 			newFFT(d10.playlist.driver().current().audio);
 		},
 		"playlist:ended": function() {
-			fft.removeListeners();
+			fft && fft.removeListeners();
 			fft = null;
 		}
 	},{});

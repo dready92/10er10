@@ -163,6 +163,9 @@ window.d10.song_template = function (doc) {
 	  });
   }
   doc.images = images.join(",");
+  if ( doc.user == d10.user.id() ) {
+	  doc.owner = true;
+  }
   return window.d10.mustacheView('song_template',doc);
 }
 

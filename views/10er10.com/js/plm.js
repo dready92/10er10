@@ -22,20 +22,20 @@ d10.fn.plm = function (mydiv,mypldiv) {
 					index < 0 )	 {
 			index = $('.list',pldiv).children().length;
 		}
-    var songtpl = null;
-    if ( song._id ) { songtpl = $(d10.song_template(song)); } 
-    else { songtpl = song; }
+		var songtpl = null;
+		if ( song._id ) { songtpl = $(d10.song_template(song)); } 
+		else { songtpl = song; }
 
-    var nextOne = $('.list',pldiv).children().eq(index);
-    if ( nextOne.length ) { songtpl.insertBefore( nextOne ); } 
-    else { songtpl.appendTo( $('.list',pldiv) ); }
+		var nextOne = $('.list',pldiv).children().eq(index);
+		if ( nextOne.length ) { songtpl.insertBefore( nextOne ); } 
+		else { songtpl.appendTo( $('.list',pldiv) ); }
 
-		if ( $('.empty:visible',pldiv).length ) {
+		if ( !$('.empty',pldiv).hasClass("hidden") ) {
 			$('.empty',pldiv).addClass("hidden");
 		}
-    if ( $('.list:visible',pldiv).length == 0 ) {
-      $('.list',pldiv).removeClass("hidden");
-    }
+		if ( $('.list',pldiv).hasClass("hidden") ) {
+			$('.list',pldiv).removeClass("hidden");
+		}
 	};
 
 	/*

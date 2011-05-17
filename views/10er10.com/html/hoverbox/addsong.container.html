@@ -3,5 +3,10 @@
 	<div class="clickable">((current_playlist))</div>
 	<div name="playlists" style="display:none">
 		<div class="part">((playlist_header))</div>
+		{{#playlist}}<div class="clickable" name="{{_id}}">{{name}}</div>{{/playlist}}
+	</div>
+	<div name="edit" class="hidden">
+		<div class="part">((other_actions_header))</div>
+		<div class="clickable review" name="{{_id}}">((song_edit))</div>
 	</div>
 </div>

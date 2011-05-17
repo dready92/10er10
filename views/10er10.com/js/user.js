@@ -113,11 +113,17 @@ function user () {
 // 	}
 	
 	this.get_invites_count = function() {
-    if ( infos == null )  return 0;
-    if ( !infos.user ) return 0;
-    if ( !infos.user.invites )  return 0;
-    return parseInt(infos.user.invites);
-  }
+		if ( infos == null )  return 0;
+		if ( !infos.user ) return 0;
+		if ( !infos.user.invites )  return 0;
+		return parseInt(infos.user.invites);
+	}
+  
+	this.id = function() {
+		if ( infos == null )  return 0;
+		return infos.user._id;
+	};
+  
 }
 
 d10.user = new user();
