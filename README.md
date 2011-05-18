@@ -20,10 +20,6 @@ Debian squeeze users, using the nodejs deb package : you should create a symlink
 
 * NPM : install the Node package manager ( http://npmjs.org ). Hint : **curl http://npmjs.org/install.sh | sh**
 
-* node modules : install node packages gm, connect and prompt :
-
-    npm install gm connect prompt
-
 Install audio utilities
 -----------------------
 
@@ -57,10 +53,23 @@ About 10er10 running environments
 
 10er10 dev HTTP port is 8888. 10er10 prod HTTP port is 8124.
 
+Install 10er10 files & required node modules
+--------------------------------------------
+
+Unzip/tar your 10er10 download.
+
+cd to the 10er10 root directory (the one that contains the *audio*, *node* and *views* folders.
+
+* node modules : install required node packages :
+
+    npm install mime qs gm connect prompt
+
+You should now have a new **node_modules** folder.
+
 Configure 10er10
 ----------------
 
-Unzip/tar your 10er10 download and open **node/config.js** 
+Open **node/config.js** 
 
 * setup your databases configuration
 
@@ -130,6 +139,7 @@ Go into the node/admin directory and run the d10-createUser.js script.
 The password should be hard enough, or the account won't be created. (at least 8 characters, at least 4 distinct characters).
 
 Won't work :
+
     test
     xxxxxxxx
 
