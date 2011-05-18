@@ -290,15 +290,10 @@ $(document).ready(function() {
 		$("#browserNotSupported").fadeIn();
 		});
 	} else {
-		if ( Modernizr.inputtypes.range ) {
-			$("html").addClass("inputtypeRange");
-		}
 		delete Modernizr;
 		$("#browserNotSupported").remove();
 		step2();
 	}
-
-
 });
 
 
