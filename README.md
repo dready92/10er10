@@ -20,6 +20,8 @@ Debian squeeze users, using the nodejs deb package : you should create a symlink
 
 * NPM : install the Node package manager ( http://npmjs.org ). Hint : **curl http://npmjs.org/install.sh | sh**
 
+Please check that your npm version (using the command **npm -v**) is >= 1.0.0 .
+
 Install audio utilities
 -----------------------
 
@@ -58,13 +60,13 @@ Install 10er10 files & required node modules
 
 Unzip/tar your 10er10 download.
 
-cd to the 10er10 root directory (the one that contains the *audio*, *node* and *views* folders.
+cd to the 10er10 root directory (the one that contains the *audio*, *node* and *views* folders).
 
 * node modules : install required node packages :
 
     npm install mime qs gm connect prompt
 
-You should now have a new **node_modules** folder.
+You should now have a new **node_modules** folder at the same level as the "audio", "node" and "views" folders.
 
 Configure 10er10
 ----------------
