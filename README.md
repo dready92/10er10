@@ -93,9 +93,9 @@ Of course, those two folders should be writable by the unix user that will launc
 - exports.images.dir : this is where the images are stored. 
 
 
-* configure audio URI
+* about audio URI
 
-**exports.audio_root** is used by the browser to know where is the path to the audio files. If your 10er10 root is "/", then the audio_root is "/audio". If your 10er10 root is "/somewhere/10er10", set audio_root to "/somewhere/10er10/audio". You can also set the complete URL ( eg http://my.domain.com/10er10/audio ).
+**exports.audio_root** is used by the browser to know where is the path to the audio files. If your 10er10 root is "/", then the audio_root is "/audio". If your 10er10 root is "/somewhere/10er10", set audio_root to "/somewhere/10er10/audio". You can also set the complete URL ( eg http://my.domain.com/10er10/audio ). Unless you're behind a reverse proxy and you know what you're doing, don't change this setting.
 
 
 * configure Unix utilities

@@ -39,6 +39,7 @@ exports.audio = {
 };
 
 // used to set the ogg path in the URL of the browser
+// unless you know what you're doing (eg you're reverse-proxying 10er10) don't change this
 exports.audio_root = "/audio/";
 
 exports.images = {
