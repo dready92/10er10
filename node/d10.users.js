@@ -177,10 +177,34 @@ var checkAuthFromLogin = function(login, password, cb) {
 	);
 };
 
+/*
+ * create a session for uid and returns the session document
+ */
+var makeSession = function(uid, cb ) {
+	var sessionId = d10.uid();
+	var d = new Date();
+	// create session and send cookie
+	var doc = { 
+		_id:"se"+sessionId ,
+		userid: uid.substr(2),
+		ts_creation: d.getTime(),
+		ts_last_usage: d.getTime()
+	};
+	d10.couch.auth.storeDoc(doc,function(err,storeResponse) {
+		if ( err ) {
+			d10.log("debug","error on session recording",err);
+			return cb(new Error("Session recording error"));
+		}
+		d10.log("debug","session recorded : ",storeResponse);
+		return cb(null,doc);
+	});
+};
+
 
 
 exports.isValidLogin = isValidLogin;
 exports.isValidPassword = isValidPassword;
 exports.createUser = createUser;
 exports.checkAuthFromLogin = checkAuthFromLogin;
+exports.makeSession = makeSession;
 

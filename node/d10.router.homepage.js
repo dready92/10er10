@@ -145,34 +145,13 @@ exports.homepage = function(app) {
 	
 	app.get("/", displayHomepage);
 	app.post("/",function( request, response, next ) {
-		
-		var makeSession = function(uid, cb ) {
-			var sessionId = d10.uid();
-			var d = new Date();
-			// create session and send cookie
-			var doc = { 
-				_id:"se"+sessionId ,
-				userid: uid.substr(2),
-				ts_creation: d.getTime(),
-				ts_last_usage: d.getTime()
-			};
-			d10.couch.auth.storeDoc(doc,function(err,storeResponse) {
-				if ( err ) {
-					d10.log("debug","error on session recording",err);
-					return cb(new Error("Session recording error"));
-				}
-				d10.log("debug","session recorded : ",storeResponse);
-				return cb(null,doc);
-			});
-		};
-		
 		var checkPass = function() {
 			users.checkAuthFromLogin(request.body.username,request.body.password,function(err, uid, loginResponse) {
 				if ( err ) {
 					return displayHomepage(request,response,next);
 				}
 				d10.log("debug","user logged with login/password: ",uid);
-				makeSession(uid, function(err,sessionDoc) {
+				users.makeSession(uid, function(err,sessionDoc) {
 					if ( !err ) {
 						d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
 						var cookie = { user: request.ctx.user.login, session: sessionDoc._id.substring(2) };
