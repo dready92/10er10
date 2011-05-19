@@ -112,7 +112,7 @@ exports.api = function(app) {
 					d10.rest.err(500,e,request.ctx);
 				} else {
 					d10.log("success");
-					console.log("responses: ",responses);
+// 					console.log("responses: ",responses);
 					var dynamic = responses.dynamic;
 					delete responses.dynamic;
 					for ( var i in dynamic ) {
@@ -161,7 +161,7 @@ exports.api = function(app) {
 		request.on("data",function(chunk) { body+=chunk; });
 		request.on("end",function() {
 			var data = querystring.parse(body);
-			console.log("/api/current_playlist body: ",data);
+// 			console.log("/api/current_playlist body: ",data);
 			d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,userPreferences) {
 				if ( err ) { return d10.rest.err(413,err,request.ctx);}
 				

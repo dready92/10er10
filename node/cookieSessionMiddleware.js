@@ -66,8 +66,6 @@ var checkAuth = function (ctx,passTheCoochie) {
 						ctx.user = sessionCache[cookieData.user].us;
 						ctx.userPrivateConfig = sessionCache[cookieData.user].pr;
 						ctx.session = sessionCache[cookieData.user].se;
-// 						d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged");
-// 						d10.log("debug","loggged from the session cache");
 						return passTheCoochie();
 					}
 				}
