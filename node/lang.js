@@ -94,16 +94,8 @@ var langExists = exports.langExists = function(lng, cb) {
  */
 var loadLang = this.loadLang = function ( lng, type, cb ) {
 	console.log("LANG loadLang: ",lng,type);
-// 	if ( langs[lng] ) {
-// 		cb (null, langs[lng][type]);
-// 		return ;
-// 	}
-// 	
-// 	langs[lng] = langs[lng] || {};
-// 	langs[lng].server = require( langRoot+"/"+lng+".js" );
-// 	cb(null,langs[lng][type]);
 	loadLangFiles(function() {
-		console.log("loadLangFiles returns");
+// 		console.log("loadLangFiles returns");
 		if ( ! lng in langs ) {
 			console.log("LANG unknown : ",lng);
 			return cb(new Error("lang not found: "+lng));
@@ -131,9 +123,9 @@ exports.parseServerTemplate = function(request, tpl, cb) {
 		if ( err ) {
 			return cb(err);
 		}
-		console.log("reading ",d10.config.templates.node+"/"+tpl);
+// 		console.log("reading ",d10.config.templates.node+"/"+tpl);
 		fs.readFile(d10.config.templates.node+"/"+tpl, function(err,template) {
-			console.log("reading ",d10.config.templates.node+"/"+tpl);
+// 			console.log("reading ",d10.config.templates.node+"/"+tpl);
 			template = template.toString();
 // 				console.log(template);
 			if ( err ) { return cb(err); }
@@ -169,7 +161,7 @@ exports.middleware = function(req,res,next) {
 	
 	
 	var fetchFromBrowser = function() {
-				console.log("LANG middleware: set from browser");
+// 		console.log("LANG middleware: set from browser");
 		var passTheCoochie = function() {
 			pause.end();
 			next();
@@ -177,9 +169,10 @@ exports.middleware = function(req,res,next) {
 		};
 		var pause = utils.pause(req);
 		getHeadersLang(req,function(lng) {
-					console.log("LANG middleware: browser sniff: ",lng);
+			console.log("LANG middleware: browser sniff: ",lng);
 			req.ctx.lang = lng;
-			if ( req.ctx.session ) { 
+			if ( req.ctx.session && req.ctx.session._id ) {
+// 				console.log("LANG session: ",req.ctx.session);
 				req.ctx.session.lang = lng;
 				d10.couch.auth.storeDoc(req.ctx.session, function(err,resp) {
 					if ( err ) {console.log("LANG : session storage failed: ",err,resp);}
@@ -195,11 +188,11 @@ exports.middleware = function(req,res,next) {
 // 		return next();
 // 	}
 	if ( req.ctx.user && req.ctx.user.lang ) {
-		console.log("LANG middleware: set from user");
+// 		console.log("LANG middleware: set from user");
 		req.ctx.lang = req.ctx.user.lang;
 		return next();
 	} else if ( req.ctx.session && req.ctx.session.lang ) {
-		console.log("LANG middleware: set from session");
+// 		console.log("LANG middleware: set from session");
 		req.ctx.lang = req.ctx.session.lang;
 		return next();
 	}

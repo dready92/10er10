@@ -140,8 +140,47 @@ var createUser = function(login,password,opts) {
 
 };
 
+/*
+ * cb args: error, uid, loginResponse
+ * if error is null:
+ * if response is not null, uid is the user id
+ */
+var checkAuthFromLogin = function(login, password, cb) {
+	if ( login.trim().length < 1 ) {
+		return cb(new Error("Login too short"));
+	}
+	// get login informations
+	d10.db.loginInfos(
+		login,
+		function(loginResponse) {
+			password = hash.sha1(password);
+			var	valid = false,
+				uid = null;
+			loginResponse.rows.forEach (function(v,k) {
+				if ( !valid && v.doc._id.indexOf("pr") === 0 ) {
+					if ( v.doc.password == password ) {
+						valid = true;
+						uid = v.doc._id.replace(/^pr/,"");
+						return false;
+					}
+				}
+			});
+			if ( valid == true && uid ) {
+				return cb(null, "us"+uid, loginResponse);
+			} else {
+				return cb();
+			}
+		},
+		function(err) {
+			return cb(err);
+		}
+	);
+};
+
+
+
 exports.isValidLogin = isValidLogin;
 exports.isValidPassword = isValidPassword;
 exports.createUser = createUser;
-
+exports.checkAuthFromLogin = checkAuthFromLogin;
 

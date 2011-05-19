@@ -30,7 +30,7 @@ d10.couch.auth.on("delete",function(err,doc) {
 		if ( type == "se" || type == "pr" || type == "us" ) {
 			for ( var i in sessionCache ) {
 				if ( sessionCache[i][type] && sessionCache[i][type]._id == doc._id ) {
-					d10.log("debug","sessionCache delete for ",i);
+// 					d10.log("debug","sessionCache delete for ",i);
 					delete sessionCache[i];
 					break;
 				}
@@ -60,15 +60,14 @@ var checkAuth = function (ctx,passTheCoochie) {
 				
 			};
 			if ( cookieData && cookieData.user && cookieData.session ) {
-				
 				//get from sessionCache
 				if ( sessionCache[cookieData.user] ) {
 					if ( sessionCache[cookieData.user].se._id == "se"+cookieData.session ) {
 						ctx.user = sessionCache[cookieData.user].us;
 						ctx.userPrivateConfig = sessionCache[cookieData.user].pr;
 						ctx.session = sessionCache[cookieData.user].se;
-						d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged");
-						d10.log("debug","loggged from the session cache");
+// 						d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged");
+// 						d10.log("debug","loggged from the session cache");
 						return passTheCoochie();
 					}
 				}
@@ -81,7 +80,7 @@ var checkAuth = function (ctx,passTheCoochie) {
 							if ( !found && v.doc._id == "se"+cookieData.session ) {
 								d10.fillUserCtx(ctx,response,v.doc);
 								sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session);
-								d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged");
+// 								d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged from sessionCache");
 								found = true;
 							}
 						});

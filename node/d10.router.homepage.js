@@ -4,7 +4,8 @@ var 	bodyDecoder = require("connect").bodyParser,
 		utils = require("connect").utils,
 		d10 = require("./d10"),
 		when = require("./when"),
-		lang = require("./lang");
+		lang = require("./lang"),
+		users = require("./d10.users");
 		
 		
 exports.homepage = function(app) {
@@ -99,26 +100,24 @@ exports.homepage = function(app) {
 		} else {
 			d10.log("debug","NOT LOGGED");
 		}
-		console.log("session ?", request.ctx.session);
-		console.log("user ?", request.ctx.user);
+// 		console.log("session ?", request.ctx.session);
+// 		console.log("user ?", request.ctx.user);
 		response.writeHead(200, request.ctx.headers );
 		
 		if ( request.ctx.session && "_id" in request.ctx.session && request.ctx.user ) {
 			// 		d10.log("debug",request.headers);
-			
-			
 			if ( request.query.lang ) {
 				lang.langExists(request.query.lang,function(exists) {
 					if ( exists ) {
-						console.log("LANG check OK: ",request.query.lang);
+// 						console.log("LANG check OK: ",request.query.lang);
 						request.ctx.user.lang = request.query.lang;
 						d10.couch.auth.storeDoc(request.ctx.user,function(err,resp) {
 							request.ctx.lang = request.query.lang;
-							if (!err) {console.log("LANG stored", request.query.lang);}
+// 							if (!err) {console.log("LANG stored", request.query.lang);}
 							display10er10(request,response,next);
 						});
 					} else {
-						console.log("LANG check NOT FOUND: ",request.query.lang);
+// 						console.log("LANG check NOT FOUND: ",request.query.lang);
 						display10er10(request,response,next);
 					}
 				});
@@ -133,86 +132,61 @@ exports.homepage = function(app) {
 			lang.parseServerTemplate(request,"login.html",function(err,html) {
 				response.end(html);
 			});
-// 			d10.view("login",vars,function(html) {
-// 				response.end(html);
-// 			});
 		}
 	}
 	app.get("/welcome/goodbye",function(request,response,next) {
 		d10.couch.d10.deleteDoc(request.ctx.session,function(){});
-		/*d10.db.db("d10").deleteDoc(
-			{
-			},
-			request.ctx.session
-		);
-		*/
 	    delete request.ctx.session;
 	    delete request.ctx.user;
 	    delete request.ctx.userPrivateConfig;
 		request.ctx.headers["Set-Cookie"] = config.cookieName+"=no; path="+config.cookiePath;
-		//; expires="+new Date().toUTCString();
 		displayHomepage(request,response,next);
 	});
+	
 	app.get("/", displayHomepage);
 	app.post("/",function( request, response, next ) {
 		
-		var checkPass = function () {
-			var uid = false;
-			d10.log("debug","checking login infos");
-			d10.db.loginInfos(
-				request.body.username,
-				function(loginResponse) {
-					d10.log("debug","checking login infos : response");
-					var password = hash.sha1(request.body.password),
-					valid = false;
-					loginResponse.rows.forEach (function(v,k) {
-						if ( v.doc._id.indexOf("pr") === 0 ) {
-							if ( v.doc.password == password ) {
-								valid = true;
-								uid = v.doc._id.replace(/^pr/,"");
-								return false;
-							}
-						}
-					});
-					if ( valid == true && uid ) {
-						d10.log("debug","user ",uid,"should be logged");
-						var sessionId = d10.uid();
-						console.log("session id : ",sessionId);
-						var d = new Date();
-						// create session and send cookie
-						var doc = { 
-							_id:"se"+sessionId ,
-							userid: uid,
-							ts_creation: d.getTime(),
-							ts_last_usage: d.getTime()
-						};
-						d10.couch.auth.storeDoc(doc,function(err,storeResponse) {
-							if ( err ) {
-								d10.log("debug","error on session recording",err);
-								displayHomepage(request,response,next);
-								return ;
-							}
-							d10.log("debug","session recorded : ",storeResponse);
-
-							d10.fillUserCtx(request.ctx,loginResponse,doc);
-							var infos = {
-								user: request.ctx.user.login,
-								session: sessionId
-							};
-							var d = new Date();
-							d.setTime ( d.getTime() + config.cookieTtl );
-							request.ctx.headers["Set-Cookie"] = config.cookieName+"="+escape(JSON.stringify(infos))+"; expires="+d.toUTCString()+"; path="+config.cookiePath;
-							displayHomepage(request,response,next);
-						});
-					} else {
-						displayHomepage(request,response,next);
-					}
-				},
-				function() {
-					displayHomepage(request,response,next);
+		var makeSession = function(uid, cb ) {
+			var sessionId = d10.uid();
+			var d = new Date();
+			// create session and send cookie
+			var doc = { 
+				_id:"se"+sessionId ,
+				userid: uid.substr(2),
+				ts_creation: d.getTime(),
+				ts_last_usage: d.getTime()
+			};
+			d10.couch.auth.storeDoc(doc,function(err,storeResponse) {
+				if ( err ) {
+					d10.log("debug","error on session recording",err);
+					return cb(new Error("Session recording error"));
 				}
-			);
+				d10.log("debug","session recorded : ",storeResponse);
+				return cb(null,doc);
+			});
 		};
+		
+		var checkPass = function() {
+			users.checkAuthFromLogin(request.body.username,request.body.password,function(err, uid, loginResponse) {
+				if ( err ) {
+					return displayHomepage(request,response,next);
+				}
+				d10.log("debug","user logged with login/password: ",uid);
+				makeSession(uid, function(err,sessionDoc) {
+					if ( !err ) {
+						d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
+						var cookie = { user: request.ctx.user.login, session: sessionDoc._id.substring(2) };
+						var d = new Date();
+						d.setTime ( d.getTime() + config.cookieTtl );
+						request.ctx.headers["Set-Cookie"] = config.cookieName+"="+escape(JSON.stringify(cookie))+"; expires="+d.toUTCString()+"; path="+config.cookiePath;
+						if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
+					}
+					displayHomepage(request,response,next);
+				});
+				
+			});
+		};
+		
 		
 		// login try
 		bodyDecoder()(request, response,function() {
