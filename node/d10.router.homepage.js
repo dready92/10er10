@@ -147,9 +147,10 @@ exports.homepage = function(app) {
 	app.post("/",function( request, response, next ) {
 		var checkPass = function() {
 			users.checkAuthFromLogin(request.body.username,request.body.password,function(err, uid, loginResponse) {
-				if ( err ) {
+				if ( err || !uid) {
 					return displayHomepage(request,response,next);
 				}
+				
 				d10.log("debug","user logged with login/password: ",uid);
 				users.makeSession(uid, function(err,sessionDoc) {
 					if ( !err ) {
