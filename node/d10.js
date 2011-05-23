@@ -299,6 +299,7 @@ exports.rest = {
 		if (data) {
 			back.data.infos = data;
 		}
+		ctx.headers["Content-Type"] = "application/json";
 		ctx.response.writeHead(200, ctx.headers );
 		ctx.response.end (
 			JSON.stringify(back)
@@ -309,6 +310,7 @@ exports.rest = {
 			status: "success",
 			data: data
 		};
+		ctx.headers["Content-Type"] = "application/json";
 		ctx.response.writeHead(200, ctx.headers );
 		ctx.response.end (
 			JSON.stringify(back)
