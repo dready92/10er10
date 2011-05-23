@@ -7,7 +7,7 @@ exports.context = function (req,res,next) {
 	req.ctx = {
 		request: req,
 		response: res,
-		headers: {},
+		headers: {Connection: "close"},
 		status: 404,
 		session: {}
 	};
