@@ -20,7 +20,32 @@ exports.oggLength = function(file,cb) {
 		}
 	});
 };
-
+/*
+exports.flacLength = function(file,cb) {
+	var pipe = exec(d10.config.cmds.metaflac+" --list "+file,{maxBuffer: 2000*1024},function(err,stdout,stderr) {
+		if ( stdout.length ) {
+			var samplerate = stdout.match(/sample_rate: ([0-9]+)/);
+			var totalsamples = stdout.match(/total samples: ([0-9]+)/);
+			if ( !samplerate || !totalsamples ) {
+				cb("no match");
+				return ;
+			}
+			if ( samplerate.length > 1 && totalsamples.length > 1  ) {
+				samplerate = parseInt(samplerate[1],10);
+				totalsamples = parseInt(totalsamples[1],10);
+				if ( !isNaN(samplerate) && !isNaN(totalsamples) ) {
+					return cb(null,Math.floor( (totalsamples/samplerate) ) );
+				}
+			}
+		}
+		if ( err !== null ) {
+			cb(err);
+		} else {
+			cb("no match");
+		}
+	});
+};
+*/
 exports.id3tags = function(file, cb, secondTry) {
 	var utrac_opts = " -t UTF-8";
 	if ( secondTry ) {

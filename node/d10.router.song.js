@@ -194,6 +194,7 @@ exports.api = function(app) {
 		}
 		
 		var safeErrResp = function(code,data,ctx) {
+			printEncodingFailure();
 			d10.log("debug","sending errorResponse ",code);
 			d10.log("debug",data);
 			if ( errResponse ) return ;
@@ -545,6 +546,16 @@ exports.api = function(app) {
 				}
 			}
 		};
+		
+		var printEncodingFailure = function() {
+			d10.log("--------- Encoding failure ----------");
+			job.tasks.forEach(function(t,name) {
+				d10.log(name, t.err ? t.err : "");
+			});
+			d10.log("-------------------------------------");
+
+		};
+		
 // 		d10.log("debug","filename : ",job.fileName,"ogg name : ",job.oggName);
 		job.complete("oggEncode",function(err,resp) {
 			if ( err ) {
