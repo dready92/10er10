@@ -22,6 +22,11 @@ function ncouch (url) {
 
 	var srvurl = uri.pathname ;
 
+	//increase the max number of connections to the couch
+	if ( "getAgent" in http ) {
+		http.getAgent(uri.host, uri.port).maxSockets = 50;
+	}
+
 	var components = {
 		database: {}
 	};
