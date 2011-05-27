@@ -408,7 +408,7 @@
 				elem.find(".removeAllNext").remove();
 			} else {
 				elem.find(".removeAllNext").click(function() {
-					remove(node.prevAll().not(".current"));
+					remove(node.nextAll().not(".current"));
 					elem.ovlay().close();
 				});
 			}
