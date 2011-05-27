@@ -53,7 +53,7 @@ var library = function () {
 
 	var displayGenre = function(topicdiv, genre ) {
 		var eGenre = escape(genre);
-		var catdiv = topicdiv.find("div.content > div[name="+eGenre+"]");
+		var catdiv = topicdiv.find("div.content > div[name=\""+eGenre+"\"]");
 		if ( catdiv.length == 0 ) {
 			catdiv = $("<div name=\""+eGenre+"\"></div>");
 			catdiv.append( d10.mustacheView("loading") );
