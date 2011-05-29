@@ -52,10 +52,21 @@ var stack = [
 	connect.router(staticRoutes), 
 	cookieSession.cookieSession,
 	lang.middleware,
+	connect.router(homepage.homepage),
+	// from here we need to be logged:
+	function(request,response,next) {
+		if ( !request.ctx.session || !request.ctx.user || !request.ctx.user._id ) {
+			response.writeHead(404,{"Content-Type":"text/plain"});
+			response.end("Page not found");
+		}
+		else
+		{
+			next();
+		}
+	},
 	connect.router(download.api),
 	connect.router(staticAudio),
 	connect.router(staticImages),
-	connect.router(homepage.homepage),
 	connect.router(api.api),
 	connect.router(plmApi.api),
 	connect.router(listingApi.api),
@@ -72,6 +83,9 @@ if ( !config.production ) {
 	d10Server.use(connect.logger());
 }
 
+if ( config.gzipContentEncoding ) {
+	d10Server.use(require("connect-gzip").gzip({ matchType: /csstext|javascript|json|x-font-ttf/ }));
+}
 stack.forEach(function(mw) { d10Server.use(mw); });
 
 

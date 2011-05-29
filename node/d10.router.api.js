@@ -12,46 +12,9 @@ var d10 = require ("./d10"),
 
 exports.api = function(app) {
 
-	app.post("/api/session",function(request,response,next) {
-		var checkPass = function() {
-			users.checkAuthFromLogin(request.body.username,request.body.password,function(err, uid, loginResponse) {
-				if ( err ) {
-					return d10.rest.err(500,{error: "login failed",reason: "server messed up"},request.ctx);
-				}
-				if ( !uid ) {
-					console.log("not found");
-					return d10.rest.err(500,{error: "login failed",reason: "invalid credentials"},request.ctx);
-				}
-				d10.log("debug","user logged with login/password: ",uid);
-				users.makeSession(uid, function(err,sessionDoc) {
-					if ( !err ) {
-						d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
-						var cookie = { user: request.ctx.user.login, session: sessionDoc._id.substring(2) };
-						var d = new Date();
-						d.setTime ( d.getTime() + d10.config.cookieTtl );
-						request.ctx.headers["Set-Cookie"] = d10.config.cookieName+"="+escape(JSON.stringify(cookie))+"; expires="+d.toUTCString()+"; path="+d10.config.cookiePath;
-						if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
-						return d10.rest.err(200,{ok: true},request.ctx);
-					} else {
-						return d10.rest.err(500,{error: "login failed",reason: "invalid credentials"},request.ctx);
-					}
-				});
-				
-			});
-		};
-		// login try
-		bodyDecoder()(request, response,function() {
-			if ( request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length ) {
-				// get uid with login
-				d10.log("debug","got a username & password : try to find uid with username");
-				checkPass();
-			} else {
-				return d10.rest.err(500,{error: "login failed",reason: "invalid parameters"},request.ctx);
-			}
-		});
-	});
 	
 	
+	/*
 	var checkSession = function(request,response,next) {
 		if ( !request.ctx.session || !request.ctx.user || !request.ctx.user._id ) {
 			response.writeHead(404,{"Content-Type":"text/plain"});
@@ -67,7 +30,7 @@ exports.api = function(app) {
 	app.post("/api/*",checkSession);
 	app.put("/api/*",checkSession);
 	app.delete("/api/*",checkSession);
-
+*/
 	app.post("/api/songs",function(request,response) {
 		bodyDecoder()(request, response,function() {
 			request.ctx.headers["Content-type"] = "application/json";

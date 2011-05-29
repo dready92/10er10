@@ -1,5 +1,8 @@
 exports.port = 8888;
 
+exports.gzipContentEncoding = true;
+
+
 exports.couch_prod = {
 	d10: {dsn: "http://localhost:5984/",database:"d10"},
 	d10wi: {dsn: "http://localhost:5984/",database:"d10wi"},
