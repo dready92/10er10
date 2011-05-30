@@ -29,6 +29,19 @@ d10.fn.paginer = function (
 		pagesCache[page_id] = cached;
 	};
 
+	var eventEmitter = d10.fn.eventEmitter();
+	var bind = this.bind = eventEmitter.bind;
+	var trigger = this.trigger = eventEmitter.trigger;
+	var unbind = this.unbind = eventEmitter.unbind;
+	var unbindAll = this.unbindAll = eventEmitter.unbindAll;
+	var one = this.one = function(selector, callback) {
+		var proxy = function() {
+			unbind(selector,proxy);
+			callback.apply(this,arguments);
+		};
+		this.bind(selector,proxy);
+	};
+	
 	var loadCache = function (cb) {
 		var options = {
 		'url': url,
@@ -180,12 +193,17 @@ d10.fn.paginer = function (
 // 			$("div.pleaseWait",html_container).hide();
 			rmPleaseWait();
 			add_binding($(html)).appendTo(html_container).show();
-
+			trigger("display_page",html_container);
+			trigger("display_page/"+page_id,html_container);
+			
 		} else {
 			load_page(page_id, index_data, function ( html ) {
 // 				$("div.pleaseWait",html_container).hide();
 				rmPleaseWait();
 				add_binding(html).appendTo(html_container).show();
+				trigger("display_page",html_container);
+				trigger("display_page/"+page_id,html_container);
+				
 			});
 		}
 	};

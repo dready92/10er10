@@ -155,6 +155,40 @@ var library = function () {
 			if ( ! pager ) {
 				pager = that.pager_init(topic,categorydiv,topicdiv,id,category);
 				categorydiv.data('pager',pager);
+				if ( category ) {
+					pager.one("display_page/1",function() {
+						d10.bghttp.get({
+							url: site_url+"/api/RelatedArtists/"+ encodeURIComponent(category),
+							dataType: "json",
+							success: function(response) {
+								var data = response.data;
+								debug("got relatedArtists response",data);
+								if ( data.artistsRelated.length ) {
+									var relatedArtists = [];
+									for ( var i in data.artistsRelated ) {
+										for ( var j in data.artistsRelated[i].value ) {
+											var artist = data.artistsRelated[i].value[j];
+											if ( artist != category && relatedArtists.indexOf(artist) < 0 ) {
+												relatedArtists.push(artist);
+											}
+										}
+									}
+									if ( relatedArtists.length ) {
+										debug("category div: ",categorydiv);
+										var relatedNode = categorydiv.find(".related");
+										debug("category div: ",categorydiv, relatedNode);
+										relatedNode.hide()
+										.html(d10.mustacheView("library.content.artist.related",{artists: relatedArtists}))
+										.show()
+										.addClass("ontop");
+										
+									}
+								}
+								debug("2nd degree artists",relatedArtists);
+							}
+						});
+					});
+				}
 				pager.display_page(1);
 			} else {
 				checkPagerFreshness(categorydiv);

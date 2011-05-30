@@ -392,7 +392,29 @@ div.tooltip > p {
 }
 
 
+/* #library article.songlist { */
+/* 	position: relative; */
+/* } */
 
+#library article.songlist .related {
+	display: none;
+/* 	position: relative; */
+	-moz-transform: translateY(1000px);
+	opacity: 0;
+	width: 150px;
+	max-width: 250px;
+	overflow: hidden;
+/* 	-moz-transition-property: -moz-transform ; */
+/* 	-moz-transition-duration: 5s;	 */
+	-moz-transition: -moz-transform 5s, opacity 5s;
+}
+
+
+#library article.songlist .related.ontop {
+	-moz-transform: translateY(0px);
+	opacity: 1;
+	
+}
 
 article.songlist div.controls {
 	position: relative;

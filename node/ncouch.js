@@ -63,10 +63,14 @@ function ncouch (url) {
 			}
 		}
 
+		if ( settings.body ) {
+			settings.headers["Content-Length"] = Buffer.byteLength(settings.body);
+		}
 		var client = http.createClient(uri.port ? uri.port : 80, uri.hostname);
 		if ( debug ) {
 			console.log("request",settings.type,settings.url);
 		}
+// 		console.log("request",settings);
 		var request = client.request(settings.type,settings.url ? settings.url : "",settings.headers);
 		request.on("response",function(resp) {
 			if ( debug ) {
@@ -118,11 +122,12 @@ function ncouch (url) {
 		};		
 		for ( var i in options ) {	settings[i] = options[i] ; }
 		settings.type = settings.type.toUpperCase();
-		var keys = {};
+		var keys = {},unsetKeys = false;
 		Object.keys(settings.data).forEach(function(key){
 			if ( key == "keys" ) {
 				settings.body = {keys: settings.data.keys};
 				settings.type="POST";
+				unsetKeys = true;
 			} else {
 				if ( DO_NOT_JSON_ENCODE.indexOf(key) < 0 ){
 					keys[key] = JSON.stringify(settings.data[key]);
@@ -131,6 +136,9 @@ function ncouch (url) {
 				}
 			}
 		});
+		if ( unsetKeys ) delete settings.data.keys;
+		
+		
 		settings.url = settings.url.replace(/^\/+/,"/");
 		
 		var query = querystring.stringify(keys);

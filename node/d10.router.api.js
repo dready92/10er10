@@ -598,6 +598,40 @@ exports.api = function(app) {
 		});
 	});
 	
+	app.get("/api/relatedArtists/:artist",function(request,response,next) {
+		d10.couch.d10.view("artist/related",{group_level:1, group:true, key: request.params.artist},function(err,related,errBody) {
+			if ( err ) {
+				d10.log("got relatedArtists error",err,errBody);
+				return d10.rest.err(427,err,request.ctx);
+			}
+			if ( ! related.rows.length ) {
+				return d10.rest.success( {artists: [], artistsRelated:[]}, request.ctx);
+			}
+			related = related.rows.pop().value;
+			var opts = {group_level:1,group:true, keys: related};
+// 			d10.log(opts);
+			d10.couch.d10.view("artist/related",opts,function(err,degree2,errBody ) {
+				if ( err ) {
+					d10.log("got relatedArtists error",err, errBody);
+					return d10.rest.err(427,err,request.ctx);
+				}
+				return d10.rest.success(
+					{
+						artists: related,
+						artistsRelated: degree2.rows
+					}
+					,request.ctx			);
+			});
+			
+			
+			
+			
+		});
+		
+		
+	});
+	
+	
 }; // exports.api
 
 
