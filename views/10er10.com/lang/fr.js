@@ -144,6 +144,9 @@ exports.server = {
 	"html/library/content_none.html": {
 		no_song: "Aucun morceau"
 	},
+	"html/library/content_artist_related.html": {
+		see_also: "Voir aussi "
+	},
 	"html/library/control_genre.html": {
 		loading: "Chargement en cours..."
 	},

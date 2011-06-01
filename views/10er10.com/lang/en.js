@@ -144,6 +144,9 @@ exports.server = {
 	"html/library/content_none.html": {
 		no_song: "No song"
 	},
+	"html/library/content_artist_related.html": {
+		see_also: "See also"
+	},
 	"html/library/control_genre.html": {
 		loading: "Loading..."
 	},

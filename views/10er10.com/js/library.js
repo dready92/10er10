@@ -168,20 +168,26 @@ var library = function () {
 									for ( var i in data.artistsRelated ) {
 										for ( var j in data.artistsRelated[i].value ) {
 											var artist = data.artistsRelated[i].value[j];
-											if ( artist != category && relatedArtists.indexOf(artist) < 0 ) {
+											if ( artist != category 
+												&& relatedArtists.indexOf(artist) < 0 
+												&& data.artists.indexOf(artist) < 0 ) {
 												relatedArtists.push(artist);
 											}
 										}
 									}
 									if ( relatedArtists.length ) {
-										debug("category div: ",categorydiv);
+// 										debug("category div: ",categorydiv);
 										var relatedNode = categorydiv.find(".related");
-										debug("category div: ",categorydiv, relatedNode);
-										relatedNode.hide()
-										.html(d10.mustacheView("library.content.artist.related",{artists: relatedArtists}))
-										.show()
-										.addClass("ontop");
-										
+// 										debug("category div: ",categorydiv, relatedNode);
+										setTimeout(function() {
+											relatedNode
+											.html(d10.mustacheView("library.content.artist.related",{artists: relatedArtists}))
+// 											.show()
+											.addClass("ontop").delegate(".link","click",function() {
+												var hash = "/library/artists/"+encodeURIComponent($(this).attr("name"));
+												window.location.hash = hash;
+											});
+										},1000);
 									}
 								}
 								debug("2nd degree artists",relatedArtists);
