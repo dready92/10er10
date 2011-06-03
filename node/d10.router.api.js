@@ -599,26 +599,48 @@ exports.api = function(app) {
 	});
 	
 	app.get("/api/relatedArtists/:artist",function(request,response,next) {
-		d10.couch.d10.view("artist/related",{group_level:1, group:true, key: request.params.artist},function(err,related,errBody) {
+		d10.couch.d10.view("artist/related",{key: request.params.artist},function(err,body,errBody) {
 			if ( err ) {
 // 				d10.log("got relatedArtists error",err,errBody);
 				return d10.rest.err(427,err,request.ctx);
 			}
-			if ( ! related.rows.length ) {
+			if ( ! body.rows.length ) {
 				return d10.rest.success( {artists: [], artistsRelated:[]}, request.ctx);
 			}
-			related = related.rows.pop().value;
-			var opts = {group_level:1,group:true, keys: related};
+			var related = [], relatedKeys = [] ; 
+// 			console.log("body; ",body.rows);
+			body.rows.forEach(function(v) {
+// 				console.log("v",v);
+				if ( related.indexOf(v.value) < 0 ) {
+					related.push(v.value);
+				}
+				relatedKeys.push( v.value );
+			});
+			
+			
+// 			related = related.rows.pop().value;
+			var opts = {keys: relatedKeys};
 // 			d10.log(opts);
 			d10.couch.d10.view("artist/related",opts,function(err,degree2,errBody ) {
 				if ( err ) {
 // 					d10.log("got relatedArtists error",err, errBody);
 					return d10.rest.err(427,err,request.ctx);
 				}
+				
+				var relatedArtists = [];
+				degree2.rows.forEach(function(v) {
+					if ( v.value != request.params.artist 
+						&& related.indexOf(v.value) < 0 
+						&& relatedArtists.indexOf(v.value) < 0  )
+						
+						relatedArtists.push(v.value);
+						
+				});
+				
 				return d10.rest.success(
 					{
 						artists: related,
-						artistsRelated: degree2.rows
+						artistsRelated: relatedArtists
 					}
 					,request.ctx			);
 			});
