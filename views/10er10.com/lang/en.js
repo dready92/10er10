@@ -244,7 +244,7 @@ exports.server = {
 		review_button: "Record",
 		review_and_show_next_button: "Record & show the next song",
 		validating: "Recording...",
-		song_images: "Images related to this dong (drag'n'drop images here)",
+		song_images: "Images related to this song (drag'n'drop images here)",
 		list_button: "Back to the list of songs to review",
 		reviewed_title: "Done !",
 		reviewed_message: "The song <span name=\"artist\"></span> - <span name=\"title\"></span> is reviewed.",
