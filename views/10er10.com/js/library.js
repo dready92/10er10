@@ -190,7 +190,7 @@ var library = function () {
 										},1000);
 // 									}
 								}
-								debug("2nd degree artists",relatedArtists);
+// 								debug("2nd degree artists",relatedArtists);
 							}
 						});
 					});

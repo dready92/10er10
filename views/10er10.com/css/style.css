@@ -809,7 +809,7 @@ article div.pagination ul > li.active {
 
 #my div.uploadDropBox {
 /*   width: 200px; */
-  height: 100px;
+  height: 150px;
   margin: 20px;
   padding: 10px;
   border: 2px solid rgba(200,200,200,0.3);
@@ -826,15 +826,15 @@ article div.pagination ul > li.active {
 }
 #my div.uploadDropBox .imageReview {
 	display: inline-block;
-	width: 64px;
-	height: 64px;
+	width: 128px;
+	height: 128px;
 	position: relative;
 	
 }
 #my div.uploadDropBox .remove { 
 	position: absolute;
-	top: 16px;
-	left: 16px;
+	top: 48px;
+	left: 48px;
 	display: none;
 	cursor: pointer;
 }
