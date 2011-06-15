@@ -1,4 +1,4 @@
-var config = require("./config");
+var config = require(__dirname+"/config");
 
 
 // production test
@@ -13,19 +13,21 @@ if ( process.argv.length > 2 && process.argv[2] == "-p" ) {
 
 
 var	connect = require("connect"),
-	httpHelper = require("./httpHelper"),
-	homepage = require("./d10.router.homepage"),
-	cookieSession = require("./cookieSessionMiddleware"),
-	api = require("./d10.router.api"),
-	plmApi = require("./d10.router.api.plm"),
-	listingApi = require("./d10.router.api.listing"),
-	songStuff = require("./d10.router.song"),
-	imagesStuff = require("./d10.router.images"),
-	invites = require("./d10.router.invites"),
-	download = require("./d10.router.audio.download"),
-	invitesRouter = require("./invites.router.js"),
-	lang = require("./lang")
+	httpHelper = require(__dirname+"/httpHelper"),
+	homepage = require(__dirname+"/d10.router.homepage"),
+	cookieSession = require(__dirname+"/cookieSessionMiddleware"),
+	api = require(__dirname+"/d10.router.api"),
+	plmApi = require(__dirname+"/d10.router.api.plm"),
+	listingApi = require(__dirname+"/d10.router.api.listing"),
+	songStuff = require(__dirname+"/d10.router.song"),
+	imagesStuff = require(__dirname+"/d10.router.images"),
+	invites = require(__dirname+"/d10.router.invites"),
+	download = require(__dirname+"/d10.router.audio.download"),
+	invitesRouter = require(__dirname+"/invites.router.js"),
+	lang = require(__dirname+"/lang")
 	;
+
+process.chdir(__dirname);
 
 console.log("Database binding: "+config.couch.d10.dsn+"/"+config.couch.d10.database);
 
