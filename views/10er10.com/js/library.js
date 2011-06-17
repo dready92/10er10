@@ -149,8 +149,9 @@ var library = function () {
 		} else {
 			// create the infiniteScroll
 			var list = categorydiv.find(".list");
-			if ( !list.data("infiniteScroll") {
+			if ( !list.data("infiniteScroll") ) {
 				createInfiniteScroll(list, topic, category);
+				
 			}
 		}
 
@@ -178,8 +179,9 @@ var library = function () {
 		} else if ( topic != "creations" && topic != "hits" ) {
 			return false;
 		}
-		list.infiniteScroll(url,data);
-		list.data("infiniteScroll").one
+		list.data("infiniteScroll",
+				  list.infiniteScroll(url,data)
+		);
 	};
 	
 

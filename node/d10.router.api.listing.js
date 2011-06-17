@@ -352,5 +352,37 @@ exports.api = function(app) {
 		});
 	});
 	
+	
+	
+	
+	
+	
+	
+	
+	app.get("/api/list/artists",function(request,response) {
+		var query = {include_docs: true, reduce: false, limit: d10.config.rpp + 1};
+		if ( request.query.artist && request.query.artist.length ) {
+			query.startkey = [request.query.artist];
+			query.endkey = [request.query.artist,[]];
+		}
+		
+		if ( request.query.startkey_docid && request.query["startkey"] ) {
+			query.startkey = JSON.parse(request.query["startkey"]);
+			query.startkey_docid = request.query.startkey_docid;
+		}
+		
+		d10.couch.d10.view("artist/name",query,function(err,resp) {
+			if( err ) {
+				return d10.rest.err(423, request.params.sort, request.ctx);
+			}
+			d10.rest.success(resp.rows,request.ctx);
+		});
+	});
+	
+	
+	
+	
+	
+	
 
 }; // exports.api

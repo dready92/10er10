@@ -22,6 +22,7 @@ exports.homepage = function(app) {
 			audio_root: d10.config.audio_root,
 			img_root: "audioImages",
 			img_size: d10.config.images.maxSize,
+			rpp: d10.config.rpp,
 			genres: genres,
 			langs: []
 		};
