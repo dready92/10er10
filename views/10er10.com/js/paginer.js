@@ -250,7 +250,7 @@ d10.fn.paginer = function (
 // widget.outerHeight: the visible window
 
 
-$.fn.infiniteScroll = function(url, queryData, options) {
+$.fn.infiniteScroll = function(url, queryData, list, options) {
 	queryData = queryData || {};
 	options = options || {};
 	var widget = this;
@@ -272,12 +272,14 @@ $.fn.infiniteScroll = function(url, queryData, options) {
 	var nextQueryData = {};
 	
 	var pxToBottom = function() {
-		return widget.attr("scrollHeight") - widget.attr("scrollTop") - widget.outerHeight() ;
+		return widget.prop("scrollHeight") - widget.prop("scrollTop") - widget.outerHeight() ;
 	};
 	
 	
 	var onScroll = function() {
-		if ( pxToBottom < settings.pxMin && !ajaxRunning ) {
+		debug("got scroll event");
+		debug("scrollHeight: ",widget.prop("scrollHeight"),"scrolltop", widget.prop("scrollTop"),"outerHeight", widget.outerHeight() );
+		if ( pxToBottom() < settings.pxMin && !ajaxRunning ) {
 			fetchResult();
 		}
 	};
@@ -294,21 +296,25 @@ $.fn.infiniteScroll = function(url, queryData, options) {
 			dataType: "json",
 			success: function(response) {
 				if ( response.data.length <  (d10.config.rpp + 1) ) {
+					debug("unbinding scroll event");
 					widget.unbind("scroll",onScroll);
 				} else {
+					var last = response.data.pop();
 					nextQueryData = {
-						startkey: JSON.stringify(response.data[d10.config.rpp].key),
-						startkey_docid: response.data[d10.config.rpp].id
+						startkey: JSON.stringify(last.key),
+						startkey_docid: last.id
 					};
-					response.data.pop();
+					debug("next query: ",nextQueryData);
+					
 				}
 				var html="";
 				response.data.forEach(function(v) {
 					html+=d10.song_template(v.doc);
 				});
-				widget.append(html);
+				list.append(html);
 				if ( first ) {
 					settings.onFirstContent.call(widget);
+					debug("binding scroll event");
 					widget.bind("scroll",onScroll);
 				}
 				settings.onContent.call(widget);

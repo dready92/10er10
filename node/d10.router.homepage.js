@@ -40,23 +40,18 @@ exports.homepage = function(app) {
 			{
 				resultsContainer: function(cb) {
 					lang.parseServerTemplate(request,"html/results/container.html",cb);
-// 						d10.view("html/results/container",{},function(data) {cb(null,data);} );
 				},
 				libraryContainer: function(cb) {
 					lang.parseServerTemplate(request,"html/library/container.html",cb);
-// 						d10.view("html/library/container",{},function(data) {cb(null,data);} );
 				},
 				myContainer: function(cb) {
 					lang.parseServerTemplate(request,"html/my/container.html",cb);
-// 						d10.view("html/my/container",{},function(data) {cb(null,data);} );
 				},
 				uploadContainer: function(cb) {
 					lang.parseServerTemplate(request,"html/upload/container.html",cb);
-// 						d10.view("html/upload/container",{},function(data) {cb(null,data);} );
 				},
 				welcomeContainer: function(cb) {
 					lang.parseServerTemplate(request,"html/welcome/container.html",cb);
-// 						d10.view("html/welcome/container",{},function(data) {cb(null,data);} );
 				},
 				langs: function(cb) {
 					lang.getSupportedLangs(cb);

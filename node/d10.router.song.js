@@ -276,7 +276,11 @@ exports.api = function(app) {
 				},
 				fileType: {
 					status: null,
-					run: function(then) { 
+					run: function(then) {
+						if ( request.query.filename.match(/mp3$/i) ) {
+							job.fileType = "audio/mpeg";
+							return then(null,"audio/mpeg");
+						}
 						d10.fileType(d10.config.audio.tmpdir+"/"+this.fileName, function(err,type) {
 								if ( !err ) {
 									job.fileType = type;
@@ -549,9 +553,9 @@ exports.api = function(app) {
 		
 		var printEncodingFailure = function() {
 			d10.log("--------- Encoding failure ----------");
-			job.tasks.forEach(function(t,name) {
-				d10.log(name, t.err ? t.err : "");
-			});
+			for ( var i in job.tasks ) {
+				d10.log(i, job.tasks[i].err ? job.tasks[i].err : "");
+			}
 			d10.log("-------------------------------------");
 
 		};

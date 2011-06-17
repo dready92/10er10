@@ -138,7 +138,7 @@ var library = function () {
 		//
 		var categorydiv=$('div[name="'+id+'"]',topicdiv);
 		if ( !categorydiv.length ) {
-			categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+"<div class=\"list\"></div></div>");
+			categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.simple")+"</div>");
 			topicdiv.append(categorydiv);
 		}
 		
@@ -148,9 +148,9 @@ var library = function () {
 			allArtists(categorydiv);
 		} else {
 			// create the infiniteScroll
-			var list = categorydiv.find(".list");
-			if ( !list.data("infiniteScroll") ) {
-				createInfiniteScroll(list, topic, category);
+			var section = categorydiv.find("section");
+			if ( !section.data("infiniteScroll") ) {
+				createInfiniteScroll(categorydiv, topic, category);
 				
 			}
 		}
@@ -165,7 +165,8 @@ var library = function () {
 		}
 	}
 	
-	var createInfiniteScroll = function(list, topic, category) {
+	var createInfiniteScroll = function(categorydiv, topic, category) {
+		var section = categorydiv.find("section");
 		var url = "/api/list/"+topic;
 		var data = {};
 		if ( topic == "genres" ) {
@@ -179,8 +180,17 @@ var library = function () {
 		} else if ( topic != "creations" && topic != "hits" ) {
 			return false;
 		}
-		list.data("infiniteScroll",
-				  list.infiniteScroll(url,data)
+		section.data("infiniteScroll",
+				  section.infiniteScroll(
+					  url,
+					  data,
+					  section.find(".list"),
+					  {
+						  onFirstContent: function() {
+							  categorydiv.find(".pleaseWait").remove();
+						  }
+					  }
+				  )
 		);
 	};
 	
