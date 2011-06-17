@@ -313,7 +313,7 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 				});
 				list.append(html);
 				if ( first ) {
-					settings.onFirstContent.call(widget);
+					settings.onFirstContent.call(widget, response.data.length);
 					debug("binding scroll event");
 					widget.bind("scroll",onScroll);
 				}

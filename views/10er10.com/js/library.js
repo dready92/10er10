@@ -180,14 +180,34 @@ var library = function () {
 		} else if ( topic != "creations" && topic != "hits" ) {
 			return false;
 		}
+		var loadTimeout = null, innerLoading = categorydiv.find(".innerLoading");
 		section.data("infiniteScroll",
 				  section.infiniteScroll(
 					  url,
 					  data,
 					  section.find(".list"),
 					  {
-						  onFirstContent: function() {
+						  onFirstContent: function(length) {
 							  categorydiv.find(".pleaseWait").remove();
+							  categorydiv.find(".songlist").removeClass("hidden");
+							  if ( !length ) {
+								  categorydiv.find("article").hide();
+								  categorydiv.find(".noResult").removeClass("hidden");
+							  }
+						  },
+						  onQuery: function() {
+							  loadTimeout = setTimeout(function() {
+								  loadTimeout = null;
+								  debug("Loading...");
+								  innerLoading.css("top", section.height() - 32).removeClass("hidden");
+							  },500);
+						  },
+						  onContent: function() {
+							  if ( loadTimeout ) {
+								  clearTimeout(loadTimeout);
+							  } else {
+								  innerLoading.addClass("hidden");
+							  }
 						  }
 					  }
 				  )

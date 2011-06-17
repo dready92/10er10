@@ -361,21 +361,24 @@ exports.api = function(app) {
 	
 	app.get("/api/list/artists",function(request,response) {
 		var query = {include_docs: true, reduce: false, limit: d10.config.rpp + 1};
+		var view = "basename";
 		if ( request.query.artist && request.query.artist.length ) {
 			query.startkey = [request.query.artist];
 			query.endkey = [request.query.artist,[]];
+			view = "name";
 		}
-		
 		if ( request.query.startkey_docid && request.query["startkey"] ) {
 			query.startkey = JSON.parse(request.query["startkey"]);
 			query.startkey_docid = request.query.startkey_docid;
 		}
 		
-		d10.couch.d10.view("artist/name",query,function(err,resp) {
+		d10.couch.d10.view("artist/"+view,query,function(err,resp) {
 			if( err ) {
 				return d10.rest.err(423, request.params.sort, request.ctx);
 			}
-			d10.rest.success(resp.rows,request.ctx);
+// 			setTimeout(function() {
+				d10.rest.success(resp.rows,request.ctx);
+// 			},2000);
 		});
 	});
 	
