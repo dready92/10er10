@@ -28,14 +28,8 @@ var library = function () {
 			ui.append(topicdiv);
 		}
 		
-		if ( topic == "genres" ) {
-			if ( !category ) {
-// 				return displayGenre(topicdiv,category);
-// 			} else {
-// 				return displayGenres(topicdiv);
-				category = "<all>";
-			}
-		}
+		if ( topic == "genres" && !category ) { category = "<all>"; }
+
 		//
 		//if category is specified select it
 		//
@@ -48,102 +42,7 @@ var library = function () {
 		//
 		// launch the topic category display
 		//
-		that.init_topic_category(topic,topicdiv,category);
-	} 
 
-/*
-	var displayGenre = function(topicdiv, genre ) {
-		var eGenre = escape(genre);
-		var catdiv = topicdiv.find("div.content > div[name=\""+eGenre+"\"]");
-		if ( catdiv.length == 0 ) {
-			catdiv = $("<div name=\""+eGenre+"\"></div>");
-			catdiv.append( d10.mustacheView("loading") );
-			$("div.content",topicdiv).append(catdiv);
-		}
-		topicdiv.find("div.pleaseWait").hide();
-		topicdiv.find("div.content>div").hide();
-		catdiv.show();
-// 		topicdiv.find("div.pleaseWait").show();
-		var pager = catdiv.data('pager');
-		if ( ! pager ) {
-			pager = that.pager_init ("genres",catdiv,topicdiv,null,genre);
-			catdiv.data('pager',pager);
-			pager.display_page(1);
-		} else {
-			checkPagerFreshness(catdiv);
-		}
-// 		pager.display_page(1);
-	};
-*/
-	var displayGenres = function(categorydiv) {
-// 		topicdiv.find("div.content").hide();
-// 		topicdiv.find("div.pleaseWait").show();
-		
-		var cacheNotExpired = d10.localcache.getJSON("genres.index");
-		if ( cacheNotExpired ) { 
-// 			debug("genres expiration timeout not reached");
-// 			topicdiv.find("div.content > div").hide();
-// 			topicdiv.find("div.content").show().find("div.index").show();
-// 			topicdiv.find("div.pleaseWait").hide();
-// 			return ; 
-		}
-		
-		d10.bghttp.get({
-			url: site_url+"/api/genresResume",
-			dataType: "json",
-			success: function(response) {
-				d10.localcache.setJSON("genres.index", {"f":"b"},true);
-// 				debug(response.data);
-				var content = "";
-				$.each(response.data,function(k,v) { //{"key":["Dub"],"value":{"count":50,"artists":["Velvet Shadows","Tommy McCook & The Aggrovators","Thomsons All Stars"]}}
-					var artists = "";
-					$.each(v.value.artists,function(foo,artist) {
-						artists+=d10.mustacheView("library.listing.genre.line", {"artist": artist})
-					});
-					content+=d10.mustacheView("library.listing.genre", {"genre": v.key[0],"count": v.value.count},  {"artists": artists});
-				});
-// 				debug(content);
-				categorydiv.find("div.genresLanding").html(content);
-// 				topicdiv.find("div.content > div").hide();
-// 				topicdiv.find("div.content").show().find("div.index").show();
-				categorydiv.find("div.pleaseWait").hide();
-				categorydiv.find("div.genresLanding").show();
-				categorydiv.find("div.genresLanding").delegate("span.artistName","click",function() {
-					location.hash = "#/library/artists/"+encodeURIComponent($(this).text());
-				});
-				categorydiv.find("div.genresLanding").delegate("div.genre > span","click",function() {
-					location.hash = "#/library/genres/"+encodeURIComponent($(this).text());
-				});
-				categorydiv.find("div.genresLanding").delegate("span.all","click",function() {
-					var genre = $(this).closest("div.genre").children("span").text();
-					location.hash = "#/library/genres/"+encodeURIComponent(genre);
-				});
-			}
-		});
-	};
-
-	var bindControls = function(categorydiv, topic, category) {
-		categorydiv.find(".pushAll button").click(function() {
-			d10.playlist.append(categorydiv.find(".song").clone().removeClass("selected"));
-		});
-		categorydiv.find(".refresh button").click(function() {
-			categorydiv.find(".song").remove();
-			var is = categorydiv.find("section").data("infiniteScroll");
-			if ( is && "remove" in is ) {
-				is.remove();
-			}
-			createInfiniteScroll(categorydiv, topic, category);
-		});
-	};
-	
-	/**
-	* topic category : some topics have only one category (ex ts_creation)
-	* some topics have many categories ( ex genres )
-	*
-	*
-	*/
-	this.init_topic_category = function (topic,topicdiv,category) {
-// 		debug("entering init_topic_category "+topic+' '+category);
 		//
 		// get id
 		//
@@ -189,7 +88,58 @@ var library = function () {
 			categorydiv.show();
 			topicdiv.data('activeCategory',id);
 		}
-	}
+
+	} 
+
+	var displayGenres = function(categorydiv) {
+		var cacheNotExpired = d10.localcache.getJSON("genres.index");
+		if ( cacheNotExpired ) { 
+		}
+		
+		d10.bghttp.get({
+			url: site_url+"/api/genresResume",
+			dataType: "json",
+			success: function(response) {
+				d10.localcache.setJSON("genres.index", {"f":"b"},true);
+				var content = "";
+				$.each(response.data,function(k,v) { //{"key":["Dub"],"value":{"count":50,"artists":["Velvet Shadows","Tommy McCook & The Aggrovators","Thomsons All Stars"]}}
+					var artists = "";
+					$.each(v.value.artists,function(foo,artist) {
+						artists+=d10.mustacheView("library.listing.genre.line", {"artist": artist})
+					});
+					content+=d10.mustacheView("library.listing.genre", {"genre": v.key[0],"count": v.value.count},  {"artists": artists});
+				});
+				categorydiv.find("div.genresLanding").html(content);
+				categorydiv.find("div.pleaseWait").hide();
+				categorydiv.find("div.genresLanding")
+				.show()
+				.delegate("span.artistName","click",function() {
+					location.hash = "#/library/artists/"+encodeURIComponent($(this).text());
+				});
+				.delegate("div.genre > span","click",function() {
+					location.hash = "#/library/genres/"+encodeURIComponent($(this).text());
+				});
+				.delegate("span.all","click",function() {
+					var genre = $(this).closest("div.genre").children("span").text();
+					location.hash = "#/library/genres/"+encodeURIComponent(genre);
+				});
+			}
+		});
+	};
+
+	var bindControls = function(categorydiv, topic, category) {
+		categorydiv.find(".pushAll button").click(function() {
+			d10.playlist.append(categorydiv.find(".song").clone().removeClass("selected"));
+		});
+		categorydiv.find(".refresh button").click(function() {
+			categorydiv.find(".song").remove();
+			var is = categorydiv.find("section").data("infiniteScroll");
+			if ( is && "remove" in is ) {
+				is.remove();
+			}
+			createInfiniteScroll(categorydiv, topic, category);
+		});
+	};
 	
 	var createInfiniteScroll = function(categorydiv, topic, category) {
 		var section = categorydiv.find("section");
@@ -262,15 +212,15 @@ var library = function () {
 		var letter = '';
 		var letter_container = null;
 		for ( var index in data.rows ) {
-		var artist = data.rows[index].key.pop();
-		var songs = data.rows[index].value;
-		var current_letter = artist.substring(0,1);
-		if ( current_letter != letter ) {
-			if ( letter_container ) container.append(letter_container);
-			letter = current_letter;
-			letter_container = $( d10.mustacheView("library.listing.artist", {"letter": letter}) );
-		}
-		$(">div",letter_container).append( d10.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs}) );
+			var artist = data.rows[index].key.pop();
+			var songs = data.rows[index].value;
+			var current_letter = artist.substring(0,1);
+			if ( current_letter != letter ) {
+				if ( letter_container ) container.append(letter_container);
+				letter = current_letter;
+				letter_container = $( d10.mustacheView("library.listing.artist", {"letter": letter}) );
+			}
+			$(">div",letter_container).append( d10.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs}) );
 		}
 		if ( letter_container ) { container.append( letter_container ); }
 
@@ -280,10 +230,7 @@ var library = function () {
 	};
 
 	this.init_controls = function (topic,catdiv) {
-// 		if ( topic == 'genres' ) {
-// 			catdiv.append( d10.mustacheView('library.control.genre') );
-		if ( topic == 'artists' ) {
-      
+		if ( topic == 'artists' ) {      
 			catdiv.append( d10.mustacheView('library.control.artist') );
 			var widget = $("input[name=artist]",catdiv);
 			$("span[name=all]",catdiv).click(function(){ widget.val('').trigger('blur'); window.location.hash = "#/library/artists/"+encodeURIComponent("<all>"); });
@@ -300,8 +247,6 @@ var library = function () {
 					this.getOverlay().width(widget.width());
 				},
 			});
-		
-		
 		} else if ( topic == 'albums' ) {
 			catdiv.append( d10.mustacheView('library.control.album') );
 			var widget = $('input[name=album]',catdiv);
@@ -338,79 +283,18 @@ var library = function () {
 		}
 		return catdiv;
 	}
-/*
-	this.pager_init = function (topic,mydiv,catdiv,id,category) {
-		var p_url = null;
-		var p_data = null;
-		var p_songs_url = null;
-		var p_html_template = d10.mustacheView('library.content.simple');
-		var p_html_none = d10.mustacheView('library.content.none');
 
-		var callback = function () { }
-
-		if ( topic == 'creations'  ) {
-			p_url = site_url+'/api/pagination/ts_creation';
-			p_songs_url = site_url+'/api/ts_creation';
-			p_data = null;
-		} else if ( topic == 'hits' ) {
-			p_url = site_url+'/api/pagination/hits';
-			p_songs_url = site_url+'/api/hits';
-			p_data = null;
-		} else if ( topic == 'genres' ) {
-			p_url = site_url+'/api/pagination/genre';
-			p_songs_url = site_url+'/api/genres/'+topic;
-			p_data = { 'genre':  category };
-			p_html_template = d10.mustacheView('library.content.genre');
-			callback = function() {
-				this.find("h2 span").eq(0).text( category );
-				this.find("h2 span.link").click(function() {
-					location.hash="#/library/genres";
-				});
-			};
-		} else if ( topic == 'artists' ) {
-			p_url = site_url+'/api/pagination/artist';
-			p_songs_url = site_url+'/api/artists/'+topic;
-			category = category || '';
-			p_data = { 'artist':  category };
-		} else if ( topic == 'albums' ) {
-			p_url = site_url+'/api/pagination/album';
-			p_songs_url = site_url+'/api/albums/'+topic;
-			category = category || '';
-			p_data = { 'album':  category };
-		} else if ( topic == 'titles' ) {
-			p_url = site_url+'/api/pagination/title';
-			p_songs_url = site_url+'/api/titles/'+topic;
-			category = category || '';
-			p_data = { 'title':  category };
-		} else {
-			return false;
-		}
-//     debug("pager init ",topic, p_data);
-		return new d10.fn.paginer (
-			p_url,
-			p_data,
-			p_songs_url,
-			p_html_template,
-			p_html_none,
-			mydiv,
-			callback
-		);
-	}
-*/
 	this.get_id = function (topic,catdiv,category) {
 		var id=topic;
 		category = category || '';
 		if ( topic == 'genres' || topic == 'artists' || topic == 'albums' || topic == 'titles' ) {
-// 			var reg = new RegExp('\\W',"g");
 			id='_'+ escape(category) ;
 		}
 		return id;
 	}
 
 	this.selectTopicCategory = function (topic,category,topicdiv) {
-		if ( topic == 'genres') {
-			$('select option[value='+category+']',topicdiv).attr('selected','selected');
-		} else if ( topic == 'artists' && category != '<all>' ) {
+		if ( topic == 'artists' && category != '<all>' ) {
 			$('input[name=artist]',topicdiv).val(category);
 		} else if ( topic == 'albums' ) {
 			$('input[name=album]',topicdiv).val(category);
@@ -421,9 +305,7 @@ var library = function () {
 	}
 
 	var getSelectedTopicCategory = function (topic, topicdiv ) {
-		if ( topic == 'genres') {
-			return $('select',topicdiv).val();
-		} else if ( topic == 'artists' ) {
+		if ( topic == 'artists' ) {
 			var widget = $('input[name=artist]',topicdiv);
 			if ( widget.val() == widget.attr("defaultvalue") ) { return ""; }
 			return widget.val();
@@ -439,6 +321,7 @@ var library = function () {
 		return null;
 	}
 
+/*
 	var checkPagerFreshness = function(node) {
 		var pager = node.data("pager");
 		if ( !pager )	return ;
@@ -452,7 +335,7 @@ var library = function () {
 			refresh.appendTo(node.find("article")).fadeIn("slow");
 		});
 	};
-
+*/
 
 	var mm = this.router = new d10.fn.menuManager ({
 		'menu': $('>nav',ui),
@@ -465,21 +348,17 @@ var library = function () {
 	});
 
 	mm.bind("subroute", function (e,data) {
-// 		debug("library subroute : ",data);	
 		var cat = data.segments.length ? data.segments[0] : "";
 		that.init_topic(data.label,cat);
 	});
 
 	$(document).bind("route.library",function(e,data) {
-	//     debug("librry document binding",data.segments);
-// 		debug("library route : ",data);	
 		var routes = ["artists", "albums", "genres", "titles","creations", "hits"];
 		if ( !data.segments.length ||  routes.indexOf(data.segments[0]) < 0 ) { 
 			if ( !mm.current_label() ) {
 				mm.route( ["creations"], data.env );
 			} else {
 				setTimeout(function() {
-// 					debug("visible : ",$("#library div.topic_category:visible"));
 					checkPagerFreshness($("#library div.topic_category:visible"));
 				},2000);
 			}
