@@ -360,12 +360,13 @@ exports.api = function(app) {
 	
 	
 	app.get("/api/list/artists",function(request,response) {
-		var query = {include_docs: true, reduce: false, limit: d10.config.rpp + 1};
+		var query = {include_docs: true, limit: d10.config.rpp + 1};
 		var view = "basename";
 		if ( request.query.artist && request.query.artist.length ) {
 			query.startkey = [request.query.artist];
 			query.endkey = [request.query.artist,[]];
 			view = "name";
+			query.reduce = false;
 		}
 		if ( request.query.startkey_docid && request.query["startkey"] ) {
 			query.startkey = JSON.parse(request.query["startkey"]);
