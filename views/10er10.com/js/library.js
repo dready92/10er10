@@ -29,10 +29,11 @@ var library = function () {
 		}
 		
 		if ( topic == "genres" ) {
-			if ( category ) {
-				return displayGenre(topicdiv,category);
-			} else {
-				return displayGenres(topicdiv);
+			if ( !category ) {
+// 				return displayGenre(topicdiv,category);
+// 			} else {
+// 				return displayGenres(topicdiv);
+				category = "<all>";
 			}
 		}
 		//
@@ -50,7 +51,7 @@ var library = function () {
 		that.init_topic_category(topic,topicdiv,category);
 	} 
 
-
+/*
 	var displayGenre = function(topicdiv, genre ) {
 		var eGenre = escape(genre);
 		var catdiv = topicdiv.find("div.content > div[name=\""+eGenre+"\"]");
@@ -73,18 +74,18 @@ var library = function () {
 		}
 // 		pager.display_page(1);
 	};
-
-	var displayGenres = function(topicdiv) {
-		topicdiv.find("div.content").hide();
-		topicdiv.find("div.pleaseWait").show();
+*/
+	var displayGenres = function(categorydiv) {
+// 		topicdiv.find("div.content").hide();
+// 		topicdiv.find("div.pleaseWait").show();
 		
 		var cacheNotExpired = d10.localcache.getJSON("genres.index");
 		if ( cacheNotExpired ) { 
 // 			debug("genres expiration timeout not reached");
-			topicdiv.find("div.content > div").hide();
-			topicdiv.find("div.content").show().find("div.index").show();
-			topicdiv.find("div.pleaseWait").hide();
-			return ; 
+// 			topicdiv.find("div.content > div").hide();
+// 			topicdiv.find("div.content").show().find("div.index").show();
+// 			topicdiv.find("div.pleaseWait").hide();
+// 			return ; 
 		}
 		
 		d10.bghttp.get({
@@ -102,18 +103,18 @@ var library = function () {
 					content+=d10.mustacheView("library.listing.genre", {"genre": v.key[0],"count": v.value.count},  {"artists": artists});
 				});
 // 				debug(content);
-				$("div.index",topicdiv).html(content);
-				topicdiv.find("div.content > div").hide();
-				topicdiv.find("div.content").show().find("div.index").show();
-				topicdiv.find("div.pleaseWait").hide();
-
-				topicdiv.delegate("span.artistName","click",function() {
+				categorydiv.find("div.genresLanding").html(content);
+// 				topicdiv.find("div.content > div").hide();
+// 				topicdiv.find("div.content").show().find("div.index").show();
+				categorydiv.find("div.pleaseWait").hide();
+				categorydiv.find("div.genresLanding").show();
+				categorydiv.find("div.genresLanding").delegate("span.artistName","click",function() {
 					location.hash = "#/library/artists/"+encodeURIComponent($(this).text());
 				});
-				topicdiv.delegate("div.genre > span","click",function() {
+				categorydiv.find("div.genresLanding").delegate("div.genre > span","click",function() {
 					location.hash = "#/library/genres/"+encodeURIComponent($(this).text());
 				});
-				topicdiv.delegate("span.all","click",function() {
+				categorydiv.find("div.genresLanding").delegate("span.all","click",function() {
 					var genre = $(this).closest("div.genre").children("span").text();
 					location.hash = "#/library/genres/"+encodeURIComponent(genre);
 				});
@@ -121,6 +122,20 @@ var library = function () {
 		});
 	};
 
+	var bindControls = function(categorydiv, topic, category) {
+		categorydiv.find(".pushAll button").click(function() {
+			d10.playlist.append(categorydiv.find(".song").clone().removeClass("selected"));
+		});
+		categorydiv.find(".refresh button").click(function() {
+			categorydiv.find(".song").remove();
+			var is = categorydiv.find("section").data("infiniteScroll");
+			if ( is && "remove" in is ) {
+				is.remove();
+			}
+			createInfiniteScroll(categorydiv, topic, category);
+		});
+	};
+	
 	/**
 	* topic category : some topics have only one category (ex ts_creation)
 	* some topics have many categories ( ex genres )
@@ -138,23 +153,34 @@ var library = function () {
 		//
 		var categorydiv=$('div[name="'+id+'"]',topicdiv);
 		if ( !categorydiv.length ) {
-			categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.simple")+"</div>");
-			topicdiv.append(categorydiv);
+			if ( topic == "genres" && category == "<all>" ) {
+				categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.control.genre")+"</div>");
+			} else if ( topic == "genres" ) {
+// 				var eGenre = escape(category);
+				categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.genre")+"</div>");
+				categorydiv.find("article h2 > span:first-child").text(category);
+				categorydiv.find("article h2 > .link").click(function() { window.location.hash = "#/library/genres"; });
+				bindControls(categorydiv);
+			} else {
+				categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.simple")+"</div>");
+				bindControls(categorydiv, topic, category);
+			}
+			topicdiv.append(categorydiv, topic, category);
 		}
 		
 		// special pages
 		if ( topic == "artists" && category == "<all>" ) {
 			debug("special category case");
 			allArtists(categorydiv);
+		} else if ( topic == "genres" && category == "<all>" ) {
+			displayGenres(categorydiv);
 		} else {
 			// create the infiniteScroll
 			var section = categorydiv.find("section");
 			if ( !section.data("infiniteScroll") ) {
 				createInfiniteScroll(categorydiv, topic, category);
-				
 			}
 		}
-
 		//
 		// show current topic category if not already visible
 		//
@@ -180,7 +206,8 @@ var library = function () {
 		} else if ( topic != "creations" && topic != "hits" ) {
 			return false;
 		}
-		var loadTimeout = null, innerLoading = categorydiv.find(".innerLoading");
+		var loadTimeout = null, 
+		innerLoading = categorydiv.find(".innerLoading");
 		section.data("infiniteScroll",
 				  section.infiniteScroll(
 					  url,
@@ -253,9 +280,9 @@ var library = function () {
 	};
 
 	this.init_controls = function (topic,catdiv) {
-		if ( topic == 'genres' ) {
-			catdiv.append( d10.mustacheView('library.control.genre') );
-		} else if ( topic == 'artists' ) {
+// 		if ( topic == 'genres' ) {
+// 			catdiv.append( d10.mustacheView('library.control.genre') );
+		if ( topic == 'artists' ) {
       
 			catdiv.append( d10.mustacheView('library.control.artist') );
 			var widget = $("input[name=artist]",catdiv);
@@ -311,7 +338,7 @@ var library = function () {
 		}
 		return catdiv;
 	}
-
+/*
 	this.pager_init = function (topic,mydiv,catdiv,id,category) {
 		var p_url = null;
 		var p_data = null;
@@ -369,7 +396,7 @@ var library = function () {
 			callback
 		);
 	}
-
+*/
 	this.get_id = function (topic,catdiv,category) {
 		var id=topic;
 		category = category || '';

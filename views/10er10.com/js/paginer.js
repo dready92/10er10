@@ -295,6 +295,9 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 			data: $.extend(nextQueryData, queryData),
 			dataType: "json",
 			success: function(response) {
+				if ( !widget ) {
+					return ;
+				}
 				if ( response.data.length <  (d10.config.rpp + 1) ) {
 					debug("unbinding scroll event");
 					widget.unbind("scroll",onScroll);
@@ -333,6 +336,10 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 			if ( name in settings ) {
 				return settings[name];
 			}
+		},
+		remove: function() {
+			widget.unbind("scroll",onScroll);
+			widget = null;
 		}
 	};
 	

@@ -76,7 +76,7 @@ exports.api = function(app) {
 		});
 	});
 
-
+/*
 	app.get("/api/ts_creation",function(request,response) {
 		console.log(request.query);
 		var query = {include_docs: true, reduce: false, descending: true, limit: d10.config.rpp};
@@ -178,7 +178,7 @@ exports.api = function(app) {
 			d10.rest.success(resp,request.ctx);
 		});
 	});
-	
+	*/
 	app.get("/api/songs/s_user",function(request,response) {
 		var query = {include_docs: true, endkey: [request.ctx.user._id,[]], limit: d10.config.rpp};
 		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
@@ -382,10 +382,119 @@ exports.api = function(app) {
 		});
 	});
 	
+	app.get("/api/list/creations",function(request,response) {
+// 		console.log(request.query);
+		var query = {include_docs: true, reduce: false, descending: true, limit: d10.config.rpp+1};
+		if ( request.query.startkey_docid && request.query["startkey"] ) {
+// 			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
+			query.startkey = JSON.parse(request.query["startkey"]);
+			query.startkey_docid = request.query.startkey_docid;
+		}
+// 		console.log(query);
+		d10.couch.d10.view("ts_creation/name",query,function(err,resp,meta) {
+			d10.log(err,resp,meta);
+			if ( err ) {
+				return d10.rest.err(423, request.params.sort, request.ctx);
+			}
+			d10.rest.success(resp.rows,request.ctx);
+		});
+	});
 	
+	app.get("/api/list/hits",function(request,response) {
+		var query = {reduce: false, descending: true, limit: d10.config.rpp+1};
+// 		d10.log("/api/hits query: ",request.query);
+		if ( request.query.startkey_docid && request.query["startkey"] ) {
+// 			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
+			query.startkey = JSON.parse(request.query["startkey"]);
+			query.startkey_docid = request.query.startkey_docid
+		}
+// 		d10.log("/api/hits query: ",query);
+		d10.couch.d10wi.view("hits/name",query,function(err,resp) {
+			if ( err ) {
+				return d10.rest.err(423, request.params.sort, request.ctx);
+			}
+			var keys=[];
+// 			d10.log("first response: ",resp.rows);
+			for ( var i in resp.rows ) { keys.push(resp.rows[i].id);	}
+// 			d10.log("keys length: ",keys.length);
+			d10.couch.d10.getAllDocs( {keys: keys, include_docs: true}, function(err,resp2 ) {
+				if ( err ) {
+					return d10.rest.err(423, request.params.sort, request.ctx);
+				}
+// 				d10.log("second response: ",resp2.rows);
+				var back = [];
+				resp.rows.forEach(function(v,i) {
+					back.push ({
+						id: v.id,
+						key: v.key,
+						doc: resp2.rows[i].doc
+					});
+				});
+// 				d10.log("returning "+resp.rows.length+" rows");
+				d10.rest.success(back,request.ctx);
+			});
+		});
+	});
 	
+	app.get("/api/list/genres",function(request,response) {
+		if ( !request.query.genre || d10.config.genres.indexOf(request.query.genre) < 0 ) {
+			return d10.rest.err(428, request.query.genre, request.ctx);
+		}
+		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1 ,endkey: [request.query.genre, {} ]};
+		if ( request.query.startkey_docid && request.query["startkey"] ) {
+			query.startkey = JSON.parse(request.query["startkey"]);
+			query.startkey_docid = request.query.startkey_docid ;
+		} else {
+			query.startkey =  [request.query.genre];
+		}
+		d10.couch.d10.view("genre/name",query,function(err,resp) {
+			if ( err ) {
+				return d10.rest.err(423, err, request.ctx);
+			}
+			d10.rest.success(resp.rows,request.ctx);
+		});
+	});
 	
-	
-	
+	app.get("/api/list/titles",function(request,response) {
+		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1};
+		if ( request.query.title && request.query.title.length ) {
+			query.startkey = [request.query.title];
+			query.endkey = [request.query.title,[]];
+		}
+		
+		if ( request.query.startkey_docid && request.query["startkey"] ) {
+			query.startkey = JSON.parse(request.query["startkey"]);
+			query.startkey_docid = request.query.startkey_docid;
+		}
+		
+		d10.couch.d10.view("title/name",query,function(err,resp) {
+			if ( err ) {
+				return d10.rest.err(423, request.params.sort, request.ctx);
+			}
+			d10.rest.success(resp.rows,request.ctx);
+		});
+	});
 
+	app.get("/api/list/albums",function(request,response) {
+		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1};
+		if ( request.query.album && request.query.album.length ) {
+			query.startkey = [request.query.album];
+			query.endkey = [request.query.album,[]];
+		}
+		
+		if ( request.query.startkey_docid && request.query["startkey"] ) {
+// 			request.query["startkey[]"][1] = parseInt(request.query["startkey[]"][1]);
+			query.startkey = JSON.parse(request.query["startkey"]);
+			query.startkey_docid = request.query.startkey_docid;
+		}
+		
+		d10.couch.d10.view("album/name",query,function(err,resp) {
+			if ( err ) {
+				return d10.rest.err(423, err, request.ctx);
+			}
+			d10.rest.success(resp.rows, request.ctx);
+		});
+	});
+	
+	
 }; // exports.api
