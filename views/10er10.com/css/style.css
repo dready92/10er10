@@ -450,10 +450,11 @@ article.songlist div.controls {
 	margin-top: 20px;
 /* 	margin-bottom: 20px; */
 	min-height: 29px;
+	text-align: right;
 }
 
-article.songlist div.controls div.pushAll{
-	position: absolute;	right: 20px;
+article.songlist div.controls button{
+	margin: 0 10px;
 }
 
 #main {
@@ -686,6 +687,14 @@ article div.refreshList {
 
 #library div[name=artists] div[name='_%3Call%3E'] > div > div {
   padding-left: 10px;
+}
+
+#library .genresLanding {
+	margin: 10px;
+}
+
+#library .topic_category {
+	padding: 10px 5px;
 }
 
 #library div[name=genres] div.genre {

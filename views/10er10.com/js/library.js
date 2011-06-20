@@ -59,12 +59,12 @@ var library = function () {
 				categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.genre")+"</div>");
 				categorydiv.find("article h2 > span:first-child").text(category);
 				categorydiv.find("article h2 > .link").click(function() { window.location.hash = "#/library/genres"; });
-				bindControls(categorydiv);
+				bindControls(categorydiv, topic, category);
 			} else {
 				categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.simple")+"</div>");
 				bindControls(categorydiv, topic, category);
 			}
-			topicdiv.append(categorydiv, topic, category);
+			topicdiv.append(categorydiv);
 		}
 		
 		// special pages
@@ -115,10 +115,10 @@ var library = function () {
 				.show()
 				.delegate("span.artistName","click",function() {
 					location.hash = "#/library/artists/"+encodeURIComponent($(this).text());
-				});
+				})
 				.delegate("div.genre > span","click",function() {
 					location.hash = "#/library/genres/"+encodeURIComponent($(this).text());
-				});
+				})
 				.delegate("span.all","click",function() {
 					var genre = $(this).closest("div.genre").children("span").text();
 					location.hash = "#/library/genres/"+encodeURIComponent(genre);
@@ -128,10 +128,10 @@ var library = function () {
 	};
 
 	var bindControls = function(categorydiv, topic, category) {
-		categorydiv.find(".pushAll button").click(function() {
+		categorydiv.find(".pushAll").click(function() {
 			d10.playlist.append(categorydiv.find(".song").clone().removeClass("selected"));
 		});
-		categorydiv.find(".refresh button").click(function() {
+		categorydiv.find(".refresh").click(function() {
 			categorydiv.find(".song").remove();
 			var is = categorydiv.find("section").data("infiniteScroll");
 			if ( is && "remove" in is ) {
@@ -358,9 +358,9 @@ var library = function () {
 			if ( !mm.current_label() ) {
 				mm.route( ["creations"], data.env );
 			} else {
-				setTimeout(function() {
-					checkPagerFreshness($("#library div.topic_category:visible"));
-				},2000);
+// 				setTimeout(function() {
+// 					checkPagerFreshness($("#library div.topic_category:visible"));
+// 				},2000);
 			}
 			return ;
 		}

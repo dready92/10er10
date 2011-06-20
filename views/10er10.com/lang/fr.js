@@ -135,11 +135,18 @@ exports.server = {
 		remove: "Enlever cette image"
 	},
 	"html/library/content_simple.html": {
-		add_to_playlist: "Tout ajouter à la lecture en cours"
+		add_to_playlist: "Tout ajouter à la lecture en cours",
+		refresh: "Rafraichir la liste",
+		no_song: "Aucun morceau trouvé",
+		loading: "Chargement en cours..."
 	},
 	"html/library/content_genre.html": {
 		back_to_list: "Revenir à la liste des genres",
-		add_to_playlist: "Tout ajouter à la lecture en cours"
+		add_to_playlist: "Tout ajouter à la lecture en cours",
+		refresh: "Rafraichir la liste",
+		no_song: "Aucun morceau trouvé",
+		loading: "Chargement en cours..."
+
 	},
 	"html/library/content_none.html": {
 		no_song: "Aucun morceau"
