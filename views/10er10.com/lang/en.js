@@ -135,11 +135,18 @@ exports.server = {
 		remove: "Remove this image"
 	},
 	"html/library/content_simple.html": {
-		add_to_playlist: "Add all songs to the player queue"
+		add_to_playlist: "Add all songs to the player queue",
+		refresh: "Refresh list",
+		no_song: "No song found",
+		loading: "Loading..."
+
 	},
 	"html/library/content_genre.html": {
 		back_to_list: "Back to genres listing",
-		add_to_playlist: "Add all songs to the player queue"
+		add_to_playlist: "Add all songs to the player queue",
+		refresh: "Refresh list",
+		no_song: "No song found",
+		loading: "Loading..."
 	},
 	"html/library/content_none.html": {
 		no_song: "No song"

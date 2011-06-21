@@ -48,6 +48,12 @@ a:active { color: #FFCA40 }
 .overmeup > span{ padding-top: 5px; border-top: 2px solid #BF9730; }
 .floatright { float: right;}
 .link {	cursor: pointer;	color: #BF9730; }
+.grippie {
+	background: url("grippie.gif") no-repeat scroll 50% 50%;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+
+}
 
 header, nav, article, footer, section, aside {	display: block;}
 
@@ -551,7 +557,7 @@ article.review .form_error {
 }
 
 /* library !!!*/
-#library section {	 max-height: 300px; overflow: auto;}
+#library section {	 height: 300px; overflow: auto;}
 #library article > .innerLoading {
 	position: absolute;
 	right: 30px;

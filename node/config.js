@@ -78,6 +78,7 @@ exports.javascript = {
 		"jquery.csstransform.js",
 		"jquery.ovlay.js",
 		"jquery.includes.js",
+		"jquery.resizer.js",
 		"mustache.js",
 		"dnd.js",
 		"utils.js",
