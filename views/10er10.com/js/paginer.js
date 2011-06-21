@@ -255,7 +255,7 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 	options = options || {};
 	var widget = this;
 	
-	settings = {
+	var settings = {
 		pxMin: 50,
 		onContent: function() {},
 		onEnd: function() {},
@@ -265,10 +265,7 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 	
 	$.extend(settings,options);
 	
-	var pxMin = 50;
 	var ajaxRunning = false;
-// 	var first = true;
-// 	var ended = false;
 	var nextQueryData = {};
 	
 	var pxToBottom = function() {
@@ -277,17 +274,13 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 	
 	
 	var onScroll = function() {
-		debug("got scroll event");
-		debug("scrollHeight: ",widget.prop("scrollHeight"),"scrolltop", widget.prop("scrollTop"),"outerHeight", widget.outerHeight() );
-		if ( pxToBottom() < settings.pxMin && !ajaxRunning ) {
-			fetchResult();
-		}
+// 		debug("got scroll event");
+// 		debug("scrollHeight: ",widget.prop("scrollHeight"),"scrolltop", widget.prop("scrollTop"),"outerHeight", widget.outerHeight() );
+		if ( pxToBottom() < settings.pxMin && !ajaxRunning ) { fetchResult(); }
 	};
 	
 	var fetchResult = function(first) {
-		if ( ajaxRunning ) {
-			return ;
-		}
+		if ( ajaxRunning ) { return ; }
 		ajaxRunning = true;
 		settings.onQuery.call(widget);
 		d10.bghttp.get({
@@ -295,30 +288,25 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 			data: $.extend(nextQueryData, queryData),
 			dataType: "json",
 			success: function(response) {
-				if ( !widget ) {
-					return ;
-				}
+				if ( !widget ) { return ; }
+				var last = null;
 				if ( response.data.length <  (d10.config.rpp + 1) ) {
-					debug("unbinding scroll event");
+// 					debug("unbinding scroll event");
 					widget.unbind("scroll",onScroll);
 				} else {
-					var last = response.data.pop();
+					last = response.data.pop();
 					nextQueryData = {
 						startkey: JSON.stringify(last.key),
 						startkey_docid: last.id
 					};
-					debug("next query: ",nextQueryData);
-					
+// 					debug("next query: ",nextQueryData);
 				}
 				var html="";
-				response.data.forEach(function(v) {
-					html+=d10.song_template(v.doc);
-				});
+				response.data.forEach(function(v) { html+=d10.song_template(v.doc); });
 				list.append(html);
 				if ( first ) {
+					if ( last ) { widget.bind("scroll",onScroll); }
 					settings.onFirstContent.call(widget, response.data.length);
-					debug("binding scroll event");
-					widget.bind("scroll",onScroll);
 				}
 				settings.onContent.call(widget);
 				ajaxRunning = false;
@@ -329,21 +317,10 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 	fetchResult(true);
 	
 	return {
-		setProperty: function(name,value) {
-			settings[name] = value;
-		},
-		getProperty: function(name) {
-			if ( name in settings ) {
-				return settings[name];
-			}
-		},
-		remove: function() {
-			widget.unbind("scroll",onScroll);
-			widget = null;
-		}
+		setProperty: function(name,value) { settings[name] = value; },
+		getProperty: function(name) { if ( name in settings ) { return settings[name]; } },
+		remove: function() { widget.unbind("scroll",onScroll); widget = null; }
 	};
-	
-	
 };
 
 

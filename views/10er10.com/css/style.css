@@ -49,10 +49,11 @@ a:active { color: #FFCA40 }
 .floatright { float: right;}
 .link {	cursor: pointer;	color: #BF9730; }
 .grippie {
-	background: url("grippie.gif") no-repeat scroll 50% 50%;
+	background: url("grippie.png") no-repeat scroll 50% 50% #3C3C3C;
 	-moz-user-select: none;
 	-webkit-user-select: none;
-
+	-moz-border-radius: 0 0 5px 5px;
+    border-radius: 0 0 5px 5px;
 }
 
 header, nav, article, footer, section, aside {	display: block;}
