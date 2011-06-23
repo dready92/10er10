@@ -19,6 +19,7 @@ To upgrade your PROD databases, run
 **What changed ?**
 
 - gzip encoding of the answer (requires npm module connect-gzip)
+- infinite scrolling for all listings
 
 Upgrade from 0.2 to 0.3
 =======================

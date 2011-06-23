@@ -558,8 +558,9 @@ article.review .form_error {
 }
 
 /* library !!!*/
-#library section {	 height: 300px; overflow: auto;}
-#library article > .innerLoading {
+#library { position: relative; }
+#library section, #my div[name=songs] section, #my div[name=likes] section {	 height: 300px; overflow: auto;}
+#library article > .innerLoading, #my article > .innerLoading {
 	position: absolute;
 	right: 30px;
 	height: 20px;
@@ -606,10 +607,6 @@ article.review .form_error {
 }
 
 #my .edit { display: table-cell; padding: 1px 0px 1px 5px; }
-
-#library {
-	position: relative;
-}
 
 #library .add, #my .add, #my span.review  { cursor: pointer; }
 
@@ -732,18 +729,6 @@ article div.refreshList {
 #library div[name=genres] div.genresub span.all { cursor: pointer; }
 #library div[name=genres] div.genresub span.all:hover { color: #AFAFAF; }
 
-article div.pagination ul { margin: 0px 0 0px 100px; }
-
-article div.pagination ul > li {
-	display: inline-block; margin: 0px 2px 0px 2px;
-	border: 1px solid #232323; padding: 2px 5px 2px 5px;
-	background: url(littletile.png) 0% 0% repeat-x;
-}
-
-article div.pagination ul > li.active {
-	cursor: pointer; color:#3CA0D0;
-}
-
 #my .plm-list-container {
 	float: left; width: 110px; background-color: #121212; padding: 0;
 }
@@ -836,6 +821,10 @@ article div.pagination ul > li.active {
   padding: 5px;
 }
 
+
+#my div[name=songs], #my div[name=likes] {
+	padding: 10px 5px;
+}
 
 #my div.uploadDropBox {
 /*   width: 200px; */
@@ -1587,14 +1576,10 @@ div.hoverbox hr {
 	height: 560px;
 }
 
-#welcome div.scrollContainer {
+#welcome div[name=introduction] div.items{
   width: 700px;
   min-height: 400px;
   margin: auto;
-  position: relative;
-}
-
-#welcome div[name=introduction] div.items{
   position:relative;
 }
 
@@ -1653,8 +1638,6 @@ div.hoverbox hr {
 	margin: 40px 50px;
 	background-repeat: no-repeat;
 	background-position: 130px 25px,left top;
-	
-/* 	background: -moz-linear-gradient(top, #71aac6 0%, #466777 100%); */
 	-moz-box-shadow: 0 0 1px 2px rgba(84,155,190,0.7);
 	-webkit-box-shadow: 0 0 1px 2px rgba(84,155,190,0.7);
 	vertical-align: middle;
@@ -1719,35 +1702,6 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 #welcome div[name=introduction] div.welcomeBox:nth-child(4) {
 	background-image:  url(edit-find-grey-128x128.png), -moz-linear-gradient(top, #71aac6 0%, #466777 100%);
 	background-image:  url(edit-find-grey-128x128.png), -webkit-gradient(linear, left top, left bottom, from(#71aac6), to(#466777));
-}
-
-#welcome div.imgLeft {
-	margin: 20px 0;
-}
-
-#welcome div.imgLeft > img {
-	float: left;
-	max-width: 250px;
-/* 	vertical-align: middle; */
-	clear: none;
-	margin-left: 10px;
-}
-
-#welcome div.imgLeft > div {
-	float: left;
-	display: inline-block;
-	max-width: 430px;
-	margin: 30px 0 0 30px;
-/*  	vertical-align: middle;  */
-
-}
-
-#welcome div.scrollable {
-  color: #CCC;
-}
-
-#welcome div.scrollable h2 {
-  color: #BF9730;
 }
 
 #results {

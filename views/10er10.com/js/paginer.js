@@ -260,7 +260,12 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 		onContent: function() {},
 		onEnd: function() {},
 		onFirstContent: function() {},
-		onQuery: function() {}
+		onQuery: function() {},
+		parseResults: function(rows) {
+			var html="";
+			rows.forEach(function(v) { html+=d10.song_template(v.doc); });
+			return html;
+		}
 	};
 	
 	$.extend(settings,options);
@@ -301,9 +306,11 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 					};
 // 					debug("next query: ",nextQueryData);
 				}
-				var html="";
-				response.data.forEach(function(v) { html+=d10.song_template(v.doc); });
-				list.append(html);
+				var html=settings.parseResults(response.data);
+// 				response.data.forEach(function(v) { html+=d10.song_template(v.doc); });
+				if ( html.length ) {
+					list.append(html);
+				}
 				if ( first ) {
 					if ( last ) { widget.bind("scroll",onScroll); }
 					settings.onFirstContent.call(widget, response.data.length);

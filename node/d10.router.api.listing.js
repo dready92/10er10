@@ -497,5 +497,53 @@ exports.api = function(app) {
 		});
 	});
 	
+	app.get("/api/list/s_user",function(request,response) {
+		var query = {include_docs: true, endkey: [request.ctx.user._id,[]], limit: d10.config.rpp + 1};
+		if ( request.query.startkey_docid && request.query["startkey"] ) {
+			query.startkey = JSON.parse(request.query["startkey"]);
+			query.startkey_docid = request.query.startkey_docid;
+		}
+		
+		d10.couch.d10.view("s_user/name",query,function(err,resp) {
+			if ( err ) {
+				return d10.rest.err(423, err, request.ctx);
+			} else {
+				d10.rest.success(resp.rows,request.ctx);
+			}
+		});
+	});
+	
+	
+	app.get("/api/list/likes",function(request,response) {
+		var query = {endkey: [request.ctx.user._id,[]], limit: d10.config.rpp + 1};
+		
+		if ( request.query.startkey_docid && request.query["startkey"] ) {
+			query.startkey = JSON.parse(request.query["startkey"]);
+			query.startkey_docid = request.query.startkey_docid;
+		}
+		
+		d10.couch.d10wi.view("s_user_likes/name",query,function(err,resp) {
+			if ( err ) {
+				return d10.rest.err(423, err, request.ctx);
+			}
+			var keys = [];
+			for ( var  i in resp.rows ) {
+				keys.push(resp.rows[i].value);
+			}
+			
+			d10.couch.d10.getAllDocs({include_docs: true, keys: keys},function(err,resp2) {
+				if ( err ) {
+					return d10.rest.err(423, err, request.ctx);
+				}
+				var back = [];
+				resp.rows.forEach(function(v,k) {
+					back.push(
+						{doc: resp2.rows[k].doc, key: v.key}
+						 );
+				});
+				d10.rest.success(back,request.ctx);
+			});
+		});
+	});
 	
 }; // exports.api

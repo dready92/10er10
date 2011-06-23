@@ -157,64 +157,64 @@ var library = function () {
 			return false;
 		}
 		var loadTimeout = null, 
-		innerLoading = categorydiv.find(".innerLoading");
+			innerLoading = categorydiv.find(".innerLoading");
 		section.data("infiniteScroll",
-				  section.infiniteScroll(
-					url,
-					data,
-					section.find(".list"),
-					{
-						onFirstContent: function(length) {
-							categorydiv.find(".pleaseWait").remove();
-							categorydiv.find(".songlist").removeClass("hidden");
-							if ( !length ) {
-								categorydiv.find("article").hide();
-								categorydiv.find(".noResult").removeClass("hidden");
-								return ;
-							}
+			section.infiniteScroll(
+				url,
+				data,
+				section.find(".list"),
+				{
+					onFirstContent: function(length) {
+						categorydiv.find(".pleaseWait").remove();
+						categorydiv.find(".songlist").removeClass("hidden");
+						if ( !length ) {
+							categorydiv.find("article").hide();
+							categorydiv.find(".noResult").removeClass("hidden");
+							return ;
+						}
+						
+						var list = categorydiv.find(".list");
+						// list of items < section height
+						if ( list.height() < section.height() )  {
+							section.height(list.height()+10);
+							section.next(".grippie").hide();
+						} else {
+							section.makeResizable(
+								{
+									vertical: true,
+									minHeight: 100,
+									maxHeight: function() {
+										// always the scrollHeight
+										var sh = list.prop("scrollHeight");
+										if ( sh ) {
+											return sh -10;
+										}
+										return 0;
+									},
+									grippie: $(categorydiv).find(".grippie")
+								}
+														);
+						}
+						
+						
 							
-							var list = categorydiv.find(".list"), section = categorydiv.find("section");
-							// list of items < section height
-							if ( list.height() < section.height() )  {
-								section.height(list.height()+10);
-								section.next(".grippie").hide();
-							} else {
-								section.makeResizable(
-									{
-										vertical: true,
-										minHeight: 100,
-										maxHeight: function() {
-											// always the scrollHeight
-											var sh = list.prop("scrollHeight");
-											if ( sh ) {
-												return sh -10;
-											}
-											return 0;
-										},
-										grippie: $(categorydiv).find(".grippie")
-									}
-															);
-							}
-							
-							
-							  
-						  },
-						  onQuery: function() {
-							  loadTimeout = setTimeout(function() {
-								  loadTimeout = null;
-								  debug("Loading...");
-								  innerLoading.css("top", section.height() - 32).removeClass("hidden");
-							  },500);
-						  },
-						  onContent: function() {
-							  if ( loadTimeout ) {
-								  clearTimeout(loadTimeout);
-							  } else {
-								  innerLoading.addClass("hidden");
-							  }
-						  }
-					  }
-				  )
+					},
+					onQuery: function() {
+						loadTimeout = setTimeout(function() {
+							loadTimeout = null;
+							debug("Loading...");
+							innerLoading.css("top", section.height() - 32).removeClass("hidden");
+						},500);
+					},
+					onContent: function() {
+						if ( loadTimeout ) {
+							clearTimeout(loadTimeout);
+						} else {
+							innerLoading.addClass("hidden");
+						}
+					}
+				}
+			)
 		);
 	};
 	

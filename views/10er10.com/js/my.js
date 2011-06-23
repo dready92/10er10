@@ -25,7 +25,7 @@ var my = function () {
 		d10.playlist.append($(this).clone());
 	});
 	
-
+/*
 	var checkCacheFreshness = function (topicdiv,pager) {
 		if ( topicdiv.find("article div.refreshList").length ) {
 			return ;
@@ -39,7 +39,7 @@ var my = function () {
 			refresh.appendTo(topicdiv.find("article")).fadeIn("slow");
 		});
 	};
-	
+	*/
 	
   this.routeAction = function (label, segments) {
 //       debug("routeAction starts",label,segments);
@@ -64,10 +64,88 @@ var my = function () {
       }
   };
 
-  this.init_topic_likes = function(topicdiv,args) {
+  
+	var bindControls = function(url, topicdiv, section, list, parseResults) {
+		topicdiv.find(".pushAll").click(function() {
+			d10.playlist.append(topicdiv.find(".song").clone().removeClass("selected"));
+		});
+		topicdiv.find(".refresh").click(function() {
+			topicdiv.find(".song").remove();
+			var is = section.data("infiniteScroll");
+			if ( is && "remove" in is ) {
+				is.remove();
+			}
+			createInfiniteScroll(url, topicdiv, section, list, parseResults);
+		});
+	};
+  
+	var createInfiniteScroll = function(url, topicdiv, section, list, parseResults) {
+		var loadTimeout = null, 
+			innerLoading = topicdiv.find(".innerLoading");
+		
+		var callbacks = {
+			onFirstContent: function(length) {
+				topicdiv.find(".pleaseWait").remove();
+				topicdiv.find(".songlist").removeClass("hidden");
+				if ( !length ) {
+					topicdiv.find("article").hide();
+					topicdiv.find(".noResult").removeClass("hidden");
+					return ;
+				}
+				// list of items < section height
+				if ( list.height() < section.height() )  {
+					section.height(list.height()+10);
+					section.next(".grippie").hide();
+				} else {
+					section.makeResizable(
+						{
+							vertical: true,
+							minHeight: 100,
+							maxHeight: function() {
+								// always the scrollHeight
+								var sh = list.prop("scrollHeight");
+								if ( sh ) {
+									return sh -10;
+								}
+								return 0;
+							},
+							grippie: $(topicdiv).find(".grippie")
+						}
+												);
+				}
+			},
+			onQuery: function() {
+				loadTimeout = setTimeout(function() {
+					loadTimeout = null;
+					debug("Loading...");
+					innerLoading.css("top", section.height() - 32).removeClass("hidden");
+				},500);
+			},
+			onContent: function() {
+				if ( loadTimeout ) {
+					clearTimeout(loadTimeout);
+				} else {
+					innerLoading.addClass("hidden");
+				}
+			}
+		};
+		if ( parseResults ) { callbacks.parseResults = parseResults; }
+			
+		section.data("infiniteScroll",
+			section.infiniteScroll(
+				url,
+				{},
+				list,
+				callbacks
+			)
+		);
+	};
+	
+	this.init_topic_likes = function(topicdiv,args) {
     //
     //get pager
     //
+    /*
     var pager = topicdiv.data('pager');
     if ( !pager ) {
       pager = new d10.fn.paginer(
@@ -84,8 +162,102 @@ var my = function () {
     } else {
 		checkCacheFreshness(topicdiv,pager);
 	}
-  };
-  
+	*/
+		var section = topicdiv.find("section");
+		if ( !section.length ) {
+			topicdiv.append(d10.mustacheView("library.content.simple"));
+			section = topicdiv.find("section");
+			var list = section.find(".list");
+			var url = "/api/list/likes";
+			list.delegate("div.song .edit, div.song .review","click", function() {
+				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
+				return false;
+			});
+			bindControls (url, topicdiv, section, list);
+			createInfiniteScroll(url, topicdiv, section, list);
+		}
+	};
+
+	this.init_topic_songs = function(topicdiv,args) {
+		var section = topicdiv.find("section");
+		if ( !section.length ) {
+			topicdiv.append(d10.mustacheView("library.content.simple"));
+			section = topicdiv.find("section");
+			var list = section.find(".list");
+			var url = "/api/list/s_user";
+			var parseResults = function(rows) {
+				var html = "";
+				rows.forEach(function(v) { html += d10.song_template(v.doc); });
+				html = $(html);
+				html.each(function() {
+					if ( $(this).attr('data-reviewed') == "true" ) {
+						$(this).append(d10.mustacheView('my.song_template_trailer'));
+					} else {
+						$(this).append(d10.mustacheView('my.song_template_review_trailer'));
+						$("span.add",this)
+							.after( d10.mustacheView('my.song_template_review_header') )
+							.remove();
+					}
+				});
+				debug("parseResults: ",html);
+				return html;
+			};
+			list.delegate("div.song .edit, div.song .review","click", function() {
+				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
+				return false;
+			});
+			bindControls (url, topicdiv, section, list, parseResults);
+			createInfiniteScroll(url,topicdiv,section,list,parseResults);
+			
+			
+		}
+		
+		
+		
+		//
+		//get pager
+		//
+		/*
+		var pager = topicdiv.data('pager');
+		if ( !pager ) {
+			pager = new d10.fn.paginer(
+				site_url+'/api/pagination/s_user',
+				null,
+				site_url+'/api/songs/s_user',
+				d10.mustacheView('library.content.simple'),
+				d10.mustacheView('library.content.none'),
+				topicdiv,
+				function () {
+					$('.song',$(this)).each(function() {
+						if ( $(this).attr('data-reviewed') == "true" ) {
+							$(this).append(d10.mustacheView('my.song_template_trailer'));
+						} else {
+							$(this).append(d10.mustacheView('my.song_template_review_trailer'));
+							$("span.add",this)
+								.after( d10.mustacheView('my.song_template_review_header') )
+								.remove();
+						}
+					});
+				}
+			);
+			topicdiv.data('pager',pager);
+			topicdiv.delegate("div.song .edit, div.song .review","click", function() {
+				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
+				return false;
+			});
+			//
+			// display page 1
+			//
+			pager.display_page(1);
+		} else {
+			checkCacheFreshness(topicdiv,pager);
+		}
+		*/
+	}
+
+	
+	
+	
   var sendInvite = function(topicdiv,email) {
     d10.bghttp.post({
       "url": site_url+"/api/sendInvite",
@@ -129,45 +301,6 @@ var my = function () {
     });
   };
 
-	this.init_topic_songs = function(topicdiv,args) {
-		//
-		//get pager
-		//
-		var pager = topicdiv.data('pager');
-		if ( !pager ) {
-			pager = new d10.fn.paginer(
-				site_url+'/api/pagination/s_user',
-				null,
-				site_url+'/api/songs/s_user',
-				d10.mustacheView('library.content.simple'),
-				d10.mustacheView('library.content.none'),
-				topicdiv,
-				function () {
-					$('.song',$(this)).each(function() {
-						if ( $(this).attr('data-reviewed') == "true" ) {
-							$(this).append(d10.mustacheView('my.song_template_trailer'));
-						} else {
-							$(this).append(d10.mustacheView('my.song_template_review_trailer'));
-							$("span.add",this)
-								.after( d10.mustacheView('my.song_template_review_header') )
-								.remove();
-						}
-					});
-				}
-			);
-			topicdiv.data('pager',pager);
-			topicdiv.delegate("div.song .edit, div.song .review","click", function() {
-				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
-				return false;
-			});
-			//
-			// display page 1
-			//
-			pager.display_page(1);
-		} else {
-			checkCacheFreshness(topicdiv,pager);
-		}
-	}
 
 
 
