@@ -25,22 +25,6 @@ var my = function () {
 		d10.playlist.append($(this).clone());
 	});
 	
-/*
-	var checkCacheFreshness = function (topicdiv,pager) {
-		if ( topicdiv.find("article div.refreshList").length ) {
-			return ;
-		}
-		pager.checkCache(function() { 
-			var refresh = $(d10.mustacheView("refresh"));
-			refresh.one("click",function() {
-				pager.display_page(1);
-				refresh.remove();
-			}).hide();
-			refresh.appendTo(topicdiv.find("article")).fadeIn("slow");
-		});
-	};
-	*/
-	
   this.routeAction = function (label, segments) {
 //       debug("routeAction starts",label,segments);
       var topicdiv=$('div[name='+label+']',ui);
@@ -142,27 +126,6 @@ var my = function () {
 	};
 	
 	this.init_topic_likes = function(topicdiv,args) {
-    //
-    //get pager
-    //
-    /*
-    var pager = topicdiv.data('pager');
-    if ( !pager ) {
-      pager = new d10.fn.paginer(
-        site_url+'/api/pagination/s_user_likes',
-        null,
-        site_url+'/api/usersongs',
-        d10.mustacheView('library.content.simple'),
-        d10.mustacheView('library.content.none'),
-        topicdiv,
-        function () { }
-      );
-      topicdiv.data('pager',pager);
-      pager.display_page(1);    
-    } else {
-		checkCacheFreshness(topicdiv,pager);
-	}
-	*/
 		var section = topicdiv.find("section");
 		if ( !section.length ) {
 			topicdiv.append(d10.mustacheView("library.content.simple"));
@@ -212,47 +175,6 @@ var my = function () {
 			
 		}
 		
-		
-		
-		//
-		//get pager
-		//
-		/*
-		var pager = topicdiv.data('pager');
-		if ( !pager ) {
-			pager = new d10.fn.paginer(
-				site_url+'/api/pagination/s_user',
-				null,
-				site_url+'/api/songs/s_user',
-				d10.mustacheView('library.content.simple'),
-				d10.mustacheView('library.content.none'),
-				topicdiv,
-				function () {
-					$('.song',$(this)).each(function() {
-						if ( $(this).attr('data-reviewed') == "true" ) {
-							$(this).append(d10.mustacheView('my.song_template_trailer'));
-						} else {
-							$(this).append(d10.mustacheView('my.song_template_review_trailer'));
-							$("span.add",this)
-								.after( d10.mustacheView('my.song_template_review_header') )
-								.remove();
-						}
-					});
-				}
-			);
-			topicdiv.data('pager',pager);
-			topicdiv.delegate("div.song .edit, div.song .review","click", function() {
-				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
-				return false;
-			});
-			//
-			// display page 1
-			//
-			pager.display_page(1);
-		} else {
-			checkCacheFreshness(topicdiv,pager);
-		}
-		*/
 	}
 
 	

@@ -348,22 +348,6 @@ var library = function () {
 		return null;
 	}
 
-/*
-	var checkPagerFreshness = function(node) {
-		var pager = node.data("pager");
-		if ( !pager )	return ;
-		debug("pager refresh ?");
-		pager.checkCache(function() { 
-			var refresh = $(d10.mustacheView("refresh"));
-			refresh.one("click",function() {
-				pager.display_page(1);
-				refresh.remove();
-			});
-			refresh.appendTo(node.find("article")).fadeIn("slow");
-		});
-	};
-*/
-
 	var mm = this.router = new d10.fn.menuManager ({
 		'menu': $('>nav',ui),
 		'container': ui,
@@ -384,10 +368,6 @@ var library = function () {
 		if ( !data.segments.length ||  routes.indexOf(data.segments[0]) < 0 ) { 
 			if ( !mm.current_label() ) {
 				mm.route( ["creations"], data.env );
-			} else {
-// 				setTimeout(function() {
-// 					checkPagerFreshness($("#library div.topic_category:visible"));
-// 				},2000);
 			}
 			return ;
 		}
