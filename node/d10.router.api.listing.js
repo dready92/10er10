@@ -264,13 +264,32 @@ exports.api = function(app) {
 	});
 	
 	app.get("/api/artist",function(request,response) {
-		var query = {inclusive_end: false};
+		var query = {group: true};
 		if ( request.query.start && request.query.start.length ) {
 			var q = d10.ucwords(request.query.start);
 			query.startkey = [q];
 			query.endkey = [d10.nextWord(q)];
 		}
-		
+		d10.couch.d10.view("artist/search",query, function(err,resp) {
+			if ( err ) {
+				response.writeHead(200, request.ctx.headers );
+				response.end (
+					"[]"
+				);
+			} else {
+				d10.log(resp);
+				var buffer = {}, back = [];
+				// remote doubles
+				resp.rows.forEach(function(row) {
+					buffer[row.key[1]] ={text: row.key[1],json: row.key[1]}
+				});
+				for ( var i in buffer ) {back.push(buffer[i]);}
+				
+				response.writeHead(200, request.ctx.headers );
+				response.end ( JSON.stringify(back) );
+			}
+		});
+		/*
 		d10.couch.d10.list("artist/search/search",query,function(err,resp) {
 			if ( err ) {
 				response.writeHead(200, request.ctx.headers );
@@ -284,6 +303,7 @@ exports.api = function(app) {
 				);
 			}
 		});
+		*/
 	});
 	
 	app.get("/api/album",function(request,response) {

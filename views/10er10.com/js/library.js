@@ -267,8 +267,8 @@ var library = function () {
 				"autocss": true,
 				"minlength" : 1 ,
 				"select": function (data, json) {
-					window.location.hash = "#/library/"+topic+"/"+encodeURIComponent(data);
-					return data;
+					window.location.hash = "#/library/"+topic+"/"+encodeURIComponent(json);
+					return json;
 				},
 				"beforeLoad": function() {
 					this.getOverlay().width(widget.width());
