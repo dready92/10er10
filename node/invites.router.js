@@ -155,10 +155,59 @@ exports.api = function(app) {
 				"Charset": "utf-8"
 			};
 			// base_url, 
-			request.ctx.langUtils.parseServerTemplate(request,"homepage.html",function(err,html) {
-				response.writeHead(200,headers);
-				response.end(d10.mustache.to_html(html,{site_url: "/", code: request.params.id}));
+			
+			fs.stat(d10.config.templates.invites+"/html/step1."+request.ctx.lang+".html",function(err,resp) {
+				var files = {}, lang = request.ctx.lang;
+				if ( err ) {
+					files.step1 = d10.config.templates.invites+"/html/step1."+d10.config.templates.defaultLang+".html";
+					files.step2 = d10.config.templates.invites+"/html/step2."+d10.config.templates.defaultLang+".html";
+					lang = request.ctx.lang;
+				} else {
+					files.step1 = d10.config.templates.invites+"/html/step1."+request.ctx.lang+".html";
+					files.step2 = d10.config.templates.invites+"/html/step2."+request.ctx.lang+".html";
+				}
+				
+				when( 
+					{
+						step1: function(then) {
+							fs.readFile(files.step1,then);
+						},
+						step2: function(then) {
+							fs.readFile(files.step2,then);
+						},
+						homepage: function(then) {
+							fs.readFile(d10.config.templates.invites+"homepage.html",then);
+						}
+					},
+					function(errs, partials) {
+// 						console.log(errs,partials);
+						if ( errs ) {
+							console.log("ERROR: for lang "+request.ctx.lang,errs);
+							response.writeHead(500,headers);
+							return response.end("The website got an error trying to fetch the page.");
+						}
+// 						response.end(d10.mustache.to_html(html,{site_url: "/", code: request.params.id}));
+						var data = request.ctx.langUtils.loadLang(lang,"server",function(err, hash) {
+							if ( err ) {
+								console.log("ERROR: for lang "+request.ctx.lang,err);
+								response.writeHead(500,headers);
+								return response.end("The website got an error trying to fetch the page.");
+							}
+							response.writeHead(200,headers);
+							var homepage = partials.homepage.toString();
+							delete partials.homepage;
+							partials.step1 = partials.step1.toString();
+							partials.step2 = partials.step2.toString();
+							// 							console.log(typeof homepage.toString());
+							response.end(d10.mustache.lang_to_html(homepage, hash["homepage.html"],partials));
+						});
+					}
+				);
 			});
+			
+// 			request.ctx.langUtils.parseServerTemplate(request,"homepage.html",function(err,html) {
+
+// 			});
 		});
 		
 	});

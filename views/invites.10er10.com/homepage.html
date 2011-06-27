@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Invitation</title>
+<title>((title))</title>
 <style type="text/css">
 * {margin: 0; padding: 0; font-size: 14px;}
 body { background-color: #232323; color: #454545;}
@@ -50,62 +50,32 @@ input[type=text], input[type=password] {
 <body>
 <div id="container">
 	<div id="step1">
-<h1>Qu'est ce qui se passe ?</h1>
-<p>
-Vous avez été invité à participer au projet 10er10. 10er10 est une plateforme web qui vous permet de mettre vos morceaux de musique sur le serveur, puis de les écouter, directement depuis votre navigateur.
-</p>
-<p>
-<h1>Les différences entre 10er10 et les autres plateformes web</h1>
-<h2>La communauté</h2>
-<p>
-Sur 10er10, chaque morceau de musique que vous mettez en ligne est immédiatement accessible aux autres utilisateurs. C'est vous qui faites la qualité du contenu du site.
-<BR>
-Une fois que vous avez déposé un morceau sur le serveur, vous devez le valider. Cela consiste seulement à vérifier que les informations du morceau (titre, artiste, genre...) sont correctes. 
-Plus les informations sur les morceaux sont correctes, et plus le catalogue 10er10 est pertinent. 
-</p>
-<h2>La technologie</h2>
-<p>
-10er10 utilise les nouvelles technologies <a href="http://fr.wikipedia.org/wiki/HTML5" target="_new">HTML5</a> disponibles sur les navigateurs <a href="http://www.mozilla-europe.org/fr/firefox/" target="_new">Firefox</a> et <a href="http://www.google.com/chrome" target="_new">Google Chrome</a>.
-Le drag'n'drop, la lecture de fichiers audio sans besoin de plugins, et plus encore : tout ceci est implémenté dans 10er10.
-</p>
-<h2>L'anonymat</h2>
-<p>
-10er10 ne conserve pas votre adresse email, n'enregistre pas vos adresses IP dans les logs du serveur web.
-</p>
+((>step1))
 <p class="center bigmargin">
-		<a class="intern" href="#/step2">Super, la suite</a>
+		<a class="intern" href="#/step2">((button_step2))</a>
 </p>
 	</div>
 	<div id="step2" style="display: none">
-<h1>Rappelez vous de votre nom d'utilisateur et de votre mot de passe</h1>
-<p>
-10er10 ne retient pas votre adresse email : nous n'avons donc aucun moyen de vous renvoyer votre compte ou votre mot de passe si vous l'avez perdu.
-</p>
-<p class="center">
-<span class="big red">Alors ne perdez pas votre nom d'utilisateur et votre mot de passe !</span>
-</p>
-<p>
- Envoyez le vous par email, notez le sur un bout de papier sous votre clavier, tatouez le vous sur l'avant-bras, gardez-le en lieu sûr.
-</p>
+((>step2))
 <p class="center bigmargin">
-		<a class="intern"  href="#/step3">J'ai bien compris, passons aux choses sérieuses</a>
+		<a class="intern"  href="#/step3">((button_step3))</a>
 </p>
 	</div>
 	<div id="step3" style="display: none">
-<h1>Création de votre compte</h1>
+<h1>((step3_title))</h1>
 
 
 		<form method="POST" action="#/createAccount">
 			<p>
 				<p>
-				A vous de jouer.
+				((step3_intro))
 				</p>
 				<p class="bigmargin">
 				<table border="0" cellspacing="0">
 					<tr class="login">
-						<td class="odd"><span class="label">Nom d'utilisateur:</span></td>
+						<td class="odd"><span class="label">((label_username))</span></td>
 						<td class="even"><input type="text" name="login" autocomplete="off" size="30"> <img src="{{site_url}}static/roll.gif" style="display: none"> <br>
-							<span class="info">Le nom d'utilisateur doit comporter au minimum 4 caractères, et ne doit pas comporter les caractères : &lt; &gt; &quot; ' / \ .</span>
+							<span class="info">((infos_username))</span>
 						</td>
 					</tr>
 					<tr class="loginError">
@@ -113,9 +83,9 @@ Le drag'n'drop, la lecture de fichiers audio sans besoin de plugins, et plus enc
 						<td class="even"><span class="errorMessage"></span></td>
 					</tr>
 					<tr class="password">
-						<td class="odd"><span class="label">Mot de passe:</span></td>
+						<td class="odd"><span class="label">((label_password))</span></td>
 						<td class="even"><input type="password" name="password" autocomplete="off" size="30"> <img src="{{site_url}}static/roll.gif" style="display: none"> <br>
-							<span class="info">Le mot de passe doit comporter au minimum 8 caractères dont au moins 4 caractères distincts. Il ne doit pas être identique au nom d'utilisateur.</span>
+							<span class="info">((infos_password))</span>
 						</td>
 					</tr>
 					<tr class="passwordError">
@@ -124,19 +94,19 @@ Le drag'n'drop, la lecture de fichiers audio sans besoin de plugins, et plus enc
 					</tr>
 					<tr class="submit">
 						<td class="odd">&nbsp;</td>
-						<td class="even"><input type="submit" value="Créer mon compte" disabled="true"></td>
+						<td class="even"><input type="submit" value="((button_create_account))" disabled="true"></td>
 					</tr>
 				</table>
 				</p>
 			</p>
 			<p class="center bigmargin">
-				<a class="intern" href="#/step1">Escuse, j'ai pas très bien compris kessketa dit avant ...</a>
+				<a class="intern" href="#/step1">((button_step1))</a>
 			</p>
 		</form>
 
 		<div class="accountCreated" style="display:none">
 <p class="center">
-Votre compte est créé. Vous pouvez dès maintenant aller sur <a href="http://10er10.com/">http://10er10.com/</a> pour profiter de l'application. Bonne écoute !
+(({creation_success}))
 </p>
 		</div>
 	</div>
