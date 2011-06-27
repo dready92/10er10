@@ -1,8 +1,6 @@
 var fs = require("fs"),
-// 	cradle = require('cradle'),
 	ncouch = require("./ncouch"),
 	files = require("./files"),
-	lang = require("./lang"),
 	exec = require('child_process').exec;
 	
 exports.mustache = require("./mustache");
@@ -178,7 +176,7 @@ exports.lngView = function(request, n, d, p, cb) {
 		return inlineView(request,n,d,p,cb);
 	}
 	
-	lang.parseServerTemplate(request, n+".html",function(err,data) {
+	request.ctx.langUtils.parseServerTemplate(request, n+".html",function(err,data) {
 // 	fileCache.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
 		if (err) throw err;
 		data = exports.mustache.to_html(data,d,p);
@@ -187,7 +185,7 @@ exports.lngView = function(request, n, d, p, cb) {
 };
 
 var inlineView = function(request, n, d, p, cb) {
-	lang.loadLang(request.ctx.lang, "server",function(err,resp) {
+	request.ctx.langUtils.loadLang(request.ctx.lang, "server",function(err,resp) {
 		if ( err ) { return cb(err); }
 		return cb(null, resp.inline[ n.replace("inline/","") ]);
 	});

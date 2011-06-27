@@ -42,7 +42,7 @@ d10.couch.auth.on("delete",function(err,doc) {
 var sessionCacheAdd = function(us,pr,se) {
 	sessionCache[us.login] =  {us:us,pr:pr,se:se};
 };
-	
+
 var checkAuth = function (ctx,passTheCoochie) {	
 	var cookies = {};
 	if ( ctx.request.headers.cookie ) {
@@ -108,3 +108,7 @@ exports.cookieSession = function ( req,res,next) {
 	var pause = utils.pause(req);
 	checkAuth(req.ctx,passTheCoochie);
 };
+
+
+// cache invalidation
+setInterval ( function() {sessionCache = {};},1000*60*30);

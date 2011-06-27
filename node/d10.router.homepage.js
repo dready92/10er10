@@ -4,7 +4,6 @@ var 	bodyDecoder = require("connect").bodyParser,
 		utils = require("connect").utils,
 		d10 = require("./d10"),
 		when = require("./when"),
-		lang = require("./lang"),
 		users = require("./d10.users");
 		
 		
@@ -39,22 +38,22 @@ exports.homepage = function(app) {
 		when(
 			{
 				resultsContainer: function(cb) {
-					lang.parseServerTemplate(request,"html/results/container.html",cb);
+					request.ctx.langUtils.parseServerTemplate(request,"html/results/container.html",cb);
 				},
 				libraryContainer: function(cb) {
-					lang.parseServerTemplate(request,"html/library/container.html",cb);
+					request.ctx.langUtils.parseServerTemplate(request,"html/library/container.html",cb);
 				},
 				myContainer: function(cb) {
-					lang.parseServerTemplate(request,"html/my/container.html",cb);
+					request.ctx.langUtils.parseServerTemplate(request,"html/my/container.html",cb);
 				},
 				uploadContainer: function(cb) {
-					lang.parseServerTemplate(request,"html/upload/container.html",cb);
+					request.ctx.langUtils.parseServerTemplate(request,"html/upload/container.html",cb);
 				},
 				welcomeContainer: function(cb) {
-					lang.parseServerTemplate(request,"html/welcome/container.html",cb);
+					request.ctx.langUtils.parseServerTemplate(request,"html/welcome/container.html",cb);
 				},
 				langs: function(cb) {
-					lang.getSupportedLangs(cb);
+					request.ctx.langUtils.getSupportedLangs(cb);
 				}
 			},
 				function(errs,responses) {
@@ -74,16 +73,13 @@ exports.homepage = function(app) {
 							}
 						}
 						
-						lang.parseServerTemplate(request,"homepage.html",function(err,resp) {
+						request.ctx.langUtils.parseServerTemplate(request,"homepage.html",function(err,resp) {
 							if ( err ) {
 								console.log(err);
 								return response.end("An error occured");
 							}
 							response.end(d10.mustache.to_html(resp,vars,responses));
 						});
-// 						d10.view("homepage",vars,responses,function(html) {
-// 							response.end(html);
-// 						});
 					}
 			}
 		);
@@ -103,7 +99,7 @@ exports.homepage = function(app) {
 		if ( request.ctx.session && "_id" in request.ctx.session && request.ctx.user ) {
 			// 		d10.log("debug",request.headers);
 			if ( request.query.lang ) {
-				lang.langExists(request.query.lang,function(exists) {
+				request.ctx.langUtils.langExists(request.query.lang,function(exists) {
 					if ( exists ) {
 // 						console.log("LANG check OK: ",request.query.lang);
 						request.ctx.user.lang = request.query.lang;
@@ -120,12 +116,9 @@ exports.homepage = function(app) {
 			} else {
 				display10er10(request,response,next);
 			}
-			
-			
-			
 		} else {
 			d10.log("debug","sending login");
-			lang.parseServerTemplate(request,"login.html",function(err,html) {
+			request.ctx.langUtils.parseServerTemplate(request,"login.html",function(err,html) {
 				response.end(html);
 			});
 		}

@@ -119,7 +119,8 @@ exports.javascript = {
 exports.emailSender = "root@10er10.com";
 exports.emailSenderLabel = "10er10";
 exports.invites = {
-	ttl:7 ,
+	ttl:7 , // in days
+	domain: "invites.10er10.com", // invites are based on a nameVirtualhost
 	url: "http://invites.10er10.com/code/in{{id}}",
 	subject: "Invitation: découvrez 10er10",
 	message: "Bonjour !\n\n"+

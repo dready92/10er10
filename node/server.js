@@ -23,8 +23,9 @@ var	connect = require("connect"),
 	imagesStuff = require(__dirname+"/d10.router.images"),
 	invites = require(__dirname+"/d10.router.invites"),
 	download = require(__dirname+"/d10.router.audio.download"),
-	invitesRouter = require(__dirname+"/invites.router.js"),
-	lang = require(__dirname+"/lang")
+	invitesRouter = require(__dirname+"/invites.router"),
+	lang = require(__dirname+"/lang"),
+	contextMiddleware = require(__dirname+"/contextMiddleware").context
 	;
 
 process.chdir(__dirname);
@@ -49,11 +50,18 @@ function staticInvites(app) {
 	app.get("/static/*",httpHelper.localPathServer("/static","../views/invites.10er10.com/static"));
 };
 
+
+
+
+var d10LangMiddleWare = lang.middleware("../views/10er10.com/lang",config.templates.node, startServer);
+var invitesLangMiddleWare = lang.middleware("../views/invites.10er10.com/lang",config.templates.invites, function(){});
+
+
 var stack = [
-	require("./contextMiddleware").context,
+	contextMiddleware,
 	connect.router(staticRoutes), 
 	cookieSession.cookieSession,
-	lang.middleware,
+	d10LangMiddleWare,
 	connect.router(homepage.homepage),
 	// from here we need to be logged:
 	function(request,response,next) {
@@ -80,51 +88,58 @@ var stack = [
 
 
 
-var d10Server = connect.createServer(connect.favicon('../views/10er10.com/favicon.ico'));
-if ( !config.production ) {
-	d10Server.use(connect.logger());
-}
-
-if ( config.gzipContentEncoding ) {
-	d10Server.use(require("connect-gzip").gzip({ matchType: /csstext|javascript|json|x-font-ttf/ }));
-}
-stack.forEach(function(mw) { d10Server.use(mw); });
 
 
-var invitesServer = connect.createServer( 
- 	connect.logger(), 
-	connect.router(staticInvites),
-	connect.router(invitesRouter.api),
-	function (request,response) {
-		response.writeHead(404,{"Content-Type": "text/plain"});
-		response.end("The page does not exist");
+function startServer() {
+	var d10Server = connect.createServer(connect.favicon('../views/10er10.com/favicon.ico'));
+	if ( !config.production ) {
+		d10Server.use(connect.logger());
 	}
-);
+
+	if ( config.gzipContentEncoding ) {
+		d10Server.use(require("connect-gzip").gzip({ matchType: /csstext|javascript|json|x-font-ttf/ }));
+	}
+	stack.forEach(function(mw) { d10Server.use(mw); });
 
 
-var globalSrv = connect.createServer(
-	// 10er10 vhosts
-	connect.vhost("invites.10er10.com",invitesServer),
-// 	defaultServer
-	d10Server
-);
-globalSrv.listen(config.port);
+	var invitesServer = connect.createServer( 
+		connect.logger(),
+		contextMiddleware,
+		invitesLangMiddleWare,
+		connect.router(staticInvites),
+		connect.router(invitesRouter.api),
+		function (request,response) {
+			response.writeHead(404,{"Content-Type": "text/plain"});
+			response.end("The page does not exist");
+		}
+	);
 
-d10Server.on("error",function() {
-	console.log("SERVER ERROR");
-	console.log(arguments);
-});
-d10Server.on("clientError",function() {
-	console.log("CLIENT ERROR");
-	console.log(arguments);
-});
 
-globalSrv.on("error",function() {
-	console.log("SERVER ERROR");
-	console.log(arguments);
-});
-globalSrv.on("clientError",function() {
-	console.log("CLIENT ERROR");
-	console.log(arguments);
-});
-console.log("Production : ",config.production);
+	var globalSrv = connect.createServer(
+		// 10er10 vhosts
+		connect.vhost(config.invites.domain,invitesServer),
+	// 	defaultServer
+		d10Server
+	);
+	globalSrv.listen(config.port);
+	/*
+	d10Server.on("error",function() {
+		console.log("SERVER ERROR");
+		console.log(arguments);
+	});
+	d10Server.on("clientError",function() {
+		console.log("CLIENT ERROR");
+		console.log(arguments);
+	});
+
+	globalSrv.on("error",function() {
+		console.log("SERVER ERROR");
+		console.log(arguments);
+	});
+	globalSrv.on("clientError",function() {
+		console.log("CLIENT ERROR");
+		console.log(arguments);
+	});
+	*/
+	console.log("Production : ",config.production);
+};

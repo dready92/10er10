@@ -6,7 +6,6 @@ var d10 = require ("./d10"),
 	fs = require("fs"),
 	os = require("os"),
 	when = require("./when"),
-	lang = require("./lang"),
 	users = require("./d10.users"),
 	exec = require('child_process').exec;
 
@@ -102,11 +101,11 @@ exports.api = function(app) {
 // 									fs.readFile(d10.config.templates.client+"/"+tpl,"utf8",function(err,data) {
 // 										cb(err,data);
 // 									});
-									lang.parseServerTemplate(request,tpl,cb);
+									request.ctx.langUtils.parseServerTemplate(request,tpl,cb);
 								};
 							})(d10.config.templates.clientList[jobname],jobname);
 		}
-		jobs.dynamic = function(cb) { lang.loadLang(request.ctx.lang, "client",cb); };
+		jobs.dynamic = function(cb) { request.ctx.langUtils.loadLang(request.ctx.lang, "client",cb); };
 		request.ctx.headers["Content-type"] = "application/json";
 		when(
 			jobs,

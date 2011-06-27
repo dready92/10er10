@@ -1,6 +1,5 @@
 var 	path = require("path"),
-		url = require("url"),
-		lang = require("./lang");
+		url = require("url");
 
 
 exports.context = function (req,res,next) { 
