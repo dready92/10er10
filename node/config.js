@@ -122,6 +122,7 @@ exports.invites = {
 	ttl:7 , // in days
 	domain: "invites.10er10.com", // invites are based on a nameVirtualhost
 	url: "http://invites.10er10.com/code/in{{id}}",
+	websiteUrl: "http://10er10.com/", // the link displayed at the end of the registration process
 	subject: "Invitation: découvrez 10er10",
 	message: "Bonjour !\n\n"+
 "Un de vos amis a pensé à vous! Ceci est une invitation pour découvrir 10er10, un site web privé d'écoute et de partage de musique.\n\n"+

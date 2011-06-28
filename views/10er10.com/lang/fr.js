@@ -258,6 +258,22 @@ exports.server = {
 		review_other_button: "Valider les informations sur d'autres morceaux",
 		upload_button: "Aller dans la partie \"Uploader\""
 	},
+	"invites/no_invite.html": {
+		no_invite: "Vous n'avez pas d'invitation à offrir. Désolé"
+	},
+	"invites/invites.html": {
+		title: "Invitations",
+		resume: "Il vous reste <strong name=\"count\">{{count}}</strong> invitations à envoyer pour faire découvrir Deezer10 à vos amis.",
+		send_title: "Envoyer une invitation",
+		send_description: " Pour envoyer une invitation, inscrivez l'adresse email de votre ami ci dessous, et cliquez sur \"Envoyer l'invitation\". L'application Deezer10 ne conserve pas d'adresse email, et le mail sera envoyé immédiatement.",
+		email_address: "Adresse email",
+		email_invalid: "L'adresse email est invalide",
+		email_send: "Envoyer",
+		success_title: "Votre invitation a été envoyée...",
+		success_desription: "Si au bout de {{ttl}} jours votre ami ne s'est pas inscrit, l'invitation sera alors périmée, et vous sera recréditée. ",
+		error_title: "Votre invitation n'a pas été envoyée...",
+		error_description:" Le serveur a rencontré une erreur... Merci de retenter dans un moment."
+	},
 	inline: {
 		review_err_no_title: "Le morceau doit avoir un titre",
 		review_err_no_artist: "Le morceau doit avoir un artiste",

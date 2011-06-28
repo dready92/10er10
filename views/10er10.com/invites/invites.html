@@ -1,21 +1,19 @@
 <article class="my">
-<h1>Invitations</h1>
-<p class="airin center">Il vous reste <strong name="count">{{count}}</strong> invitations à envoyer pour faire découvrir Deezer10 à vos amis.
-</p>
+<h1>((title))</h1>
+<p class="airin center">(({resume}))</p>
 <div class="send">
-  <h2>Envoyer une invitation</h2>
-  Pour envoyer une invitation, inscrivez l'adresse email de votre ami ci dessous, et cliquez sur "Envoyer l'invitation".
-  L'application Deezer10 ne conserve pas d'adresse email, et le mail sera envoyé immédiatement.
+  <h2>((send_title))</h2>
+ ((send_description))
   <div class="airin">
-    Adresse email : <input type="text" name="email"> <span name="invalidEmail" class="hidden">L'adresse email est invalide</span> <button class="hidden">Envoyer</button>
+    ((email_address)) : <input type="text" name="email"> <span name="invalidEmail" class="hidden">((email_invalid))</span> <button class="hidden">((email_send))</button>
   </div>
 </div>
 </article>
 <article class="sent hidden">
-  <h2 class="airin center">Votre invitation a été envoyée...</h2>
-Si au bout de {{ttl}} jours votre ami ne s'est pas inscrit, l'invitation sera alors périmée, et vous sera recréditée. 
+  <h2 class="airin center">((success_title))</h2>
+((success_description))
 </article>
 <article class="notsent hidden">
-  <h2 class="airin center">Votre invitation n'a pas été envoyée...</h2>
-Le serveur a rencontré une erreur... Merci de retenter dans un moment.
+  <h2 class="airin center">((error_title))</h2>
+((error_description))
 </article>

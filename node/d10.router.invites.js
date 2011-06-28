@@ -11,15 +11,24 @@ exports.api = function(app) {
 		if ( request.ctx.user.invites ) {
 			request.ctx.headers["Content-Type"] = "text/html";
 			response.writeHead(200,request.ctx.headers);
-			d10.view("invites/invites",{count: request.ctx.user.invites,ttl: d10.config.invites.ttl},function(html) {
-				response.end(html);
+			request.ctx.langUtils.parseServerTemplate(request,"invites/invites.html",function(err,resp ) {
+				response.end(
+					d10.mustache.to_html(resp,{count: request.ctx.user.invites,ttl: d10.config.invites.ttl})
+						 );
 			});
+// 			d10.view("invites/invites",{count: request.ctx.user.invites,ttl: d10.config.invites.ttl},function(html) {
+// 				response.end(html);
+// 			});
 		} else {
 			request.ctx.headers["Content-Type"] = "text/html";
 			response.writeHead(200,request.ctx.headers);
-			d10.view("invites/no_invite",{},function(html) {
-				response.end(html);
+			request.ctx.langUtils.parseServerTemplate(request,"invites/no_invite.html",function(err,resp ) {
+				response.end(resp);
 			});
+
+// 			d10.view("invites/no_invite",{},function(html) {
+// 				response.end(html);
+// 			});
 		}
 	});
 	

@@ -198,8 +198,19 @@ exports.api = function(app) {
 							delete partials.homepage;
 							partials.step1 = partials.step1.toString();
 							partials.step2 = partials.step2.toString();
+// 							hash["homepage.html"].creation_success = hash["homepage.html"].creation_success
+// 															.replace(/{{websiteUrl/g, d10.config.invites.websiteUrl);
 							// 							console.log(typeof homepage.toString());
-							response.end(d10.mustache.lang_to_html(homepage, hash["homepage.html"],partials));
+							response.end(
+								d10.mustache.to_html(
+									d10.mustache.lang_to_html(homepage, hash["homepage.html"],partials),
+												  {
+														site_url: "/",
+														websiteUrl: d10.config.invites.websiteUrl,
+													  code: request.params.id
+												}
+											 )
+							);
 						});
 					}
 				);

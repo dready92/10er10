@@ -258,6 +258,23 @@ exports.server = {
 		review_other_button: "Review other songs meta data",
 		upload_button: "Go to the\"Upload\" part"
 	},
+	"invites/no_invite.html": {
+		no_invite: "You don't have any invite to send. Sorry"
+	},
+	"invites/invites.html": {
+		title: "Invites",
+		resume: "You got <strong name=\"count\">{{count}}</strong> invites to bring 10er10 to your friends.",
+		send_title: "Send an invite",
+		send_description: " To send an invite, type your friend's email address below, and click \"send\". This application doesn't store email addresses, and the mail will sent sent immediately.",
+		email_address: "Email address",
+		email_invalid: "The email address is not valid",
+		email_send: "Send",
+		success_title: "Your invite has been sent...",
+		success_desription: "In {{ttl}} days, if your friend didn't register, the invite will be invalidated. ",
+		error_title: "Your invite hasn't been sent...",
+		error_description:" Oops, the server produced an error. Please try again in a moment."
+	},
+
 	inline: {
 		review_err_no_title: "Song should have a title",
 		review_err_no_artist: "Song should have an artist",

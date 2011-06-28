@@ -155,15 +155,15 @@ $(document).ready(function() {
 
 	function formCheckError (err) {
 		if ( err == 430 ) {
-			$("tr.loginError span.errorMessage").html("Ce nom d'utilisateur est déjà pris.");
+			$("tr.loginError span.errorMessage").html("((err_username_not_available))");
 		} else if ( err == 431 ) {
-			$("tr.loginError span.errorMessage").html("Ce nom d'utilisateur ne contient pas assez de caractères.");
+			$("tr.loginError span.errorMessage").html("((err_username_chars_not_distinct))");
 		} else if ( err == 432 ) {
-			$("tr.loginError span.errorMessage").html("Ce nom d'utilisateur contient un ou des caractères invalides.");
+			$("tr.loginError span.errorMessage").html("((err_username_invalid_chars))");
 		} else if ( err == 440 ) {
-			$("tr.passwordError span.errorMessage").html("Ce mot de passe ne contient pas assez de caractères.");
+			$("tr.passwordError span.errorMessage").html("((err_password_too_short))");
 		} else if ( err == 441 ) {
-			$("tr.passwordError span.errorMessage").html("Ce mot de passe ne contient pas assez de caractères différents.");
+			$("tr.passwordError span.errorMessage").html("((err_password_distinct_chars))");
 		}
 	}
 
