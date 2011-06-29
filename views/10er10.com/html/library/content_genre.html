@@ -1,7 +1,29 @@
 <div class="noResult hidden center vertical-air">((no_song))</div>
 <article class="songlist">
 	<div class="innerLoading hidden"><span class="middle">((loading))</span></div>
-	<h2><span /><span class="link">((back_to_list))</span></h2>
+	<h2>
+		<span />
+		<span class="link">((back_to_list))</span>
+		<span class="showHide">
+			<span class="show">Show more infos...</span>
+			<span class="hide">Hide infos...</span>
+		</span>
+	</h2>
+	<div class="extendedInfosContainer">
+		<div class="extendedInfos">
+			<div class="loading">Loading...</div>
+			<div class="infos">
+				<div class="part">
+					<div>Artists</div>
+					<ul class="scrollingInfo artists" />
+				</div>
+				<div class="part">
+					<div>Albums</div>
+					<ul class="scrollingInfo albums" />
+				</div>
+			</div>
+		</div>
+	</div>
 	<section>
 		<div class="list"></div>
 	</section>

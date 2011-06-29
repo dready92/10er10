@@ -566,4 +566,27 @@ exports.api = function(app) {
 		});
 	});
 	
+	app.get("/api/list/genres/artists/:genre",function(request,response) {
+		if ( !request.params.genre || d10.config.genres.indexOf(request.params.genre) < 0 ) {
+			return d10.rest.err(428, request.params.genre, request.ctx);
+		}
+		d10.couch.d10.view("genre/artists",{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},function(err,resp) {
+			if ( err ) {
+				return d10.rest.err(423, err, request.ctx);
+			}
+			d10.rest.success(resp.rows,request.ctx);
+		});
+	});
+	
+	app.get("/api/list/genres/albums/:genre",function(request,response) {
+		if ( !request.params.genre || d10.config.genres.indexOf(request.params.genre) < 0 ) {
+			return d10.rest.err(428, request.params.genre, request.ctx);
+		}
+		d10.couch.d10.view("genre/albums",{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},function(err,resp) {
+			if ( err ) {
+				return d10.rest.err(423, err, request.ctx);
+			}
+			d10.rest.success(resp.rows,request.ctx);
+		});
+	});
 }; // exports.api
