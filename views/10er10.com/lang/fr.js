@@ -270,7 +270,7 @@ exports.server = {
 		email_invalid: "L'adresse email est invalide",
 		email_send: "Envoyer",
 		success_title: "Votre invitation a été envoyée...",
-		success_desription: "Si au bout de {{ttl}} jours votre ami ne s'est pas inscrit, l'invitation sera alors périmée, et vous sera recréditée. ",
+		success_description: "Si au bout de {{ttl}} jours votre ami ne s'est pas inscrit, l'invitation sera alors périmée, et vous sera recréditée. ",
 		error_title: "Votre invitation n'a pas été envoyée...",
 		error_description:" Le serveur a rencontré une erreur... Merci de retenter dans un moment."
 	},

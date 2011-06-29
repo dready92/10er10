@@ -270,7 +270,7 @@ exports.server = {
 		email_invalid: "The email address is not valid",
 		email_send: "Send",
 		success_title: "Your invite has been sent...",
-		success_desription: "In {{ttl}} days, if your friend didn't register, the invite will be invalidated. ",
+		success_description: "In {{ttl}} days, if your friend didn't register, the invite will be invalidated. ",
 		error_title: "Your invite hasn't been sent...",
 		error_description:" Oops, the server produced an error. Please try again in a moment."
 	},
