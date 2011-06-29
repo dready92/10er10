@@ -29,7 +29,7 @@ setTimeout(function() {
 	d10.couch.auth.view("infos/all",{key: ["login",login],include_docs:true}, function(err,resp) {
 		if ( err ) {
 			console.log(err,resp);
-			console.log("Something went wrong chen requesting database");
+			console.log("Something went wrong when requesting database");
 			process.exit(1);
 		}
 		if ( resp.rows.length == 0 ) {

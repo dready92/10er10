@@ -1,3 +1,30 @@
+Upgrade from 0.4 to 0.5
+=======================
+
+- backup the configuration file **node/config.js**, as it will be overwritten
+- install the files from the tarball (thus replacing the old 10er10 version)
+- cd to the 10er10 root directory (the one that contains the *audio*, *node* and *views* folders).
+- run the command :
+
+npm install node-mailer
+
+- re-run the installer script (don't worry, it won't burn your dog) : go to **node/install**. Then:
+
+To upgrade your DEV databases, run
+
+    node install.js
+
+To upgrade your PROD databases, run
+
+    node install.js -p
+
+- restart the node 10er10 server
+
+**What changed ?**
+
+- invites system (needs to be configured, see the instructions in the doc folder. requires npm module node-mailer)
+- artist tokenizer improved
+
 Upgrade from 0.3 to 0.4
 =======================
 
