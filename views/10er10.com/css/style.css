@@ -401,55 +401,17 @@ div.tooltip > p {
 
 #library article.songlist {
 	position: relative;
+	
 } 
 
-#library article.songlist .related {
-/* 	display: none; */
-	background-color: rgba(0,0,0,0.1);
-	position: absolute;
-	top: -38px;
-	left: 350px;
-	-moz-transform: scale(0.01);
-	-webkit-transform: scale(0.01);
-	opacity: 0.3;
-	width: 220px;
-	height: 16px;
-	font-size: 0.9em;
-	height: 
-	border: 2px solid rgba(0,0,0,0);
-	padding: 3px;
-	overflow: hidden;
-	border-radius: 15px;
-	-moz-transition: -moz-transform 0.5s, opacity 0.5s, width 0.5s, height 0.5s, font-size 0.5s;
-	-webkit-transition: -webkit-transform 0.5s, opacity 0.5s, width 0.5s, height 0.5s, font-size 0.5s;
-}
-
-
-#library article.songlist .related.ontop {
-	opacity: 0.8;
-	-moz-transform: scale(1);
-	-webkit-transform: scale(1);
-}
-
-#library article.songlist .related:hover {
-	width: 270px;
-	font-size: 1em;
-	opacity: 1;
-	overflow: auto;
-	border: 2px solid rgba(0,0,0,0.2);
-
-	height:50px;
-/* 	-moz-box-shadow: rgba(0,0,0,0.4) 0px 0px 5px; */
-}
-
-#library article.songlist .related .link {
-	padding: 0 1px;
-}
-
-#library article.songlist .related .link:hover {
-	background-color: rgba(255,255,255,0.1);
-}
-
+#library article.songlist .showHide { float: right; font-size: 0.6em; padding-top: 5px; font-weight: normal; }
+#library article.songlist .showHide > span:hover { font-weight: bold; cursor: pointer; }
+#library article.songlist .extendedInfosContainer { text-align: center;}
+#library article.songlist .extendedInfos { height: 300px; vertical-align: middle; display: inline-block; }
+#library article.songlist .extendedInfos .part { display: inline-block; width: 231px; margin: 5px; vertical-align: top;}
+#library article.songlist .extendedInfos .part > div {text-align: center; font-size: 1.2em; margin-bottom: 10px;}
+#library article.songlist .extendedInfos .part > ul {list-style: none; height: 250px; overflow: auto; background-color: #000;}
+#library article.songlist .extendedInfos .part li {font-size: 0.9em;}
 
 article.songlist div.controls {
 	position: relative;
