@@ -184,9 +184,15 @@ var my = function () {
     d10.bghttp.post({
       "url": site_url+"/api/sendInvite",
       "method": "POST",
+	  "dataType": "json",
       "data": {"email": email},
       "success": function (data) {
 //         debug("success");
+		if( data && data.status && data.status == "error" ) {
+			$("article.my",topicdiv).hide();
+			$("article.notsent",topicdiv).fadeIn();
+			return ;
+		}
         $("article.my",topicdiv).hide();
         $("article.sent",topicdiv).fadeIn();
       },

@@ -8,6 +8,8 @@ Invites system configuration
 * He follows the link and can create his account
 * He finally can login on your 10er10 server using the account he just created.
 
+The mail is sent using the senmail executable : be sure that **sendmail** is available in the path of the user running the 10er10 node server.
+
 Invites implementation
 ======================
 

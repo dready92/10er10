@@ -22,7 +22,7 @@ To upgrade your PROD databases, run
 
 **What changed ?**
 
-- invites system (needs to be configured, see the instructions in the doc folder. requires npm module node-mailer)
+- invites system (needs to be configured, see the instructions in the doc folder. requires npm module node-mailer. You'll need the sendmail executable in the path of the user running the 10er10 server)
 - artist tokenizer improved
 
 Upgrade from 0.3 to 0.4
