@@ -179,6 +179,7 @@ var library = function () {
 							section.height(list.height()+10);
 							section.next(".grippie").hide();
 						} else {
+							section.next(".grippie").show();
 							section.makeResizable(
 								{
 									vertical: true,
@@ -432,7 +433,12 @@ $(document).ready(function() {
 			var show = topicdiv.find("span.show");
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos .infos");
-			show.hide();
+			if ( d10.config.library && d10.config.library.hideExtendedInfos ) {
+				hide.hide();
+				topicdiv.find(".extendedInfosContainer").hide();
+			} else {
+				show.hide();
+			}
 			infos.hide();
 			when({
 				artists: function(then) {
@@ -443,7 +449,7 @@ $(document).ready(function() {
 							debug(resp);
 							var ul = topicdiv.find("ul.artists");
 							for ( var i in resp.data ) {
-								var li = $("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)").attr("value",resp.data[i].value);
+								var li = $("<li />").html(resp.data[i].key[1]).attr("data-name",resp.data[i].key[1]);
 								ul.append(li);
 							}
 							then(null);
@@ -461,7 +467,7 @@ $(document).ready(function() {
 							debug(resp);
 							var ul = topicdiv.find("ul.albums");
 							for ( var i in resp.data ) {
-								var li = $("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)").attr("value",resp.data[i].value);
+								var li = $("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)").attr("data-name",resp.data[i].key[1]);
 								ul.append(li);
 							}
 							then(null);
@@ -473,6 +479,28 @@ $(document).ready(function() {
 				}
 			},
 			function(errs,responses) {
+				topicdiv.find("ul.artists").delegate("li","click",function() {
+					location.hash = "#/library/artists/"+encodeURIComponent($(this).attr("data-name"));
+				});
+				topicdiv.find("ul.albums").delegate("li","click",function() {
+					location.hash = "#/library/albums/"+encodeURIComponent($(this).attr("data-name"));
+				});
+				topicdiv.find(".showHide .hide").click(function() {
+					d10.config.library = d10.config.library || {};
+					d10.config.library.hideExtendedInfos = true;
+					topicdiv.find(".extendedInfosContainer").slideUp("fast");
+					$(this).slideUp("fast",function() {
+						$(this).siblings(".show").slideDown("fast");
+					});
+				});
+				topicdiv.find(".showHide .show").click(function() {
+					d10.config.library = d10.config.library || {};
+					d10.config.library.hideExtendedInfos = false;
+					topicdiv.find(".extendedInfosContainer").slideDown("fast");
+					$(this).slideUp("fast",function() {
+						$(this).siblings(".hide").slideDown("fast");
+					});
+				});
 				loading.slideUp("fast");
 				infos.slideDown("fast");
 			});

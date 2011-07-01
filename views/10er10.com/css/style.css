@@ -404,14 +404,23 @@ div.tooltip > p {
 	
 } 
 
-#library article.songlist .showHide { float: right; font-size: 0.6em; padding-top: 5px; font-weight: normal; }
-#library article.songlist .showHide > span:hover { font-weight: bold; cursor: pointer; }
+#library article.songlist .showHide { float: right; font-size: 0.6em; padding-top: 5px; font-weight: normal; cursor: pointer; }
+#library article.songlist .showHide > span:hover { color: #BF9730;}
 #library article.songlist .extendedInfosContainer { text-align: center;}
 #library article.songlist .extendedInfos { height: 300px; vertical-align: middle; display: inline-block; }
-#library article.songlist .extendedInfos .part { display: inline-block; width: 231px; margin: 5px; vertical-align: top;}
-#library article.songlist .extendedInfos .part > div {text-align: center; font-size: 1.2em; margin-bottom: 10px;}
-#library article.songlist .extendedInfos .part > ul {list-style: none; height: 250px; overflow: auto; background-color: #000;}
-#library article.songlist .extendedInfos .part li {font-size: 0.9em;}
+#library article.songlist .extendedInfos .part3 {width: 231px; margin: 5px;}
+#library article.songlist .extendedInfos .part2 {width: 330px; margin: 5px;}
+#library article.songlist .extendedInfos .part { display: inline-block; vertical-align: top;border: 4px solid #393939;
+border-radius: 5px;
+background-image: -webkit-linear-gradient(-50deg,#343434,#3F3F3F 10%,#343434 30%);
+background-image: -moz-linear-gradient(-50deg,#343434,#3F3F3F 10%,#343434 30%);
+}
+#library article.songlist .extendedInfos .part > div {text-align: center; font-size: 1.2em; padding: 4px 0; color: #086FA1;}
+#library article.songlist .extendedInfos .part > ul {list-style: none; height: 230px; overflow: auto; 
+background-color: rgba(200,200,200,0.05);padding: 5px 3px;text-align: left;}
+#library article.songlist .extendedInfos .part li {font-size: 0.9em; cursor: pointer; 
+-moz-transition: color 0.5s linear; -webkit-transition: color 0.5s linear; }
+#library article.songlist .extendedInfos .part li:hover { color: #BF9730; }
 
 article.songlist div.controls {
 	position: relative;
