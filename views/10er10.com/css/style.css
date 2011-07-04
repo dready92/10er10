@@ -39,6 +39,7 @@ a:active { color: #FFCA40 }
 .row {	display: table-row;}
 .cell {	display: table-cell;}
 .airin {	padding: 15px 10px;}
+.airnobottom { padding: 15px 20px 0 20px; }
 .vertical-air { padding: 10px 0; }
 .vertical-little-air {padding: 5px 0;}
 .littletrans { opacity: 0.6; }
@@ -404,6 +405,7 @@ div.tooltip > p {
 	
 } 
 
+#library .showHideExtended { margin: 0 20px 10px 20px; border-radius: 5px; background-color: #232323; text-align: center; }
 #library article.songlist .showHide { float: right; font-size: 0.6em; padding-top: 5px; font-weight: normal; cursor: pointer; }
 #library article.songlist .showHide > span:hover { color: #BF9730;}
 #library article.songlist .extendedInfosContainer { text-align: center;}

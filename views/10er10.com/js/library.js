@@ -432,7 +432,12 @@ $(document).ready(function() {
 			var hide = topicdiv.find("span.hide");
 			var show = topicdiv.find("span.show");
 			var loading = topicdiv.find(".extendedInfos .loading");
-			var infos = topicdiv.find(".extendedInfos .infos");
+			var infos = $(d10.mustacheView("library.content.extended.2parts", {
+				part1title: "Artists",
+				part1class: "artists",
+				part2title: "Albums",
+				part2class: "albums",
+			}));
 			if ( d10.config.library && d10.config.library.hideExtendedInfos ) {
 				hide.hide();
 				topicdiv.find(".extendedInfosContainer").hide();
@@ -446,8 +451,8 @@ $(document).ready(function() {
 						url: site_url+"/api/list/genres/artists/"+genre,
 						dataType: "json",
 						success: function(resp) {
-							debug(resp);
-							var ul = topicdiv.find("ul.artists");
+// 							debug(resp);
+							var ul = infos.find("ul.artists");
 							for ( var i in resp.data ) {
 								var li = $("<li />").html(resp.data[i].key[1]).attr("data-name",resp.data[i].key[1]);
 								ul.append(li);
@@ -464,8 +469,8 @@ $(document).ready(function() {
 						url: site_url+"/api/list/genres/albums/"+genre,
 						dataType: "json",
 						success: function(resp) {
-							debug(resp);
-							var ul = topicdiv.find("ul.albums");
+// 							debug(resp);
+							var ul = infos.find("ul.albums");
 							for ( var i in resp.data ) {
 								var li = $("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)").attr("data-name",resp.data[i].key[1]);
 								ul.append(li);
@@ -479,12 +484,6 @@ $(document).ready(function() {
 				}
 			},
 			function(errs,responses) {
-				topicdiv.find("ul.artists").delegate("li","click",function() {
-					location.hash = "#/library/artists/"+encodeURIComponent($(this).attr("data-name"));
-				});
-				topicdiv.find("ul.albums").delegate("li","click",function() {
-					location.hash = "#/library/albums/"+encodeURIComponent($(this).attr("data-name"));
-				});
 				topicdiv.find(".showHide .hide").click(function() {
 					d10.config.library = d10.config.library || {};
 					d10.config.library.hideExtendedInfos = true;
@@ -501,8 +500,116 @@ $(document).ready(function() {
 						$(this).siblings(".hide").slideDown("fast");
 					});
 				});
-				loading.slideUp("fast");
+				topicdiv.find(".extendedInfos").append(infos);
+				if ( loading.is(":visible") ) {
+					loading.slideUp("fast",function() {loading.remove();});
+				} else {
+					loading.remove();
+				}
 				infos.slideDown("fast");
+			});
+			infos.find("ul.artists").delegate("li","click",function() {
+				location.hash = "#/library/artists/"+encodeURIComponent($(this).attr("data-name"));
+			});
+			infos.find("ul.albums").delegate("li","click",function() {
+				location.hash = "#/library/albums/"+encodeURIComponent($(this).attr("data-name"));
+			});
+		},
+		artists: function(artist,topicdiv) {
+			if ( !artist || !artist.length ) {
+				topicdiv.find(".showHideExtended").remove();
+				topicdiv.find(".extendedInfosContainer").remove();
+				return ;
+			}
+			var show = topicdiv.find(".show");
+			var hide = topicdiv.find(".hide");
+			var loading = topicdiv.find(".extendedInfos .loading");
+			var infos = $(d10.mustacheView("library.content.extended.2parts", {
+				part1title: "Related artists",
+				part1class: "artists",
+				part2title: "Albums",
+				part2class: "albums",
+			}));
+			show.hide();
+			infos.hide();
+			when({
+				artists: function(then) {
+					d10.bghttp.get({
+						url: site_url+"/api/relatedArtists/"+artist,
+						dataType: "json",
+						success: function(resp) {
+// 							debug(resp);
+							var ul = infos.find("ul.artists");
+							for ( var i in resp.data.artistsRelated ) {
+								var li = $("<li />").html(resp.data.artistsRelated[i]).attr("data-name",resp.data.artistsRelated[i]);
+								ul.append(li);
+							}
+							then(null);
+						},
+						error: function(err) {
+							then(err);
+						}
+					});
+				}/*,
+				albums: function(then) {
+					d10.bghttp.get({
+						url: site_url+"/api/list/genres/albums/"+genre,
+						dataType: "json",
+						success: function(resp) {
+// 							debug(resp);
+							var ul = infos.find("ul.albums");
+							for ( var i in resp.data ) {
+								var li = $("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)").attr("data-name",resp.data[i].key[1]);
+								ul.append(li);
+							}
+							then(null);
+						},
+						error: function(err) {
+							then(err);
+						}
+					});
+				}*/
+			},
+			function(errs,responses) {
+				topicdiv.find(".showHide .hide").click(function() {
+					d10.config.library = d10.config.library || {};
+					d10.config.library.hideExtendedInfos = true;
+					topicdiv.find(".extendedInfosContainer").slideUp("fast");
+					$(this).slideUp("fast",function() {
+						$(this).siblings(".show").slideDown("fast");
+					});
+				});
+				topicdiv.find(".showHide .show").click(function() {
+					d10.config.library = d10.config.library || {};
+					d10.config.library.hideExtendedInfos = false;
+					topicdiv.find(".extendedInfosContainer").slideDown("fast");
+					$(this).slideUp("fast",function() {
+						$(this).siblings(".hide").slideDown("fast");
+					});
+				});
+				topicdiv.find(".extendedInfos").append(infos);
+				if ( loading.is(":visible") ) {
+					loading.slideUp("fast",function() {loading.remove();});
+				} else {
+					loading.remove();
+				}
+				infos.slideDown("fast");
+			});
+			infos.find("ul.artists").delegate("li","click",function() {
+				location.hash = "#/library/artists/"+encodeURIComponent($(this).attr("data-name"));
+			});
+			infos.find("ul.albums").delegate("li","click",function() {
+				location.hash = "#/library/albums/"+encodeURIComponent($(this).attr("data-name"));
+			});
+			show.click(function() {
+				show.hide();
+				hide.show();
+				topicdiv.find(".extendedInfos").show();
+			});
+			hide.click(function() {
+				show.show();
+				hide.hide();
+				topicdiv.find(".extendedInfos").hide();
 			});
 		}
 	};
