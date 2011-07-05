@@ -451,13 +451,11 @@ $(document).ready(function() {
 						url: site_url+"/api/list/genres/artists/"+genre,
 						dataType: "json",
 						success: function(resp) {
-// 							debug(resp);
-							var ul = infos.find("ul.artists");
+							var back = [];
 							for ( var i in resp.data ) {
-								var li = $("<li />").html(resp.data[i].key[1]).attr("data-name",resp.data[i].key[1]);
-								ul.append(li);
+								back.push($("<li />").html(resp.data[i].key[1]).attr("data-name",resp.data[i].key[1]));
 							}
-							then(null);
+							then(null,back);
 						},
 						error: function(err) {
 							then(err);
@@ -469,13 +467,11 @@ $(document).ready(function() {
 						url: site_url+"/api/list/genres/albums/"+genre,
 						dataType: "json",
 						success: function(resp) {
-// 							debug(resp);
-							var ul = infos.find("ul.albums");
+							var back = [];
 							for ( var i in resp.data ) {
-								var li = $("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)").attr("data-name",resp.data[i].key[1]);
-								ul.append(li);
+								back.push($("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)").attr("data-name",resp.data[i].key[1]));
 							}
-							then(null);
+							then(null,back);
 						},
 						error: function(err) {
 							then(err);
@@ -484,6 +480,14 @@ $(document).ready(function() {
 				}
 			},
 			function(errs,responses) {
+				if ( responses.artists.length ) {
+					var artists = infos.find("ul.artists");
+					$.each(responses.artists,function(i,v) { artists.append(v); });
+				}
+				if ( responses.albums.length ) {
+					var albums= infos.find("ul.albums");
+					$.each(responses.albums,function(i,v) { albums.append(v); });
+				}
 				topicdiv.find(".showHide .hide").click(function() {
 					d10.config.library = d10.config.library || {};
 					d10.config.library.hideExtendedInfos = true;
@@ -539,12 +543,12 @@ $(document).ready(function() {
 						dataType: "json",
 						success: function(resp) {
 // 							debug(resp);
-							var ul = infos.find("ul.artists");
+// 							var ul = infos.find("ul.artists");
+							var back = [];
 							for ( var i in resp.data.artistsRelated ) {
-								var li = $("<li />").html(resp.data.artistsRelated[i]).attr("data-name",resp.data.artistsRelated[i]);
-								ul.append(li);
+								back.push( $("<li />").html(resp.data.artistsRelated[i]).attr("data-name",resp.data.artistsRelated[i]) );
 							}
-							then(null);
+							then(null,back);
 						},
 						error: function(err) {
 							then(err);
@@ -571,6 +575,10 @@ $(document).ready(function() {
 				}*/
 			},
 			function(errs,responses) {
+				if ( responses.artists.length ) {
+					var artists = infos.find("ul.artists");
+					$.each(responses.artists,function(i,v) { artists.append(v); });
+				}
 				topicdiv.find(".showHide .hide").click(function() {
 					d10.config.library = d10.config.library || {};
 					d10.config.library.hideExtendedInfos = true;
