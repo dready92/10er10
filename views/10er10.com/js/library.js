@@ -424,7 +424,44 @@ $(document).ready(function() {
 		};
 	};
 	
-	
+	var parseExtended = function (responses, infos, loading, showHide) {
+		var infosParts = 0, infosTemplateData = {};
+		for ( var i in responses ) {
+			if ( responses[i].data.length ) {
+				infosParts++;
+				infosTemplateData["part"+infosParts+"title"] = responses[i].title;
+			}
+		}
+		
+		if ( infosParts == 0 ) {
+			loading.hide();
+			showHide.hide();
+			infos.hide();
+			return ;
+		}
+		var template = $(d10.mustacheView("library.content.extended."+infosParts+"part", infosTemplateData)).hide();
+
+		infosParts = 0;
+		for ( var i in responses ) {
+			if ( responses[i].data.length ) {
+				var ul = template.find(".part").eq(infosParts).find("ul");
+				$.each(responses[i].data,function(i,v) { ul.append(v); });
+				infosParts++;
+			}
+		}
+		template.delegate("li","click",function() {
+// 			debug($(this).attr("data-name"));
+			location.hash = $(this).attr("data-name");
+		});
+
+		infos.append(template);
+		if ( loading.is(":visible") ) {
+			loading.slideUp("fast",function() {loading.remove();});
+		} else {
+			loading.remove();
+		}
+		template.slideDown("fast");
+	};
 	
 	
 	d10.library.extendedInfos = {
@@ -432,19 +469,8 @@ $(document).ready(function() {
 			var hide = topicdiv.find("span.hide");
 			var show = topicdiv.find("span.show");
 			var loading = topicdiv.find(".extendedInfos .loading");
-			var infos = $(d10.mustacheView("library.content.extended.2parts", {
-				part1title: "Artists",
-				part1class: "artists",
-				part2title: "Albums",
-				part2class: "albums",
-			}));
-			if ( d10.config.library && d10.config.library.hideExtendedInfos ) {
-				hide.hide();
-				topicdiv.find(".extendedInfosContainer").hide();
-			} else {
-				show.hide();
-			}
-			infos.hide();
+			var infos = topicdiv.find(".extendedInfos");
+			show.hide();
 			when({
 				artists: function(then) {
 					d10.bghttp.get({
@@ -453,9 +479,11 @@ $(document).ready(function() {
 						success: function(resp) {
 							var back = [];
 							for ( var i in resp.data ) {
-								back.push($("<li />").html(resp.data[i].key[1]).attr("data-name",resp.data[i].key[1]));
+								back.push($("<li />").html(resp.data[i].key[1])
+													.attr("data-name","#/library/artists/"+encodeURIComponent( resp.data[i].key[1])));
 							}
-							then(null,back);
+							var data = {title: "Artists", data: back};
+							then(null,data);
 						},
 						error: function(err) {
 							then(err);
@@ -469,9 +497,11 @@ $(document).ready(function() {
 						success: function(resp) {
 							var back = [];
 							for ( var i in resp.data ) {
-								back.push($("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)").attr("data-name",resp.data[i].key[1]));
+								back.push($("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)")
+													.attr("data-name","#/library/albums/"+encodeURIComponent(resp.data[i].key[1])));
 							}
-							then(null,back);
+							var data = {title: "Albums", data: back};
+							then(null,data);
 						},
 						error: function(err) {
 							then(err);
@@ -480,43 +510,19 @@ $(document).ready(function() {
 				}
 			},
 			function(errs,responses) {
-				if ( responses.artists.length ) {
-					var artists = infos.find("ul.artists");
-					$.each(responses.artists,function(i,v) { artists.append(v); });
-				}
-				if ( responses.albums.length ) {
-					var albums= infos.find("ul.albums");
-					$.each(responses.albums,function(i,v) { albums.append(v); });
-				}
-				topicdiv.find(".showHide .hide").click(function() {
-					d10.config.library = d10.config.library || {};
-					d10.config.library.hideExtendedInfos = true;
-					topicdiv.find(".extendedInfosContainer").slideUp("fast");
-					$(this).slideUp("fast",function() {
-						$(this).siblings(".show").slideDown("fast");
-					});
+				parseExtended(responses, infos, loading, topicdiv.find(".showHideExtended") );
+			});
+			hide.click(function() {
+				infos.slideUp("fast");
+				hide.slideUp("fast",function() {
+					show.slideDown("fast");
 				});
-				topicdiv.find(".showHide .show").click(function() {
-					d10.config.library = d10.config.library || {};
-					d10.config.library.hideExtendedInfos = false;
-					topicdiv.find(".extendedInfosContainer").slideDown("fast");
-					$(this).slideUp("fast",function() {
-						$(this).siblings(".hide").slideDown("fast");
-					});
-				});
-				topicdiv.find(".extendedInfos").append(infos);
-				if ( loading.is(":visible") ) {
-					loading.slideUp("fast",function() {loading.remove();});
-				} else {
-					loading.remove();
-				}
+			});
+			show.click(function() {
 				infos.slideDown("fast");
-			});
-			infos.find("ul.artists").delegate("li","click",function() {
-				location.hash = "#/library/artists/"+encodeURIComponent($(this).attr("data-name"));
-			});
-			infos.find("ul.albums").delegate("li","click",function() {
-				location.hash = "#/library/albums/"+encodeURIComponent($(this).attr("data-name"));
+				show.slideUp("fast",function() {
+					hide.slideDown("fast");
+				});
 			});
 		},
 		artists: function(artist,topicdiv) {
@@ -525,17 +531,14 @@ $(document).ready(function() {
 				topicdiv.find(".extendedInfosContainer").remove();
 				return ;
 			}
-			var show = topicdiv.find(".show");
+			var show = topicdiv.find(".show").hide();
 			var hide = topicdiv.find(".hide");
 			var loading = topicdiv.find(".extendedInfos .loading");
-			var infos = $(d10.mustacheView("library.content.extended.2parts", {
-				part1title: "Related artists",
-				part1class: "artists",
-				part2title: "Albums",
-				part2class: "albums",
-			}));
-			show.hide();
-			infos.hide();
+			var infos = topicdiv.find(".extendedInfos");
+			
+			topicdiv.find(".showHideExtended").removeClass("hidden");
+			topicdiv.find(".extendedInfosContainer").slideDown("fast");
+			
 			when({
 				artists: function(then) {
 					d10.bghttp.get({
@@ -546,9 +549,11 @@ $(document).ready(function() {
 // 							var ul = infos.find("ul.artists");
 							var back = [];
 							for ( var i in resp.data.artistsRelated ) {
-								back.push( $("<li />").html(resp.data.artistsRelated[i]).attr("data-name",resp.data.artistsRelated[i]) );
+								back.push( $("<li />").html(resp.data.artistsRelated[i])
+													.attr("data-name","#/library/artists/"+ encodeURIComponent(resp.data.artistsRelated[i])) );
 							}
-							then(null,back);
+							var data = {title: "Artists you might like", data: back};
+							then(null,data);
 						},
 						error: function(err) {
 							then(err);
@@ -575,49 +580,19 @@ $(document).ready(function() {
 				}*/
 			},
 			function(errs,responses) {
-				if ( responses.artists.length ) {
-					var artists = infos.find("ul.artists");
-					$.each(responses.artists,function(i,v) { artists.append(v); });
-				}
-				topicdiv.find(".showHide .hide").click(function() {
-					d10.config.library = d10.config.library || {};
-					d10.config.library.hideExtendedInfos = true;
-					topicdiv.find(".extendedInfosContainer").slideUp("fast");
-					$(this).slideUp("fast",function() {
-						$(this).siblings(".show").slideDown("fast");
-					});
-				});
-				topicdiv.find(".showHide .show").click(function() {
-					d10.config.library = d10.config.library || {};
-					d10.config.library.hideExtendedInfos = false;
-					topicdiv.find(".extendedInfosContainer").slideDown("fast");
-					$(this).slideUp("fast",function() {
-						$(this).siblings(".hide").slideDown("fast");
-					});
-				});
-				topicdiv.find(".extendedInfos").append(infos);
-				if ( loading.is(":visible") ) {
-					loading.slideUp("fast",function() {loading.remove();});
-				} else {
-					loading.remove();
-				}
-				infos.slideDown("fast");
-			});
-			infos.find("ul.artists").delegate("li","click",function() {
-				location.hash = "#/library/artists/"+encodeURIComponent($(this).attr("data-name"));
-			});
-			infos.find("ul.albums").delegate("li","click",function() {
-				location.hash = "#/library/albums/"+encodeURIComponent($(this).attr("data-name"));
-			});
-			show.click(function() {
-				show.hide();
-				hide.show();
-				topicdiv.find(".extendedInfos").show();
+				parseExtended(responses, infos, loading, topicdiv.find(".showHideExtended") );
 			});
 			hide.click(function() {
-				show.show();
-				hide.hide();
-				topicdiv.find(".extendedInfos").hide();
+				infos.slideUp("fast");
+				hide.slideUp("fast",function() {
+					show.slideDown("fast");
+				});
+			});
+			show.click(function() {
+				infos.slideDown("fast");
+				show.slideUp("fast",function() {
+					hide.slideDown("fast");
+				});
 			});
 		}
 	};
