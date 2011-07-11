@@ -1,3 +1,26 @@
+Upgrade from 0.5 to 0.6
+=======================
+
+- backup the configuration file **node/config.js**, as it will be overwritten (but this will change)
+- install the files from the tarball (thus replacing the old 10er10 version)
+- cd to the 10er10 root directory (the one that contains the *audio*, *node* and *views* folders).
+- re-run the installer script (don't worry, it won't burn your dog) : go to **node/install**. Then:
+
+To upgrade your DEV databases, run
+
+    node install.js
+
+To upgrade your PROD databases, run
+
+    node install.js -p
+
+- restart the node 10er10 server
+
+**What changed ?**
+
+- linked informations when displaying an artist, an album or a genre
+- new configuration file to keep local settings from being overwritten : Now if you change some value, save it in the file **config.local.js**.
+
 Upgrade from 0.4 to 0.5
 =======================
 

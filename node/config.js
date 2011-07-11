@@ -1,5 +1,5 @@
-exports.port = 8888;
-
+exports.port_dev = 8888;
+exports.port_prod = 8124;
 exports.gzipContentEncoding = true;
 
 

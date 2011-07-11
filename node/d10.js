@@ -4,14 +4,19 @@ var fs = require("fs"),
 	exec = require('child_process').exec;
 	
 exports.mustache = require("./mustache");
-var config = exports.config = require("./config");
-var fileCache = files.fileCache( config.production ? null : {bypass: true} );
-exports.couch = {
-	d10: ncouch.server(config.couch.d10.dsn).debug(false).database(config.couch.d10.database),
-	auth: ncouch.server(config.couch.auth.dsn).debug(false).database(config.couch.auth.database),
-	track: ncouch.server(config.couch.track.dsn).debug(false).database(config.couch.track.database),
-	d10wi: ncouch.server(config.couch.d10wi.dsn).debug(false).database(config.couch.d10wi.database)
+var config, fileCache;
+exports.setConfig = function(cfg) {
+	config = exports.config = cfg;
+//  	console.log(config.couch);
+	fileCache = files.fileCache( config.production ? null : {bypass: true} );
+	exports.couch = {
+		d10: ncouch.server(config.couch.d10.dsn).debug(false).database(config.couch.d10.database),
+		auth: ncouch.server(config.couch.auth.dsn).debug(false).database(config.couch.auth.database),
+		track: ncouch.server(config.couch.track.dsn).debug(false).database(config.couch.track.database),
+		d10wi: ncouch.server(config.couch.d10wi.dsn).debug(false).database(config.couch.d10wi.database)
+	};
 };
+
 exports.db = {};
 
 exports.db.loginInfos = function(login, cb, ecb) {

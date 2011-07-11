@@ -14,7 +14,7 @@ Minimum required version : 1.0.1
 
 Minimum required version : 0.4.2
 
-Don't forget to add the node binary folder to the path of the Unix user which will run 10er10.
+Don't forget to add the node binary's folder to the path of the Unix user which will run 10er10.
 
 Debian squeeze users, using the nodejs deb package : you should create a symlink from /usr/lib/nodejs to /usr/lib/node for connect to work.
 
@@ -71,7 +71,15 @@ You should now have a new **node_modules** folder at the same level as the "audi
 Configure 10er10
 ----------------
 
-Open **node/config.js** 
+Beginning from 0.6, the preferred way to tweak the configuration is to create a new file **node/config.local.js** and put the settings you want to overwrite.
+
+Example : if you need to set the path where audio file are stored to */some/where/on/the/disk*, open **node/config.local.js** and define the variable inside: like :
+
+    exports.audio = { dir: "/some/where/on/the/disk" };
+
+Doing this, your configuration will be kept when you upgrade your 10er10 server.
+
+Open **node/config.js**
 
 * setup your databases configuration
 
@@ -105,7 +113,7 @@ Of course, those two folders should be writable by the unix user that will launc
 Look at exports.cmds.
 
 - exports.cmds.file : the path to the Unix "file" executable.
-- exports.cmds.file_options : be careful on this one : some Linux flavors doesn't use the same flags. The output of "file -bi /etc/passwd" should be "text/plain". Debian/Ubuntu users : set file_options to "-b --mime-type"
+- exports.cmds.file_options : be careful on this one : some Linux flavors don't use the same flags. The output of "file -bi /etc/passwd" should be "text/plain". Debian/Ubuntu users : set file_options to "-b --mime-type"
 - exports.cmds.lame : the path to the lame executable
 - exports.cmds.oggenc : the path to the oggenc executable
 - exports.cmds.ogginfo : the path to the ogginfo executable
@@ -174,6 +182,12 @@ To launch the prod instance :
 
 
 You can fire you browser and go to http://[your server]:8888/ if you launched the dev instance, http://[your server]:8124/ if you launched the prod server.
+
+Bonus: Configure your invites server
+------------------------------------
+
+You want to send some friends an email so they can create an account on your 10er10 server and start using the application ? The doc folder contains a file to help you configure invites server.
+
 
 What else ?
 -----------

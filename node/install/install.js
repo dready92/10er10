@@ -1,9 +1,10 @@
 var ncouch = require("../ncouch");
-var config = require("../config");
+var config ,
+configParser = require("../configParser");
 var configChecker = require("./configChecker");
 var when = require("../when");
 var fs = require("fs");
-
+var dbs;
 
 var configCheck = function() {
 	configChecker.check(function(err) {
@@ -99,18 +100,21 @@ var createDatabases = function() {
 	});
 };
 
-var dbs;
 
-if ( process.argv.length > 2 && process.argv[2] == "-p" ) {
-	console.log("Setting up 10er10 PROD environment");
-	dbs = config.couch_prod;
-} else {
-	console.log("Setting up 10er10 DEV environment");	
-	dbs = config.couch_dev;
-}
 
-console.log("Hit [Ctrl]-C to abort or wait 5 seconds");
+configParser.getConfig(function(err,resp) {
+	config = resp;
 
-setTimeout(function() {
-	configCheck();
-},5000);
+	if ( process.argv.length > 2 && process.argv[2] == "-p" ) {
+		console.log("Setting up 10er10 PROD environment");
+		dbs = config.couch_prod;
+		configParser.switchProd();
+	} else {
+		console.log("Setting up 10er10 DEV environment");	
+		dbs = config.couch_dev;
+		configParser.switchDev();
+	}
+	console.log("Hit [Ctrl]-C to abort or wait 5 seconds");
+	setTimeout(function() { configCheck(); },5000);	
+});
+
