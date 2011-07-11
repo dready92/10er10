@@ -589,4 +589,34 @@ exports.api = function(app) {
 			d10.rest.success(resp.rows,request.ctx);
 		});
 	});
+	
+	app.get("/api/list/artists/albums/:artist",function(request,response) {
+		if ( !request.params.artist ) {
+			console.log("no artist");
+			return d10.rest.err(428, request.params.artist, request.ctx);
+		}
+		d10.couch.d10.view("artist/albums",{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},function(err,resp) {
+			if ( err ) {
+				console.log("error: ",err);
+				return d10.rest.err(423, err, request.ctx);
+			}
+			console.log(resp.rows);
+			d10.rest.success(resp.rows,request.ctx);
+		});
+	});
+	
+	app.get("/api/list/artists/genres/:artist",function(request,response) {
+		if ( !request.params.artist ) {
+			console.log("no artist");
+			return d10.rest.err(428, request.params.artist, request.ctx);
+		}
+		d10.couch.d10.view("artist/genres",{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},function(err,resp) {
+			if ( err ) {
+				console.log("error: ",err);
+				return d10.rest.err(423, err, request.ctx);
+			}
+			console.log(resp.rows);
+			d10.rest.success(resp.rows,request.ctx);
+		});
+	});
 }; // exports.api

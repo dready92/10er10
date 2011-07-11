@@ -542,11 +542,9 @@ $(document).ready(function() {
 			when({
 				artists: function(then) {
 					d10.bghttp.get({
-						url: site_url+"/api/relatedArtists/"+artist,
+						url: site_url+"/api/relatedArtists/"+ encodeURIComponent(artist),
 						dataType: "json",
 						success: function(resp) {
-// 							debug(resp);
-// 							var ul = infos.find("ul.artists");
 							var back = [];
 							for ( var i in resp.data.artistsRelated ) {
 								back.push( $("<li />").html(resp.data.artistsRelated[i])
@@ -559,25 +557,43 @@ $(document).ready(function() {
 							then(err);
 						}
 					});
-				}/*,
+				},
 				albums: function(then) {
 					d10.bghttp.get({
-						url: site_url+"/api/list/genres/albums/"+genre,
+						url: site_url+"/api/list/artists/albums/"+ encodeURIComponent(artist),
 						dataType: "json",
 						success: function(resp) {
-// 							debug(resp);
-							var ul = infos.find("ul.albums");
+							var back = [];
 							for ( var i in resp.data ) {
-								var li = $("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)").attr("data-name",resp.data[i].key[1]);
-								ul.append(li);
+								back.push( $("<li />").html(resp.data[i].key[1])
+													.attr("data-name","#/library/albums/"+ encodeURIComponent(resp.data[i].key[1])) );
 							}
-							then(null);
+							var data = {title: "Albums", data: back};
+							then(null,data);
 						},
 						error: function(err) {
 							then(err);
 						}
 					});
-				}*/
+				},
+				genres: function(then) {
+					d10.bghttp.get({
+						url: site_url+"/api/list/artists/genres/"+ encodeURIComponent(artist),
+						dataType: "json",
+						success: function(resp) {
+							var back = [];
+							for ( var i in resp.data ) {
+								back.push( $("<li />").html(resp.data[i].key[1])
+													.attr("data-name","#/library/genres/"+ encodeURIComponent(resp.data[i].key[1])) );
+							}
+							var data = {title: "Genres", data: back};
+							then(null,data);
+						},
+						error: function(err) {
+							then(err);
+						}
+					});
+				}
 			},
 			function(errs,responses) {
 				parseExtended(responses, infos, loading, topicdiv.find(".showHideExtended") );
