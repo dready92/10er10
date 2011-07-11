@@ -185,10 +185,17 @@ var my = function () {
       "url": site_url+"/api/sendInvite",
       "method": "POST",
       "data": {"email": email},
+	  "dataType": "json",
       "success": function (data) {
 //         debug("success");
-        $("article.my",topicdiv).hide();
-        $("article.sent",topicdiv).fadeIn();
+		if ( a.status && data.status == "error" ) {
+			$("article.my",topicdiv).hide();
+			$("article.notsent",topicdiv).fadeIn();
+			return ;
+		}
+
+		$("article.my",topicdiv).hide();
+		$("article.sent",topicdiv).fadeIn();
       },
       "error": function(a,b,c) {
 //         debug("error",a,b,c);
