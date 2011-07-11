@@ -600,7 +600,7 @@ exports.api = function(app) {
 				console.log("error: ",err);
 				return d10.rest.err(423, err, request.ctx);
 			}
-			console.log(resp.rows);
+// 			console.log(resp.rows);
 			d10.rest.success(resp.rows,request.ctx);
 		});
 	});
@@ -615,7 +615,21 @@ exports.api = function(app) {
 				console.log("error: ",err);
 				return d10.rest.err(423, err, request.ctx);
 			}
-			console.log(resp.rows);
+// 			console.log(resp.rows);
+			d10.rest.success(resp.rows,request.ctx);
+		});
+	});
+	app.get("/api/list/albums/artists/:album",function(request,response) {
+		if ( !request.params.album ) {
+			console.log("no album");
+			return d10.rest.err(428, request.params.album, request.ctx);
+		}
+		d10.couch.d10.view("album/artists",{startkey: [request.params.album], endkey: [request.params.album,[]], group: true, group_level: 2},function(err,resp) {
+			if ( err ) {
+				console.log("error: ",err);
+				return d10.rest.err(423, err, request.ctx);
+			}
+// 			console.log(resp.rows);
 			d10.rest.success(resp.rows,request.ctx);
 		});
 	});
