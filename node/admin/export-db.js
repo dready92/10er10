@@ -5,7 +5,7 @@ var prompt = require("prompt"),
 var target, dirname, d10;
 
 
-
+/*
 var getTarget = function() {
 	prompt().ask("Which config to export ? production (p) or test (t)","target")
 	.tap(
@@ -27,6 +27,33 @@ var getTarget = function() {
                         checkDirname();
                 }
         ).end();
+};
+*/
+
+var getTarget = function() {
+	var properties = [
+		{
+			name: "target",
+			message: "Which config to export ? production (p) or test (t)",
+			empty: false,
+			validator: /p|t/
+		},
+		{
+			name: "dirname",
+			message: "Please give the directory to write files to ",
+			empty: false
+		}
+	];
+	prompt.start();
+	prompt.get(properties, function(err,results) {
+// 		console.log(results);
+		if ( err ) {
+			return console.log("Error: ",err);
+		}
+		target = results.target;
+		dirname = results.dirname.replace(/\s+$/,"");
+		checkDirname();
+	});
 };
 
 var checkDirname = function() {
