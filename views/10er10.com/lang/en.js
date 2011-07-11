@@ -138,15 +138,21 @@ exports.server = {
 		add_to_playlist: "Add all songs to the player queue",
 		refresh: "Refresh list",
 		no_song: "No song found",
-		loading: "Loading..."
-
+		loading: "Loading...",
+		extended_show_more: "Show more infos...",
+		extended_show_less: "Hide infos...",
+		extended_loading: "Loading..."
 	},
 	"html/library/content_genre.html": {
 		back_to_list: "Back to genres listing",
 		add_to_playlist: "Add all songs to the player queue",
 		refresh: "Refresh list",
 		no_song: "No song found",
-		loading: "Loading..."
+		loading: "Loading...",
+		extended_show_more: "Show more infos...",
+		extended_show_less: "Hide infos...",
+		extended_loading: "Loading..."
+
 	},
 	"html/library/content_none.html": {
 		no_song: "No song"
@@ -297,5 +303,11 @@ exports.client = {
 	"upload.song.processing": "Processing song, please wait...",
 	"upload.song.success": "Success",
 	"upload.song.alreadyindb": "This song is already available",
-	"upload.song.serverError": "Server failure... Please retry"
+	"upload.song.serverError": "Server failure... Please retry",
+	"library.extendedInfos.artist.albums": "This artist albums",
+	"library.extendedInfos.artist.artists": "Artists you might like",
+	"library.extendedInfos.genre.artists": "Artists",
+	"library.extendedInfos.genre.albums": "Albums",
+	"library.extendedInfos.artist.genres": "Genres",
+	"library.extendedInfos.album.artists": "Artists"
 };

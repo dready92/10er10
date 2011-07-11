@@ -133,6 +133,7 @@ var library = function () {
 		});
 		categorydiv.find(".refresh").click(function() {
 			categorydiv.find(".song").remove();
+			categorydiv.find(".extendedInfos").empty();
 			var is = categorydiv.find("section").data("infiniteScroll");
 			if ( is && "remove" in is ) {
 				is.remove();
@@ -432,7 +433,6 @@ $(document).ready(function() {
 				infosTemplateData["part"+infosParts+"title"] = responses[i].title;
 			}
 		}
-		
 		if ( infosParts == 0 ) {
 			loading.hide();
 			showHide.hide();
@@ -455,10 +455,12 @@ $(document).ready(function() {
 		});
 
 		infos.append(template);
-		if ( loading.is(":visible") ) {
-			loading.slideUp("fast",function() {loading.remove();});
-		} else {
-			loading.remove();
+		if ( loading.length ) {
+			if ( loading.is(":visible") ) {
+				loading.slideUp("fast",function() {loading.remove();});
+			} else {
+				loading.remove();
+			}
 		}
 		template.slideDown("fast");
 	};
@@ -470,7 +472,10 @@ $(document).ready(function() {
 			var show = topicdiv.find("span.show");
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			show.hide();
+			debug("hide.css(display): ",hide.css("display"));
+			if ( hide.css("display") != "none" ) {
+				show.hide();
+			}
 			when({
 				artists: function(then) {
 					d10.bghttp.get({
@@ -482,7 +487,7 @@ $(document).ready(function() {
 								back.push($("<li />").html(resp.data[i].key[1])
 													.attr("data-name","#/library/artists/"+encodeURIComponent( resp.data[i].key[1])));
 							}
-							var data = {title: "Artists", data: back};
+							var data = {title: d10.mustacheView("library.extendedInfos.genre.artists"), data: back};
 							then(null,data);
 						},
 						error: function(err) {
@@ -500,7 +505,7 @@ $(document).ready(function() {
 								back.push($("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)")
 													.attr("data-name","#/library/albums/"+encodeURIComponent(resp.data[i].key[1])));
 							}
-							var data = {title: "Albums", data: back};
+							var data = {title: d10.mustacheView("library.extendedInfos.genre.albums"), data: back};
 							then(null,data);
 						},
 						error: function(err) {
@@ -531,10 +536,14 @@ $(document).ready(function() {
 				topicdiv.find(".extendedInfosContainer").remove();
 				return ;
 			}
-			var show = topicdiv.find(".show").hide();
+			var show = topicdiv.find(".show");
 			var hide = topicdiv.find(".hide");
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
+			debug("hide.css(display): ",hide.css("display"));
+			if ( hide.css("display") != "none" ) {
+				show.hide();
+			}
 			
 			topicdiv.find(".showHideExtended").removeClass("hidden");
 			topicdiv.find(".extendedInfosContainer").slideDown("fast");
@@ -550,7 +559,7 @@ $(document).ready(function() {
 								back.push( $("<li />").html(resp.data.artistsRelated[i])
 													.attr("data-name","#/library/artists/"+ encodeURIComponent(resp.data.artistsRelated[i])) );
 							}
-							var data = {title: "Artists you might like", data: back};
+							var data = {title: d10.mustacheView("library.extendedInfos.artist.artists"), data: back};
 							then(null,data);
 						},
 						error: function(err) {
@@ -568,7 +577,7 @@ $(document).ready(function() {
 								back.push( $("<li />").html(resp.data[i].key[1])
 													.attr("data-name","#/library/albums/"+ encodeURIComponent(resp.data[i].key[1])) );
 							}
-							var data = {title: "Albums", data: back};
+							var data = {title: d10.mustacheView("library.extendedInfos.artist.albums"), data: back};
 							then(null,data);
 						},
 						error: function(err) {
@@ -586,7 +595,7 @@ $(document).ready(function() {
 								back.push( $("<li />").html(resp.data[i].key[1])
 													.attr("data-name","#/library/genres/"+ encodeURIComponent(resp.data[i].key[1])) );
 							}
-							var data = {title: "Genres", data: back};
+							var data = {title: d10.mustacheView("library.extendedInfos.artist.genres"), data: back};
 							then(null,data);
 						},
 						error: function(err) {
@@ -617,11 +626,15 @@ $(document).ready(function() {
 				topicdiv.find(".extendedInfosContainer").remove();
 				return ;
 			}
-			var show = topicdiv.find(".show").hide();
+			var show = topicdiv.find(".show");
 			var hide = topicdiv.find(".hide");
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			
+			debug("hide.css(display): ",hide.css("display"));
+			if ( hide.css("display") != "none" ) {
+				show.hide();
+			}
+
 			topicdiv.find(".showHideExtended").removeClass("hidden");
 			topicdiv.find(".extendedInfosContainer").slideDown("fast");
 			
@@ -639,7 +652,7 @@ $(document).ready(function() {
 							if ( back.length == 1 ) {
 								back = [];
 							}
-							var data = {title: "Artists", data: back};
+							var data = {title: d10.mustacheView("library.extendedInfos.album.artists"), data: back};
 							then(null,data);
 						},
 						error: function(err) {

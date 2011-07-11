@@ -138,15 +138,20 @@ exports.server = {
 		add_to_playlist: "Tout ajouter à la lecture en cours",
 		refresh: "Rafraichir la liste",
 		no_song: "Aucun morceau trouvé",
-		loading: "Chargement en cours..."
+		loading: "Chargement en cours...",
+		extended_show_more: "Voir plus d'infos...",
+		extended_show_less: "Cacher les infos",
+		extended_loading: "Chargement en cours..."
 	},
 	"html/library/content_genre.html": {
 		back_to_list: "Revenir à la liste des genres",
 		add_to_playlist: "Tout ajouter à la lecture en cours",
 		refresh: "Rafraichir la liste",
 		no_song: "Aucun morceau trouvé",
-		loading: "Chargement en cours..."
-
+		loading: "Chargement en cours...",
+		extended_show_more: "Voir plus d'infos...",
+		extended_show_less: "Cacher les infos",
+		extended_loading: "Chargement en cours..."
 	},
 	"html/library/content_none.html": {
 		no_song: "Aucun morceau"
@@ -296,5 +301,12 @@ exports.client = {
 	"upload.song.processing": "Le morceau est en cours de traitement, merci de patienter...",
 	"upload.song.success": "Succès",
 	"upload.song.alreadyindb": "Ce morceau est déjà disponible",
-	"upload.song.serverError": "Erreur du serveur... Essayez de recommencer"
+	"upload.song.serverError": "Erreur du serveur... Essayez de recommencer",
+	"library.extendedInfos.artist.albums": "Albums de cet artiste",
+	"library.extendedInfos.artist.artists": "Artistes liés",
+	"library.extendedInfos.genre.artists": "Artistes",
+	"library.extendedInfos.genre.albums": "Albums",
+	"library.extendedInfos.artist.genres": "Genres",
+	"library.extendedInfos.album.artists": "Artistes"
+
 };
