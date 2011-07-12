@@ -141,7 +141,8 @@ exports.server = {
 		loading: "Chargement en cours...",
 		extended_show_more: "Voir plus d'infos...",
 		extended_show_less: "Cacher les infos",
-		extended_loading: "Chargement en cours..."
+		extended_loading: "Chargement en cours...",
+		select_visible: "Sélectionner les morceaux visibles"
 	},
 	"html/library/content_genre.html": {
 		back_to_list: "Revenir à la liste des genres",
@@ -151,7 +152,8 @@ exports.server = {
 		loading: "Chargement en cours...",
 		extended_show_more: "Voir plus d'infos...",
 		extended_show_less: "Cacher les infos",
-		extended_loading: "Chargement en cours..."
+		extended_loading: "Chargement en cours...",
+		select_visible: "Sélectionner les morceaux visibles"
 	},
 	"html/library/content_none.html": {
 		no_song: "Aucun morceau"

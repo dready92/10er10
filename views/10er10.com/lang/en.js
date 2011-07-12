@@ -141,7 +141,8 @@ exports.server = {
 		loading: "Loading...",
 		extended_show_more: "Show more infos...",
 		extended_show_less: "Hide infos...",
-		extended_loading: "Loading..."
+		extended_loading: "Loading...",
+		select_visible: "Select only visible songs"
 	},
 	"html/library/content_genre.html": {
 		back_to_list: "Back to genres listing",
@@ -151,7 +152,8 @@ exports.server = {
 		loading: "Loading...",
 		extended_show_more: "Show more infos...",
 		extended_show_less: "Hide infos...",
-		extended_loading: "Loading..."
+		extended_loading: "Loading...",
+		select_visible: "Select only visible songs"
 
 	},
 	"html/library/content_none.html": {

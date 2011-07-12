@@ -127,9 +127,35 @@ var library = function () {
 		});
 	};
 
+	var selectVisible = function(categorydiv) {
+		var list = categorydiv.find(".list"),
+			parent = list.parent(),
+			songs = list.children(),
+			coutHeight = parent.outerHeight(),
+			ctop = parent.position().top;
+
+		songs.removeClass("selected");
+		for ( var i = 0, last = songs.length; i<last; i++ ) {
+			var song = songs.eq(i),
+			postop = song.position().top -ctop,
+			outheight = song.outerHeight(),
+			delta = outheight * 0.1;
+			if ( postop >= -delta ) {
+				if (  (postop + outheight - delta) < coutHeight ) {
+				song.addClass("selected");
+				} else {
+					break;
+				}
+			}
+		}
+	};
+	
 	var bindControls = function(categorydiv, topic, category) {
 		categorydiv.find(".pushAll").click(function() {
 			d10.playlist.append(categorydiv.find(".song").clone().removeClass("selected"));
+		});
+		categorydiv.find(".selectVisible").click(function() {
+			selectVisible(categorydiv);
 		});
 		categorydiv.find(".refresh").click(function() {
 			categorydiv.find(".song").remove();
