@@ -87,6 +87,19 @@ function user () {
 		return infos.preferences;
 	}
 	
+	this.set_preference = function(name, value) {
+		if ( name == "hiddenExtendedInfos" ) {
+			
+			value = value ? "true" : "false";
+			d10.bghttp.put({
+				url: site_url+"/api/preference/hiddenExtendedInfos",
+				contentType: "application/x-www-form-urlencoded",
+				data: {value: value},
+				success: $.proxy(this.refresh_infos,this)
+			});
+		}
+	};
+	
 	this.get_playlists = function () {
 		if ( infos == null || ! infos.playlists )	return [] ;
 		return infos.playlists;

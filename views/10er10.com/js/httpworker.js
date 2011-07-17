@@ -52,9 +52,11 @@ onmessage = function(e){
 
 	xmlhttp.open(data.method, url,false);
 
-  if ( data.method == 'POST' ) {
-    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-  }
+	if ( data.contentType ) {
+		xmlhttp.setRequestHeader("Content-Type", data.contentType);
+	} else if ( data.method == 'POST' ) {
+		xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	}
   
   
   if ( data.toSend )	xmlhttp.send(data.toSend);

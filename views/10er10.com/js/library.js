@@ -498,10 +498,17 @@ $(document).ready(function() {
 			var show = topicdiv.find("span.show");
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			debug("hide.css(display): ",hide.css("display"));
-			if ( hide.css("display") != "none" ) {
+			if ( d10.user.get_preferences().hiddenExtendedInfos ) {
+				hide.hide();
+				show.show();
+				infos.hide();
+				topicdiv.find(".extendedInfosContainer").show();
+			} else {
+				hide.show();
 				show.hide();
+				topicdiv.find(".extendedInfosContainer").slideDown("fast");
 			}
+
 			when({
 				artists: function(then) {
 					d10.bghttp.get({
@@ -548,12 +555,14 @@ $(document).ready(function() {
 				hide.slideUp("fast",function() {
 					show.slideDown("fast");
 				});
+				d10.user.set_preference("hiddenExtendedInfos",true);
 			});
 			show.click(function() {
 				infos.slideDown("fast");
 				show.slideUp("fast",function() {
 					hide.slideDown("fast");
 				});
+				d10.user.set_preference("hiddenExtendedInfos",false);
 			});
 		},
 		artists: function(artist,topicdiv) {
@@ -566,13 +575,18 @@ $(document).ready(function() {
 			var hide = topicdiv.find(".hide");
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			debug("hide.css(display): ",hide.css("display"));
-			if ( hide.css("display") != "none" ) {
+			if ( d10.user.get_preferences().hiddenExtendedInfos ) {
+				hide.hide();
+				show.show();
+				infos.hide();
+				topicdiv.find(".extendedInfosContainer").show();
+			} else {
+				hide.show();
 				show.hide();
+				topicdiv.find(".extendedInfosContainer").slideDown("fast");
 			}
-			
 			topicdiv.find(".showHideExtended").removeClass("hidden");
-			topicdiv.find(".extendedInfosContainer").slideDown("fast");
+
 			
 			when({
 				artists: function(then) {
@@ -638,12 +652,14 @@ $(document).ready(function() {
 				hide.slideUp("fast",function() {
 					show.slideDown("fast");
 				});
+				d10.user.set_preference("hiddenExtendedInfos",true);
 			});
 			show.click(function() {
 				infos.slideDown("fast");
 				show.slideUp("fast",function() {
 					hide.slideDown("fast");
 				});
+				d10.user.set_preference("hiddenExtendedInfos",false);
 			});
 		},
 		albums: function(album,topicdiv) {
@@ -656,13 +672,17 @@ $(document).ready(function() {
 			var hide = topicdiv.find(".hide");
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			debug("hide.css(display): ",hide.css("display"));
-			if ( hide.css("display") != "none" ) {
+			if ( d10.user.get_preferences().hiddenExtendedInfos ) {
+				hide.hide();
+				show.show();
+				infos.hide();
+				topicdiv.find(".extendedInfosContainer").show();
+			} else {
+				hide.show();
 				show.hide();
+				topicdiv.find(".extendedInfosContainer").slideDown("fast");
 			}
-
 			topicdiv.find(".showHideExtended").removeClass("hidden");
-			topicdiv.find(".extendedInfosContainer").slideDown("fast");
 			
 			when({
 				artists: function(then) {
@@ -695,12 +715,14 @@ $(document).ready(function() {
 				hide.slideUp("fast",function() {
 					show.slideDown("fast");
 				});
+				d10.user.set_preference("hiddenExtendedInfos",true);
 			});
 			show.click(function() {
 				infos.slideDown("fast");
 				show.slideUp("fast",function() {
 					hide.slideDown("fast");
 				});
+				d10.user.set_preference("hiddenExtendedInfos",false);
 			});
 		}
 	};
