@@ -14,7 +14,7 @@ exports.server = {
 	},
 	"homepage.html": {
 		website_title: "Bienvenue",
-		website_loading_message: "Chargement en cours",
+		website_loading_message: "Chargement en cours<br><span class=\"count\"></span> / <span class=\"total\"></span>",
 		err_browser_not_supported: "Votre navigateur ne supporte pas les fonctionnalités HTML5 nécessaires pour ce site ! <BR> Ce site a été testé sous <a href=\"http://getfirefox.com\">Mozilla Firefox</a> et <a href=\"http://www.google.com/chrome\">Google Chrome</a>. Si vous voulez plus d'informations concernant les navigateurs, <a href=\"http://www.whatbrowser.org/fr/\">cliquez ici</a>.",
 		website_teaser: "Ça va sonner.",
 		search_placeholder: "Rechercher...",

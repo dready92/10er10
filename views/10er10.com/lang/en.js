@@ -14,7 +14,7 @@ exports.server = {
 	},
 	"homepage.html": {
 		website_title: "Welcome",
-		website_loading_message: "Loading in progress",
+		website_loading_message: "Loading in progress<br><span class=\"count\"></span> / <span class=\"total\"></span>",
 		err_browser_not_supported: "Your browser doesn't implement the latest and greatest HTML features. <BR> This website is known to work on <a href=\"http://getfirefox.com\">Mozilla Firefox</a> and <a href=\"http://www.google.com/chrome\">Google Chrome</a>. If you need more informations regarding web browsers, <a href=\"http://www.whatbrowser.org/\">click here</a>.",
 		website_teaser: "Turn me on",
 		search_placeholder: "Find...",

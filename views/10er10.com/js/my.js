@@ -89,7 +89,7 @@ var my = function () {
 			createInfiniteScroll(url, topicdiv, section, list, parseResults);
 		});
 	};
-  
+
 	var createInfiniteScroll = function(url, topicdiv, section, list, parseResults) {
 		var loadTimeout = null, 
 			innerLoading = topicdiv.find(".innerLoading");

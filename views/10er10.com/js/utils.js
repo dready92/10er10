@@ -92,30 +92,51 @@ var step2 = function () {
 	//
 	d10.bghttp.init(base_url);
 
+	var loadCount = $("#initialLoading .count"),
+		loadTotal = $("#initialLoading .total");
 
-
-	//
-	// récupération des templates HTML
-	//
-	d10.bghttp.get ({
-		'url': site_url+'/api/htmlElements', 
-		'dataType':'json', 
-		'callback': function(data) {
-		if ( data.status !=  'success' || data.data.status != 'success' ) { return false; }
-		for ( var index in data.data.data ) { d10.localcache.setTemplate(index,data.data.data[index]); }
-		return true;
-		} 
+	var when = d10.when({
+		//
+		// récupération des templates HTML
+		//
+		templates: function(cb) {
+			d10.bghttp.get ({
+				'url': site_url+'/api/htmlElements', 
+				'dataType':'json', 
+				'callback': function(data) {
+					if ( data.status !=  'success' || data.data.status != 'success' ) { return cb("server error"); }
+					for ( var index in data.data.data ) { d10.localcache.setTemplate(index,data.data.data[index]); }
+					return cb();
+				} 
+			});
+		},
+		//
+		// récupération des infos utilisateur
+		//
+		userInfos: function(cb)  {
+			$(document).one("user.infos",cb);
+// 			setTimeout(function() {
+			d10.user.refresh_infos();
+// 			},1000)
+			;
+		}
+	},
+	function(errs,resps) {
+		launchMeBaby();
 	});
-
-	//
-	// récupération des infos utilisateur
-	//
-	d10.user.refresh_infos();
-
-
+	
+	when.onResponse(function() {
+		debug("Complete: ",when.complete(),"on",when.total());
+		loadCount.html(when.complete());
+	});
+	
+	loadCount.html(when.complete());
+	loadTotal.html(when.total());
+	
 	//
 	// attente du chargement des donnees initiales
 	//
+	/*
 	var initialLoadingInterval = window.setInterval( function () {
 		var allgood = true;
 
@@ -134,7 +155,7 @@ var step2 = function () {
 		}
 
 	},1000);
-
+*/
 
 	var visibleBaby = function () {
 // 			console.profile("visible");
@@ -194,7 +215,7 @@ var step2 = function () {
 	};
 
 	var launchMeBaby = function() {
-		clearInterval(initialLoadingInterval);
+// 		clearInterval(initialLoadingInterval);
 
 		//
 		// preload la vue "playlists"
