@@ -174,11 +174,11 @@ var step2 = function () {
 			mod.enable();
 		});
 		
-		
+		/*
 		if ( window.location.hash.length ) {
 		d10.globalMenu.route( window.location.hash.replace(/^#/,"") );
 		}
-
+*/
 		$('#beautyFade').remove();
 		$("#containerWrap").css("position","");
 
@@ -273,10 +273,10 @@ var step2 = function () {
 
 		d10.globalMenu = new d10.fn.menuManager (menuOptions);
 		debug("menumanager ok");
-		$('#container').css("display","block").animate({"opacity": 1}, 1000,visibleBaby);
-		$('#initialLoading').html(d10.mustacheView("landing.letsgo"));
-		$('#beautyFade').fadeOut(1000);
 		*/
+		
+		
+		
 		
 		// language selector
 		$("footer .langChooser select").bind("change",function() {
@@ -284,6 +284,76 @@ var step2 = function () {
 			var lng = $(this).val();
 			location.search = "?lang="+lng;
 		});
+		var myRouter = {
+			_containers: {
+				main: {tab: $("#container > nav"), container: $("#main"), select: function(name) { return $("#"+name) }},
+				library: {tab: $("#library > nav > ul"), container: $("#library"), select: function(name) {return this.container.children("div[name="+name+"]"); }},
+				my: {tab: $("#my > nav > ul"), container: $("#my"), select: function(name) {return this.container.children("div[name="+name+"]"); }},
+				plm: {tab: $("#my .plm .plm-list-container .plm-list"), container: $("#my .plm-content-container"), select: function(name) {return this.container.children("div[name="+name+"]"); }}
+			},
+			routes: {
+				"welcome": "welcome",
+				"library": "library",
+ 				"my": "my",
+				"my/:topic": "my"
+			},
+			welcome: function() { this._activate("main","welcome"); },
+ 			library: function() { this._activate("main","library"); },
+ 			my: function(topic) { 
+				this._activate("main","my"); 
+				if ( topic ) { this._activate("my",topic); }
+				else {
+					var active = this._containers.my.tab.find(".active");
+					if ( !active ) {
+						
+					}
+				}
+				
+			},
+			_activation_fn: function(from,to) {
+				if ( from ) from.hide().removeClass("active");
+				to.show().addClass("active");
+			},
+			_activate: function(tab, name) {
+				if ( !this._containers[tab] ) {
+					return debug("router._activate: ",tab,"unknown");
+				}
+				var currentActive = null, futureActive = this._containers[tab].select(name);
+				this._containers[tab].container.children("div").each(function() {
+					var v = $(this), visible = v.css("display") == "block" ? true : false;
+					debug("router._activate: container",v,"visible",visible);
+					if ( visible ) {
+						currentActive = v;
+						return false;
+					}
+				});
+				debug("router._activate: switching from",currentActive,"to",futureActive);
+				this._activation_fn(currentActive,futureActive);
+				debug("tabs ? ",this._containers[tab].tab.children());
+				this._containers[tab].tab.find(".active").removeClass("active");
+				this._containers[tab].tab.find("[action="+name+"]").addClass("active");
+			}
+		};
+// 		debug(Backbone.Router.extend);
+		var router = Backbone.Router.extend.call(Backbone.Router, myRouter);
+		d10.router = new router();
+// 		Backbone.history = new Backbone.History();
+		debug("------starting history",Backbone.history.start());
+		
+		myRouter._containers.main.tab.delegate("[action]","click",function() {
+			var elem = $(this), action = elem.attr("action");
+			if ( ! elem.hasClass("active") ) { d10.router.navigate(action,true); }
+		});
+		
+		
+		myRouter._containers.my.tab.delegate("[action]","click",function() {
+			var elem = $(this), action = elem.attr("action");
+			if ( ! elem.hasClass("active") ) { d10.router.navigate("my/"+action,true); }
+		});
+		
+		$('#container').css("display","block").animate({"opacity": 1}, 1000,visibleBaby);
+		$('#initialLoading').html(d10.mustacheView("landing.letsgo"));
+		$('#beautyFade').fadeOut(1000);
 		
 	};
 }

@@ -994,6 +994,7 @@
 
   // The self-propagating extend function that Backbone classes use.
   var extend = function (protoProps, classProps) {
+	  debug("In backbone.extend",this);
     var child = inherits(this, protoProps, classProps);
     child.extend = this.extend;
     return child;
