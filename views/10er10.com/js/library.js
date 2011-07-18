@@ -377,7 +377,7 @@ var library = function () {
 		}
 		return null;
 	}
-
+/*
 	var mm = this.router = new d10.fn.menuManager ({
 		'menu': $('>nav',ui),
 		'container': ui,
@@ -403,7 +403,7 @@ var library = function () {
 		}
 		mm.route( data.segments, data.env );
 	});
-
+*/
 };
 
 d10.library = new library();

@@ -210,6 +210,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 
 
 	// manages the left menu to switch playlists
+		/*
 		var mm = this.router = new d10.fn.menuManager ({
 			'menu': $('section.plm-list-container .plm-list',mypldiv),
 			'container': $('.plm-content-container',mypldiv),
@@ -229,6 +230,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			}
 //       e.stopPropagation();
 		});
+		*/
 	};
 
 	this.plm_playlist_display = function (id) {

@@ -609,7 +609,7 @@ var my = function () {
 		});
 	}
 
-
+/*
 
 	var mm = this.router = new d10.fn.menuManager ({
 		'menu': $('>nav',ui),
@@ -641,7 +641,7 @@ var my = function () {
     mm.route( data.segments, data.env );
   });
 
-  
+  */
   
   
 	  

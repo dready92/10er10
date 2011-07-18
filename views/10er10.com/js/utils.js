@@ -225,6 +225,7 @@ var step2 = function () {
 
 		
 // 		$("#main > div").css("display","block");
+		/*
 		var menuOptions = {
 			'menu':$('#container > nav'), 
 			'container':$('#main'), 
@@ -269,11 +270,13 @@ var step2 = function () {
 			};
 		}
 
+
 		d10.globalMenu = new d10.fn.menuManager (menuOptions);
 		debug("menumanager ok");
 		$('#container').css("display","block").animate({"opacity": 1}, 1000,visibleBaby);
 		$('#initialLoading').html(d10.mustacheView("landing.letsgo"));
 		$('#beautyFade').fadeOut(1000);
+		*/
 		
 		// language selector
 		$("footer .langChooser select").bind("change",function() {
