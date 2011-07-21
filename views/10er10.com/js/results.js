@@ -1,7 +1,11 @@
-$(document).ready(function() {
+(function(d10,$) {
 
+	if ( ! "fn" in d10 ) {
+		d10.fn = {};
+	}
+	
 
-var results = function (search) {
+d10.fn.results = function (search,mainUi) {
 	// 		var loaded = false;
 	var ui = null;
 	var lastRoute = null;
@@ -31,7 +35,7 @@ var results = function (search) {
 	
 	
 	var load = function () {
-		ui = $("#results div.resultContainer");
+		ui = mainUi.find("div.resultContainer").eq(0);
 		ui.find("div.enlarge button").click(function() {
 			var box=$(this).closest("div.rBox");
 			var boxClass=box.hasClass("rSum1") ? "rSum1" : box.hasClass("rSum2") ? "rSum2" : null;
@@ -91,7 +95,7 @@ var results = function (search) {
 		})
 		;
 		
-		$("#results").find("div.searchBackground img.next").click(function() {
+		mainUi.find("div.searchBackground img.next").click(function() {
 			var rCenter = 	ui.find("div.rCenter"),
 				  rSum1 = ui.find("div.rSum1"),
 				  rSum2 = ui.find("div.rSum2");
@@ -100,7 +104,7 @@ var results = function (search) {
 			rSum1.addClass("rCenter").removeClass("rSum1");
 			
 		});
-		$("#results").find("div.searchBackground img.previous").click(function() {
+		mainUi.find("div.searchBackground img.previous").click(function() {
 			var rCenter = 	ui.find("div.rCenter"),
 				rSum1 = ui.find("div.rSum1"),
 				rSum2 = ui.find("div.rSum2");
@@ -109,8 +113,14 @@ var results = function (search) {
 			rSum2.addClass("rCenter").removeClass("rSum2");
 																  
 		});
+		search.bind("keyup",function() {
+// 			window.location.hash="#/results/"+encodeURIComponent($(this).val());
+			d10.router.navigateTo(["results",$(this).val()]);
+		});
+
 	};
 	
+	// ajax callback : this is the ajax options 
 	var displayDetailsResponse = function (data) {
 		if ( this.route != lastRoute ) {
 			debug("details info too late",data);
@@ -205,7 +215,7 @@ var results = function (search) {
 		}
 		if ( animated ) {
 			animated = false;
-			$("#results img.loop").stop(true).css({visibility: "hidden", opacity: 0.6});
+			mainUi.find("img.loop").stop(true).css({visibility: "hidden", opacity: 0.6});
 		}
 		var html = '';
 		$("div.rBox.songs div.list",ui).empty();
@@ -261,49 +271,41 @@ var results = function (search) {
 		debug(details);
 	};
 	
-	var route = this.route = function(data) {
-		debug("results route",data);
-// 		return ;
+	var display = function(data) {
 
+		data = data || "";
 		if ( !ui ) { load(); }
-		
-		if ( !data.active && data.segments.length ) {
-			search.val(data.segments[0]);
-		}
-		if ( data.segments.length ) {
-			if ( search.val() != data.segments[0] ) {
-				debug("1 #/results"+search.val().length ? "/"+encodeURIComponent(search.val()) : "");
-				setTimeout(function() {
-				window.location.hash="#/results"+search.val().length ? "/"+encodeURIComponent(search.val()) : "";
-				},50);
-				return ;
+		if ( data.length ) {
+			if ( search.val() != data ) {
+				debug("1 #results:"+search.val().length ? "/"+encodeURIComponent(search.val()) : "");
+				search.val(data);
 			}
 		} else {
 			if ( search.val().length ) {
-				debug("2 #/results"+ "/"+encodeURIComponent(search.val())) ;
+				debug("2 #results:"+ "/"+encodeURIComponent(search.val())) ;
 				setTimeout(function() {
-				window.location.hash="#/results"+ "/"+encodeURIComponent(search.val()) ;
-				},50);
+					d10.router.navigateTo(["results",search.val()]);
+				},5);
 				return ;
 			}
 		}
-		
-		if ( data.segments.length && data.segments[0].length > 1 ) {
-			if ( data.route == lastRoute ) {
+		debug("results: ",data,lastRoute);
+		if ( data.length ) {
+			if ( data == lastRoute ) {
 				return ;
 			}
-			lastRoute = data.route;
+			lastRoute = data;
 		} else {
 			data.route = "/results";
-			if ( lastRoute != data.route ) {
+			if ( lastRoute != data ) {
 				$("div.rBox.albums div.items, div.rBox.artists div.items",ui).empty();
 				$("div.rBox.songs div.items div.list",ui).empty();
-				lastRoute = data.route;
+				lastRoute = data;
 			}
 			return ;
 		}
-		if ( data.segments.length ) {
-			var q = data.segments[0] ;
+		if ( data.length ) {
+// 			var q = data ;
 			
 			var cache = cacheGet(lastRoute);
 			if ( cache ) {
@@ -325,7 +327,7 @@ var results = function (search) {
 				"url": site_url+"/api/search2",
 				"route": lastRoute,
 				"dataType": "json",
-				"data": {"start": q},
+				"data": {"start": data},
 				"success": displayAjaxResponse
 			};
 			
@@ -336,7 +338,7 @@ var results = function (search) {
 				animated = true;
 				debug("animate...");
 				var startAnim = function() {
-					debug("launching animation on ",$("#results img.loop"));
+					debug("launching animation on ",mainUi.find("img.loop"));
 					$("#results img.loop").css("visibility","visible").animate({opacity: 0.2},500,function() {
 						$(this).animate({opacity: 0.6},500,startAnim);
 					});
@@ -348,28 +350,16 @@ var results = function (search) {
 		}
 		
 	};
-
-
-	$(document).bind("route.results",function(e,data) {
-		if ( !$("#search input").has(":focus").length ) {
-			$("#search input").get(0).focus();
-		}
-		d10.results.route(data);
-	});
-
-	$("#search input").bind("keyup",function() {
-		window.location.hash="#/results/"+encodeURIComponent($(this).val());
-	});
 	
+	load();
 	
-	
+	return { display: display };
 	
 };
+
+})(window.d10, jQuery);
 		
-
-d10.results = new results($("#search input"));
-delete results;
-
-
-
+$(document).ready(function() {
+	d10.results = d10.fn.results($("#search input"),$("#results"));
+	delete results;
 });

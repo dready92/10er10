@@ -29,7 +29,8 @@ var step2 = function () {
 		.hide()
 		.delegate('.clickable','click',function() {
 			if ( $(this).hasClass("review") ) {
-				window.location.hash = "#/my/review/"+encodeURIComponent( $(this).attr("name") );
+// 				window.location.hash = "#/my/review/"+encodeURIComponent( $(this).attr("name") );
+				d10.router.navigateTo(["my","review",$(this).attr("name")]);
 				$(this).closest('.hoverbox').ovlay().close();
 				return ;
 			}
@@ -50,14 +51,16 @@ var step2 = function () {
 	
 	$("#main").delegate("div.song > span.artist","click",function(e) {
 	// 		var artist = encodeURIComponent($(this).html());
-		location.hash = "#/library/artists/"+encodeURIComponent($(this).text());
+		d10.router.navigateTo(["library","artists",$(this).text()]);
+// 		location.hash = "#/library/artists/"+encodeURIComponent($(this).text());
 	});
 
 	$("#main").delegate("div.song > span.album","click",function(e) {
 	// 		var artist = encodeURIComponent($(this).html());
-		var album = encodeURIComponent($(this).text());
+		var album = $(this).text();
 		if ( album.length ) {
-			location.hash = "#/library/albums/"+album;
+			d10.router.navigateTo(["library","artists",$(this).text()]);
+// 			location.hash = "#/library/albums/"+album;
 		}
 	});
 
@@ -185,7 +188,7 @@ var step2 = function () {
 		//
 		// reminder click
 		//
-		$("#reviewReminder").click(function() { window.location.hash = "#/my/review"; });
+		$("#reviewReminder").click(function() { d10.router.navigateTo(["my","review"]); });
 
 		//
 		// the monitor
@@ -286,19 +289,32 @@ var step2 = function () {
 		});
 		var myRouter = {
 			_containers: {
-				main: {tab: $("#container > nav"), container: $("#main"), select: function(name) { return $("#"+name) }},
-				library: {tab: $("#library > nav > ul"), container: $("#library"), select: function(name) {return this.container.children("div[name="+name+"]"); }},
-				my: {tab: $("#my > nav > ul"), container: $("#my"), select: function(name) {return this.container.children("div[name="+name+"]"); }},
-				plm: {tab: $("#my .plm .plm-list-container .plm-list"), container: $("#my .plm-content-container"), select: function(name) {return this.container.children("div[name="+name+"]"); }}
+				main: {tab: $("#container > nav"), container: $("#main"), select: function(name) { return $("#"+name) }, lastActive: null},
+				library: {tab: $("#library > nav > ul"), container: $("#library"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null},
+				my: {tab: $("#my > nav > ul"), container: $("#my"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null},
+				plm: {tab: $("#my .plm .plm-list-container .plm-list"), container: $("#my .plm-content-container"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null}
 			},
 			routes: {
 				"welcome": "welcome",
 				"library": "library",
+ 				"library/:topic": "library",
+ 				"library/:topic/:category": "library",
  				"my": "my",
-				"my/:topic": "my"
+				"my/:topic": "my",
+				"results": "results",
+ 				"results/:search": "results",
 			},
 			welcome: function() { this._activate("main","welcome"); },
- 			library: function() { this._activate("main","library"); },
+ 			library: function(topic,category) {
+				topic = topic || "hits";
+				d10.library.display( decodeURIComponent(topic),category ? decodeURIComponent(category) : null);
+				this._activate("main","library",this.switchMainContainer); 
+				this._activate("library",topic);
+			},
+			results: function(search) {
+				d10.results.display(search);
+				this._activate("main","results",this.switchMainContainer); 
+			},
  			my: function(topic) { 
 				this._activate("main","my"); 
 				if ( topic ) { this._activate("my",topic); }
@@ -310,28 +326,87 @@ var step2 = function () {
 				}
 				
 			},
-			_activation_fn: function(from,to) {
+			switchContainer: function(from,to,tab,name) {
 				if ( from ) from.hide().removeClass("active");
-				to.show().addClass("active");
+				if ( !to.hasClass("active") ) {
+					to.fadeIn().addClass("active");
+					this.trigger("container:"+tab+"/"+name);
+				}
 			},
-			_activate: function(tab, name) {
+			switchMainContainer: function(from,to,tab,name) {
+				if ( from ) from.hide().removeClass("active");
+				if ( !to.hasClass("active") ) {
+					to.show().addClass("active");
+					this.trigger("container:"+tab+"/"+name);
+				}
+			},
+			_activate: function(tab, name, switchCallback) {
+				switchCallback = switchCallback || this.switchContainer;
 				if ( !this._containers[tab] ) {
 					return debug("router._activate: ",tab,"unknown");
 				}
-				var currentActive = null, futureActive = this._containers[tab].select(name);
+				var currentActiveName = this.getActive(tab), currentActive = null, futureActive = this._containers[tab].select(name);
+				
+				this._containers[tab].lastActive = currentActiveName;
+				if (  currentActiveName == name ) {
+					return ;
+				}
+				if ( currentActiveName ) {
+					currentActive = this._containers[tab].select(currentActiveName);
+				}
+				/*	
 				this._containers[tab].container.children("div").each(function() {
 					var v = $(this), visible = v.css("display") == "block" ? true : false;
-					debug("router._activate: container",v,"visible",visible);
+// 					debug("router._activate: container",v,"visible",visible);
 					if ( visible ) {
 						currentActive = v;
 						return false;
 					}
-				});
+				});*/
 				debug("router._activate: switching from",currentActive,"to",futureActive);
-				this._activation_fn(currentActive,futureActive);
+				switchCallback.call(this,currentActive,futureActive,tab,name);
+				this.switchTab(tab,name);
+// 				this._containers[tab].lastActive = name
+				
+			},
+			switchTab: function(tab,name) {
 				debug("tabs ? ",this._containers[tab].tab.children());
-				this._containers[tab].tab.find(".active").removeClass("active");
+				var currentActive = this._containers[tab].tab.find(".active"), current = null;
+				if ( currentActive.length ) {
+					current = currentActive.attr("action");
+					if ( current == name ) {
+						debug("Tab name ",name,"is already active");
+						return ;
+					}
+				}
+				currentActive.removeClass("active");
 				this._containers[tab].tab.find("[action="+name+"]").addClass("active");
+				this.trigger("tab:"+tab+"/"+name);
+// 			},
+// 			lastRoute: null,
+// 			getLastRoute: function() {
+// 				return this.lastRoute;
+			},
+			navigateTo: function(segments) {
+				debug("navigate to",segments);
+				segments = segments || [];
+				if ( typeof segments == "string" ) {
+					return this.navigate(segments,true);
+				}
+				segments = $.map(segments,function(v) { return encodeURIComponent(v); });
+				var back = this.navigate(segments.join("/"),true);
+// 				debug("navigate to",segments,back);
+				return back;
+			},
+			getActive: function(tab) {
+				var active = this._containers[tab].tab.find(".active");
+				if ( active.length ) {
+					return active.eq(0).attr("action");
+				}
+				return null;
+			},
+			isNewlyActivated: function(tab) {
+				
 			}
 		};
 // 		debug(Backbone.Router.extend);
@@ -350,6 +425,19 @@ var step2 = function () {
 			var elem = $(this), action = elem.attr("action");
 			if ( ! elem.hasClass("active") ) { d10.router.navigate("my/"+action,true); }
 		});
+		
+		myRouter._containers.library.tab.delegate("[action]","click",function() {
+			var elem = $(this), action = elem.attr("action");
+			if ( ! elem.hasClass("active") ) { d10.router.navigateTo(["library",action],true); }
+		});
+		
+// 		d10.router.bind("all",function(evt) {
+// 			if ( evt.substr(0,6)  == "route:" ) {
+// 				d10.router.lastRoute = evt.substr(6);
+// 				debug("ROUTE: ",d10.router.getLastRoute());
+// 			}
+// 		});
+		
 		
 		$('#container').css("display","block").animate({"opacity": 1}, 1000,visibleBaby);
 		$('#initialLoading').html(d10.mustacheView("landing.letsgo"));
