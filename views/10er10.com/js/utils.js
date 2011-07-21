@@ -59,7 +59,7 @@ var step2 = function () {
 	// 		var artist = encodeURIComponent($(this).html());
 		var album = $(this).text();
 		if ( album.length ) {
-			d10.router.navigateTo(["library","artists",$(this).text()]);
+			d10.router.navigateTo(["library","albums",album]);
 // 			location.hash = "#/library/albums/"+album;
 		}
 	});
@@ -301,21 +301,25 @@ var step2 = function () {
  				"library/:topic/:category": "library",
  				"my": "my",
 				"my/:topic": "my",
+ 				"my/plm/:id": "plm",
+ 				"my/:topic/:id": "my",
 				"results": "results",
  				"results/:search": "results",
+				"upload": "upload"
 			},
 			welcome: function() { this._activate("main","welcome"); },
  			library: function(topic,category) {
 				topic = topic || "hits";
 				d10.library.display( decodeURIComponent(topic),category ? decodeURIComponent(category) : null);
-				this._activate("main","library",this.switchMainContainer); 
-				this._activate("library",topic);
+				this._activate("main","library",this.switchMainContainer)._activate("library",topic);
 			},
 			results: function(search) {
 				d10.results.display(search);
 				this._activate("main","results",this.switchMainContainer); 
 			},
- 			my: function(topic) { 
+ 			my: function(topic,id) { 
+				topic = topic || "songs";
+				d10.my.display(topic,id);
 				this._activate("main","my"); 
 				if ( topic ) { this._activate("my",topic); }
 				else {
@@ -325,6 +329,14 @@ var step2 = function () {
 					}
 				}
 				
+			},
+			plm: function(id) {
+				d10.my.plmanager.display(id);
+				this._activate("main","my")._activate("my","plm");
+				
+			},
+			upload: function() {
+				this._activate("main","upload"); 
 			},
 			switchContainer: function(from,to,tab,name) {
 				if ( from ) from.hide().removeClass("active");
@@ -343,13 +355,14 @@ var step2 = function () {
 			_activate: function(tab, name, switchCallback) {
 				switchCallback = switchCallback || this.switchContainer;
 				if ( !this._containers[tab] ) {
-					return debug("router._activate: ",tab,"unknown");
+					debug("router._activate: ",tab,"unknown");
+					return this;
 				}
 				var currentActiveName = this.getActive(tab), currentActive = null, futureActive = this._containers[tab].select(name);
 				
 				this._containers[tab].lastActive = currentActiveName;
 				if (  currentActiveName == name ) {
-					return ;
+					return this;
 				}
 				if ( currentActiveName ) {
 					currentActive = this._containers[tab].select(currentActiveName);
@@ -363,11 +376,11 @@ var step2 = function () {
 						return false;
 					}
 				});*/
-				debug("router._activate: switching from",currentActive,"to",futureActive);
+// 				debug("router._activate: switching from",currentActive,"to",futureActive);
 				switchCallback.call(this,currentActive,futureActive,tab,name);
 				this.switchTab(tab,name);
 // 				this._containers[tab].lastActive = name
-				
+				return this;
 			},
 			switchTab: function(tab,name) {
 				debug("tabs ? ",this._containers[tab].tab.children());
@@ -424,6 +437,11 @@ var step2 = function () {
 		myRouter._containers.my.tab.delegate("[action]","click",function() {
 			var elem = $(this), action = elem.attr("action");
 			if ( ! elem.hasClass("active") ) { d10.router.navigate("my/"+action,true); }
+		});
+		
+		myRouter._containers.plm.tab.delegate("[action]","click",function() {
+			var elem = $(this), action = elem.attr("action");
+			if ( ! elem.hasClass("active") ) { d10.router.navigateTo(["my","plm",action]); }
 		});
 		
 		myRouter._containers.library.tab.delegate("[action]","click",function() {

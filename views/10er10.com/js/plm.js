@@ -272,6 +272,8 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			}
 	}
 
+	this.display = this.plm_playlist_display;
+
 	/*
 	
 		Create a playlist
