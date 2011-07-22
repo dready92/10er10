@@ -20,7 +20,7 @@ if (! "fn" in d10 ) {
 		
 			
 		var init_topic = function (topic,category) {
-	// 		debug("init_topic start");
+			debug("library.display start");
 			if ( typeof category == "undefined" ) {
 				category = "";
 			}

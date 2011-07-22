@@ -196,7 +196,7 @@ d10.fn.my = function (ui) {
 							.remove();
 					}
 				});
-				debug("parseResults: ",html);
+// 				debug("parseResults: ",html);
 				return html;
 			};
 			list.delegate("div.song .edit, div.song .review","click", function() {

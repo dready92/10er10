@@ -289,10 +289,10 @@ var step2 = function () {
 		});
 		var myRouter = {
 			_containers: {
-				main: {tab: $("#container > nav"), container: $("#main"), select: function(name) { return $("#"+name) }, lastActive: null},
-				library: {tab: $("#library > nav > ul"), container: $("#library"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null},
-				my: {tab: $("#my > nav > ul"), container: $("#my"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null},
-				plm: {tab: $("#my .plm .plm-list-container .plm-list"), container: $("#my .plm-content-container"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null}
+				main: {tab: $("#container > nav"), container: $("#main"), select: function(name) { return $("#"+name) }, lastActive: null, currentActive: null},
+				library: {tab: $("#library > nav > ul"), container: $("#library"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null, currentActive: null},
+				my: {tab: $("#my > nav > ul"), container: $("#my"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null, currentActive: null},
+				plm: {tab: $("#my .plm .plm-list-container .plm-list"), container: $("#my .plm-content-container"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null, currentActive: null}
 			},
 			routes: {
 				"welcome": "welcome",
@@ -300,6 +300,7 @@ var step2 = function () {
  				"library/:topic": "library",
  				"library/:topic/:category": "library",
  				"my": "my",
+ 				"my/plm": "plm",
 				"my/:topic": "my",
  				"my/plm/:id": "plm",
  				"my/:topic/:id": "my",
@@ -309,12 +310,34 @@ var step2 = function () {
 			},
 			welcome: function() { this._activate("main","welcome"); },
  			library: function(topic,category) {
-				topic = topic || "hits";
-				d10.library.display( decodeURIComponent(topic),category ? decodeURIComponent(category) : null);
+				
+				debug("library starting");
+				
+				
+				if ( !topic ) {
+					debug("no topic");
+					if ( this._containers["library"].currentActive ) {
+						debug("already loaded content");
+						this._activate("main","library",this.switchMainContainer);
+						return ;
+					} else {
+						debug("initial loading");
+						topic = "hits";
+					}
+				}
+				
+				debug(this._containers["library"].currentActive, topic);
+// 				topic = topic || this._containers["library"].currentActive ? this._containers["library"].currentActive : "hits";
+// 				if ( topic && ( category || this._containers["library"].currentActive != topic ) ) {
+				if ( category || this._containers["library"].currentActive != topic ) {
+					debug("launching d10.library.display");
+					d10.library.display( decodeURIComponent(topic), category ? decodeURIComponent(category) : null );
+				}
+// 				}
 				this._activate("main","library",this.switchMainContainer)._activate("library",topic);
 			},
 			results: function(search) {
-				d10.results.display(search);
+				d10.results.display(decodeURIComponent(search));
 				this._activate("main","results",this.switchMainContainer); 
 			},
  			my: function(topic,id) { 
@@ -322,17 +345,11 @@ var step2 = function () {
 				d10.my.display(topic,id);
 				this._activate("main","my"); 
 				if ( topic ) { this._activate("my",topic); }
-				else {
-					var active = this._containers.my.tab.find(".active");
-					if ( !active ) {
-						
-					}
-				}
-				
 			},
 			plm: function(id) {
-				d10.my.plmanager.display(id);
+				if ( id && this._containers["plm"].currentActive != name ) { d10.my.plmanager.display(id); }
 				this._activate("main","my")._activate("my","plm");
+				if ( id && this._containers["plm"].currentActive != name ) { this._activate("plm",id); }
 				
 			},
 			upload: function() {
@@ -360,26 +377,16 @@ var step2 = function () {
 				}
 				var currentActiveName = this.getActive(tab), currentActive = null, futureActive = this._containers[tab].select(name);
 				
-				this._containers[tab].lastActive = currentActiveName;
 				if (  currentActiveName == name ) {
 					return this;
 				}
 				if ( currentActiveName ) {
 					currentActive = this._containers[tab].select(currentActiveName);
 				}
-				/*	
-				this._containers[tab].container.children("div").each(function() {
-					var v = $(this), visible = v.css("display") == "block" ? true : false;
-// 					debug("router._activate: container",v,"visible",visible);
-					if ( visible ) {
-						currentActive = v;
-						return false;
-					}
-				});*/
-// 				debug("router._activate: switching from",currentActive,"to",futureActive);
 				switchCallback.call(this,currentActive,futureActive,tab,name);
 				this.switchTab(tab,name);
-// 				this._containers[tab].lastActive = name
+				this._containers[tab].lastActive = currentActiveName;
+				this._containers[tab].currentActive = name;
 				return this;
 			},
 			switchTab: function(tab,name) {
