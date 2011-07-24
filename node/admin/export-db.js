@@ -1,32 +1,45 @@
 var prompt = require("prompt"),
-		fs = require("fs"),
-	config = require("../config");
-
+		fs = require("fs");
 var target, dirname, d10;
+var config,
+	configParser = require("../configParser");
+
+configParser.getConfig(function(err,resp) {
+	if ( process.argv.length > 4 && process.argv[4] == "-p" ) {
+		configParser.switchProd();
+	}else {
+		configParser.switchDev();
+	}
+	config = resp;
+	getTarget();;
+});
 
 
 
 var getTarget = function() {
-	prompt().ask("Which config to export ? production (p) or test (t)","target")
-	.tap(
-		function(vars) {
-			target = vars.target.toString().replace(/\s+$/,"");
-			//console.log(target);
-			if ( target != "p" && target != "t" ) {
-				console.log("Bad answer... need p or t");
-				process.exit(1);
-			}
+	var properties = [
+		{
+			name: "target",
+			message: "Which config to export ? production (p) or test (t)",
+			empty: false,
+			validator: /p|t/
+		},
+		{
+			name: "dirname",
+			message: "Please give the directory to write files to ",
+			empty: false
 		}
-	).ask("Please give the directory to write files to :","dirname")
-        .tap(
-                function(vars) {
-                        dirname = vars.dirname.toString().replace(/\s+$/,"");
-                        if ( dirname.length == 0 ) {
-                                dirname = ".";
-                        }
-                        checkDirname();
-                }
-        ).end();
+	];
+	prompt.start();
+	prompt.get(properties, function(err,results) {
+// 		console.log(results);
+		if ( err ) {
+			return console.log("Error: ",err);
+		}
+		target = results.target;
+		dirname = results.dirname.replace(/\s+$/,"");
+		checkDirname();
+	});
 };
 
 var checkDirname = function() {
@@ -107,6 +120,5 @@ var exportDb = function(db,then) {
 
 
 
-getTarget();
 
 

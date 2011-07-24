@@ -1,5 +1,4 @@
 var 	bodyDecoder = require("connect").bodyParser,
-		config = require("./config"),
 		hash = require("./hash"),
 		utils = require("connect").utils,
 		d10 = require("./d10"),
@@ -10,12 +9,12 @@ var 	bodyDecoder = require("connect").bodyParser,
 exports.homepage = function(app) {
 
 	var display10er10 = function(request,response,next) {
-		var genres = config.genres;
+		var genres = d10.config.genres;
 		genres.sort();
 		var debug = request.query && request.query.debug ? true : false ;
 		
 		var vars = {
-			scripts: config.javascript.includes, 
+			scripts: d10.config.javascript.includes, 
 			dbg: debug ? "true":"false", 
 			base_url: request.basepath,
 			audio_root: d10.config.audio_root,
@@ -128,7 +127,7 @@ exports.homepage = function(app) {
 	    delete request.ctx.session;
 	    delete request.ctx.user;
 	    delete request.ctx.userPrivateConfig;
-		request.ctx.headers["Set-Cookie"] = config.cookieName+"=no; path="+config.cookiePath;
+		request.ctx.headers["Set-Cookie"] = d10.config.cookieName+"=no; path="+d10.config.cookiePath;
 		displayHomepage(request,response,next);
 	});
 	
@@ -146,8 +145,8 @@ exports.homepage = function(app) {
 						d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
 						var cookie = { user: request.ctx.user.login, session: sessionDoc._id.substring(2) };
 						var d = new Date();
-						d.setTime ( d.getTime() + config.cookieTtl );
-						request.ctx.headers["Set-Cookie"] = config.cookieName+"="+escape(JSON.stringify(cookie))+"; expires="+d.toUTCString()+"; path="+config.cookiePath;
+						d.setTime ( d.getTime() + d10.config.cookieTtl );
+						request.ctx.headers["Set-Cookie"] = d10.config.cookieName+"="+escape(JSON.stringify(cookie))+"; expires="+d.toUTCString()+"; path="+d10.config.cookiePath;
 						if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
 					}
 					displayHomepage(request,response,next);

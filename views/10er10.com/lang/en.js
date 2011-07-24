@@ -14,7 +14,7 @@ exports.server = {
 	},
 	"homepage.html": {
 		website_title: "Welcome",
-		website_loading_message: "Loading in progress",
+		website_loading_message: "Loading in progress<br><span class=\"count\"></span> / <span class=\"total\"></span>",
 		err_browser_not_supported: "Your browser doesn't implement the latest and greatest HTML features. <BR> This website is known to work on <a href=\"http://getfirefox.com\">Mozilla Firefox</a> and <a href=\"http://www.google.com/chrome\">Google Chrome</a>. If you need more informations regarding web browsers, <a href=\"http://www.whatbrowser.org/\">click here</a>.",
 		website_teaser: "Turn me on",
 		search_placeholder: "Find...",
@@ -138,15 +138,23 @@ exports.server = {
 		add_to_playlist: "Add all songs to the player queue",
 		refresh: "Refresh list",
 		no_song: "No song found",
-		loading: "Loading..."
-
+		loading: "Loading...",
+		extended_show_more: "Show more infos...",
+		extended_show_less: "Hide infos...",
+		extended_loading: "Loading...",
+		select_visible: "Select only visible songs"
 	},
 	"html/library/content_genre.html": {
 		back_to_list: "Back to genres listing",
 		add_to_playlist: "Add all songs to the player queue",
 		refresh: "Refresh list",
 		no_song: "No song found",
-		loading: "Loading..."
+		loading: "Loading...",
+		extended_show_more: "Show more infos...",
+		extended_show_less: "Hide infos...",
+		extended_loading: "Loading...",
+		select_visible: "Select only visible songs"
+
 	},
 	"html/library/content_none.html": {
 		no_song: "No song"
@@ -297,5 +305,11 @@ exports.client = {
 	"upload.song.processing": "Processing song, please wait...",
 	"upload.song.success": "Success",
 	"upload.song.alreadyindb": "This song is already available",
-	"upload.song.serverError": "Server failure... Please retry"
+	"upload.song.serverError": "Server failure... Please retry",
+	"library.extendedInfos.artist.albums": "This artist albums",
+	"library.extendedInfos.artist.artists": "Artists you might like",
+	"library.extendedInfos.genre.artists": "Artists",
+	"library.extendedInfos.genre.albums": "Albums",
+	"library.extendedInfos.artist.genres": "Genres",
+	"library.extendedInfos.album.artists": "Artists"
 };

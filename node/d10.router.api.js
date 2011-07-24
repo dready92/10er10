@@ -142,13 +142,13 @@ exports.api = function(app) {
 	
 	
 	app.get("/api/serverLoad", function(request,response) {
-		var child;
+// 		var child;
 		d10.rest.success( {load: os.loadavg()}, request.ctx );
 
 	});
 	
 	app.get("/api/toReview",function(request,response) {
-		d10.log("debug","router:","/api/toReview");
+// 		d10.log("debug","router:","/api/toReview");
 
 		d10.couch.d10.view("user/song",{key: [ request.ctx.user._id, false ]},function(err,resp) {
 			if ( err )	d10.rest.err(423,err,request.ctx)
@@ -176,7 +176,7 @@ exports.api = function(app) {
 					if ( userPreferences.playlist.list && typeof userPreferences.playlist.list == "string" ) {
 						userPreferences.playlist.list = [ userPreferences.playlist.list ];
 					}
-					console.log("storing doc ",userPreferences);
+// 					console.log("storing doc ",userPreferences);
 					d10.couch.d10wi.storeDoc(userPreferences,function(err,response) {
 						if ( err )	d10.rest.err(413,err,request.ctx);
 						else		d10.rest.success( [], request.ctx );
@@ -237,7 +237,7 @@ exports.api = function(app) {
 		var updateAliveDoc = function() {
 			d10.couch.track.updateDoc("tracking/ping/"+request.ctx.user._id.replace(/^us/,"pi"),function(err,resp) {
 				if ( err ) d10.log(err);
-				d10.log("debug", err ? "error updating tracking ping" : "tracking ping updated");
+// 				d10.log("debug", err ? "error updating tracking ping" : "tracking ping updated");
 			});
 		};
 
@@ -393,6 +393,41 @@ exports.api = function(app) {
 					else { d10.rest.success([],request.ctx); }
 				});
 			});
+		});
+	});
+	
+	
+	var updateUserPreferences = function(request, onDoc, callback) {
+		d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
+			if ( err ) { return callback(err); }
+			onDoc(doc);
+// 			console.log("recording",doc);
+// 			doc.volume = volume;
+			d10.couch.d10wi.storeDoc(doc,callback);
+		});
+	};
+	
+	app.put("/api/preference/:name",function(request,response) {
+		var defaultCallback = function(err,resp) {
+			if ( err ) { d10.rest.err(423,err,request.ctx); }
+			else { d10.rest.success([],request.ctx); }
+		};
+		bodyDecoder()(request, response,function() {
+// 			console.log("body: ",request.body);
+			var prefValue = (request.body && "value" in request.body) ? request.body.value : null;
+			if ( request.params.name == "hiddenExtendedInfos" ) {
+				updateUserPreferences(
+					request, 
+					function(doc) {
+						if ( prefValue && prefValue == "true" ) {
+							doc.hiddenExtendedInfos = true;
+						} else {
+							delete doc.hiddenExtendedInfos;
+						}
+					},
+					defaultCallback
+				);
+			}
 		});
 	});
 	
@@ -584,10 +619,10 @@ exports.api = function(app) {
 				jobs,
 				function(err,resp) {
 					if ( err ){
-						d10.log("got details error",err);
+// 						d10.log("got details error",err);
 						d10.rest.err(427,err,request.ctx);
 					} else {
-						d10.log("got when positive response",resp);
+// 						d10.log("got when positive response",resp);
 						request.ctx.headers["Content-Type"] = "application/json";
 						response.writeHead(200,request.ctx.headers);
 						response.end(JSON.stringify(resp));

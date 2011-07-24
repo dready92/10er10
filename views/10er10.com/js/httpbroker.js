@@ -125,6 +125,11 @@ function httpmanager ( base_url ) {
       if ( typeof options.data == 'object' )  request.toSend = $.d10param(options.data);
       else                                    request.toSend = options.data;
     }
+    
+    if ( options.contentType ) {
+		request.contentType = options.contentType;
+	}
+    
     //debug(request);
     cache[request_id]._startTime  = new Date().getTime();
 	if ( d10.debug && d10.debug_options.network ) {

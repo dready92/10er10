@@ -10,7 +10,7 @@
 <body><div id="containerWrap"> 
 <div id="beautyFade"> 
 <div id="initialLoading"> 
-	<p>((website_loading_message))</p> 
+	<p>(({website_loading_message}))</p> 
 </div> 
 </div> 
 <div id="browserNotSupported"> 
@@ -221,7 +221,8 @@ function debug() {
 }
 debug("site_url : ",site_url);
 </script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>   
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
+<!--<script src="/js/jquery.js"></script>-->
 {{#scripts}}<script src="/js/{{.}}"></script>  {{/scripts}}
 
 </body> 

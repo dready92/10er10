@@ -48,10 +48,37 @@ var my = function () {
       }
   };
 
+	var selectVisible = function(categorydiv) {
+		var list = categorydiv.find(".list"),
+			parent = list.parent(),
+			songs = list.children(),
+			coutHeight = parent.outerHeight(),
+			ctop = parent.position().top;
+
+		songs.removeClass("selected");
+		for ( var i = 0, last = songs.length; i<last; i++ ) {
+			var song = songs.eq(i),
+			postop = song.position().top -ctop,
+			outheight = song.outerHeight(),
+			delta = outheight * 0.1;
+			if ( postop >= -delta ) {
+				if (  (postop + outheight - delta) < coutHeight ) {
+				song.addClass("selected");
+				} else {
+					break;
+				}
+			}
+		}
+	};
+  
   
 	var bindControls = function(url, topicdiv, section, list, parseResults) {
+		
 		topicdiv.find(".pushAll").click(function() {
 			d10.playlist.append(topicdiv.find(".song").clone().removeClass("selected"));
+		});
+		topicdiv.find(".selectVisible").click(function() {
+			selectVisible(topicdiv);
 		});
 		topicdiv.find(".refresh").click(function() {
 			topicdiv.find(".song").remove();
@@ -62,7 +89,7 @@ var my = function () {
 			createInfiniteScroll(url, topicdiv, section, list, parseResults);
 		});
 	};
-  
+
 	var createInfiniteScroll = function(url, topicdiv, section, list, parseResults) {
 		var loadTimeout = null, 
 			innerLoading = topicdiv.find(".innerLoading");
@@ -186,15 +213,21 @@ var my = function () {
       "method": "POST",
 	  "dataType": "json",
       "data": {"email": email},
+	  "dataType": "json",
       "success": function (data) {
 //         debug("success");
+<<<<<<< HEAD
 		if( data && data.status && data.status == "error" ) {
+=======
+		if ( a.status && data.status == "error" ) {
+>>>>>>> origin/master
 			$("article.my",topicdiv).hide();
 			$("article.notsent",topicdiv).fadeIn();
 			return ;
 		}
-        $("article.my",topicdiv).hide();
-        $("article.sent",topicdiv).fadeIn();
+
+		$("article.my",topicdiv).hide();
+		$("article.sent",topicdiv).fadeIn();
       },
       "error": function(a,b,c) {
 //         debug("error",a,b,c);

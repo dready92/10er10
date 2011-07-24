@@ -14,7 +14,7 @@ exports.server = {
 	},
 	"homepage.html": {
 		website_title: "Bienvenue",
-		website_loading_message: "Chargement en cours",
+		website_loading_message: "Chargement en cours<br><span class=\"count\"></span> / <span class=\"total\"></span>",
 		err_browser_not_supported: "Votre navigateur ne supporte pas les fonctionnalités HTML5 nécessaires pour ce site ! <BR> Ce site a été testé sous <a href=\"http://getfirefox.com\">Mozilla Firefox</a> et <a href=\"http://www.google.com/chrome\">Google Chrome</a>. Si vous voulez plus d'informations concernant les navigateurs, <a href=\"http://www.whatbrowser.org/fr/\">cliquez ici</a>.",
 		website_teaser: "Ça va sonner.",
 		search_placeholder: "Rechercher...",
@@ -138,15 +138,22 @@ exports.server = {
 		add_to_playlist: "Tout ajouter à la lecture en cours",
 		refresh: "Rafraichir la liste",
 		no_song: "Aucun morceau trouvé",
-		loading: "Chargement en cours..."
+		loading: "Chargement en cours...",
+		extended_show_more: "Voir plus d'infos...",
+		extended_show_less: "Cacher les infos",
+		extended_loading: "Chargement en cours...",
+		select_visible: "Sélectionner les morceaux visibles"
 	},
 	"html/library/content_genre.html": {
 		back_to_list: "Revenir à la liste des genres",
 		add_to_playlist: "Tout ajouter à la lecture en cours",
 		refresh: "Rafraichir la liste",
 		no_song: "Aucun morceau trouvé",
-		loading: "Chargement en cours..."
-
+		loading: "Chargement en cours...",
+		extended_show_more: "Voir plus d'infos...",
+		extended_show_less: "Cacher les infos",
+		extended_loading: "Chargement en cours...",
+		select_visible: "Sélectionner les morceaux visibles"
 	},
 	"html/library/content_none.html": {
 		no_song: "Aucun morceau"
@@ -296,5 +303,12 @@ exports.client = {
 	"upload.song.processing": "Le morceau est en cours de traitement, merci de patienter...",
 	"upload.song.success": "Succès",
 	"upload.song.alreadyindb": "Ce morceau est déjà disponible",
-	"upload.song.serverError": "Erreur du serveur... Essayez de recommencer"
+	"upload.song.serverError": "Erreur du serveur... Essayez de recommencer",
+	"library.extendedInfos.artist.albums": "Albums de cet artiste",
+	"library.extendedInfos.artist.artists": "Artistes liés",
+	"library.extendedInfos.genre.artists": "Artistes",
+	"library.extendedInfos.genre.albums": "Albums",
+	"library.extendedInfos.artist.genres": "Genres",
+	"library.extendedInfos.album.artists": "Artistes"
+
 };
