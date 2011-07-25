@@ -29,7 +29,8 @@ var step2 = function () {
 		.hide()
 		.delegate('.clickable','click',function() {
 			if ( $(this).hasClass("review") ) {
-				window.location.hash = "#/my/review/"+encodeURIComponent( $(this).attr("name") );
+// 				window.location.hash = "#/my/review/"+encodeURIComponent( $(this).attr("name") );
+				d10.router.navigateTo(["my","review",$(this).attr("name")]);
 				$(this).closest('.hoverbox').ovlay().close();
 				return ;
 			}
@@ -50,14 +51,16 @@ var step2 = function () {
 	
 	$("#main").delegate("div.song > span.artist","click",function(e) {
 	// 		var artist = encodeURIComponent($(this).html());
-		location.hash = "#/library/artists/"+encodeURIComponent($(this).text());
+		d10.router.navigateTo(["library","artists",$(this).text()]);
+// 		location.hash = "#/library/artists/"+encodeURIComponent($(this).text());
 	});
 
 	$("#main").delegate("div.song > span.album","click",function(e) {
 	// 		var artist = encodeURIComponent($(this).html());
-		var album = encodeURIComponent($(this).text());
+		var album = $(this).text();
 		if ( album.length ) {
-			location.hash = "#/library/albums/"+album;
+			d10.router.navigateTo(["library","albums",album]);
+// 			location.hash = "#/library/albums/"+album;
 		}
 	});
 
@@ -174,18 +177,18 @@ var step2 = function () {
 			mod.enable();
 		});
 		
-		
+		/*
 		if ( window.location.hash.length ) {
 		d10.globalMenu.route( window.location.hash.replace(/^#/,"") );
 		}
-
+*/
 		$('#beautyFade').remove();
 		$("#containerWrap").css("position","");
 
 		//
 		// reminder click
 		//
-		$("#reviewReminder").click(function() { window.location.hash = "#/my/review"; });
+		$("#reviewReminder").click(function() { d10.router.navigateTo(["my","review"]); });
 
 		//
 		// the monitor
@@ -221,59 +224,6 @@ var step2 = function () {
 		// preload la vue "playlists"
 		//
 		d10.my.plmanager.init_topic_plm ();
-
-
-		
-// 		$("#main > div").css("display","block");
-		var menuOptions = {
-			'menu':$('#container > nav'), 
-			'container':$('#main'), 
-			'active_class': 'active', 
-			'default_active_label': 'welcome' ,
-			"rootRouteHandler": true,
-			"useRouteAPI": true
-		}
-
-		if ( $("html").hasClass("csstransitions") ) {
-			var switchLabelTrans = function(label,arg,active) {
-				// 				debug("scitchLabelTrans",arguments);
-				var prev = active ? this.getContainer(active) : null,
-				next = this.getContainer(label);
-				if ( prev && prev.hasClass("active") ) {
-					// 					debug("in a transition with previous thing");
-// 					debug("transitionend event for previous thing",prev,next);
-					prev.removeClass("active");
-					$('#main>div').hide();
-					next.show();
-											setTimeout(function() {
-					next.addClass("active");
-											},15);
-				
-					
-					$('#container > nav .active').removeClass("active");
-					d10.globalMenu.menuitem(label).addClass("active");
-					// 					
-				} else {
-					// 					debug("transition without previous element");
-					$('#main>div').hide();
-					next.show();
-					next.addClass("active");
-					$('#container > nav .active').removeClass("active");
-					this.menuitem(label).addClass("active");
-				}
-			};
-			$("#welcome").addClass("active");
-			menuOptions.displayActivate = switchLabelTrans;
-			menuOptions.routeActivate = function(label,segments,settings) {
-				switchLabelTrans.call(d10.globalMenu,label,null,d10.globalMenu.current_label());
-			};
-		}
-
-		d10.globalMenu = new d10.fn.menuManager (menuOptions);
-		debug("menumanager ok");
-		$('#container').css("display","block").animate({"opacity": 1}, 1000,visibleBaby);
-		$('#initialLoading').html(d10.mustacheView("landing.letsgo"));
-		$('#beautyFade').fadeOut(1000);
 		
 		// language selector
 		$("footer .langChooser select").bind("change",function() {
@@ -281,6 +231,186 @@ var step2 = function () {
 			var lng = $(this).val();
 			location.search = "?lang="+lng;
 		});
+		var myRouter = {
+			_containers: {
+				main: {tab: $("#container > nav"), container: $("#main"), select: function(name) { return $("#"+name) }, lastActive: null, currentActive: null},
+				library: {tab: $("#library > nav > ul"), container: $("#library"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null, currentActive: null},
+				my: {tab: $("#my > nav > ul"), container: $("#my"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null, currentActive: null},
+				plm: {tab: $("#my .plm .plm-list-container .plm-list"), container: $("#my .plm-content-container"), select: function(name) {return this.container.children("div[name="+name+"]"); }, lastActive: null, currentActive: null}
+			},
+			routes: {
+				"welcome": "welcome",
+				"library": "library",
+ 				"library/:topic": "library",
+ 				"library/:topic/:category": "library",
+ 				"my": "my",
+ 				"my/plm": "plm",
+				"my/:topic": "my",
+ 				"my/plm/:id": "plm",
+ 				"my/:topic/:id": "my",
+				"results": "results",
+ 				"results/:search": "results",
+				"upload": "upload"
+			},
+			welcome: function() { this._activate("main","welcome",this.switchMainContainer); },
+ 			library: function(topic,category) {
+// 				debug("library starting");
+				if ( !topic ) {
+// 					debug("no topic");
+					if ( this._containers["library"].currentActive ) {
+// 						debug("already loaded content");
+						this._activate("main","library",this.switchMainContainer);
+						return ;
+					} else {
+// 						debug("initial loading");
+						topic = "hits";
+					}
+				}
+				
+// 				debug(this._containers["library"].currentActive, topic);
+
+				d10.library.display( decodeURIComponent(topic), category ? decodeURIComponent(category) : null );
+
+				this._activate("main","library",this.switchMainContainer)._activate("library",topic);
+			},
+			results: function(search) {
+				d10.results.display(decodeURIComponent(search));
+				this._activate("main","results",this.switchMainContainer); 
+			},
+ 			my: function(topic,id) { 
+				if ( !topic ) {
+					if ( this._containers["my"].currentActive ) {
+						this._activate("main","my",this.switchMainContainer);
+						return ;
+					} else {
+						topic = "songs";
+					}
+				}
+
+				d10.my.display(topic,id);
+				this._activate("main","my",this.switchMainContainer); 
+				if ( topic ) { this._activate("my",topic); }
+			},
+			plm: function(id) {
+				if ( id && this._containers["plm"].currentActive != name ) { d10.my.plmanager.display(id); }
+				this._activate("main","my",this.switchMainContainer)._activate("my","plm");
+				if ( id && this._containers["plm"].currentActive != name ) { this._activate("plm",id); }
+				
+			},
+			upload: function() {
+				this._activate("main","upload",this.switchMainContainer); 
+			},
+			switchContainer: function(from,to,tab,name) {
+				if ( from ) from.hide().removeClass("active");
+				if ( !to.hasClass("active") ) {
+					to.fadeIn("fast").addClass("active");
+					this.trigger("container:"+tab+"/"+name);
+				}
+			},
+			_activate: function(tab, name, switchCallback) {
+				switchCallback = switchCallback || this.switchContainer;
+				if ( !this._containers[tab] ) {
+					debug("router._activate: ",tab,"unknown");
+					return this;
+				}
+				var currentActiveName = this.getActive(tab), currentActive = null, futureActive = this._containers[tab].select(name);
+				
+				if (  currentActiveName == name ) {
+					return this;
+				}
+				if ( currentActiveName ) {
+					currentActive = this._containers[tab].select(currentActiveName);
+				}
+				switchCallback.call(this,currentActive,futureActive,tab,name);
+				this.switchTab(tab,name);
+				this._containers[tab].lastActive = currentActiveName;
+				this._containers[tab].currentActive = name;
+				return this;
+			},
+			switchTab: function(tab,name) {
+// 				debug("tabs ? ",this._containers[tab].tab.children());
+				var currentActive = this._containers[tab].tab.find(".active"), current = null;
+				if ( currentActive.length ) {
+					current = currentActive.attr("action");
+					if ( current == name ) {
+						debug("Tab name ",name,"is already active");
+						return ;
+					}
+				}
+				currentActive.removeClass("active");
+				this._containers[tab].tab.find("[action="+name+"]").addClass("active");
+				this.trigger("tab:"+tab+"/"+name);
+			},
+			navigateTo: function(segments) {
+// 				debug("navigate to",segments);
+				segments = segments || [];
+				if ( typeof segments == "string" ) {
+					return this.navigate(segments,true);
+				}
+				segments = $.map(segments,function(v) { return encodeURIComponent(v); });
+				var back = this.navigate(segments.join("/"),true);
+				return back;
+			},
+			getActive: function(tab) {
+				var active = this._containers[tab].tab.find(".active");
+				if ( active.length ) {
+					return active.eq(0).attr("action");
+				}
+				return null;
+			},
+		};
+		if ( $("html").hasClass("csstransitions") ) {
+			myRouter.switchMainContainer = function(from,to,tab,name) {
+				if ( from ) from.css("display","none").removeClass("active");
+				if ( !to.hasClass("active") ) {
+					to.show();
+					to.addClass("active");
+					this.trigger("container:"+tab+"/"+name);
+				}
+			};
+		} else {
+			myRouter.switchMainContainer = myRouter.switchContainer
+		}
+
+// 		debug(Backbone.Router.extend);
+		var router = Backbone.Router.extend.call(Backbone.Router, myRouter);
+		d10.router = new router();
+// 		Backbone.history = new Backbone.History();
+		debug("------starting history",Backbone.history.start());
+		
+		myRouter._containers.main.tab.delegate("[action]","click",function() {
+			var elem = $(this), action = elem.attr("action");
+			if ( ! elem.hasClass("active") ) { d10.router.navigate(action,true); }
+		});
+		
+		
+		myRouter._containers.my.tab.delegate("[action]","click",function() {
+			var elem = $(this), action = elem.attr("action");
+			if ( ! elem.hasClass("active") ) { d10.router.navigate("my/"+action,true); }
+		});
+		
+		myRouter._containers.plm.tab.delegate("[action]","click",function() {
+			var elem = $(this), action = elem.attr("action");
+			if ( ! elem.hasClass("active") ) { d10.router.navigateTo(["my","plm",action]); }
+		});
+		
+		myRouter._containers.library.tab.delegate("[action]","click",function() {
+			var elem = $(this), action = elem.attr("action"), currentCategory = d10.library.getCurrentCategory(action);
+			
+			if ( ! elem.hasClass("active") ) { 
+				if ( currentCategory ) {
+					d10.router.navigateTo(["library",action,currentCategory]); 
+				} else {
+					d10.router.navigateTo(["library",action]); 
+				}
+				
+			}
+		});
+		
+		
+		$('#container').css("display","block").animate({"opacity": 1}, 800,visibleBaby);
+		$('#initialLoading').html(d10.mustacheView("landing.letsgo"));
+		$('#beautyFade').fadeOut(1000);
 		
 	};
 }

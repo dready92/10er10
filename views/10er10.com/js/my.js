@@ -1,12 +1,12 @@
 $(document).ready(function() {
 
-var my = function () {
+d10 = d10 || {};
+d10.fn = d10.fn || {};
+d10.fn.my = function (ui) {
 
-	//self ref
-	var that=this;
 	//create UI
-	var ui=$('#my');
-	this.plmanager = new d10.fn.plm(ui,$('div[name=plm]',ui));
+// 	var ui=$('#my');
+	var plmanager = new d10.fn.plm(ui,$('div[name=plm]',ui));
 	//$('#main').append(ui);
 	
 	$(document).one("user.infos",function() {
@@ -25,8 +25,14 @@ var my = function () {
 		d10.playlist.append($(this).clone());
 	});
 	
-  this.routeAction = function (label, segments) {
-//       debug("routeAction starts",label,segments);
+	
+	var display = function(label, sublabel) {
+		sublabel = sublabel ? [ sublabel ] : [];
+		routeAction(label, sublabel);
+	}
+	
+  var routeAction = function (label, segments) {
+      debug("routeAction starts",label,segments);
       var topicdiv=$('div[name='+label+']',ui);
       if ( !topicdiv.length ) {
         topicdiv=$('<div name="'+label+'"></div>');
@@ -37,14 +43,14 @@ var my = function () {
       }
       if ( label == 'review' ) {
 				debug("my",label,segments);
-        if ( segments.length )  that.init_topic_songreview(topicdiv,segments[0]) ;
-        else                    that.init_topic_review(topicdiv,null) ;
+        if ( segments.length )  init_topic_songreview(topicdiv,segments[0]) ;
+        else                    init_topic_review(topicdiv,null) ;
       } else if ( label == "songs" ) {
-        that.init_topic_songs(topicdiv,segments);
+        init_topic_songs(topicdiv,segments);
       } else if ( label == "likes" ) {
-        that.init_topic_likes(topicdiv,segments);
+        init_topic_likes(topicdiv,segments);
       } else if ( label == "invites" ) {
-        that.init_topic_invites(topicdiv,segments);
+        init_topic_invites(topicdiv,segments);
       }
   };
 
@@ -152,7 +158,7 @@ var my = function () {
 		);
 	};
 	
-	this.init_topic_likes = function(topicdiv,args) {
+	var init_topic_likes = function(topicdiv,args) {
 		var section = topicdiv.find("section");
 		if ( !section.length ) {
 			topicdiv.append(d10.mustacheView("library.content.simple"));
@@ -160,7 +166,8 @@ var my = function () {
 			var list = section.find(".list");
 			var url = "/api/list/likes";
 			list.delegate("div.song .edit, div.song .review","click", function() {
-				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
+				d10.router.navigateTo(["my","review",$(this).closest('.song').attr('name')]);
+// 				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
 				return false;
 			});
 			bindControls (url, topicdiv, section, list);
@@ -168,7 +175,7 @@ var my = function () {
 		}
 	};
 
-	this.init_topic_songs = function(topicdiv,args) {
+	var init_topic_songs = function(topicdiv,args) {
 		var section = topicdiv.find("section");
 		if ( !section.length ) {
 			topicdiv.append(d10.mustacheView("library.content.simple"));
@@ -189,11 +196,12 @@ var my = function () {
 							.remove();
 					}
 				});
-				debug("parseResults: ",html);
+// 				debug("parseResults: ",html);
 				return html;
 			};
 			list.delegate("div.song .edit, div.song .review","click", function() {
-				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
+				d10.router.navigateTo(["my","review",$(this).closest('.song').attr('name')]);
+// 				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
 				return false;
 			});
 			bindControls (url, topicdiv, section, list, parseResults);
@@ -238,7 +246,7 @@ var my = function () {
     });
   }
   
-  this.init_topic_invites = function(topicdiv,args) {
+  var init_topic_invites = function(topicdiv,args) {
     d10.bghttp.get({
       "url": site_url+"/html/invites",
       "success": function (data) {
@@ -265,7 +273,7 @@ var my = function () {
 
 
 
-	this.init_topic_review = function (topicdiv, arg ) {
+	var init_topic_review = function (topicdiv, arg ) {
     var options = {
       'url': site_url+"/html/my/review",
       'context': this,
@@ -276,7 +284,8 @@ var my = function () {
         }
 		topicdiv.empty().append(response.data);
 		$('ul > li',topicdiv).click(function() {
-      window.location.hash = "#/my/review/"+$(this).attr('arg');
+// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
+			d10.router.navigateTo(["my","review",$(this).attr("arg")]);
 		});
       }
     };
@@ -499,7 +508,7 @@ var my = function () {
 		
 	};
 	
-	this.init_topic_songreview = function (topicdiv, song_id ) {
+	var init_topic_songreview = function (topicdiv, song_id ) {
 //     console.log("init_topic_songreview",topicdiv,arg);
 		topicdiv.html(d10.mustacheView("loading"));
 		d10.bghttp.get({
@@ -509,10 +518,12 @@ var my = function () {
 		init_songreview_imagesbox (topicdiv,song_id);
 		init_reviewImage_remove (topicdiv,song_id);
 		$("button[name=my]",topicdiv).click(function() { 
-			window.location.hash = "#/my/review";
+			d10.router.navigateTo(["my","review"]);
+// 			window.location.hash = "#/my/review";
 		});
 		$('button[name=upload]',topicdiv).click(function() { 
-			d10.globalMenu.route("/upload");
+// 			d10.globalMenu.route("/upload");
+			d10.router.navigateTo(["upload"]);
 		});
 
 		$('input[name=album]',topicdiv).permanentOvlay(
@@ -591,7 +602,7 @@ var my = function () {
                     },3100);
 
                     postSongReview(topicdiv,function() {
-                        that.init_topic_songreview (topicdiv, response.data.rows[index].id );
+                        init_topic_songreview (topicdiv, response.data.rows[index].id );
                       }, function () {
                         clearInterval(validate_interval);
                     });
@@ -614,7 +625,7 @@ var my = function () {
 		});
 	}
 
-
+/*
 
 	var mm = this.router = new d10.fn.menuManager ({
 		'menu': $('>nav',ui),
@@ -646,14 +657,17 @@ var my = function () {
     mm.route( data.segments, data.env );
   });
 
+  */
   
-  
-  
+  return {
+	  display: display,
+	  plmanager: plmanager
+  };
 	  
   
 };
 
-d10.my = new my();
-delete my;
+d10.my = new d10.fn.my($("#my"));
+// delete my;
 
 });

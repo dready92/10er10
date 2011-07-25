@@ -2,11 +2,14 @@
 
 $(document).ready(function() {
 
-function upload () {
+d10 = d10 || {};
+d10.fn = d10.fn || {};
+	
+d10.fn.upload = function (ui) {
   var that = this;
   
   // load template
-  var ui=$('#upload');
+//   var ui=$('#upload');
   var $dropbox = $('div.uploadDropBox',ui);
   var audioTypes = ["audio/mp3","audio/ogg","video/ogg","audio/mpeg", "audio/x-flac","audio/flac"];
   var uploader = new uploadManager();
@@ -254,7 +257,7 @@ function upload () {
 };
 
 
-d10.upload = new upload();
+d10.upload = new d10.fn.upload($('#upload'));
 
 });
 })(jQuery);

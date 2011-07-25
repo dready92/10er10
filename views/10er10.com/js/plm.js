@@ -47,129 +47,130 @@ d10.fn.plm = function (mydiv,mypldiv) {
 	*/
 	var _createRPLDisplay = function (content_container, id ) {
 		var pldiv = $( d10.mustacheView('my.plm.rpl') )
-      .hide()
-      .attr('name',id);
+			.hide()
+		.attr('name',id);
 
-    d10.dnd.dropTarget (pldiv,$('.list',pldiv),{
-		"moveDrop": function(source,target,infos) {
-			if ( infos.wantedNode ) { infos.wantedNode.after(source); } 
-			else { $('.list',pldiv).prepend(source); }
-			that.update_playlist(pldiv.attr("name"), pldiv.find(".list > .song"));
-//			$(document).trigger('rplUpdateRequest', pldiv );
-			return true;
-		},
-		"copyDrop": function(source,target,infos) {
-			debug("copyDrop, wantedNode : ",infos.wantedNode, infos);
-			var item = source.clone().removeClass('hidden').removeClass('dragging').removeClass('selected').removeClass('current').show().css('display','').css('opacity',1);
-			if ( infos.wantedNode ) { infos.wantedNode.after(item); } 
-			else { $('.list',pldiv).prepend(item); }
-			if ( $('.empty:visible',pldiv).length ) {
-				$('.empty',pldiv).addClass("hidden");
+		d10.dnd.dropTarget (pldiv,$('.list',pldiv),{
+			"moveDrop": function(source,target,infos) {
+				if ( infos.wantedNode ) { infos.wantedNode.after(source); } 
+				else { $('.list',pldiv).prepend(source); }
+				that.update_playlist(pldiv.attr("name"), pldiv.find(".list > .song"));
+	//			$(document).trigger('rplUpdateRequest', pldiv );
+				return true;
+			},
+			"copyDrop": function(source,target,infos) {
+				debug("copyDrop, wantedNode : ",infos.wantedNode, infos);
+				var item = source.clone().removeClass('hidden').removeClass('dragging').removeClass('selected').removeClass('current').show().css('display','').css('opacity',1);
+				if ( infos.wantedNode ) { infos.wantedNode.after(item); } 
+				else { $('.list',pldiv).prepend(item); }
+				if ( $('.empty:visible',pldiv).length ) {
+					$('.empty',pldiv).addClass("hidden");
+				}
+				if ( $('.list:visible',pldiv).length == 0 ) {
+					$('.list',pldiv).removeClass("hidden");
+				}
+				
+				that.update_playlist(pldiv.attr("name"), pldiv.find(".list > .song"));
+	//			$(document).trigger('rplUpdateRequest', pldiv );
+				
+				return true;
 			}
-			if ( $('.list:visible',pldiv).length == 0 ) {
-				$('.list',pldiv).removeClass("hidden");
-			}
-			
-			that.update_playlist(pldiv.attr("name"), pldiv.find(".list > .song"));
-//			$(document).trigger('rplUpdateRequest', pldiv );
-			
-			return true;
-		}
-    });
-
-     pldiv.find('.list')
-     .delegate("div.song span.remove","click",function(e) {
-       $(this).closest('.song').fadeOut('fast',function() {
-         $(this).remove();
-         if ( $('.song',pldiv).length == 0 ) {
-           $('.empty',pldiv).toggleClass("hidden",false);
-           $(".list",pldiv).toggleClass("hidden",true);
-         }
-         that.update_playlist(pldiv.attr("name"));
-       });
-     })
-/*
-	.delegate("div.song","click",function(e) {
-		if ( $(e.target).closest(".add").length == 0 )
-			$(this).toggleClass("selected");
-	})
-    .delegate("div.song","dblclick",function(e) {
-    	debug("plm dblclick");
-        d10.playlist.append(
-          $(this).clone()
-        );
-     });
-*/
-    pldiv.find('.controls button[name=rename]').click(function() {
-      pldiv.find('.controls').hide();
-      pldiv.find('.rename').slideDown();
-      pldiv.find('.rename input[name=name]').val(
-        $('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).text()
-      ).get(0).focus();
-    });
-    pldiv.find(".rename input[name=name]").keypress(function(e) {
-      if ( e.keyCode == 13 ) {
-        pldiv.find(".rename button[name=rename]").click();
-      }
-    });
-    pldiv.find('.rename button[name=rename]').click(function () {
-      rplRenameRequestHandler(pldiv,pldiv.find('.rename input[name=name]').val());
-      pldiv.find('.controls').slideDown();
-      pldiv.find('.rename').hide();
-      return false;
-    });
-    pldiv.find('.rename button[name=no]').click(function () {
-      pldiv.find('.controls').slideDown();
-      pldiv.find('.rename').hide();
-      return false;
-    });
-
-    pldiv.find('.controls button[name=drop]').click(function() {
-      pldiv.find('.controls').hide();
-      pldiv.find('.drop').slideDown();
-      return false;
-    });
-    pldiv.find('.drop button[name=yes]').click(function () {
-      rplDropRequestHandler(pldiv);
-      pldiv.find('.controls').slideDown();
-      pldiv.find('.drop').hide();
-      return false;
-    });
-    pldiv.find('.drop button[name=no]').click(function () {
-      pldiv.find('.controls').slideDown();
-      pldiv.find('.drop').hide();
-      return false;
-    });
-    pldiv.find('button[name=load]').click(function() {
-		
-		var rpldoc = {
-			_id: pldiv.attr('name'),
-			name: $('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).html(),
-			songs: pldiv.children(".list").children(".song").map(function() {      return $(this).attr('name');    }   ).get()
-		};
-
-		d10.playlist.empty();
-		d10.playlist.append(pldiv.children(".list").children(".song").clone());		
-		d10.playlist.loadDriver("rpl",{},{rpldoc: rpldoc},function(err,resp) {
-			if ( err )	{
-				debug("playlistModuleRpl:loadDriver error",err);
-				return ;
-			}
-			debug("plm setting driver",this);
-			d10.playlist.setDriver(this);
 		});
-		/*
-      d10.playlist.loadFromPlm(
-        pldiv,
-        $('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).html()
-      );
+
+		pldiv.find('.list')
+		.delegate("div.song span.remove","click",function(e) {
+		$(this).closest('.song').fadeOut('fast',function() {
+			$(this).remove();
+			if ( $('.song',pldiv).length == 0 ) {
+			$('.empty',pldiv).toggleClass("hidden",false);
+			$(".list",pldiv).toggleClass("hidden",true);
+			}
+			that.update_playlist(pldiv.attr("name"));
+		});
+		})
+	/*
+		.delegate("div.song","click",function(e) {
+			if ( $(e.target).closest(".add").length == 0 )
+				$(this).toggleClass("selected");
+		})
+		.delegate("div.song","dblclick",function(e) {
+			debug("plm dblclick");
+			d10.playlist.append(
+			$(this).clone()
+			);
+		});
 	*/
-      return false;
-    });
+		pldiv.find('.controls button[name=rename]').click(function() {
+		pldiv.find('.controls').hide();
+		pldiv.find('.rename').slideDown();
+		pldiv.find('.rename input[name=name]').val(
+			$('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).text()
+		).get(0).focus();
+		});
+		pldiv.find(".rename input[name=name]").keypress(function(e) {
+		if ( e.keyCode == 13 ) {
+			pldiv.find(".rename button[name=rename]").click();
+		}
+		});
+		pldiv.find('.rename button[name=rename]').click(function () {
+			rplRenameRequestHandler(pldiv,pldiv.find('.rename input[name=name]').val());
+			pldiv.find('.controls').slideDown();
+			pldiv.find('.rename').hide();
+			return false;
+		});
+		pldiv.find('.rename button[name=no]').click(function () {
+			pldiv.find('.controls').slideDown();
+			pldiv.find('.rename').hide();
+			return false;
+		});
+
+		pldiv.find('.controls button[name=drop]').click(function() {
+			pldiv.find('.controls').hide();
+			pldiv.find('.drop').slideDown();
+			return false;
+		});
+		pldiv.find('.drop button[name=yes]').click(function () {
+			rplDropRequestHandler(pldiv);
+			pldiv.find('.controls').slideDown();
+			pldiv.find('.drop').hide();
+			return false;
+		});
+		pldiv.find('.drop button[name=no]').click(function () {
+			pldiv.find('.controls').slideDown();
+			pldiv.find('.drop').hide();
+			return false;
+		});
+		pldiv.find('button[name=load]').click(function() {
+			
+			var rpldoc = {
+				_id: pldiv.attr('name'),
+				name: $('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).html(),
+				songs: pldiv.children(".list").children(".song").map(function() {      return $(this).attr('name');    }   ).get()
+			};
+
+			d10.playlist.empty();
+			d10.playlist.append(pldiv.children(".list").children(".song").clone());		
+			d10.playlist.loadDriver("rpl",{},{rpldoc: rpldoc},function(err,resp) {
+				if ( err )	{
+					debug("playlistModuleRpl:loadDriver error",err);
+					return ;
+				}
+				debug("plm setting driver",this);
+				d10.playlist.setDriver(this);
+			});
+			/*
+		d10.playlist.loadFromPlm(
+			pldiv,
+			$('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).html()
+		);
+		*/
+		return false;
+		});
 		content_container.append(pldiv);
 		return pldiv;
 	}
 
+	// used in utils.js
 	this.init_topic_plm = function () {
 		//only load once
 		if ( mypldiv.data('loaded') ) {
@@ -210,6 +211,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 
 
 	// manages the left menu to switch playlists
+		/*
 		var mm = this.router = new d10.fn.menuManager ({
 			'menu': $('section.plm-list-container .plm-list',mypldiv),
 			'container': $('.plm-content-container',mypldiv),
@@ -229,9 +231,11 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			}
 //       e.stopPropagation();
 		});
+		*/
 	};
 
 	this.plm_playlist_display = function (id) {
+			debug("plm_playlist_display starting: ",id);
 			var content_container = $('section.plm-content-container',mypldiv);
 			//$('div.rpl',content_container).hide();
 			var pldiv = $('div.rpl[name='+id+']',content_container);
@@ -242,7 +246,6 @@ d10.fn.plm = function (mydiv,mypldiv) {
 				$('.list',pldiv).removeClass('hidden').addClass('hidden');
 				$('.empty',pldiv).addClass("hidden");
 				$('.controls',pldiv).hide();
-
 				
 				var onPlaylistResponse = function ( response ) {
 					debug("plm load response",response);
@@ -269,6 +272,8 @@ d10.fn.plm = function (mydiv,mypldiv) {
 
 			}
 	}
+
+	this.display = this.plm_playlist_display;
 
 	/*
 	
