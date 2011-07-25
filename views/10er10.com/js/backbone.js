@@ -133,7 +133,7 @@
     var defaults;
     attributes || (attributes = {});
     if (defaults = this.defaults) {
-      if (_.isFunction(defaults)) defaults = defaults();
+      if (_.isFunction(defaults)) defaults = defaults.call(this);
       attributes = _.extend({}, defaults, attributes);
     }
     this.attributes = {};
@@ -342,7 +342,7 @@
 
     // A model is new if it has never been saved to the server, and lacks an id.
     isNew : function() {
-      return this.id == null;
+      return this[this.idAttribute] == null;
     },
 
     // Call this method to manually fire a `change` event for this model.
@@ -806,6 +806,8 @@
       if (this._wantsPushState && !this._hasPushState && !atRoot) {
         this.fragment = this.getFragment(null, true);
         window.location.replace(this.options.root + '#' + this.fragment);
+        // Return immediately as browser will do redirect to new url
+        return true;
       } else if (this._wantsPushState && this._hasPushState && atRoot && loc.hash) {
         this.fragment = loc.hash.replace(hashStrip, '');
         window.history.replaceState({}, document.title, loc.protocol + '//' + loc.host + this.options.root + this.fragment);
@@ -994,7 +996,6 @@
 
   // The self-propagating extend function that Backbone classes use.
   var extend = function (protoProps, classProps) {
-	  debug("In backbone.extend",this);
     var child = inherits(this, protoProps, classProps);
     child.extend = this.extend;
     return child;
@@ -1036,8 +1037,7 @@
     // Default JSON-request options.
     var params = _.extend({
       type:         type,
-      dataType:     'json',
-      processData:  false
+      dataType:     'json'
     }, options);
 
     // Ensure that we have a URL.
@@ -1054,7 +1054,6 @@
     // For older servers, emulate JSON by encoding the request into an HTML-form.
     if (Backbone.emulateJSON) {
       params.contentType = 'application/x-www-form-urlencoded';
-      params.processData = true;
       params.data        = params.data ? {model : params.data} : {};
     }
 
@@ -1068,6 +1067,11 @@
           xhr.setRequestHeader('X-HTTP-Method-Override', type);
         };
       }
+    }
+
+    // Don't process data on a non-GET request.
+    if (params.type !== 'GET') {
+      params.processData = false;
     }
 
     // Make the request.
