@@ -97,6 +97,21 @@ if (! "fn" in d10 ) {
 
 		} 
 
+		var getCurrentCategory = function(topic) {
+			var topicdiv = ui.children('div[name='+topic+']');
+			if ( topicdiv.length == 0 ) {
+				return false;
+			}
+			var back = false;
+			topicdiv.find(".topic_category").each(function() {
+				if ( $(this).css("display") == "block" ) {
+					back = get_category_from_id(topic, $(this).attr("name"));
+					return false;
+				}
+			});
+			return back;
+		};
+
 		var displayGenres = function(categorydiv) {
 			var cacheNotExpired = d10.localcache.getJSON("genres.index");
 			if ( cacheNotExpired ) { 
@@ -361,6 +376,15 @@ if (! "fn" in d10 ) {
 			return id;
 		}
 
+		var get_category_from_id = function(topic, id)  {
+			if ( topic == 'genres' || topic == 'artists' || topic == 'albums' || topic == 'titles' ) {
+				id =  unescape( id.substr(1) ) 
+				return id;
+			} else {
+				return false;
+			}
+		};
+
 		var selectTopicCategory = function (topic,category,topicdiv) {
 			if ( topic == 'artists' && category != '<all>' ) {
 				$('input[name=artist]',topicdiv).val(category);
@@ -416,7 +440,8 @@ if (! "fn" in d10 ) {
 		});
 	*/
 		return {
-			display: init_topic
+			display: init_topic,
+			getCurrentCategory: getCurrentCategory
 		};
 	};
 

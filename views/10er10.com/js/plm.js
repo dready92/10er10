@@ -170,6 +170,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 		return pldiv;
 	}
 
+	// used in utils.js
 	this.init_topic_plm = function () {
 		//only load once
 		if ( mypldiv.data('loaded') ) {
