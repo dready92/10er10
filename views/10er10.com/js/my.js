@@ -224,11 +224,7 @@ d10.fn.my = function (ui) {
 	  "dataType": "json",
       "success": function (data) {
 //         debug("success");
-<<<<<<< HEAD
 		if( data && data.status && data.status == "error" ) {
-=======
-		if ( a.status && data.status == "error" ) {
->>>>>>> origin/master
 			$("article.my",topicdiv).hide();
 			$("article.notsent",topicdiv).fadeIn();
 			return ;
