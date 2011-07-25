@@ -356,9 +356,20 @@
 			
 			drivers[name].bind("currentSongChanged",function(e,data) {
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
-				songWidget(data.current).addClass(settings.currentClass);
+				var widget = songWidget(data.current).addClass(settings.currentClass);
 				debug("playlist document event playlist:currentSongChanged");
 				$(document).trigger("playlist:currentSongChanged",{current: current()});
+				
+				// autoscroll
+				var startPx = list.scrollTop();
+				var height = list.height();
+				var stopPx = startPx + height;
+				var h = widget.position().top + startPx;
+		// 		debug("interval ", startPx, stopPx," , top : ", h);
+				if ( h < startPx || h + widget.height() > stopPx ) {
+					list.animate({scrollTop: h - (height / 2)}, 300);
+		// 			ui.get(0).scrollTop =  h - (height / 2);
+				}
 			});
 			drivers[name].bind("ended",function(e, data) {
 				debug("playlist:ended of playlist");
