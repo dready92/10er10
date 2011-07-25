@@ -274,7 +274,7 @@ var step2 = function () {
 				this._activate("main","library",this.switchMainContainer)._activate("library",topic);
 			},
 			results: function(search) {
-				d10.results.display(decodeURIComponent(search));
+				d10.results.display(decodeURIComponent(search ? search : ""));
 				this._activate("main","results",this.switchMainContainer); 
 			},
  			my: function(topic,id) { 
