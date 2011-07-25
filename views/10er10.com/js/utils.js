@@ -376,7 +376,11 @@ var step2 = function () {
 		var router = Backbone.Router.extend.call(Backbone.Router, myRouter);
 		d10.router = new router();
 // 		Backbone.history = new Backbone.History();
-		debug("------starting history",Backbone.history.start());
+		var startHistory = Backbone.history.start();
+		debug("------starting history",startHistory);
+		if ( !startHistory ) {
+			d10.router.navigateTo(["welcome"]);
+		}
 		
 		myRouter._containers.main.tab.delegate("[action]","click",function() {
 			var elem = $(this), action = elem.attr("action");
