@@ -20,6 +20,9 @@ To upgrade your PROD databases, run
 
 - linked informations when displaying an artist, an album or a genre
 - new configuration file to keep local settings from being overwritten : Now if you change some value, save it in the file **config.local.js**.
+- client-side router using backbone.js
+- playlist list autoscroll if currently playing song is not visible
+- download link is back
 
 Upgrade from 0.4 to 0.5
 =======================
