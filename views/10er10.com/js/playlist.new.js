@@ -405,8 +405,9 @@
 		};
 		
 		var handlePlusClick = function() {
-			var elem = $(d10.mustacheView("hoverbox.playlist.container"));
+			
 			var node = $(this).closest(".song");
+			var elem = $(d10.mustacheView("hoverbox.playlist.container", {id: node.attr("name")}));
 			if ( node.prevAll().not(".current").length == 0 ) {
 				elem.find(".removeAllPrev").remove();
 			} else {
@@ -442,13 +443,18 @@
 			
 			if ( !node.attr("data-owner") ) {
 				elem.find(".edit").remove();
-				elem.find("hr").last().remove();
+// 				elem.find("hr").last().remove();
 			} else {
 				elem.find(".edit").click(function() {
 					window.location.hash = "#/my/review/"+encodeURIComponent( node.attr("name") );
 					elem.ovlay().close();
 				});
 			}
+			
+// 			elem.find(".download").click(function() {
+// 				elem.append("<a href=\""+site_url+"/audio/download/"+node.attr("name")+"\" class=\"clickable\">Télécharger</a>");
+// 			});
+			
 			
 			elem.css({visibility:'hidden',top:0,left:0}).appendTo($("body"));
 			var height = elem.outerHeight(false);

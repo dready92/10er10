@@ -198,6 +198,7 @@ exports.server = {
 		remove_all_next_songs: "Enlever tous les morceaux suivants",
 		artist_songs: "Morceaux de cet artiste...",
 		album_songs: "Morceaux de cet album...",
+		song_download: "Télécharger",
 		song_edit: "Editer les informations de ce morceau"
 	},
 	"html/hoverbox/playlist.rpl.container.html": {

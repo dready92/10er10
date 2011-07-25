@@ -199,6 +199,7 @@ exports.server = {
 		remove_all_next_songs: "Remove next songs",
 		artist_songs: "This artist's songs...",
 		album_songs: "This album...",
+		song_download: "Download",
 		song_edit: "Edit song metadata"
 	},
 	"html/hoverbox/playlist.rpl.container.html": {
