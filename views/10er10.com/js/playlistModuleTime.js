@@ -38,7 +38,7 @@ var createInstance = function(container) {
 	bar = new progressbar();
 	total = container.find("div[name=progressbar] span[name=total]");
 	current = container.find('span[name=secs]');
-	debug("documentReady",ui,bar,total,current);
+// 	debug("documentReady",ui,bar,total,current);
 // 	if ( module.enabled ) {
 // 		binder.bind();d
 // 	}

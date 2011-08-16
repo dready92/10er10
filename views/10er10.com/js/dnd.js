@@ -431,7 +431,7 @@ var playlistModule = d10.fn.playlistModule = function(name, bindings, hooks) {
 	this.name = name;
 	
 	this.enable = function() {
-		debug("enable", this.enabled);
+// 		debug("enable", this.enabled);
 		if ( !this.enabled )	{
 			if ( this._playlistModule.hooks.enable ) {
 				this._playlistModule.hooks.enable.call(this);
@@ -454,6 +454,87 @@ var playlistModule = d10.fn.playlistModule = function(name, bindings, hooks) {
 	};
 
 };
+
+
+
+
+
+
+d10.fn.router = {
+	_containers: {
+		main: {tab: $("#container > nav"), container: $("#main"), select: function(name) { return $("#"+name) }, lastActive: null, currentActive: null}
+	},
+	routes: {},
+	switchContainer: function(from,to,tab,name) {
+		if ( from ) from.hide().removeClass("active");
+		if ( !to.hasClass("active") ) {
+			to.fadeIn("fast").addClass("active");
+			this.trigger("container:"+tab+"/"+name);
+		}
+	},
+	_activate: function(tab, name, switchCallback) {
+		switchCallback = switchCallback || this.switchContainer;
+		if ( !this._containers[tab] ) {
+			debug("router._activate: ",tab,"unknown");
+			return this;
+		}
+		var currentActiveName = this.getActive(tab), currentActive = null, futureActive = this._containers[tab].select(name);
+		
+		if (  currentActiveName == name ) {
+			return this;
+		}
+		if ( currentActiveName ) {
+			currentActive = this._containers[tab].select(currentActiveName);
+		}
+		switchCallback.call(this,currentActive,futureActive,tab,name);
+		this.switchTab(tab,name);
+		this._containers[tab].lastActive = currentActiveName;
+		this._containers[tab].currentActive = name;
+		return this;
+	},
+	switchTab: function(tab,name) {
+		var currentActive = this._containers[tab].tab.find(".active"), current = null;
+		if ( currentActive.length ) {
+			current = currentActive.attr("action");
+			if ( current == name ) {
+				debug("Tab name ",name,"is already active");
+				return ;
+			}
+		}
+		currentActive.removeClass("active");
+		this._containers[tab].tab.find("[action="+name+"]").addClass("active");
+		this.trigger("tab:"+tab+"/"+name);
+	},
+	navigateTo: function(segments) {
+		segments = segments || [];
+		if ( typeof segments == "string" ) {
+			return this.navigate(segments,true);
+		}
+		segments = $.map(segments,function(v) { return encodeURIComponent(v); });
+		var back = this.navigate(segments.join("/"),true);
+		return back;
+	},
+	getActive: function(tab) {
+		var active = this._containers[tab].tab.find(".active");
+		if ( active.length ) {
+			return active.eq(0).attr("action");
+		}
+		return null;
+	},
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 })(jQuery);
 

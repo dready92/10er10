@@ -747,6 +747,42 @@ if (! "fn" in d10 ) {
 
 })( window.d10 ? window.d10 : {}  , jQuery) ;
 
-$(document).ready(function() {
-	d10.library = d10.fn.library($('#library'));
+$(document).one("bootstrap:router",function() {
+// 	debug("bootstrapping router");
+	var library = d10.library = d10.fn.library($('#library')),
+	libraryRouteHandler = function(topic,category) {
+		if ( !topic ) {
+			if ( this._containers["library"].currentActive ) {
+				this._activate("main","library",this.switchMainContainer);
+				return ;
+			} else {
+				topic = "hits";
+			}
+		}
+		library.display( decodeURIComponent(topic), category ? decodeURIComponent(category) : null );
+		this._activate("main","library",this.switchMainContainer)._activate("library",topic);
+	};
+	d10.router._containers["library"] = 
+	{
+		tab: $("#library > nav > ul"), 
+		container: $("#library"), 
+		select: function(name) {return this.container.children("div[name="+name+"]"); }, 
+		lastActive: null, 
+		currentActive: null
+	};
+	
+	d10.router.route("library","library",libraryRouteHandler);
+	d10.router.route("library/:topic","library",libraryRouteHandler);
+	d10.router.route("library/:topic/:category","library",libraryRouteHandler);
+	
+	d10.router._containers.library.tab.delegate("[action]","click",function() {
+		var elem = $(this), action = elem.attr("action"), currentCategory = library.getCurrentCategory(action);
+		
+		if ( ! elem.hasClass("active") ) { 
+			if ( currentCategory ) {d10.router.navigateTo(["library",action,currentCategory]); } 
+			else { d10.router.navigateTo(["library",action]); }
+		}
+	});
+
+	
 });

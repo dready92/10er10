@@ -427,14 +427,14 @@ d10.playlistDrivers.default = function(options) {
 		if ( !options.list || !options.list.length ) {
 			return cb.call(this);
 		}
-		debug("posting...");
+// 		debug("posting...");
 		var self = this;
 		var res = d10.bghttp.post({
 			url: site_url+"/api/songs",
 			dataType: "json",
 			data: { ids: options.list },
 			success: function(resp) {
-				debug("load success: ",resp);
+// 				debug("load success: ",resp);
 				var html = "";
 				$.each(resp.data.songs,function(i,song) {
 					html+=d10.song_template(song);
@@ -451,7 +451,7 @@ d10.playlistDrivers.default = function(options) {
 				cb.call(self,e);
 			}
 		});
-		debug("posting res: ",res);
+// 		debug("posting res: ",res);
 	};
 	
 };

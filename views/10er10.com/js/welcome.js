@@ -1,10 +1,12 @@
-$(document).ready(function() {
+(function(d10,$) {
 
-var welcome = function  () {
+d10.fn = d10.fn || {};
+
+d10.fn.welcome = function  (ui) {
 	//self ref
 	var that=this;
 	//create UI
-	var ui=$('#welcome');
+// 	var ui=$('#welcome');
 
 //create listener
 	$(document).bind('menuClick',function(e,data) {
@@ -62,8 +64,18 @@ var welcome = function  () {
 
 };
 
-d10.welcome = new welcome();
+})( window.d10 ? window.d10 : {}  , jQuery) ;
 
-delete welcome;
 
+$(document).one("bootstrap:router",function() {
+	var welcomeRouteHandler = function() { this._activate("main","welcome",this.switchMainContainer); };
+	d10.welcome = new d10.fn.welcome($('#welcome'));
+	d10.router.route("welcome","welcome",welcomeRouteHandler);
 });
+
+
+
+// d10.welcome = new welcome();
+
+// delete welcome;
+

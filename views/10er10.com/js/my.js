@@ -1,13 +1,8 @@
-$(document).ready(function() {
+(function(d10,$) {
 
-d10 = d10 || {};
 d10.fn = d10.fn || {};
 d10.fn.my = function (ui) {
-
-	//create UI
-// 	var ui=$('#my');
-	var plmanager = new d10.fn.plm(ui,$('div[name=plm]',ui));
-	//$('#main').append(ui);
+	var plmanager = new d10.fn.plm(ui,ui.find('div[name=plm]'));
 	
 	$(document).one("user.infos",function() {
 		if ( !d10.user.get_invites_count() ) { $("ul li[action=invites]",ui).hide(); }
@@ -620,50 +615,50 @@ d10.fn.my = function (ui) {
 			}
 		});
 	}
-
-/*
-
-	var mm = this.router = new d10.fn.menuManager ({
-		'menu': $('>nav',ui),
-		'container': ui,
-		'active_class': 'active',
-		'default_active_label': 'plm',
-		'property': 'name',
-		'effects': false,
-	    "routePrepend":["my"],
-    	"useRouteAPI": true
-	});
-
-  // routes
-  // /my/plm
-  // /my/invites
-  // /my/likes
-  // /my/songs
-  // /my/review
-  // /my/review/[id]
-  mm.bind("subroute.plm subroute.invites subroute.likes subroute.songs subroute.review",function(e,data) {
-//        debug("subroute event receiver",data);
-      that.routeAction(data.label, data.segments);
-//       that.init_topic ( { "action": data.label, "id": data.segments.length ? data.segments[0] : null } );
-  });
-
-  $(document).bind("route.my",function(e,data) {
-    var routes = {"plm": "plm", "invites": "invites","likes": "likes", "songs": "songs", "review": "review"};
-    if ( !data.segments.length || ! data.segments[0] in routes ) { return ; }
-    mm.route( data.segments, data.env );
-  });
-
-  */
   
-  return {
-	  display: display,
-	  plmanager: plmanager
-  };
+	return {
+		display: display,
+		plmanager: plmanager
+	};
 	  
   
 };
 
-d10.my = new d10.fn.my($("#my"));
-// delete my;
+})( window.d10 ? window.d10 : {}  , jQuery) ;
+
+
+$(document).one("bootstrap:router",function() {
+
+var 
+	my = d10.my = new d10.fn.my($("#my")),
+	myRouteHandler = function(topic,id) { 
+		if ( !topic ) {
+			if ( this._containers["my"].currentActive ) {
+				this._activate("main","my",this.switchMainContainer);
+				return ;
+			} else {
+				topic = "songs";
+			}
+		}
+
+		my.display(topic,id);
+		this._activate("main","my",this.switchMainContainer); 
+		if ( topic ) { this._activate("my",topic); }
+	};
+	d10.router._containers["my"] = 
+	{
+		tab: $("#my > nav > ul"), 
+		container: $("#my"), 
+		select: function(name) {return this.container.children("div[name="+name+"]"); }, 
+		lastActive: null,
+		currentActive: null
+	};
+	d10.router.route("my", "my", myRouteHandler);
+	d10.router.route("my/:topic", "my", myRouteHandler);
+	d10.router.route("my/:topic/:id", "my", myRouteHandler);
+	d10.router._containers.my.tab.delegate("[action]","click",function() {
+		var elem = $(this), action = elem.attr("action");
+		if ( ! elem.hasClass("active") ) { d10.router.navigate("my/"+action,true); }
+	});
 
 });

@@ -1,10 +1,7 @@
-(function($){
+(function(d10,$) {
 
-$(document).ready(function() {
-
-d10 = d10 || {};
 d10.fn = d10.fn || {};
-	
+
 d10.fn.upload = function (ui) {
   var that = this;
   
@@ -256,8 +253,11 @@ d10.fn.upload = function (ui) {
 
 };
 
+})( window.d10 ? window.d10 : {}  , jQuery) ;
 
-d10.upload = new d10.fn.upload($('#upload'));
-
+$(document).one("bootstrap:router",function() {
+	var uploadRouteHandler = function() { this._activate("main","upload",this.switchMainContainer); };
+	d10.upload = new d10.fn.upload($('#upload'));
+	d10.router.route("upload","upload",uploadRouteHandler);
 });
-})(jQuery);
+

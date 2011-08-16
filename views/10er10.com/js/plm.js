@@ -210,28 +210,25 @@ d10.fn.plm = function (mydiv,mypldiv) {
 		});
 
 
-	// manages the left menu to switch playlists
-		/*
-		var mm = this.router = new d10.fn.menuManager ({
-			'menu': $('section.plm-list-container .plm-list',mypldiv),
-			'container': $('.plm-content-container',mypldiv),
-			'active_class': 'active',
-			'property': 'name',
-			'effects': false,
-			"useRouteAPI": true,
-			"routePrepend":["my","plm"]
+		var plmRouteHandler = function(id) {
+			if ( id && this._containers["plm"].currentActive != id ) { d10.my.plmanager.display(id); }
+			this._activate("main","my",this.switchMainContainer)._activate("my","plm");
+			if ( id && this._containers["plm"].currentActive != id ) { this._activate("plm",id); }
+		};
+		d10.router._containers["plm"] = 
+		{
+			tab: $("#my .plm .plm-list-container .plm-list"),
+			container: $("#my .plm-content-container"),
+			select: function(name) {return this.container.children("div[name="+name+"]"); },
+			lastActive: null,
+			currentActive: null
+		};
+		d10.router.route("my/plm", "plm", plmRouteHandler);
+		d10.router.route("my/plm/:id", "plm", plmRouteHandler);
+		d10.router._containers.plm.tab.delegate("[action]","click",function() {
+			var elem = $(this), action = elem.attr("action");
+			if ( ! elem.hasClass("active") ) { d10.router.navigateTo(["my","plm",action]); }
 		});
-		mm.bind("subroute",function(e,data) {
-		that.plm_playlist_display(data.label);
-		});
-		d10.my.router.bind("subroute.plm",function(e,data) {
-	//       debug("got plm subroute event",data);
-			if ( data.segments.length && data.segments[0].substr(0,2) == "pl" ) {
-				mm.route(data.segments, data.env) ;
-			}
-//       e.stopPropagation();
-		});
-		*/
 	};
 
 	this.plm_playlist_display = function (id) {

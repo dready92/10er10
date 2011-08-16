@@ -359,7 +359,12 @@ d10.fn.results = function (search,mainUi) {
 
 })(window.d10, jQuery);
 		
-$(document).ready(function() {
-	d10.results = d10.fn.results($("#search input"),$("#results"));
-	delete results;
+$(document).one("bootstrap:router",function() {
+	var results = d10.results = d10.fn.results($("#search input"),$("#results"));
+	var resultsRouteHandler = function(search) {
+		results.display(decodeURIComponent(search ? search : ""));
+		this._activate("main","results",this.switchMainContainer); 
+	};
+	d10.router.route("results","results",resultsRouteHandler);
+	d10.router.route("results/:search","results",resultsRouteHandler);
 });
