@@ -427,7 +427,7 @@
 			
 			$("div.fromArtist",elem).click(function() {
 // 				var h = "#/library/artists/"+encodeURIComponent( node.find("span.artist").text() );
-				d10.router.navigateTo("library","artists",node.find("span.artist").text());
+				d10.router.navigateTo(["library","artists",node.find("span.artist").text()]);
 // 				window.location.hash = h;
 				elem.ovlay().close();
 			});
@@ -435,7 +435,7 @@
 			if ( node.find("span.album").text().length ) {
 // 				elem.append('<div class="clickable fromAlbum">Morceaux de cet album...</div>');
 				$("div.fromAlbum",elem).click(function() {
-					d10.router.navigateTo("library","albums",node.find("span.album").text());
+					d10.router.navigateTo(["library","albums",node.find("span.album").text()]);
 // 					window.location.hash = "#/library/albums/"+encodeURIComponent( node.find("span.album").text() );
 					elem.ovlay().close();
 				});
@@ -448,7 +448,7 @@
 // 				elem.find("hr").last().remove();
 			} else {
 				elem.find(".edit").click(function() {
-					d10.router.navigateTo("my","review",node.attr("name"));
+					d10.router.navigateTo(["my","review",node.attr("name")]);
 // 					window.location.hash = "#/my/review/"+encodeURIComponent( node.attr("name") );
 					elem.ovlay().close();
 				});
