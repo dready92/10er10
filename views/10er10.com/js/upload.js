@@ -176,7 +176,7 @@ d10.fn.upload = function (ui) {
             $("div.controls span.status",widget).html(d10.mustacheView("upload.song.success"));
             $("button.review",widget).click(function() {
                   var route = ["my", "review", back.data._id];
-                  d10.globalMenu.route( route );
+                  d10.router.navigateTo( route );
             }).show();
 
           } else if ( back.data && back.data.code && back.data.code == 14 ) {
