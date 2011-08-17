@@ -208,7 +208,7 @@ var step2 = function () {
 		$("footer .loggedin").hide();
 		$("footer .loggingOut").removeClass("hidden");
 		d10.bghttp.get({
-			url: site_url+"welcome/goodbye",
+			url: site_url+"/welcome/goodbye",
 			success: function() {
 				window.location.reload(true);
 			}
