@@ -67,7 +67,8 @@ exports.server = {
 		side_playlistrecord_playlist_name_exists_button: " Enregistrer quand même",
 		website_logged_as: "Logged as",
 		website_logout: "se déconnecter",
-		website_total_playing_length: "heures de musique"
+		website_total_playing_length: "heures de musique",
+		website_logging_out: "Déconnection..."
 	},
 	"html/results/container.html": {
 		artists_details_button: "Voir en détail",

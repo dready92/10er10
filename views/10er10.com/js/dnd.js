@@ -464,7 +464,8 @@ d10.fn.router = {
 	_containers: {
 		main: {tab: $("#container > nav"), container: $("#main"), select: function(name) { return $("#"+name) }, lastActive: null, currentActive: null}
 	},
-	routes: {},
+	routes: {
+	},
 	switchContainer: function(from,to,tab,name) {
 		if ( from ) from.hide().removeClass("active");
 		if ( !to.hasClass("active") ) {

@@ -173,9 +173,10 @@
 
 </div> 
  
-<footer> 
+<footer> <span class="loggedin">
 ((website_logged_as)) {{username}} - 
-<a href="{{base_url}}welcome/goodbye">((website_logout))</a> - 10er10 - <span class="hours"></span> ((website_total_playing_length))
+<a class="logout" href="#">((website_logout))</a></span>
+<span class="loggingOut hidden">((website_logging_out))</span> - 10er10 - <span class="hours"></span> ((website_total_playing_length))
 <div class="langChooser">
 	<select name="lang">
 		{{#langs}}

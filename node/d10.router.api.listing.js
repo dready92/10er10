@@ -289,21 +289,6 @@ exports.api = function(app) {
 				response.end ( JSON.stringify(back) );
 			}
 		});
-		/*
-		d10.couch.d10.list("artist/search/search",query,function(err,resp) {
-			if ( err ) {
-				response.writeHead(200, request.ctx.headers );
-				response.end (
-					"[]"
-				);
-			} else {
-				response.writeHead(200, request.ctx.headers );
-				response.end (
-					JSON.stringify(resp.artists)
-				);
-			}
-		});
-		*/
 	});
 	
 	app.get("/api/album",function(request,response) {
@@ -633,4 +618,26 @@ exports.api = function(app) {
 			d10.rest.success(resp.rows,request.ctx);
 		});
 	});
+	
+	app.get("/api/list/artist/genre/:artist/:genre",function(request,response) {
+// 		if ( !request.query.genre || d10.config.genres.indexOf(request.query.genre) < 0 ) {
+// 			return d10.rest.err(428, request.query.genre, request.ctx);
+// 		}
+		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1 ,key: [request.params.genre, request.params.artist ]};
+		if ( request.query.startkey_docid && request.query.startkey ) {
+			query.startkey = JSON.parse(request.query.startkey);
+			query.startkey_docid = request.query.startkey_docid ;
+		} else {
+			query.startkey =  [request.query.genre, request.params.artist];
+		}
+		d10.couch.d10.view("artist/genre",query,function(err,resp) {
+			if ( err ) {
+				return d10.rest.err(423, err, request.ctx);
+			}
+			d10.rest.success(resp.rows,request.ctx);
+		});
+	});
+	
+	
+	
 }; // exports.api

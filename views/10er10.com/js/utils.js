@@ -1,8 +1,6 @@
 (function($){
 
 var visibleBaby = function () {
-	
-	d10.playlist = new d10.fn.playlistProto( $("aside"),{});
 	d10.playlist.bootstrap();
 	$(document).trigger("bootstrap:playlist");
 	
@@ -90,8 +88,49 @@ var launchMeBaby = function() {
 	
 var step2 = function () {
 	
+	//
+	// initialisation des workers ajax
+	//
+	d10.bghttp.init(base_url);
+
+	var loadCount = $("#initialLoading .count"),
+		loadTotal = $("#initialLoading .total");
+
+	var when = d10.when({
+		//
+		// récupération des templates HTML
+		//
+		templates: function(cb) {
+			d10.bghttp.get ({
+				'url': site_url+'/api/htmlElements', 
+				'dataType':'json', 
+				'callback': function(data) {
+					if ( data.status !=  'success' || data.data.status != 'success' ) { return cb("server error"); }
+					for ( var index in data.data.data ) { d10.localcache.setTemplate(index,data.data.data[index]); }
+					return cb();
+				} 
+			});
+		},
+		//
+		// récupération des infos utilisateur
+		//
+		userInfos: function(cb)  {
+			$(document).one("user.infos",cb);
+			d10.user.refresh_infos();
+		}
+	},
+	launchMeBaby
+	);
 	
+	when.onResponse(function() {
+		debug("Complete: ",when.complete(),"on",when.total());
+		loadCount.html(when.complete());
+	});
 	
+	loadCount.html(when.complete());
+	loadTotal.html(when.total());
+	
+	d10.playlist = new d10.fn.playlistProto( $("aside"),{});
   //
   // gestion du bouton + a gauche de chaque morceau
   //
@@ -163,52 +202,19 @@ var step2 = function () {
 	$('body').data('audioFade',15);
 	$('body').data('cache_ttl',300000); // msecs
 
-	//
-	// initialisation des workers ajax
-	//
-	d10.bghttp.init(base_url);
-
-	var loadCount = $("#initialLoading .count"),
-		loadTotal = $("#initialLoading .total");
-
-	var when = d10.when({
-		//
-		// récupération des templates HTML
-		//
-		templates: function(cb) {
-			d10.bghttp.get ({
-				'url': site_url+'/api/htmlElements', 
-				'dataType':'json', 
-				'callback': function(data) {
-					if ( data.status !=  'success' || data.data.status != 'success' ) { return cb("server error"); }
-					for ( var index in data.data.data ) { d10.localcache.setTemplate(index,data.data.data[index]); }
-					return cb();
-				} 
-			});
-		},
-		//
-		// récupération des infos utilisateur
-		//
-		userInfos: function(cb)  {
-			$(document).one("user.infos",cb);
-			d10.user.refresh_infos();
-		}
-	},
-// 	function(errs,resps) {
-// 		launchMeBaby();
-// 	}
-	launchMeBaby
-	);
 	
-	when.onResponse(function() {
-		debug("Complete: ",when.complete(),"on",when.total());
-		loadCount.html(when.complete());
+	
+	$("footer a.logout").click(function() {
+		$("footer .loggedin").hide();
+		$("footer .loggingOut").removeClass("hidden");
+		d10.bghttp.get({
+			url: site_url+"welcome/goodbye",
+			success: function() {
+				window.location.reload(true);
+			}
+		});
+		return false;
 	});
-	
-	loadCount.html(when.complete());
-	loadTotal.html(when.total());
-	
-
 
 }
 
