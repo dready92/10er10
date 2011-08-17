@@ -229,6 +229,8 @@ button {
   background-color: #232323;
   border: 1px solid rgba(200,200,200,0.3); color: #9A9A9A;
   font-size: 0.95em;
+  -moz-user-select: none;
+  -webkit-user-select: none;
 }
 
 button.bigair {
@@ -287,6 +289,7 @@ div.tooltip {
   -webkit-border-radius: 5px;
   -moz-box-shadow: rgba(255,255,255,0.3) 0px 0px 5px;
   -webkit-box-shadow: rgba(255,255,255,0.3) 0px 0px 5px;
+  box-shadow: rgba(255,255,255,0.3) 0px 0px 5px;
   z-index: 50;
 }
 
@@ -763,6 +766,7 @@ article div.refreshList {
 #my .plm-content-container .rpl .list .song.hover span {
   -moz-box-shadow: inset 0 -2px 0 #BF9730;
   -webkit-box-shadow: inset 0 -2px 0 #BF9730;
+  box-shadow: inset 0 -2px 0 #BF9730;
 }
 
 #my .plm-content-container .rpl .list .song .edit { display: none; }
@@ -927,6 +931,7 @@ aside div.emptyPlaylist {
   -webkit-border-radius: 5px;
   -moz-box-shadow: rgba(255,255,255,0.3) 0px 0px 5px;
   -webkit-box-shadow: rgba(255,255,255,0.3) 0px 0px 5px;
+  box-shadow: rgba(255,255,255,0.3) 0px 0px 5px;
 }
 
 .overlay.resized {
@@ -947,6 +952,7 @@ aside div.emptyPlaylist {
 .overlay li.current {
   -moz-box-shadow: inset rgba(255,255,255,0.8) 0px 0px 5px;
   -webkit-box-shadow: inset rgba(255,255,255,0.8) 0px 0px 5px;
+  box-shadow: inset rgba(255,255,255,0.8) 0px 0px 5px;
   color:  #BF9730;
 }
 
@@ -958,6 +964,7 @@ aside div.emptyPlaylist {
   padding: 1px;
   -moz-box-shadow: rgba(255,255,255,0.3) 0px 2px 2px;
   -webkit-box-shadow: rgba(255,255,255,0.3) 0px 2px 2px;
+  box-shadow: rgba(255,255,255,0.3) 0px 2px 2px;
 }
 
 #my .overlay ul, #library .overlay ul {
@@ -972,6 +979,7 @@ aside div.emptyPlaylist {
 #my article.review .overlay {
 	-moz-box-shadow: none;
 	-webkit-box-shadow: none;
+	box-shadow: none;
 	padding: 0px;
 }
 
@@ -982,6 +990,7 @@ aside div.emptyPlaylist {
 #my article.review .overlay li.current {
   -moz-box-shadow: inset rgba(255,255,255,0.4) 0px 0px 2px;
   -webkit-box-shadow: inset rgba(255,255,255,0.4) 0px 0px 2px;
+  box-shadow: inset rgba(255,255,255,0.4) 0px 0px 2px;
   color:  #BF9730;
 }
 
@@ -1544,6 +1553,7 @@ div.hoverbox hr {
 	background-color: #232323;
 	-moz-box-shadow: 0 0 60px 40px #232323;
 	-webkit-box-shadow: 0 0 60px 40px #232323;
+	box-shadow: 0 0 60px 40px #232323;
 }
 
 #upload div.video video {
@@ -1570,6 +1580,7 @@ div.hoverbox hr {
   background-color: #232323;
   -moz-box-shadow: 0 0 20px #121212;
   -webkit-box-shadow: 0 0 20px #121212;
+  box-shadow: 0 0 20px #121212;
   -moz-border-radius: 15px;
   border-radius: 15px;
   position: absolute;
@@ -1615,6 +1626,7 @@ div.hoverbox hr {
 	background-position: 130px 25px,left top;
 	-moz-box-shadow: 0 0 1px 2px rgba(84,155,190,0.7);
 	-webkit-box-shadow: 0 0 1px 2px rgba(84,155,190,0.7);
+	box-shadow: 0 0 1px 2px rgba(84,155,190,0.7);
 	vertical-align: middle;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
