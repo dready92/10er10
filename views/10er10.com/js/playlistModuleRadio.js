@@ -20,7 +20,7 @@ var createModule= function (ui) {
 				"count": count
 			},
 			"success": function (response) {
-				if ( response.status == "success" && response.data.songs.length && ui.find(".on").is(":visible") && d10.playlist.driver().writable() ) {
+				if ( response.status == "success" && response.data.songs.length && ui.find(".autofill").hasClass("enabled") && d10.playlist.driver().writable() ) {
 					var items = '';
 					for ( var index in response.data.songs ) {
 						items+= d10.song_template( response.data.songs[index] );
@@ -46,6 +46,7 @@ var createModule= function (ui) {
 					clearTimeout(delayTimeout);
 				}
 				delayTimeout = setTimeout(function() {
+					delayTimeout = null;
 					if ( ui.find(".autofill").hasClass("enabled") && d10.playlist.current().nextAll().length < 3 ) {
 						debug("radio2");
 						appendSongs(settings.count);

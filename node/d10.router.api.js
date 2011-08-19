@@ -641,10 +641,15 @@ exports.api = function(app) {
 			if ( ! body.rows.length ) {
 				return d10.rest.success( {artists: [], artistsRelated:[]}, request.ctx);
 			}
-			var related = [], relatedKeys = [] ; 
+			var related = [], relatedKeys = [], relatedHash = {} ; 
 // 			console.log("body; ",body.rows);
 			body.rows.forEach(function(v) {
 // 				console.log("v",v);
+				if ( v.value in relatedHash ) {
+					relatedHash[v.value]++;
+				} else {
+					relatedHash[v.value] = 1;
+				}
 				if ( related.indexOf(v.value) < 0 ) {
 					related.push(v.value);
 				}
@@ -661,8 +666,15 @@ exports.api = function(app) {
 					return d10.rest.err(427,err,request.ctx);
 				}
 				
-				var relatedArtists = [];
+				var relatedArtists = [], relatedArtistsHash = {};
 				degree2.rows.forEach(function(v) {
+					if ( v.value != request.params.artist ) {
+						if ( v.value in relatedArtistsHash ) {
+							relatedArtistsHash[v.value]++;
+						} else {
+							relatedArtistsHash[v.value] = 1;
+						}
+					}
 					if ( v.value != request.params.artist 
 						&& related.indexOf(v.value) < 0 
 						&& relatedArtists.indexOf(v.value) < 0  )
@@ -670,6 +682,15 @@ exports.api = function(app) {
 						relatedArtists.push(v.value);
 						
 				});
+				
+				if ( request.query && request.query.weighted ) {
+					return d10.rest.success(
+					{
+						artists: relatedHash,
+						artistsRelated: relatedArtistsHash
+					}
+					,request.ctx			);
+				}
 				
 				return d10.rest.success(
 					{

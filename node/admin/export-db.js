@@ -64,8 +64,8 @@ var setupConfig = function() {
 		config.couch = config.couch_dev;
 	}
 	d10 = require("../d10");
+	d10.setConfig(config);
 	console.log("using databases ",config.couch);
-
 
 	var todo = [];
 	var then = function(err) {
