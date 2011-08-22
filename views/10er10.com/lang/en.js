@@ -241,7 +241,7 @@ exports.server = {
 		unknown_title: "unknown title"
 	},
 	"review/none.html": {
-		message: "All your songs are reviewed."
+		message: "All your songs are reviewed. Go to the <a href=\"#upload\">Upload</a> page to put new songs on the server."
 	},
 	"review/song.html": {
 		title: "Song metadata",

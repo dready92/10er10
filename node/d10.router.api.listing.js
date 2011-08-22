@@ -503,7 +503,7 @@ exports.api = function(app) {
 	});
 	
 	app.get("/api/list/s_user",function(request,response) {
-		var query = {include_docs: true, endkey: [request.ctx.user._id,[]], limit: d10.config.rpp + 1};
+		var query = {include_docs: true, startkey: [request.ctx.user._id], endkey: [request.ctx.user._id,[]], limit: d10.config.rpp + 1};
 		if ( request.query.startkey_docid && request.query["startkey"] ) {
 			query.startkey = JSON.parse(request.query["startkey"]);
 			query.startkey_docid = request.query.startkey_docid;
