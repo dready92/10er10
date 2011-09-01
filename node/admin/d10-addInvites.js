@@ -15,6 +15,7 @@ function onConfig () {
 
 	var d10 = require("../d10"),
 		users = require("../d10.users");
+	d10.setConfig(config);
 
 	if ( process.argv.length < 4 ) {
 		console.log("Usage: "+process.argv[0]+" "+process.argv[1]+" login count [-p]");
