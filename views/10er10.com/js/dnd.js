@@ -331,14 +331,15 @@ window.d10.dump = function () {
 	return back;
 }
 	
+window.d10.count = function(obj) {
+	var count = 0;
+	for ( var k in obj ) {count++;}
+	return count;
+};
 
 window.d10.when = function (elems, then) {
 	var responses = {}, errors = {},
-		count = function(obj) {
-			var count = 0;
-			for ( var k in obj ) {count++;}
-			return count;
-		},
+		count = window.d10.count,
 		elemsCount = count(elems),
 		checkEOT = function() {
 			var errCount = count(errors), respCount = count(responses);

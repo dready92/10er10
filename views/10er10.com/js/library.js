@@ -567,12 +567,34 @@ if (! "fn" in d10 ) {
 					d10.bghttp.get({
 						url: site_url+"/api/relatedArtists/"+ encodeURIComponent(artist),
 						dataType: "json",
+						data: {weighted: "true"},
 						success: function(resp) {
-							var back = [];
-							for ( var i in resp.data.artistsRelated ) {
-								back.push( $("<li />").html(resp.data.artistsRelated[i])
-													.attr("data-name","library/artists/"+ encodeURIComponent(resp.data.artistsRelated[i])) );
+							debug(resp);
+							var back = [], sorted = [], source;
+							if ( d10.count(resp.data.artistsRelated) ) {
+								source = resp.data.artistsRelated;
+							} else {
+								source = resp.data.artists;
 							}
+							for ( var i in source ) {
+								var currentArtist = { artist: i, weight: source[i] },
+									added = false;
+								
+								for (var j in sorted ) {
+									if ( sorted[j].weight < currentArtist.weight ) {
+										sorted.splice(j,0,currentArtist);
+										added = true;
+										break;
+									}
+								}
+								if ( !added ) { sorted.push(currentArtist); }
+							}
+							debug(sorted);
+							for ( var  i in sorted ) {
+								back.push( $("<li />").html(sorted[i].artist)
+									.attr("data-name","library/artists/"+ encodeURIComponent(sorted[i].artist)) );
+							}
+
 							var data = {title: d10.mustacheView("library.extendedInfos.artist.artists"), data: back};
 							then(null,data);
 						},

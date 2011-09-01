@@ -668,7 +668,7 @@ exports.api = function(app) {
 				
 				var relatedArtists = [], relatedArtistsHash = {};
 				degree2.rows.forEach(function(v) {
-					if ( v.value != request.params.artist ) {
+					if ( v.value != request.params.artist && !relatedHash[v.value] ) {
 						if ( v.value in relatedArtistsHash ) {
 							relatedArtistsHash[v.value]++;
 						} else {
