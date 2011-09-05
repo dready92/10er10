@@ -264,7 +264,7 @@ var track = function (id, url, seconds, options) {
 			audio.volume = audio.volume + step;
 		};
 		
-		if ( audio.readyState < 3 ) { //4 = have enough_data, 3 = have future data
+		if ( state.progressPC < 90 || audio.readyState < 3 ) { //4 = have enough_data, 3 = have future data
 			debug("don't have enough data to fade in. networkState = "+audio.networkState+' and readyState = '+audio.readyState);
 			return false;
 		}

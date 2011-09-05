@@ -262,6 +262,14 @@ d10.playlistDrivers.default = function(options) {
 		current.audio.volume = $('body').data('volume');
 		current.audio.play();
 		debug("playlistDriverDefault:play called play() on audio element : ",current.audio);
+		
+		// FF bug: sometimes audio play again and have audio/paused == true...
+		for ( var i in cache ) {
+			if ( cache[i] != current ) {
+				debug("calling pause on",i,cache[i].audio.paused);
+				cache[i].audio.pause();
+			}
+		}
 	// 			current_id = audio.track.audio.id;
 	// 			$(document).trigger('player.currentSongChanged',eventData);
 		trigger("currentSongChanged",{current: current});
