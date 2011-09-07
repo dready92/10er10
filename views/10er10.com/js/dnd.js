@@ -618,3 +618,56 @@ d10.fn.eventEmitter = function() {
 	};
 	
 })(jQuery);
+
+(function($){
+	var useFileReader = false;
+	if ( typeof FileReader != "undefined" ) {
+		var fr = new FileReader();
+		if ( fr.addEventListener ) {
+			useFileReader = true;
+		}
+		delete fr;
+	}
+	
+	d10.rest = {};
+	d10.rest.song = {
+		upload: function (file, filename, filesize, options, callback) {
+			if ( !callback ) {
+				callback = options;
+				options = null;
+			}
+			var xhr = new XMLHttpRequest();
+			var url = site_url+"/api/song?"+$.d10param({"filesize": filesize, "filename": filename } );
+			if ( options.progress ) xhr.upload.onprogress = options.progress;
+			if ( options.end ) xhr.upload.onload = options.end;
+			if ( options.readystatechange ) xhr.onreadystatechange = options.readystatechange;
+			if ( options.error ) xhr.onerror = options.error;
+			if ( options.abort ) xhr.onabort = options.abort;
+			xhr.onload = function() {
+				if ( options.load ) options.load.call(this);
+				callback(this.status, this.getAllResponseHeaders(), this.responseText);
+				xhr=null;
+			}
+ 
+			if ( useFileReader ) {
+				debug("using filereader");
+				var reader = new FileReader();
+				reader.onload = function() {
+					xhr.open("PUT",url);
+					xhr.sendAsBinary(reader.result);
+					reader = null;
+					file = null;
+				};
+				reader.readAsBinaryString(file);
+			} else {
+				debug("NOT using filereader");
+				xhr.open("PUT",url);
+				xhr.send(file);
+				file = null;
+			}
+		}
+	};
+	
+	
+	
+})(jQuery);
