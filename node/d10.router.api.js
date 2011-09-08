@@ -708,6 +708,171 @@ exports.api = function(app) {
 		
 	});
 	
+	/*
+	 track : _id: pt....  , song: aa....
+
+	d10wi : _id: aa....
+	_id: pr.... , listen: {aa.... : 2}
+	_id: up.... , likes: {aa....: true}
+	_id: up.... , dislikes: {aa....: true}
+	_id: up.... , playlist: {list: [aa....]}
+
+	d10:
+	_id: aa....
+	_id: pl.... , songs: [aa....]
+	*/
+	app.put("/api/deleteSong/aa:id",function(request,response,next) {
+		
+		var 
+			findAllSongReferences = function(id, then) {
+				when(
+					{
+						d10: function(cb) {
+							d10.couch.d10.view("references/songs",{key: id, include_docs: true},function(err,resp) {
+								if ( err ) { return  cb(err); }
+								cb(resp.rows);
+							});
+						},
+						d10wi: function(cb) {
+							d10.couch.d10wi.view("references/songs",{key: id, include_docs: true},function(err,resp) {
+								if ( err ) { return  cb(err); }
+								cb(resp.rows);
+							});
+						},
+						track: function(cb) {
+							d10.couch.track.view("references/songs",{key: id, include_docs: true},function(err,resp) {
+								if ( err ) { return  cb(err); }
+								cb(resp.rows);
+							});
+						}
+					},
+					function(errs,responses) {
+						then(errs,responses);
+					}
+				);
+				
+				
+			},
+			removeSongReferences = function (id, errs, responses, then ) {
+				if ( errs ) { return then(errs); }
+				var modifiedDocs = {d10:[], d10wi: [], track: []};
+				responses.d10.forEach(function(v) {
+					if ( v.doc._id == id ) {
+						v.doc._deleted = true;
+						modifiedDocs.d10.push(v.doc);
+					} else if ( v.doc._id.substr(0,2) == "pl" ) {
+						var newList = v.doc.list.filter(function(val,k){return ( val != id );});
+						v.doc.list = newList;
+						modifiedDocs.d10.push(v.doc);
+					}
+				});
+				responses.d10wi.forEach(function(v) {
+					if ( v.doc._id == id ) {
+						v.doc._deleted = true;
+						modifiedDocs.d10wi.push(v.doc);
+					} else if ( v.doc._id.substr(0,2) == "pr" ) {
+						var listen = {};
+						for ( var i in v.doc.listen ) {
+							if ( i != id ) {
+								listen[i] = v.doc.listen[i];
+							}
+						}
+						v.doc.listen = listen;
+						modifiedDocs.d10wi.push(v.doc);
+					} else if ( v.doc._id.substr(0,2) == "up" ) {
+						var replacement;
+						if ( v.doc.likes ) {
+							replacement = {};
+							for ( var i in v.doc.likes ) {
+								if ( i != id ) {
+									replacement[i] = v.doc.likes[i];
+								}
+							}
+							v.doc.likes = replacement;
+						}
+						replacement = null;
+						if ( v.doc.dislikes ) {
+							replacement = {};
+							for ( var i in v.doc.dislikes ) {
+								if ( i != id ) {
+									replacement[i] = v.doc.dislikes[i];
+								}
+							}
+							v.doc.dislikes = replacement;
+						}
+						replacement = null;
+						if ( v.doc.playlist && v.doc.playlist.list ) {
+							replacement = v.doc.playlist.list.filter(function(val) { return (val != id) ; });
+							v.doc.playlist.list = replacement;
+						}
+						modifiedDocs.d10wi.push(v.doc);
+					}
+				});
+				responses.track.forEach(function(v) {
+					if ( v.doc._id.substr(0,2) == "pt" && v.doc.song == id ) {
+						v.doc._deleted = true;
+						modifiedDocs.track.push(v.doc);
+					}
+				});
+				then(null,modifiedDocs);
+			},
+			recordModifiedDocs = function(modifiedDocs,then) {
+				var actions = {};
+				if ( modifiedDocs.d10.length ) {
+					actions.d10 = function(cb) {
+						d10.couch.d10.storeDocs(modifiedDocs.d10,cb);
+					};
+				}
+				if ( modifiedDocs.d10wi.length ) {
+					actions.d10wi = function(cb) {
+						d10.couch.d10wi.storeDocs(modifiedDocs.d10wi,cb);
+					};
+				}
+				if ( modifiedDocs.track.length ) {
+					actions.track = function(cb) {
+						d10.couch.track.storeDocs(modifiedDocs.track,cb);
+					};
+				}
+				if ( !actions.d10 && !actions.d10wi && !actions.track ) {
+					return then();
+				}
+				when(actions,then);
+			}
+		;
+		
+		
+		d10.couch.d10.getDoc("aa"+request.params.id,function(err,doc) {
+			if ( err ) {
+				return d10.rest.err(423,err,request.ctx);
+			}
+			if ( doc.user != request.ctx.user._id ) {
+				return d10.rest.err(403,"You are not allowed to delete this song",request.ctx);
+			}
+			
+			findAllSongReferences(doc._id, 
+				function(errs,resp) {
+					if ( errs ) { return d10.rest.err(423,errs,request.ctx); }
+					removeSongReferences(doc._id, errs, resp, function(errs, modifiedDocs) {
+						if ( errs ) { return d10.rest.err(423,errs,request.ctx); }
+						recordModifiedDocs(modifiedDocs,function(err,resp) {
+							if ( err ) {
+								return d10.rest.err(423,errs,request.ctx);
+							} else {
+								return d10.rest.success([],request.ctx);
+							}
+						});
+					});
+				}
+			);
+			
+		});
+		
+		
+		
+		
+	});
+	
+	
 	
 }; // exports.api
 
