@@ -543,14 +543,14 @@ d10.fn.router = {
 
 (function($){
 
-d10.fn.eventEmitter = function() {
+d10.fn.eventEmitter = function (simpleTrigger) {
 
 	/*[
 	* 	{selector: string, callback: fn }
 	* ]
 	*/
 	var triggers = [];
-
+	/* no need for event classes anymore
 	var matchTrigger = function (name, trigger) {
 		var classes = name.replace(/^\s+/,"").replace(/\s+$/,"").split(".");
 		name = classes.shift();
@@ -578,7 +578,15 @@ d10.fn.eventEmitter = function() {
 		}
 		return false;
 	};
-  
+	*/
+	var matchTrigger = function(name, trigger) {
+		if ( trigger.selector && trigger.selector == name ) {
+			return true;
+		}
+		return false;
+	};
+	
+	
   	return {
 		trigger: function ( name, data ) {
 			for ( var index in triggers ) {
@@ -616,7 +624,6 @@ d10.fn.eventEmitter = function() {
 	$.d10param = function(data) {
 		return $.param(data).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A');
 	};
-	
 })(jQuery);
 
 (function($){
@@ -630,24 +637,44 @@ d10.fn.eventEmitter = function() {
 	}
 	
 	d10.rest = {};
+	var emitter = d10.rest.events = new d10.fn.eventEmitter();
 	d10.rest.song = {
 		upload: function (file, filename, filesize, options, callback) {
+			var endpoint = "song.upload";
 			if ( !callback ) {
 				callback = options;
 				options = null;
 			}
 			var xhr = new XMLHttpRequest();
 			var url = site_url+"/api/song?"+$.d10param({"filesize": filesize, "filename": filename } );
-			if ( options.progress ) xhr.upload.onprogress = options.progress;
+			xhr.upload.onprogress = function(event) {
+				if ( options.progress ) options.progress.call(this,event);
+				emitter.trigger("whenRestUploadProgress",{endpoint: endpoint, event: event});
+			}
 			if ( options.end ) xhr.upload.onload = options.end;
 			if ( options.readystatechange ) xhr.onreadystatechange = options.readystatechange;
-			if ( options.error ) xhr.onerror = options.error;
-			if ( options.abort ) xhr.onabort = options.abort;
+			xhr.onerror = function(event) {
+// 				debug("got error on upload",arguments);
+				if ( options.error ) options.error.call(this,event);
+				emitter.trigger("whenRestError",{endpoint: endpoint,event: event});
+				xhr= null;
+			};
+			xhr.onabort = function (event) {
+				if ( options.abort ) options.abort.call(this,event);
+				emitter.trigger("whenRestAbort",{endpoint: endpoint,event: event});
+				xhr= null;
+			};
 			xhr.onload = function() {
 				if ( options.load ) options.load.call(this);
 				callback(this.status, this.getAllResponseHeaders(), this.responseText);
+				emitter.trigger("whenRestEnd",{
+					endpoint: endpoint,
+					status: this.status,
+					headers: this.getAllResponseHeaders(),
+					response: this.responseText
+				});
 				xhr=null;
-			}
+			};
  
 			if ( useFileReader ) {
 				debug("using filereader");
@@ -665,6 +692,12 @@ d10.fn.eventEmitter = function() {
 				xhr.send(file);
 				file = null;
 			}
+			emitter.trigger("whenRestBegin",{
+				endpoint: endpoint,
+				filename: filename,
+				filesize: filesize,
+				options: options
+			});
 		}
 	};
 	
