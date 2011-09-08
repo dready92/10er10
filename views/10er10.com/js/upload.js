@@ -188,6 +188,11 @@ d10.fn.upload = function (ui) {
 						$("div.controls span.status",widget).html(d10.mustacheView("upload.song.serverError"));
 					}
 				}
+			},
+			error: function() {
+				widget.data("status",2);
+				$("div.controls span.progress",widget).hide();
+				$("div.controls span.status",widget).html(d10.mustacheView("upload.song.serverError"));
 			}
 		}, function(){}); 
 		$("div.controls span.status",widget).html(d10.mustacheView("upload.song.uploading"));
