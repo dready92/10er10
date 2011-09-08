@@ -108,7 +108,7 @@ var step2 = function () {
 					if ( data.status !=  'success' || data.data.status != 'success' ) { return cb("server error"); }
 					for ( var index in data.data.data ) { d10.localcache.setTemplate(index,data.data.data[index]); }
 					return cb();
-				} 
+				}
 			});
 		},
 		//

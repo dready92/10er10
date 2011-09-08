@@ -45,6 +45,28 @@ function httpmanager ( domainUrl ) {
     data.request = cache[data.request_id];
     data.request._stopTime  = new Date().getTime();
 //     debug(data);
+	
+	//handle restMode style answers
+	if ( data.request.restMode ) {
+		if ( typeof data.request.complete != 'function' ) {
+			delete cache[data.request_id];
+			return ;
+		}
+		if ( !data.request.restSuccessCodes ) {
+			data.request.restSuccessCodes = [200];
+		}
+		if ( data.status == "error" ) { // client returned error
+			data.request.complete.call(data, 999, data.error);
+		} else if ( data.request.restSuccessCodes.indexOf( data.code ) == -1 ) { // server returned error
+			data.request.complete.call(data, data.code, data.data);
+		} else {
+			data.request.complete.call(data, null, data.data);
+		}
+		delete cache[data.request_id];
+		return ;
+	}
+	
+	
     /*
      * Handle "complete" callback option
      */
@@ -105,7 +127,7 @@ function httpmanager ( domainUrl ) {
     if ( ! options.url ) { return ; }
     if ( ! options.callback ) {     options.callback = 'ignore';    }
     if ( ! options.method   ) {     options.method   = 'GET';       }
-    if ( ! options.dataType ) {     options.dataType = 'html';        }
+    if ( ! options.dataType ) {     options.dataType = 'html';      }
 
     // generate unique ID
     if ( !request_id ) { request_id =  genUniqueId(); }
@@ -117,7 +139,9 @@ function httpmanager ( domainUrl ) {
       'request_id': request_id,
       'url': options.url,
       'method': options.method,
-      'dataType': options.dataType
+      'dataType': options.dataType,
+      'restMode': options.restMode ? true:false,
+      'restSuccessCodes': options.restSuccessCodes ? options.restSuccessCodes:null
     };
 
 
