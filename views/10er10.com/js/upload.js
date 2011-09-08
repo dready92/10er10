@@ -150,6 +150,10 @@ d10.fn.upload = function (ui) {
 					var percentage = Math.round((e.loaded * 100) / e.total);
 	// 				if ( percentage < 99 ) {
 					$("div.controls span.progress",widget).html(percentage+'%');
+					if ( percentage == 100 ) {
+						$("div.controls span.progress",widget).hide();
+						$("div.controls span.status",widget).html(waitText);
+					}
 	// 				} else {
 	// 					$("div.controls span.progress",widget).hide();
 	// 					$("div.controls span.status",widget).html(waitText);
@@ -161,29 +165,29 @@ d10.fn.upload = function (ui) {
 				$("div.controls span.progress",widget).hide();
 				$("div.controls span.status",widget).html(waitText);
 			},
-			load: function() {
+			load: function(code,headers,body) {
 				widget.data("status",2);
 				var back = null;
 				try {
-					back = JSON.parse(this.responseText);
+					back = JSON.parse(body);
 				} catch (e) {
 					back = {'status': 'error'};
 				}
 				$("button.close",widget).show();
-				if ( back.status == "success" ) {
+				if ( code == 200 ) {
 					$("div.controls span.status",widget).html(d10.mustacheView("upload.song.success"));
 					$("button.review",widget).click(function() {
-						var route = ["my", "review", back.data._id];
+						var route = ["my", "review", body._id];
 						d10.router.navigateTo( route );
 					}).show();
 
-				} else if ( back.data && back.data.code && back.data.code == 14 ) {
+				} else if ( code == 433 ) {
 					$("div.controls span.progress",widget).hide();
 					$("div.controls span.status",widget).html(d10.mustacheView("upload.song.alreadyindb"));
 				} else {
-					if ( back.data && back.data.message ) {
+					if ( body.message ) {
 						$("div.controls span.progress",widget).hide();
-						$("div.controls span.status",widget).html(back.data.message);
+						$("div.controls span.status",widget).html(body.message);
 					} else {
 						$("div.controls span.status",widget).html(d10.mustacheView("upload.song.serverError"));
 					}
