@@ -321,6 +321,30 @@ exports.rest = {
 	}
 };
 
+exports.realrest = {
+	err: function(code, data, ctx) {
+		if ( !ctx ) {
+			ctx = data;
+			data = null;
+		}
+		ctx.headers["Content-Type"] = "application/json";
+		ctx.response.writeHead(code, ctx.headers, exports.http.statusMessage(code));
+		ctx.response.end(data ? JSON.stringify(data) : null);
+	},
+	success: function(data,ctx) {
+		
+		ctx.headers["Content-Type"] = "application/json";
+		if ( data ) {
+			data = JSON.stringify(data);
+			ctx.headers["Content-Length"] = Buffer.byteLength(data);
+		}
+		ctx.response.writeHead(200, ctx.headers );
+		ctx.response.end (data);
+	}
+	
+};
+
+
 exports.saveSession = function(doc,deleteIt) {
 	if ( deleteIt ) {
 		exports.couch.auth.deleteDoc(doc,function(err) {
