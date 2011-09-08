@@ -190,7 +190,7 @@ exports.api = function(app) {
 	app.put("/api/song", function(request,response) {
 		if ( !request.query.filename || !request.query.filename.length 
 			|| !request.query.filesize || !request.query.filesize.length ) {
-			return d10.rest.err(427,"filename and filesize arguments required",request.ctx);
+			return d10.realrest.err(427,"filename and filesize arguments required",request.ctx);
 		}
 		
 		var safeErrResp = function(code,data,ctx) {
@@ -199,8 +199,8 @@ exports.api = function(app) {
 			d10.log("debug",data);
 			if ( errResponse ) return ;
 			errResponse = {code: code, data: data};
-			if ( job.requestEnd ) {d10.rest.err(code,data,ctx);}
-			else	{ request.on("end",function() {d10.rest.err(code,data,ctx);}); };
+			if ( job.requestEnd ) {d10.realrest.err(code,data,ctx);}
+			else	{ request.on("end",function() {d10.realrest.err(code,data,ctx);}); };
 		};
 		
 		var bytesCheck = function() {
@@ -638,7 +638,7 @@ exports.api = function(app) {
 		job.complete("createDocument",function(err,resp) {
 			d10.log("debug","db document recorded");
 // 			d10.log("debug",resp);
-			d10.rest.success(resp,request.ctx);
+			d10.realrest.success(resp,request.ctx);
 		});
 		
 		
@@ -757,7 +757,7 @@ exports.api = function(app) {
 
 				job.fileWriter.on("end", function() {
 					if ( parseInt(request.query.filesize) != job.fileWriter.bytesWritten() ) {
-						return d10.rest.err(421, request.query.filesize+" != "+n,request.ctx);
+						return d10.realrest.err(421, request.query.filesize+" != "+n,request.ctx);
 					}
 					job.bufferJoin = 20;
 					

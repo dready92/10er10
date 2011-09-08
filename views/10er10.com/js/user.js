@@ -22,10 +22,7 @@ function user () {
 		return pl;
 	};
 
-	$(document).bind('user.infos',function(e,data) { infos = data.data.data; debug(infos); infos.playlists = orderPlaylists(infos.playlists);	});
-	$(document).bind('user.playlists',function(e,data) {
-		infos.playlists = orderPlaylists(data.data.data);
-	});
+	$(document).bind('user.infos',function(e,infos) { debug(infos); infos.playlists = orderPlaylists(infos.playlists);	});
 	$(document).bind('rplAppendSuccess',function(e,data) {
 		infos.playlists = jQuery.map(infos.playlists, function(n, i){
       if ( n._id == data.playlist._id )	return data.playlist;
@@ -70,13 +67,17 @@ function user () {
 
   
 	this.refresh_infos = function () {
-		d10.bghttp.get ( { 'callback': 'triggerEvent:user.infos','url': site_url+'/api/userinfos','dataType': 'json' } );
+		d10.rest.user.infos(
+			{
+				load: function(err,resp) {
+					if (!err) {
+						$(document).trigger("user.infos",resp);
+					}
+				}
+			}
+		);
 	}
-
-	this.refresh_playlists = function () {
-		d10.bghttp.get ( { 'callback': 'triggerEvent:user.playlists','url': site_url+'/api/userinfos/playlists','dataType': 'json' } );
-	}
-
+	
 	this.got_infos = function () {
 		if ( infos == null )	return false;
 		return true;

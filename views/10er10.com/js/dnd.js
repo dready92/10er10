@@ -665,7 +665,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				xhr= null;
 			};
 			xhr.onload = function() {
-				if ( options.load ) options.load.call(this);
+				if ( options.load ) options.load.call(this, this.status, this.getAllResponseHeaders(), this.responseText);
 				callback(this.status, this.getAllResponseHeaders(), this.responseText);
 				emitter.trigger("whenRestEnd",{
 					endpoint: endpoint,
@@ -701,6 +701,51 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		}
 	};
 	
+	d10.rest.templates = function(options) {
+		var endpoint = "templates";
+		d10.bghttp.get ({
+			url: site_url+"/api/htmlElements", 
+			dataType:"json",
+			restMode: true,
+			complete: function(err,data) {
+				if ( options.load ) {
+					options.load.apply(this,arguments);
+				}
+				emitter.trigger("whenRestEnd",{
+					endpoint: endpoint,
+					status: this.code,
+					headers: this.headers,
+					response: data
+				});
+			}
+		});
+		emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+	};
+	
+	d10.rest.user = {
+		infos: function(options) {
+			var endpoint = "user.infos";
+			d10.bghttp.get ( 
+				{ 
+					restMode: true,
+					complete: function(err,data) {
+						if ( options.load ) {
+							options.load.apply(this,arguments);
+						}
+						emitter.trigger("whenRestEnd",{
+							endpoint: endpoint,
+							status: this.code,
+							headers: this.headers,
+							response: data
+						});
+					},
+					url: site_url+"/api/userinfos",
+					dataType: "json" 
+					
+				} 
+			);
+		}
+	};
 	
 	
 })(jQuery);

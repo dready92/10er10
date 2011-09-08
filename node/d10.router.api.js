@@ -83,10 +83,10 @@ exports.api = function(app) {
 			function(errors,responses) {
 				if ( errors ) {
 					d10.log("debug",errors);
-					d10.rest.err(423,null,request.ctx);
+					d10.realrest.err(423,null,request.ctx);
 				} else {
 					responses.user = request.ctx.user;
-					d10.rest.success(responses,request.ctx);
+					d10.realrest.success(responses,request.ctx);
 				}
 			}
 		);
@@ -98,9 +98,6 @@ exports.api = function(app) {
 		for ( var jobname in d10.config.templates.clientList ) {
 			jobs[jobname] = (function(tpl,j) {
 								return function(cb) {
-// 									fs.readFile(d10.config.templates.client+"/"+tpl,"utf8",function(err,data) {
-// 										cb(err,data);
-// 									});
 									request.ctx.langUtils.parseServerTemplate(request,tpl,cb);
 								};
 							})(d10.config.templates.clientList[jobname],jobname);
@@ -112,16 +109,15 @@ exports.api = function(app) {
 			function(e,responses) {
 				if ( e ) {
 					d10.log("error");d10.log(e);
-					d10.rest.err(500,e,request.ctx);
+					d10.realrest.err(500,e,request.ctx);
 				} else {
 					d10.log("success");
-// 					console.log("responses: ",responses);
 					var dynamic = responses.dynamic;
 					delete responses.dynamic;
 					for ( var i in dynamic ) {
 						responses[i] = dynamic[i];
 					}
-					d10.rest.success(responses,request.ctx);
+					d10.realrest.success(responses,request.ctx);
 				}
 			}
 		);

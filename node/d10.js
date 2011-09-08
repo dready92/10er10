@@ -327,8 +327,9 @@ exports.realrest = {
 			ctx = data;
 			data = null;
 		}
+		console.log("response : ",code, exports.http.statusMessage(code), ctx.headers,data);
 		ctx.headers["Content-Type"] = "application/json";
-		ctx.response.writeHead(code, ctx.headers, exports.http.statusMessage(code));
+		ctx.response.writeHead(code, exports.http.statusMessage(code), ctx.headers);
 		ctx.response.end(data ? JSON.stringify(data) : null);
 	},
 	success: function(data,ctx) {
