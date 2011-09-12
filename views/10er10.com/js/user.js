@@ -97,11 +97,17 @@ function user () {
 		if ( name == "hiddenExtendedInfos" ) {
 			
 			value = value ? "true" : "false";
-			d10.bghttp.put({
+			/*d10.bghttp.put({
 				url: site_url+"/api/preference/hiddenExtendedInfos",
 				contentType: "application/x-www-form-urlencoded",
 				data: {value: value},
 				success: $.proxy(this.refresh_infos,this)
+			});*/
+			d10.rest.user.setPreference("hiddenExtendedInfos",value, {
+				load: function(err,resp) {
+					if ( err ) return ;
+					$.proxy(this.refresh_infos,this);
+				}
 			});
 		}
 	};
