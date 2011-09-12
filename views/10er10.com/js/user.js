@@ -22,7 +22,12 @@ function user () {
 		return pl;
 	};
 
-	$(document).bind('user.infos',function(e,infos) { debug(infos); infos.playlists = orderPlaylists(infos.playlists);	});
+	$(document).bind('user.infos',function(e,data) { 
+		debug(data);
+		infos = data;
+		infos.playlists = orderPlaylists(infos.playlists);	
+		
+	});
 	$(document).bind('rplAppendSuccess',function(e,data) {
 		infos.playlists = jQuery.map(infos.playlists, function(n, i){
       if ( n._id == data.playlist._id )	return data.playlist;
@@ -84,7 +89,7 @@ function user () {
 	}
 
 	this.get_preferences = function () {
-		if ( infos == null || ! infos.preferences )	return false;
+		if ( infos == null || !infos.preferences  )	return false;
 		return infos.preferences;
 	}
 	
