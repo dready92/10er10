@@ -744,6 +744,39 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 					
 				} 
 			);
+			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+
+		},
+ 		setPreference: function(name, value, options) {
+			/*
+			d10.bghttp.put({
+				url: site_url+"/api/preference/hiddenExtendedInfos",
+				contentType: "application/x-www-form-urlencoded",
+				data: {value: value},
+				success: $.proxy(this.refresh_infos,this)
+			});*/
+			var endpoint = "user.setPreference";
+			d10.bghttp.put ( 
+				{ 
+					restMode: true,
+					complete: function(err, data) {
+						if ( options.load ) {
+							options.load.apply(this,arguments);
+						}
+						emitter.trigger("whenRestEnd",{
+							endpoint: endpoint,
+							status: this.code,
+							headers: this.headers,
+							response: data
+						});
+					},
+					url: site_url+"/api/preference/"+name,
+					dataType: "json",
+					contentType: "application/x-www-form-urlencoded",
+					data: {value: value}
+				} 
+			);
+			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
 		}
 	};
 	

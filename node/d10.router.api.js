@@ -415,8 +415,8 @@ exports.api = function(app) {
 	
 	app.put("/api/preference/:name",function(request,response) {
 		var defaultCallback = function(err,resp) {
-			if ( err ) { d10.rest.err(423,err,request.ctx); }
-			else { d10.rest.success([],request.ctx); }
+			if ( err ) { d10.realrest.err(423,err,request.ctx); }
+			else { d10.realrest.success([],request.ctx); }
 		};
 		bodyDecoder()(request, response,function() {
 // 			console.log("body: ",request.body);
@@ -433,6 +433,8 @@ exports.api = function(app) {
 					},
 					defaultCallback
 				);
+			} else {
+				d10.realrest.err(404,"preference "+request.params.name+" is unknown",request.ctx);
 			}
 		});
 	});
