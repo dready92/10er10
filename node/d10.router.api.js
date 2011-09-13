@@ -858,11 +858,13 @@ exports.api = function(app) {
 					return then(null,[]);
 				}
 				d10.couch.d10.view("images/sha1",{keys: keys}, function(err,resp) {
+					console.log(resp);
 					if ( err ) return then(err);
-					for ( var v in resp.rows ) {
+					resp.rows.forEach(function(v) {
 						if  ( usage[v.key] )	usage[v.key]++;
 						else					usage[v.key]=1;
-					}
+					});
+					console.log(usage);
 					var back = [];
 					keys.forEach(function(v) { 
 						if ( !usage[v] || usage[v]<2 ) {
@@ -902,11 +904,12 @@ exports.api = function(app) {
 			
 			
 			findAllSongReferences(doc._id,
-				function(errs,resp) {
+				function(errs,references) {
 					if ( errs ) { console.log("error on findAllSongReferences"); return d10.rest.err(423,errs,request.ctx); }
 					getUnusedImages(doc,function(errs,images) {
 						if ( errs ) { console.log("error on getUnusedImages"); return d10.rest.err(423,errs,request.ctx); }
-						removeSongReferences(doc._id, errs, resp, function(errs, modifiedDocs) {
+						return d10.rest.success([references,images],request.ctx);
+						removeSongReferences(doc._id, errs, references, function(errs, modifiedDocs) {
 							if ( errs ) { console.log("error on removeSongReferences"); return d10.rest.err(423,errs,request.ctx); }
 							recordModifiedDocs(modifiedDocs,function(err,resp) {
 								if ( err ) {
