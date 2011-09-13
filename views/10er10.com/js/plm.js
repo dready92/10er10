@@ -250,7 +250,9 @@ d10.fn.plm = function (mydiv,mypldiv) {
 
 					var songs = '';
 					for ( var index in response.data.songs ) {
-						songs+= d10.song_template(response.data.songs[index]);
+						if ( response.data.songs[index] ) {
+							songs+= d10.song_template(response.data.songs[index]);
+						}
 					}
 					_appendSong ($(songs), pldiv) ;
 					if  ( $('.pleaseWait',pldiv).css('display') != 'none' ) {

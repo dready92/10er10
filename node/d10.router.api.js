@@ -729,20 +729,20 @@ exports.api = function(app) {
 					{
 						d10: function(cb) {
 							d10.couch.d10.view("references/songs",{key: id, include_docs: true},function(err,resp) {
-								if ( err ) { return  cb(err); }
-								cb(resp.rows);
+								if ( err ) { console.log("findAllSongReferences error",err,resp); return  cb(err); }
+								cb(null, resp.rows);
 							});
 						},
 						d10wi: function(cb) {
 							d10.couch.d10wi.view("references/songs",{key: id, include_docs: true},function(err,resp) {
-								if ( err ) { return  cb(err); }
-								cb(resp.rows);
+								if ( err ) { console.log("findAllSongReferences error",err,resp); return  cb(err); }
+								cb(null, resp.rows);
 							});
 						},
 						track: function(cb) {
 							d10.couch.track.view("references/songs",{key: id, include_docs: true},function(err,resp) {
-								if ( err ) { return  cb(err); }
-								cb(resp.rows);
+								if ( err ) {  console.log("findAllSongReferences error",err,resp);return  cb(err); }
+								cb(null, resp.rows);
 							});
 						}
 					},
@@ -760,9 +760,10 @@ exports.api = function(app) {
 					if ( v.doc._id == id ) {
 						v.doc._deleted = true;
 						modifiedDocs.d10.push(v.doc);
-					} else if ( v.doc._id.substr(0,2) == "pl" ) {
-						var newList = v.doc.list.filter(function(val,k){return ( val != id );});
-						v.doc.list = newList;
+					} else if ( v.doc._id.substr(0,2) == "pl" && v.doc.songs ) {
+						var newList = []
+						v.doc.songs.forEach(function(val,k){if ( val != id ) newList.push(val); });
+						v.doc.songs = newList;
 						modifiedDocs.d10.push(v.doc);
 					}
 				});
@@ -802,7 +803,9 @@ exports.api = function(app) {
 						}
 						replacement = null;
 						if ( v.doc.playlist && v.doc.playlist.list ) {
-							replacement = v.doc.playlist.list.filter(function(val) { return (val != id) ; });
+							replacement = [];
+							v.doc.playlist.list.forEach(function(val,k){if ( val != id ) replacement.push(val); });
+// 							replacement = v.doc.playlist.list.filter(function(val) { return (val != id) ; });
 							v.doc.playlist.list = replacement;
 						}
 						modifiedDocs.d10wi.push(v.doc);
@@ -817,6 +820,7 @@ exports.api = function(app) {
 				then(null,modifiedDocs);
 			},
 			recordModifiedDocs = function(modifiedDocs,then) {
+				console.log("recordModifiedDocs recording: ",modifiedDocs);
 				var actions = {};
 				if ( modifiedDocs.d10.length ) {
 					actions.d10 = function(cb) {
@@ -837,6 +841,52 @@ exports.api = function(app) {
 					return then();
 				}
 				when(actions,then);
+			},
+			removeSongFile = function(id, then) {
+				var file = d10.config.audio.dir +"/"+ id.substr(0,1) + "/aa" + id+".ogg";
+				fs.unlink(file,then);
+			},
+			getUnusedImages = function(doc, then) {
+				var keys = [], usage = {},filenames = {};
+				if ( doc.images ) {
+					doc.images.forEach(function(v) {
+						keys.push(v.sha1);
+						filenames[v.sha1] = v.filename;
+					});
+				}
+				if ( !keys.length ) {
+					return then(null,[]);
+				}
+				d10.couch.d10.view("images/sha1",{keys: keys}, function(err,resp) {
+					if ( err ) return then(err);
+					for ( var v in resp.rows ) {
+						if  ( usage[v.key] )	usage[v.key]++;
+						else					usage[v.key]=1;
+					}
+					var back = [];
+					keys.forEach(function(v) { 
+						if ( !usage[v] || usage[v]<2 ) {
+							back.push({sha1: v, filename: filenames[v]});
+						}
+					});
+					return then(null,back);
+				});
+			},
+			removeUnusedImages = function(images, then) {
+				var actions = {};
+				images.forEach(function(i) {
+					if ( i.filename && i.filename.length ) {
+						actions[i.sha1] = (function(i) {
+							return function(cb) {
+								fs.unlink(d10.config.images.dir+"/"+i.filename,cb);
+							};
+						})(i);
+					}
+				});
+				if ( !d10.count(actions) ) {
+					return then();
+				}
+				when(actions,then);
 			}
 		;
 		
@@ -849,17 +899,25 @@ exports.api = function(app) {
 				return d10.rest.err(403,"You are not allowed to delete this song",request.ctx);
 			}
 			
-			findAllSongReferences(doc._id, 
+			
+			
+			findAllSongReferences(doc._id,
 				function(errs,resp) {
-					if ( errs ) { return d10.rest.err(423,errs,request.ctx); }
-					removeSongReferences(doc._id, errs, resp, function(errs, modifiedDocs) {
-						if ( errs ) { return d10.rest.err(423,errs,request.ctx); }
-						recordModifiedDocs(modifiedDocs,function(err,resp) {
-							if ( err ) {
-								return d10.rest.err(423,errs,request.ctx);
-							} else {
-								return d10.rest.success([],request.ctx);
-							}
+					if ( errs ) { console.log("error on findAllSongReferences"); return d10.rest.err(423,errs,request.ctx); }
+					getUnusedImages(doc,function(errs,images) {
+						if ( errs ) { console.log("error on getUnusedImages"); return d10.rest.err(423,errs,request.ctx); }
+						removeSongReferences(doc._id, errs, resp, function(errs, modifiedDocs) {
+							if ( errs ) { console.log("error on removeSongReferences"); return d10.rest.err(423,errs,request.ctx); }
+							recordModifiedDocs(modifiedDocs,function(err,resp) {
+								if ( err ) {
+									console.log("error on recordModifiedDocs"); return d10.rest.err(423,err,request.ctx);
+								} else {
+									d10.rest.success([],request.ctx);
+									removeSongFile(doc._id, function() {});
+									removeUnusedImages(images,function(){});
+									return ;
+								}
+							});
 						});
 					});
 				}

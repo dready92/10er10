@@ -445,7 +445,9 @@ d10.playlistDrivers.default = function(options) {
 // 				debug("load success: ",resp);
 				var html = "";
 				$.each(resp.data.songs,function(i,song) {
-					html+=d10.song_template(song);
+					if ( song ) {
+						html+=d10.song_template(song);
+					}
 				});
 				if ( html.length ) {
 					cb.call(self,null,$(html));

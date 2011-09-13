@@ -300,6 +300,7 @@ d10.fn.my = function (ui) {
             $('.form_error[name='+k+']',topicdiv).html(data.fields[k]).slideDown();
           }
           $('span.uploading',topicdiv).hide();
+		  $("button[name=remove]",topicdiv).show();
           $("button[name=review]",topicdiv).show();
           $("button[name=reviewNext]",topicdiv).show();
         } else if ( data.status == 'error' ) {
@@ -547,10 +548,36 @@ d10.fn.my = function (ui) {
 			}
 		);
 		
+		$("button[name=remove]",topicdiv).click(function(e) {
+			$(this).hide();
+			$('button[name=review]',topicdiv).hide();
+			$('button[name=reviewNext]',topicdiv).hide();
+			$('span.uploading',topicdiv).show();
+			$('.form_error',topicdiv).hide();
+			debug("deleteSonghURL: ",site_url+"/api/deleteSong/"+song_id);
+// 			setTimeout(function() {
+			d10.bghttp.put({
+				url: site_url+"/api/deleteSong/"+song_id,
+				dataType: "json",
+				success: function(response) {
+					debug("song delete response: ",response);
+					if ( response.status && response.status == "error" ) {
+						debug("song delete response error: ",response);
+					}
+				},
+				error: function() {
+					debug("song delete error response: ",arguments);
+				}
+			});
+// 			e.preventDefault();
+			return false;
+		});
+		
 
 		$('button[name=review]',topicdiv).click(function() {
 			// disappear
 			$(this).hide();
+			$('button[name=remove]',topicdiv).hide();
 			$('button[name=reviewNext]',topicdiv).hide();
 			$('span.uploading',topicdiv).show();
 			$('.form_error',topicdiv).hide();

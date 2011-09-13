@@ -75,7 +75,9 @@ d10.playlistDrivers.rpl = function(options) {
 						setDoc(resp.data);
 						var html = "";
 						$.each(resp.data.songs,function(k,v) {
-							html+=d10.song_template(v);
+							if (  v ) {
+								html+=d10.song_template(v);
+							}
 						});
 						if ( html.length )	html = $(html);
 						cb.call(self,null,html);
