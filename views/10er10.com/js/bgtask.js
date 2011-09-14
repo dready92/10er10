@@ -5,12 +5,10 @@ var bgtask = function() {
 
   var tasks = [
     function() {
-      d10.bghttp.get({
-        "url": site_url+"/api/serverLoad",
-        "dataType": "json",
-        "success": function(data) {
-          if ( data.status == "success"  ) {
-            var load = data.data.load.shift();
+      d10.rest.server.load({
+        load: function(err, data) {
+          if ( !err  ) {
+            var load = data.load.shift();
             if ( load < 3 ) {
               $("body").data("cache_ttl",15000);
             } else if ( load < 6 ) {
@@ -24,12 +22,10 @@ var bgtask = function() {
 
     },
 	function() {
-      d10.bghttp.get({
-        "url": site_url+"/api/length",
-        "dataType": "json",
-        "success": function(data) {
-          if ( data.status == "success"  ) {
-            var length = parseInt(data.data.length / 60 / 60);
+      d10.rest.server.length({
+        load: function(err, data) {
+          if ( !err  ) {
+            var length = parseInt(data.length / 60 / 60);
 			$("footer span.hours").html(length);
           }
         }

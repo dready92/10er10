@@ -135,13 +135,13 @@ exports.api = function(app) {
 
 	app.get("/api/length", function(request,response) {
 		d10.couch.d10.view("song/length",function(err,resp) {
-			if ( err ) d10.rest.err(423,resp,request.ctx);
+			if ( err ) d10.realrest.err(423,resp,request.ctx);
 			var len = 0;
 			try {
 				len = resp.rows.shift().value;
-				d10.rest.success( {"length": len}, request.ctx );
+				d10.realrest.success( {"length": len}, request.ctx );
 			} catch (e) {
-				d10.rest.success( {"length": 0}, request.ctx );
+				d10.realrest.success( {"length": 0}, request.ctx );
 			}
 		});
 	});

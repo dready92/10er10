@@ -653,6 +653,12 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				restMode: true,
 				url: url
 			};
+			if ( options.data ) {
+				query.data = options.data;
+			}
+			if ( options.contentType ) {
+				query.contentType = options.contentType;
+			}
 			d10.bghttp.request(query);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
 	};
@@ -748,6 +754,8 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 
 	d10.rest.user = {
 		infos: function(options) {
+			restQuery("user.infos","GET",site_url+"/api/userinfos",options);
+			/*
 			var endpoint = "user.infos";
 			d10.bghttp.get ( 
 				{ 
@@ -768,7 +776,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-
+*/
 		},
  		setPreference: function(name, value, options) {
 			/*
@@ -778,6 +786,10 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				data: {value: value},
 				success: $.proxy(this.refresh_infos,this)
 			});*/
+			options.data = {value: value};
+			options.contentType = "application/x-www-form-urlencoded";
+			restQuery("user.setPreference","PUT",site_url+"/api/preference/"+name,options);
+			/*
 			var endpoint = "user.setPreference";
 			d10.bghttp.put ( 
 				{ 
@@ -799,8 +811,11 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+*/
 		},
 		logout: function(options) {
+			restQuery("user.logout","GET",site_url+"/welcome/goodbye",options);
+			/*
 			var endpoint = "user.logout";
 			d10.bghttp.get ( 
 				{ 
@@ -820,8 +835,11 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+*/
 		},
 		toReview: function(options) {
+			restQuery("user.toReview","GET",site_url+"/api/toReview",options);
+			/*
 			var endpoint = "user.toReview";
 			d10.bghttp.get ( 
 				{ 
@@ -841,6 +859,16 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+*/
+		}
+	};
+	
+	d10.rest.server = {
+		length: function(options) {
+			restQuery("server.length","GET",site_url+"/api/length",options);
+		},
+		load: function(options) {
+			restQuery("server.load","GET",site_url+"/api/serverLoad",options);
 		}
 	};
 	
