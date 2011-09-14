@@ -60,6 +60,16 @@ exports.api = function(app) {
 		});
 	});
 	
+	
+	app.get("/api/song/aa:id",function(request,response) {
+		d10.couch.d10.getDoc("aa"+request.params.id, function(err,doc) {
+			if ( err ) {
+				return d10.rest.err(404,{error: "Document not found", reason: "id aa"+request.params.id+" not found"},request.ctx);
+			}
+			return d10.rest.success(doc,request.ctx);
+		});
+	});
+	
 	app.get("/api/userinfos", function(request,response) {
 		when ( 
 			{
@@ -843,6 +853,7 @@ exports.api = function(app) {
 				when(actions,then);
 			},
 			removeSongFile = function(id, then) {
+				id = id.substr(2);
 				var file = d10.config.audio.dir +"/"+ id.substr(0,1) + "/aa" + id+".ogg";
 				fs.unlink(file,then);
 			},
@@ -908,16 +919,16 @@ exports.api = function(app) {
 					if ( errs ) { console.log("error on findAllSongReferences"); return d10.rest.err(423,errs,request.ctx); }
 					getUnusedImages(doc,function(errs,images) {
 						if ( errs ) { console.log("error on getUnusedImages"); return d10.rest.err(423,errs,request.ctx); }
-						return d10.rest.success([references,images],request.ctx);
+// 						return d10.rest.success([references,images],request.ctx);
 						removeSongReferences(doc._id, errs, references, function(errs, modifiedDocs) {
 							if ( errs ) { console.log("error on removeSongReferences"); return d10.rest.err(423,errs,request.ctx); }
 							recordModifiedDocs(modifiedDocs,function(err,resp) {
 								if ( err ) {
-									console.log("error on recordModifiedDocs"); return d10.rest.err(423,err,request.ctx);
+									console.log("error on recordModifiedDocs",err); return d10.rest.err(423,err,request.ctx);
 								} else {
 									d10.rest.success([],request.ctx);
-									removeSongFile(doc._id, function() {});
-									removeUnusedImages(images,function(){});
+									removeSongFile(doc._id, function(err) { if ( err ) console.log("removeSongFile error",err); });
+									removeUnusedImages(images,function(err){ if ( err ) console.log("removeUnusedImages error",err); });
 									return ;
 								}
 							});

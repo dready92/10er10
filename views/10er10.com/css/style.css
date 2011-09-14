@@ -45,6 +45,7 @@ a:active { color: #FFCA40 }
 .littletrans { opacity: 0.6; }
 .pointer { cursor: pointer; }
 .smaller { font-size: 0.9em;}
+.bigger {font-size: 1.2em;}
 .clear { clear: both; color: rgba(0,0,0,0); }
 .overmeup > span{ padding-top: 5px; border-top: 2px solid #BF9730; }
 .floatright { float: right;}
@@ -235,6 +236,14 @@ button {
 
 button.bigair {
   margin: 0 10px;
+}
+
+button.risky {
+	color: rgba(180, 0, 0, 0.6);
+	border: 1px solid rgba(180, 0, 0, 0.3);
+	text-shadow: #808080 0px 0px 10px;
+	font-size: 1.2em;
+	font-weight: bold;
 }
 
 button:hover {

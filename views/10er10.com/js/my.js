@@ -496,17 +496,51 @@ d10.fn.my = function (ui) {
 			});
 			
 		});
-		
-		
+	};
+	
+	
+	var deleteSong = function(id, then ) {
+		debug("deleteSongURL: ",site_url+"/api/deleteSong/"+id);
+// 			setTimeout(function() {
+		d10.bghttp.put({
+			url: site_url+"/api/deleteSong/"+id,
+			dataType: "json",
+			success: function(response) {
+				
+				if ( response.status && response.status == "error" ) {
+					return then(response);
+				}
+				return then();
+			},
+			error: function(err) {
+				return then(err);
+			}
+		});
 	};
 	
 	var init_topic_songreview = function (topicdiv, song_id ) {
 //     console.log("init_topic_songreview",topicdiv,arg);
 		topicdiv.html(d10.mustacheView("loading"));
 		d10.bghttp.get({
-			url: site_url+"/html/my/review/"+song_id,
+			url: site_url+"/api/song/"+song_id,
+			dataType: "json",
 			success: function(msg) {
-		topicdiv.html(msg);
+		debug("init_topic_songreview: ",msg);
+		if ( msg.status == "error" ) {
+			topicdiv.html( d10.mustacheView("review.song.error",{id: song_id})  );
+			return ;
+		}
+		var doc = msg.data, images = doc.images ? doc.images : [];
+		doc.images = [];
+		doc.download_link = "audio/download/"+doc._id;
+		$.each(images, function(k,v) {
+			doc.images.push(
+				d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+v.filename})
+					   );
+		});
+		
+		
+		topicdiv.html( d10.mustacheView("review.song",doc)  );
 		init_songreview_imagesbox (topicdiv,song_id);
 		init_reviewImage_remove (topicdiv,song_id);
 		$("button[name=my]",topicdiv).click(function() { 
@@ -549,27 +583,34 @@ d10.fn.my = function (ui) {
 		);
 		
 		$("button[name=remove]",topicdiv).click(function(e) {
-			$(this).hide();
-			$('button[name=review]',topicdiv).hide();
-			$('button[name=reviewNext]',topicdiv).hide();
-			$('span.uploading',topicdiv).show();
-			$('.form_error',topicdiv).hide();
-			debug("deleteSonghURL: ",site_url+"/api/deleteSong/"+song_id);
-// 			setTimeout(function() {
-			d10.bghttp.put({
-				url: site_url+"/api/deleteSong/"+song_id,
-				dataType: "json",
-				success: function(response) {
-					debug("song delete response: ",response);
-					if ( response.status && response.status == "error" ) {
-						debug("song delete response error: ",response);
-					}
-				},
-				error: function() {
-					debug("song delete error response: ",arguments);
+// 			$(this).hide();
+// 			$('button[name=review]',topicdiv).hide();
+// 			$('button[name=reviewNext]',topicdiv).hide();
+// 			$('span.uploading',topicdiv).show();
+// 			$('.form_error',topicdiv).hide();
+			topicdiv.find("div[name=form]").hide();
+			topicdiv.find("div[name=delete]").show();
+// 			deleteSong(song_id,function() {});
+// 			e.preventDefault();
+			return false;
+		});
+		
+		topicdiv.find("button[name=cancelDelete]").click(function() {
+			topicdiv.find("div[name=delete]").hide();
+			topicdiv.find("div[name=form]").show();
+			return false;
+		});
+		
+		topicdiv.find("button[name=doDelete]").click(function() {
+			$(this).attr("disabled","true");
+ 			deleteSong(song_id,function(err) {
+				topicdiv.find("div[name=delete]").hide();
+				if ( err ) {
+					topicdiv.find("div[name=deleteError]").show();
+				} else {
+					topicdiv.find("div[name=deleteSuccess]").show();
 				}
 			});
-// 			e.preventDefault();
 			return false;
 		});
 		

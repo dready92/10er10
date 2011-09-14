@@ -322,7 +322,8 @@ exports.templates.clientList = {
     'refresh':'html/refresh.html',
 	'results.album':'html/results/album.html',
 	'results.artist':'html/results/artist.html',
-
+	'review.song':'html/review/song.html',
+	'review.song.error':'html/review/song_error.html',
     // should always be at the end : that what's client JS check
     'song_template':'html/song_template/song.html'
 };

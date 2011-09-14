@@ -1,25 +1,25 @@
 <article class="review">
 <div name="form">
-<h1 class="airin">((title))</h1>
+<h1 class="airin">((page_title))</h1>
 <p class="airin">
 {{#reviewed}}
 ((reviewed))<BR>
 {{/reviewed}}
 (({introduction}))
 </p>
-<p class="airin center">((review_file))</p>
+<p class="airin center">((review_file)){{filename}}</p>
 <form method="post" action="#">
 <input type="hidden" name="_id" value="{{_id}}">
 <div class="table">
 	<div class="row center">
 		<div class="cell airin">
-			<span class="formlabel">((song_title))</span><br>
+			<span class="formlabel">((title))</span><br>
 			<input type="text" name="title" value="{{title}}" autocomplete="off">
       <br>
 			<div class="form_error hidden" name="title"></div>
 		</div>
 		<div class="cell airin">
-			<span class="formlabel">((song_artist))</span><br>
+			<span class="formlabel">((artist))</span><br>
 			<input type="text" name="artist" value="{{artist}}" autocomplete="off">
       <div class="overlay resized"><div class="loading hidden">((loading))</div><div class="noResult hidden">((no_artist))</div><ul></ul></div><br>
 			<div class="form_error hidden" name="artist"></div>
@@ -27,35 +27,35 @@
 	</div>
 	<div class="row center">
 		<div class="cell airin">
-			<span class="formlabel">((song_album))</span><br>
+			<span class="formlabel">((album))</span><br>
 			<input type="text" name="album" value="{{album}}" autocomplete="off"><br>
 			<div class="overlay resized"><div class="loading hidden">((loading))</div><div class="noResult hidden">((no_album))</div><ul></ul></div>
 		</div>
 		<div class="cell airin">
-			<span class="formlabel">((song_tracknumber))</span><br>
+			<span class="formlabel">((tracknumber))</span><br>
 			<input type="text" name="tracknumber" value="{{tracknumber}}" autocomplete="off"><br>
 		</div>
 	</div>
 	<div class="row center">
 		<div class="cell airin">
-			<span class="formlabel">((song_genre))</span><br>
+			<span class="formlabel">((genre))</span><br>
 			<input type="text" name="genre" value="{{genre}}"  autocomplete="off">
 <div class="overlay resized"><div class="loading hidden">((loading))</div><div class="noResult hidden">((no_genre))</div><ul></ul></div><br>
 			<div class="form_error hidden" name="genre"></div>
 		</div>
 		<div class="cell airin">
-			<span class="formlabel">((song_date))</span><br>
+			<span class="formlabel">((date))</span><br>
 			<input type="text" name="date" value="{{date}}" autocomplete="off"><br>
 		</div>
 	</div>
 		<div class="row center">
 		<div class="cell airin">
 <!--       <input type="button" name="gooooo" value="Valider"> -->
-      <button name="remove">Delete song</button>
+      <button name="remove">((delete_button))</button>
       <button name="review">((review_button))</button>
 		</div>
 		<div class="cell airin">
-      <button name="reviewNext" class="hidden">((review_and_show_next_button))</button>
+		<button name="reviewNext" class="hidden">((review_and_show_next_button))</button>
 			<span class="uploading hidden actiontext">((validating))</span>
 		</div>
 	</div>
@@ -80,17 +80,19 @@
   </div>
 </div>
 
-<div name="delete" class="hidden">
-	<h1>((delete_title))</h1>
+<div name="delete" class="hidden center airin">
+	<h1 class="airin">((delete_title))</h1>
 	<p class="airin">(({delete_message}))</p>
 	<div class="airin center">
 		<button name="cancelDelete">((cancel_delete_button))</button> 
 	</div>
 	(({delete_message_followup}))
-	<div>
-		<button name="doDelete">((do_delete_button))</button>
+	<div class="airin">
+		<button class="risky airin" name="doDelete">((do_delete_button))</button>
 	</div>
-
 </div>
+
+<div name="deleteSuccess" class="hidden"><p class="airin">(({delete_success_message}))</p></div>
+<div name="deleteError" class="hidden"><p class="airin">(({delete_error_message}))</p></div>
 
 </article>
