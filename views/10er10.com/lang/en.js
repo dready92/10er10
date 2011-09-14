@@ -258,7 +258,7 @@ exports.server = {
 		reviewed_title: "Done !",
 		reviewed_message: "The song <span name=\"artist\"></span> - <span name=\"title\"></span> is reviewed.",
 		review_other_button: "Review other songs meta data",
-		upload_button: "Go to the\"Upload\" part"
+		upload_button: "Go to the\"Upload\" part",
 		delete_button: "Delete this song",
 		delete_title: "Deleting song {{title}} (by {{artist}})",
 		delete_message: "Warning ! You are about to delete the song <b>{{title}}</b>. This can't be reverted.",

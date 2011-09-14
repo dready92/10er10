@@ -33,48 +33,6 @@ exports.api = function(app) {
 		});
 	});
 	
-	app.get("/html/my/review/:id", function(request,response,next) {
-		if ( request.params.id.substr(0,2) != "aa" ) {
-			return next();
-		}
-		
-		d10.couch.d10.getDoc(request.params.id,function(err,resp) {
-			if ( err ) { 
-				next();
-				return ;
-			}
-			var images = resp.images || [];
-			resp.images = [];
-			var fns = {};
-			images.forEach(function(v,k) {
-				fns[k] = (function(image) {
-					return function(cb) {
-						d10.lngView(request, "html/my/image.widget",{
-							url: "audioImages/"+v.filename
-						},{},function(data) { cb(null,data); });
-					}
-				})(v);
-			});
-
-			request.ctx.headers["Content-Type"] = "text/html";
-			response.writeHead(200, request.ctx.headers );
-			if (images.length == 0 ) {
-				d10.lngView(request,"review/song",resp,{},function(data) {
-					response.end(data);
-				});
-			} else {
-				when(fns,function(errs,responses) {
-					for ( var i in responses ) {
-						resp.images.push(responses[i]);
-					}
-					d10.lngView(request, "review/song",resp,{},function(data) {
-						response.end(data);
-					});
-				});
-			}
-		});
-	});
-	
 	app.put("/api/meta/:id",function(request,response,next) {
 // 		d10.log("debug","Taking");
 		if ( request.params.id.substr(0,2) != "aa" ) {
