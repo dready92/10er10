@@ -804,7 +804,6 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			d10.bghttp.get ( 
 				{ 
 					restMode: true,
-					dataType: "json",
 					complete: function(err, data) {
 						if ( options.load ) {
 							options.load.apply(this,arguments);
