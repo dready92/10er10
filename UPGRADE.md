@@ -23,6 +23,7 @@ To upgrade your PROD databases, run
 - client-side router using backbone.js
 - playlist list autoscroll if currently playing song is not visible
 - download link is back
+- song removal
 
 Upgrade from 0.4 to 0.5
 =======================
