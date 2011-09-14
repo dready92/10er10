@@ -157,8 +157,8 @@ exports.api = function(app) {
 // 		d10.log("debug","router:","/api/toReview");
 
 		d10.couch.d10.view("user/song",{key: [ request.ctx.user._id, false ]},function(err,resp) {
-			if ( err )	d10.rest.err(423,err,request.ctx)
-			else		d10.rest.success( {count: resp.rows.length}, request.ctx );
+			if ( err )	d10.realrest.err(423,err,request.ctx)
+			else		d10.realrest.success( {count: resp.rows.length}, request.ctx );
 		});
 	});
 
