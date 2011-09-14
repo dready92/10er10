@@ -39,14 +39,12 @@ var bgtask = function() {
   ];
 
   tasks.unshift(function() {
-    d10.bghttp.get({
-      "url": site_url+"/api/toReview",
-      "dataType": "json",
-      "success": function(data) {
-        if ( data.status == "success"  ) {
+    d10.rest.user.toReview({
+      load: function(err, data) {
+        if ( !err  ) {
           var rr = $("#reviewReminder");
-          if ( data.data.count ) {
-            $("strong",rr).html(data.data.count);
+          if ( data.count ) {
+            $("strong",rr).html(data.count);
             if ( rr.is(":visible") ) {
               rr.whoobee();
             } else {

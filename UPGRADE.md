@@ -1,3 +1,20 @@
+Upgrade from 0.7 to 0.6
+=======================
+
+- install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
+- re-run the installer script (don't worry, it won't burn your dog) : go to **node/install**. Then:
+
+To upgrade your DEV databases, run
+
+    node install.js
+
+To upgrade your PROD databases, run
+
+    node install.js -p
+
+- restart the node 10er10 server
+ 
+
 Upgrade from 0.5 to 0.6
 =======================
 
@@ -23,6 +40,7 @@ To upgrade your PROD databases, run
 - client-side router using backbone.js
 - playlist list autoscroll if currently playing song is not visible
 - download link is back
+- song removal
 
 Upgrade from 0.4 to 0.5
 =======================

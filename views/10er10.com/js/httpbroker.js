@@ -4,9 +4,9 @@
 
 
 
-function httpmanager ( base_url ) {
-
-  var worker = new Worker(base_url+'js/httpworker.js');
+function httpmanager ( domainUrl ) {
+	debug("worker base_url: ", domainUrl);
+  var worker = new Worker(domainUrl+'js/httpworker.js');
   var that = this;
   var cache = {};
 
@@ -184,9 +184,11 @@ function httpbroker (num) {
 	var requests_count = 0;
 
   this.init = function (base_url) {
-    for ( var i = 0; i<num; i++ ) {
-      http['http'+i] = new httpmanager(base_url);
-    }
+// 	  var url = window.location.href.replace( new RegExp(base_url+"$","") , base_url);
+		var url = base_url;
+		for ( var i = 0; i<num; i++ ) {
+			http['http'+i] = new httpmanager(url);
+		}
   }
 
   this.get = function ( options ) {

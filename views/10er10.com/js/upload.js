@@ -177,7 +177,7 @@ d10.fn.upload = function (ui) {
 				if ( code == 200 ) {
 					$("div.controls span.status",widget).html(d10.mustacheView("upload.song.success"));
 					$("button.review",widget).click(function() {
-						var route = ["my", "review", body._id];
+						var route = ["my", "review", back._id];
 						d10.router.navigateTo( route );
 					}).show();
 

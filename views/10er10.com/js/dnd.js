@@ -636,6 +636,27 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		delete fr;
 	}
 	
+	var restQuery = function(endpoint, method, url, options) {
+			var query = {
+				method: method,
+				complete: function(err,data) {
+					if ( options.load ) {
+						options.load.apply(this,arguments);
+					}
+					emitter.trigger("whenRestEnd",{
+						endpoint: endpoint,
+						status: this.code,
+						headers: this.headers,
+						response: data
+					});
+				},
+				restMode: true,
+				url: url
+			};
+			d10.bghttp.request(query);
+			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+	};
+	
 	d10.rest = {};
 	var emitter = d10.rest.events = new d10.fn.eventEmitter();
 	d10.rest.song = {
@@ -702,10 +723,11 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 	};
 	
 	d10.rest.templates = function(options) {
+		restQuery("templates","GET",site_url+"/api/htmlElements",options);
+		/*
 		var endpoint = "templates";
 		d10.bghttp.get ({
 			url: site_url+"/api/htmlElements", 
-			dataType:"json",
 			restMode: true,
 			complete: function(err,data) {
 				if ( options.load ) {
@@ -720,8 +742,10 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			}
 		});
 		emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+		*/
 	};
 	
+
 	d10.rest.user = {
 		infos: function(options) {
 			var endpoint = "user.infos";
@@ -739,8 +763,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 							response: data
 						});
 					},
-					url: site_url+"/api/userinfos",
-					dataType: "json" 
+					url: site_url+"/api/userinfos"
 					
 				} 
 			);
@@ -771,9 +794,50 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 						});
 					},
 					url: site_url+"/api/preference/"+name,
-					dataType: "json",
 					contentType: "application/x-www-form-urlencoded",
 					data: {value: value}
+				} 
+			);
+			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+		},
+		logout: function(options) {
+			var endpoint = "user.logout";
+			d10.bghttp.get ( 
+				{ 
+					restMode: true,
+					complete: function(err, data) {
+						if ( options.load ) {
+							options.load.apply(this,arguments);
+						}
+						emitter.trigger("whenRestEnd",{
+							endpoint: endpoint,
+							status: this.code,
+							headers: this.headers,
+							response: data
+						});
+					},
+					url: site_url+"/welcome/goodbye"
+				} 
+			);
+			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+		},
+		toReview: function(options) {
+			var endpoint = "user.toReview";
+			d10.bghttp.get ( 
+				{ 
+					restMode: true,
+					complete: function(err, data) {
+						if ( options.load ) {
+							options.load.apply(this,arguments);
+						}
+						emitter.trigger("whenRestEnd",{
+							endpoint: endpoint,
+							status: this.code,
+							headers: this.headers,
+							response: data
+						});
+					},
+					url: site_url+"/api/toReview"
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });

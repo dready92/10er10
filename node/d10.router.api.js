@@ -60,6 +60,16 @@ exports.api = function(app) {
 		});
 	});
 	
+	
+	app.get("/api/song/aa:id",function(request,response) {
+		d10.couch.d10.getDoc("aa"+request.params.id, function(err,doc) {
+			if ( err ) {
+				return d10.rest.err(404,{error: "Document not found", reason: "id aa"+request.params.id+" not found"},request.ctx);
+			}
+			return d10.rest.success(doc,request.ctx);
+		});
+	});
+	
 	app.get("/api/userinfos", function(request,response) {
 		when ( 
 			{
@@ -147,8 +157,8 @@ exports.api = function(app) {
 // 		d10.log("debug","router:","/api/toReview");
 
 		d10.couch.d10.view("user/song",{key: [ request.ctx.user._id, false ]},function(err,resp) {
-			if ( err )	d10.rest.err(423,err,request.ctx)
-			else		d10.rest.success( {count: resp.rows.length}, request.ctx );
+			if ( err )	d10.realrest.err(423,err,request.ctx)
+			else		d10.realrest.success( {count: resp.rows.length}, request.ctx );
 		});
 	});
 
@@ -705,6 +715,233 @@ exports.api = function(app) {
 		
 		
 	});
+	
+	/*
+	 track : _id: pt....  , song: aa....
+
+	d10wi : _id: aa....
+	_id: pr.... , listen: {aa.... : 2}
+	_id: up.... , likes: {aa....: true}
+	_id: up.... , dislikes: {aa....: true}
+	_id: up.... , playlist: {list: [aa....]}
+
+	d10:
+	_id: aa....
+	_id: pl.... , songs: [aa....]
+	*/
+	app.put("/api/deleteSong/aa:id",function(request,response,next) {
+		
+		var 
+			findAllSongReferences = function(id, then) {
+				when(
+					{
+						d10: function(cb) {
+							d10.couch.d10.view("references/songs",{key: id, include_docs: true},function(err,resp) {
+								if ( err ) { console.log("findAllSongReferences error",err,resp); return  cb(err); }
+								cb(null, resp.rows);
+							});
+						},
+						d10wi: function(cb) {
+							d10.couch.d10wi.view("references/songs",{key: id, include_docs: true},function(err,resp) {
+								if ( err ) { console.log("findAllSongReferences error",err,resp); return  cb(err); }
+								cb(null, resp.rows);
+							});
+						},
+						track: function(cb) {
+							d10.couch.track.view("references/songs",{key: id, include_docs: true},function(err,resp) {
+								if ( err ) {  console.log("findAllSongReferences error",err,resp);return  cb(err); }
+								cb(null, resp.rows);
+							});
+						}
+					},
+					function(errs,responses) {
+						then(errs,responses);
+					}
+				);
+				
+				
+			},
+			removeSongReferences = function (id, errs, responses, then ) {
+				if ( errs ) { return then(errs); }
+				var modifiedDocs = {d10:[], d10wi: [], track: []};
+				responses.d10.forEach(function(v) {
+					if ( v.doc._id == id ) {
+						v.doc._deleted = true;
+						modifiedDocs.d10.push(v.doc);
+					} else if ( v.doc._id.substr(0,2) == "pl" && v.doc.songs ) {
+						var newList = []
+						v.doc.songs.forEach(function(val,k){if ( val != id ) newList.push(val); });
+						v.doc.songs = newList;
+						modifiedDocs.d10.push(v.doc);
+					}
+				});
+				responses.d10wi.forEach(function(v) {
+					if ( v.doc._id == id ) {
+						v.doc._deleted = true;
+						modifiedDocs.d10wi.push(v.doc);
+					} else if ( v.doc._id.substr(0,2) == "pr" ) {
+						var listen = {};
+						for ( var i in v.doc.listen ) {
+							if ( i != id ) {
+								listen[i] = v.doc.listen[i];
+							}
+						}
+						v.doc.listen = listen;
+						modifiedDocs.d10wi.push(v.doc);
+					} else if ( v.doc._id.substr(0,2) == "up" ) {
+						var replacement;
+						if ( v.doc.likes ) {
+							replacement = {};
+							for ( var i in v.doc.likes ) {
+								if ( i != id ) {
+									replacement[i] = v.doc.likes[i];
+								}
+							}
+							v.doc.likes = replacement;
+						}
+						replacement = null;
+						if ( v.doc.dislikes ) {
+							replacement = {};
+							for ( var i in v.doc.dislikes ) {
+								if ( i != id ) {
+									replacement[i] = v.doc.dislikes[i];
+								}
+							}
+							v.doc.dislikes = replacement;
+						}
+						replacement = null;
+						if ( v.doc.playlist && v.doc.playlist.list ) {
+							replacement = [];
+							v.doc.playlist.list.forEach(function(val,k){if ( val != id ) replacement.push(val); });
+// 							replacement = v.doc.playlist.list.filter(function(val) { return (val != id) ; });
+							v.doc.playlist.list = replacement;
+						}
+						modifiedDocs.d10wi.push(v.doc);
+					}
+				});
+				responses.track.forEach(function(v) {
+					if ( v.doc._id.substr(0,2) == "pt" && v.doc.song == id ) {
+						v.doc._deleted = true;
+						modifiedDocs.track.push(v.doc);
+					}
+				});
+				then(null,modifiedDocs);
+			},
+			recordModifiedDocs = function(modifiedDocs,then) {
+				console.log("recordModifiedDocs recording: ",modifiedDocs);
+				var actions = {};
+				if ( modifiedDocs.d10.length ) {
+					actions.d10 = function(cb) {
+						d10.couch.d10.storeDocs(modifiedDocs.d10,cb);
+					};
+				}
+				if ( modifiedDocs.d10wi.length ) {
+					actions.d10wi = function(cb) {
+						d10.couch.d10wi.storeDocs(modifiedDocs.d10wi,cb);
+					};
+				}
+				if ( modifiedDocs.track.length ) {
+					actions.track = function(cb) {
+						d10.couch.track.storeDocs(modifiedDocs.track,cb);
+					};
+				}
+				if ( !actions.d10 && !actions.d10wi && !actions.track ) {
+					return then();
+				}
+				when(actions,then);
+			},
+			removeSongFile = function(id, then) {
+				id = id.substr(2);
+				var file = d10.config.audio.dir +"/"+ id.substr(0,1) + "/aa" + id+".ogg";
+				fs.unlink(file,then);
+			},
+			getUnusedImages = function(doc, then) {
+				var keys = [], usage = {},filenames = {};
+				if ( doc.images ) {
+					doc.images.forEach(function(v) {
+						keys.push(v.sha1);
+						filenames[v.sha1] = v.filename;
+					});
+				}
+				if ( !keys.length ) {
+					return then(null,[]);
+				}
+				d10.couch.d10.view("images/sha1",{keys: keys}, function(err,resp) {
+					console.log(resp);
+					if ( err ) return then(err);
+					resp.rows.forEach(function(v) {
+						if  ( usage[v.key] )	usage[v.key]++;
+						else					usage[v.key]=1;
+					});
+					console.log(usage);
+					var back = [];
+					keys.forEach(function(v) { 
+						if ( !usage[v] || usage[v]<2 ) {
+							back.push({sha1: v, filename: filenames[v]});
+						}
+					});
+					return then(null,back);
+				});
+			},
+			removeUnusedImages = function(images, then) {
+				var actions = {};
+				images.forEach(function(i) {
+					if ( i.filename && i.filename.length ) {
+						actions[i.sha1] = (function(i) {
+							return function(cb) {
+								fs.unlink(d10.config.images.dir+"/"+i.filename,cb);
+							};
+						})(i);
+					}
+				});
+				if ( !d10.count(actions) ) {
+					return then();
+				}
+				when(actions,then);
+			}
+		;
+		
+		
+		d10.couch.d10.getDoc("aa"+request.params.id,function(err,doc) {
+			if ( err ) {
+				return d10.rest.err(423,err,request.ctx);
+			}
+			if ( doc.user != request.ctx.user._id ) {
+				return d10.rest.err(403,"You are not allowed to delete this song",request.ctx);
+			}
+			
+			
+			
+			findAllSongReferences(doc._id,
+				function(errs,references) {
+					if ( errs ) { console.log("error on findAllSongReferences"); return d10.rest.err(423,errs,request.ctx); }
+					getUnusedImages(doc,function(errs,images) {
+						if ( errs ) { console.log("error on getUnusedImages"); return d10.rest.err(423,errs,request.ctx); }
+// 						return d10.rest.success([references,images],request.ctx);
+						removeSongReferences(doc._id, errs, references, function(errs, modifiedDocs) {
+							if ( errs ) { console.log("error on removeSongReferences"); return d10.rest.err(423,errs,request.ctx); }
+							recordModifiedDocs(modifiedDocs,function(err,resp) {
+								if ( err ) {
+									console.log("error on recordModifiedDocs",err); return d10.rest.err(423,err,request.ctx);
+								} else {
+									d10.rest.success([],request.ctx);
+									removeSongFile(doc._id, function(err) { if ( err ) console.log("removeSongFile error",err); });
+									removeUnusedImages(images,function(err){ if ( err ) console.log("removeUnusedImages error",err); });
+									return ;
+								}
+							});
+						});
+					});
+				}
+			);
+			
+		});
+		
+		
+		
+		
+	});
+	
 	
 	
 }; // exports.api
