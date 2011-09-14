@@ -777,6 +777,27 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+		},
+		logout: function(options) {
+			var endpoint = "user.logout";
+			d10.bghttp.get ( 
+				{ 
+					restMode: true,
+					complete: function(err, data) {
+						if ( options.load ) {
+							options.load.apply(this,arguments);
+						}
+						emitter.trigger("whenRestEnd",{
+							endpoint: endpoint,
+							status: this.code,
+							headers: this.headers,
+							response: data
+						});
+					},
+					url: site_url+"/welcome/goodbye"
+				} 
+			);
+			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
 		}
 	};
 	

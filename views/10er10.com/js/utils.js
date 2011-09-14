@@ -205,10 +205,13 @@ var step2 = function () {
 	$("footer a.logout").click(function() {
 		$("footer .loggedin").hide();
 		$("footer .loggingOut").removeClass("hidden");
-		d10.bghttp.get({
-			url: site_url+"/welcome/goodbye",
-			success: function() {
-				window.location.reload(true);
+		d10.rest.user.logout({
+			load: function(err) {
+				if ( err ) {
+					debug("can't logout user...",err);
+				} else {
+					window.location.reload(true);
+				}
 			}
 		});
 		return false;
