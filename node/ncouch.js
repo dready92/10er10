@@ -425,6 +425,65 @@ function ncouch (url) {
 			_query(options,[200,201],cb);
 		}
 		
+		wrapper.changes = function(data, cb) {
+			var options = {};
+			if ( ! cb &&  typeof data == "function" ) {
+				cb = data;
+				data = {};
+			}
+			options.data = data;
+			options.url = dburl+"/_changes";
+			_query(options,null,cb);
+		};
+		
+		wrapper.infos = function(cb) {
+			options.url = dburl+"/_changes";
+			_query(options,null,cb);
+		};
+		
+		
+		/*
+		 * var db = ncouch.server("http://localhost:5984/").database("testing");
+		 * db.paginatedChanges(20, {filter: "appointments/all"}, function(rows) {
+		 * 	console.log("Got new rows from the changes feed: ",rows);
+		 * }, function(err,last_seq) {
+		 * 	if ( err ) {
+		 * 		console.log("An error occured during DB transaction",err);
+		 *	} else {
+		 * 		console.log("changes feed ended, last_seq:",last_seq);
+		 * 	}
+		 * });
+		 * 
+		 */
+		
+		wrapper.paginatedChanges = function(limit, options, cb, endcb) {
+			wrapper.infos(function(err,dbInfos) {
+				if ( err )	return endcb(err);
+				var since = options.since ? options.since : 0,
+					lastSeq = dbInfos.last_seq,
+					fetchPart = function() {
+						options.since = since;
+						options.limit = limit;
+						wrapper.changes(options, function(err,resp) {
+							if ( err )	return endcb(err);
+							var resultsLength = resp.results.length;
+							cb(resp.results);
+							
+							if ( resultsLength < limit || resp.last_seq == lastSeq ) {
+								ecb(null,resp.last_seq);
+							} else {
+								if ( resultsLength ) {
+									since = resp.last_seq;
+								}
+								fetchPart();
+							}
+						});
+					};
+				fetchPart();
+			});
+		};
+		
+		
 		return wrapper;
 	};
 	
