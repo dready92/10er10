@@ -8,28 +8,11 @@ var bodyDecoder = require("connect").bodyParser,
 exports.api = function(app) {
 	
 
-	app.get("/html/invites",function(request,response,next) {
+	app.get("/api/invites/count",function(request,response,next) {
 		if ( request.ctx.user.invites ) {
-			request.ctx.headers["Content-Type"] = "text/html";
-			response.writeHead(200,request.ctx.headers);
-			request.ctx.langUtils.parseServerTemplate(request,"invites/invites.html",function(err,resp ) {
-				response.end(
-					d10.mustache.to_html(resp,{count: request.ctx.user.invites,ttl: d10.config.invites.ttl})
-						 );
-			});
-// 			d10.view("invites/invites",{count: request.ctx.user.invites,ttl: d10.config.invites.ttl},function(html) {
-// 				response.end(html);
-// 			});
+			d10.realrest.success(request.ctx.user.invites, request.ctx);
 		} else {
-			request.ctx.headers["Content-Type"] = "text/html";
-			response.writeHead(200,request.ctx.headers);
-			request.ctx.langUtils.parseServerTemplate(request,"invites/no_invite.html",function(err,resp ) {
-				response.end(resp);
-			});
-
-// 			d10.view("invites/no_invite",{},function(html) {
-// 				response.end(html);
-// 			});
+			d10.realrest.success(0, request.ctx);
 		}
 	});
 	
@@ -81,13 +64,13 @@ exports.api = function(app) {
 		bodyDecoder()(request, response,function() {
 			d10.log("debug",request.body,"after decode");
 			if ( !request.ctx.user.invites ) {
-				return d10.rest.err(431,{invites: request.ctx.user.invites}, request.ctx);
+				return d10.realrest.err(431,{invites: request.ctx.user.invites}, request.ctx);
 			}
 			if ( !request.body || !request.body.email || !request.body.email.length ) {
-				return d10.rest.err(427,"missing parameter: email", request.ctx);
+				return d10.realrest.err(427,"missing parameter: email", request.ctx);
 			}
 			if ( !isValidEmailAddress(request.body.email) ) {
-				return d10.rest.err(434,{}, request.ctx);
+				return d10.realrest.err(434,{}, request.ctx);
 			}
 			
 			//create invite
@@ -99,14 +82,14 @@ exports.api = function(app) {
 			};
 			
 			d10.couch.auth.storeDoc(invite,function(err,resp) {
-				if ( err ) return d10.rest.err(423,err,request.ctx);
+				if ( err ) return d10.realrest.err(423,err,request.ctx);
 				sendInviteMail(request.body.email,invite,function(err,resp) {
 					if ( err ) {
-						return d10.rest.err(435,err,request.ctx);
+						return d10.realrest.err(435,err,request.ctx);
 					}
 					request.ctx.user.invites--;
 					d10.couch.auth.storeDoc(request.ctx.user,function(){});
-					return d10.rest.success([],request.ctx);
+					return d10.realrest.success([],request.ctx);
 				});
 			});
 			/*

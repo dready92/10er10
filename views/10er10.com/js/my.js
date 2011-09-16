@@ -211,76 +211,68 @@ d10.fn.my = function (ui) {
 	
 	
   var sendInvite = function(topicdiv,email) {
-    d10.bghttp.post({
-      "url": site_url+"/api/sendInvite",
-      "method": "POST",
-	  "dataType": "json",
-      "data": {"email": email},
-	  "dataType": "json",
-      "success": function (data) {
-//         debug("success");
-		if( data && data.status && data.status == "error" ) {
+    d10.rest.user.invites.send(email, {
+      load: function (err, data) {
+		if ( err ) {
+				$("article.my",topicdiv).hide();
+				$("article.notsent",topicdiv).fadeIn();
+		} else {
+	//         debug("success");
 			$("article.my",topicdiv).hide();
-			$("article.notsent",topicdiv).fadeIn();
-			return ;
+			$("article.sent",topicdiv).fadeIn();
 		}
-
-		$("article.my",topicdiv).hide();
-		$("article.sent",topicdiv).fadeIn();
-      },
-      "error": function(a,b,c) {
-//         debug("error",a,b,c);
-        $("article.my",topicdiv).hide();
-        $("article.notsent",topicdiv).fadeIn();
-        
       }
     });
   }
   
   var init_topic_invites = function(topicdiv,args) {
-    d10.bghttp.get({
-      "url": site_url+"/html/invites",
-      "success": function (data) {
-        topicdiv.html(data);
-        var button = $("button",topicdiv);
-        if ( !button.length )
-          return ;
-        var invalidLabel = $("span[name=invalidEmail]",topicdiv);
-        $("input[name=email]",topicdiv).keyup(function() {
-//           debug("email reg testing ",$(this).val());
-          if ( d10.isValidEmailAddress($(this).val()) ) {
-            if ( invalidLabel.is(":visible") ) invalidLabel.hide(); 
-            if ( button.not(":visible") )      button.fadeIn();
-          } else {
-            if ( invalidLabel.not(":visible") ) invalidLabel.show();
-            if ( button.is(":visible") )      button.hide();
-          }
-        });
-        button.click(function() { sendInvite(topicdiv, $("input[name=email]",topicdiv).val() ) });
-      }
-    });
+	  
+	d10.rest.user.invites.count({
+		load: function(err,count) {
+			if ( err ) return ;
+			if ( count ) {
+				topicdiv.html(d10.mustacheView("my.invites.invites",{count: count, ttl: d10.config.invites.ttl}) );
+				var button = $("button",topicdiv);
+				var invalidLabel = $("span[name=invalidEmail]",topicdiv);
+				$("input[name=email]",topicdiv).keyup(function() {
+			//           debug("email reg testing ",$(this).val());
+					if ( d10.isValidEmailAddress($(this).val()) ) {
+						if ( invalidLabel.is(":visible") ) invalidLabel.hide(); 
+						if ( button.not(":visible") )      button.fadeIn();
+					} else {
+						if ( invalidLabel.not(":visible") ) invalidLabel.show();
+						if ( button.is(":visible") )      button.hide();
+					}
+				});
+				button.click(function() { sendInvite(topicdiv, $("input[name=email]",topicdiv).val() ) });
+
+			} else {
+				topicdiv.html(d10.mustacheView("my.invites.invites.none",{count: count, ttl: d10.config.invites.ttl}) );
+			}
+		}
+	});
   };
 
 
 
 
 	var init_topic_review = function (topicdiv, arg ) {
-    var options = {
-      'url': site_url+"/html/my/review",
-      'context': this,
-      'callback': function(response) {
-        if ( response.status != 'success'  ) {
-          // mainerror_json_client("textStatus", 'review', null);
-          return ;
-        }
-		topicdiv.empty().append(response.data);
-		$('ul > li',topicdiv).click(function() {
-// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
-			d10.router.navigateTo(["my","review",$(this).attr("arg")]);
-		});
-      }
-    };
-    d10.bghttp.get(options);
+		var options = {
+		'url': site_url+"/html/my/review",
+		'context': this,
+		'callback': function(response) {
+			if ( response.status != 'success'  ) {
+			// mainerror_json_client("textStatus", 'review', null);
+			return ;
+			}
+			topicdiv.empty().append(response.data);
+			$('ul > li',topicdiv).click(function() {
+	// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
+				d10.router.navigateTo(["my","review",$(this).attr("arg")]);
+			});
+		}
+		};
+		d10.bghttp.get(options);
 	}
 
   var postSongReview = function (topicdiv, success, complete ) {
@@ -553,7 +545,7 @@ d10.fn.my = function (ui) {
 		});
 
 		$('input[name=album]',topicdiv).permanentOvlay(
-			site_url+'/api/album',
+			d10.rest.album.list,
 			$('input[name=album]',topicdiv).parent().find(".overlay"),
 			{
 				"autocss": true,
@@ -563,7 +555,7 @@ d10.fn.my = function (ui) {
 		);
 		
 		$('input[name=artist]',topicdiv).permanentOvlay(
-			site_url+'/api/artist',
+			d10.rest.artist.list,
 			$('input[name=artist]',topicdiv).parent().find(".overlay"),
 			{
 				"autocss": true,
@@ -573,7 +565,7 @@ d10.fn.my = function (ui) {
 		);
 		
 		$('input[name=genre]',topicdiv).permanentOvlay(
-			site_url+'/api/genre',
+			d10.rest.genre.list,
 			$('input[name=genre]',topicdiv).parent().find(".overlay"),
 			{
 				"autocss": true,

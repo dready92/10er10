@@ -299,6 +299,8 @@ exports.templates.clientList = {
 	'my.plm': 'html/my/plm.html',
     'my.plm.rpl': 'html/my/plm_rpl.html',
 	'my.image.widget':'html/my/image.widget.html',
+	'my.invites.invites': 'html/my/invites.html',
+	'my.invites.invites.none': 'html/my/invites_none.html',
 	'library.content.simple': 'html/library/content_simple.html',
 	'library.content.genre': 'html/library/content_genre.html',
     'library.content.none':'html/library/content_none.html',
@@ -324,6 +326,7 @@ exports.templates.clientList = {
 	'results.artist':'html/results/artist.html',
 	'review.song':'html/review/song.html',
 	'review.song.error':'html/review/song_error.html',
+	'review.list': 'html/review/list.html',
     // should always be at the end : that what's client JS check
     'song_template':'html/song_template/song.html'
 };

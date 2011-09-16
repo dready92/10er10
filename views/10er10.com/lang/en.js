@@ -271,12 +271,12 @@ exports.server = {
 	"html/review/song_error.html": {
 		error_message: "This song can't be found."
 	},
-	"review/list.html": {
+	"html/review/list.html": {
 		title: "Songs to review",
 		unknown_artist: "unknown artist",
 		unknown_title: "unknown title"
 	},
-	"review/none.html": {
+	"html/review/none.html": {
 		message: "All your songs are reviewed. Go to the <a href=\"#upload\">Upload</a> page to put new songs on the server."
 	},
 	"review/song.html": {
@@ -304,10 +304,10 @@ exports.server = {
 		review_other_button: "Review other songs meta data",
 		upload_button: "Go to the\"Upload\" part"
 	},
-	"invites/no_invite.html": {
+	"html/my/invites_none.html": {
 		no_invite: "You don't have any invite to send. Sorry"
 	},
-	"invites/invites.html": {
+	"html/my/invites.html": {
 		title: "Invites",
 		resume: "You got <strong name=\"count\">{{count}}</strong> invites to bring 10er10 to your friends.",
 		send_title: "Send an invite",

@@ -730,33 +730,13 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 	
 	d10.rest.templates = function(options) {
 		restQuery("templates","GET",site_url+"/api/htmlElements",options);
-		/*
-		var endpoint = "templates";
-		d10.bghttp.get ({
-			url: site_url+"/api/htmlElements", 
-			restMode: true,
-			complete: function(err,data) {
-				if ( options.load ) {
-					options.load.apply(this,arguments);
-				}
-				emitter.trigger("whenRestEnd",{
-					endpoint: endpoint,
-					status: this.code,
-					headers: this.headers,
-					response: data
-				});
-			}
-		});
-		emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-		*/
 	};
 	
 
 	d10.rest.user = {
 		infos: function(options) {
 			restQuery("user.infos","GET",site_url+"/api/userinfos",options);
-			/*
-			var endpoint = "user.infos";
+			/*var endpoint = "user.infos";
 			d10.bghttp.get ( 
 				{ 
 					restMode: true,
@@ -776,16 +756,9 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-*/
+			*/
 		},
  		setPreference: function(name, value, options) {
-			/*
-			d10.bghttp.put({
-				url: site_url+"/api/preference/hiddenExtendedInfos",
-				contentType: "application/x-www-form-urlencoded",
-				data: {value: value},
-				success: $.proxy(this.refresh_infos,this)
-			});*/
 			options.data = {value: value};
 			options.contentType = "application/x-www-form-urlencoded";
 			restQuery("user.setPreference","PUT",site_url+"/api/preference/"+name,options);
@@ -811,7 +784,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-*/
+			*/
 		},
 		logout: function(options) {
 			restQuery("user.logout","GET",site_url+"/welcome/goodbye",options);
@@ -836,30 +809,49 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
 */
+		},	
+		review: {
+			count: function(options) {
+				restQuery("user.toReview","GET",site_url+"/api/toReview",options);
+				/*
+				var endpoint = "user.toReview";
+				d10.bghttp.get ( 
+					{ 
+						restMode: true,
+						complete: function(err, data) {
+							if ( options.load ) {
+								options.load.apply(this,arguments);
+							}
+							emitter.trigger("whenRestEnd",{
+								endpoint: endpoint,
+								status: this.code,
+								headers: this.headers,
+								response: data
+							});
+						},
+						url: site_url+"/api/toReview"
+					} 
+				);
+				emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+				*/
+			}
 		},
-		toReview: function(options) {
-			restQuery("user.toReview","GET",site_url+"/api/toReview",options);
+		invites: {
 			/*
-			var endpoint = "user.toReview";
-			d10.bghttp.get ( 
-				{ 
-					restMode: true,
-					complete: function(err, data) {
-						if ( options.load ) {
-							options.load.apply(this,arguments);
-						}
-						emitter.trigger("whenRestEnd",{
-							endpoint: endpoint,
-							status: this.code,
-							headers: this.headers,
-							response: data
-						});
-					},
-					url: site_url+"/api/toReview"
-				} 
-			);
-			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-*/
+			 * 
+			 * @return void
+			 */
+			send: function(email, options) {
+				options.data = {email: email};
+				restQuery("user.invites.send","POST",site_url+"/api/sendInvite",options);
+			},
+			/*
+			 *
+			 * @return int nr of invites a user can give
+			 */
+			count: function(options) {
+				restQuery("user.invites.cont","GET",site_url+"/api/invites/count",options);
+			}
 		}
 	};
 	
@@ -871,6 +863,149 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			restQuery("server.load","GET",site_url+"/api/serverLoad",options);
 		}
 	};
+
+	
+	d10.rest.album = {
+		/*
+		 * @param start starting string of the album name
+		 * 
+		 * @return ["album 1","album2", ...]
+		 */
+		list: function(start, options) {
+			if ( !options && $.isPlainObject(start) ) {
+				options = start;
+				start = null;
+			}
+			if ( start ) {
+				options.data = {start: start};
+			}
+			restQuery("album.list","GET",site_url+"/api/album",options);
+		},
+ 		/*
+		 * @param genre String genre the album should belong to
+		 * 
+		 * @return [ {key: [genre, "album1"], value: 4}, ...], 
+		 */
+		allByGenre: function(genre, options) {
+			restQuery("album.allByGenre","GET",site_url+"/api/list/genres/albums/"+encodeURIComponent(genre),options);
+		},
+		/*
+		 * @param album String album name
+		 * 
+		 * @return [ {key: [album, "artist 1"], value: 4}, ...]
+		 */
+		artists: function(album, options) {
+			restQuery("album.artists","GET",site_url+"/api/list/albums/artists/"+ encodeURIComponent(album),options);
+		}
+
+	};
+	
+	d10.rest.artist = {
+		/*
+		 * @param start starting string of the artist name
+		 * 
+		 * @return ["artist 1","artist 2", ...]
+		 */
+		list: function(start, options) {
+			if ( !options && $.isPlainObject(start) ) {
+				options = start;
+				start = null;
+			}
+			if ( start ) {
+				options.data = {start: start};
+			}
+			restQuery("artist.list","GET",site_url+"/api/artist",options);
+		},
+ 
+ 		/*
+		 * 
+		 * @return [ {key: ["ACDC"], value: 4} ]
+		 */
+		allByName: function(options) {
+			restQuery("artist.allByName","GET",site_url+"/api/artistsListing",options);
+		},
+ 
+		/*
+		 * @param genre String genre the artist should belong to
+		 * 
+		 * @return [ {key: [genre, "artist 1"], value: 4}, ...], 
+		 */
+		allByGenre: function(genre, options) {
+			restQuery("artist.allByGenre","GET",site_url+"/api/list/genres/artists/"+encodeURIComponent(genre),options);
+		},
+ 
+		/*
+		 * @param artist String artist name
+		 * 
+		 * @return { artists: { "artist name": 45, "other name": 5, ... }, artistsRelated: { "other artist name": 5, ...}}
+		 */
+		related: function(artist, options) {
+			restQuery("artist.related","GET",site_url+"/api/relatedArtists/"+ encodeURIComponent(artist),options);
+		},
+ 
+		/*
+		 * @param artist String artist name
+		 * 
+		 * @return [ {key: [artist, "album 1"], value: 4}, ...] 
+		 */
+		albums: function(artist, options) {
+			restQuery("artist.albums","GET",site_url+"/api/list/artists/albums/"+ encodeURIComponent(artist),options);
+		},
+ 
+		/*
+		 * @param artist String artist name
+		 * 
+		 * @return [ {key: [artist, "genre 1"], value: 4}, ...]
+		 */
+		genres: function(artist, options) {
+			restQuery("artist.genres","GET",site_url+"/api/list/artists/genres/"+ encodeURIComponent(artist),options);
+		}
+	};
+	
+	d10.rest.genre = {
+		/*
+		 * @param start starting string of the genre name
+		 * 
+		 * @return ["genre 1","genre 2", ...]
+		 */
+		list: function(start, options) {
+			if ( !options && $.isPlainObject(start) ) {
+				options = start;
+				start = null;
+			}
+			if ( start ) {
+				options.data = {start: start};
+			}
+			restQuery("genre.list","GET",site_url+"/api/genre",options);
+		},
+		/*
+		 * 
+		 * 
+		 * @return [ {"key":["Dub"],"value":{"count":50,"artists":["Velvet Shadows","Tommy McCook & The Aggrovators","Thomsons All Stars"]}}, ... ]
+		 */
+		resume: function(options) {
+			restQuery("genre.resume","GET",site_url+"/api/genresResume",options);
+		}
+	};
+	
+	d10.rest.song = {
+		/*
+		 * @param start starting string of the song title
+		 * 
+		 * @return ["song title 1","song title 2", ...]
+		 */
+		listByTitle: function(start, options) {
+			if ( !options && $.isPlainObject(start) ) {
+				options = start;
+				start = null;
+			}
+			if ( start ) {
+				options.data = {start: start};
+			}
+			restQuery("song.listByTitle","GET",site_url+"/api/title",options);
+		},
+	};
+	
 	
 	
 })(jQuery);

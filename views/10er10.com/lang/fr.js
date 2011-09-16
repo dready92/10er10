@@ -270,7 +270,7 @@ exports.server = {
 	"html/review/song_error.html": {
 		error_message: "Le morceau n'a pas pu être trouvé."
 	},
-	"review/list.html": {
+	"html/review/list.html": {
 		title: "Morceaux à valider",
 		unknown_artist: "artiste inconnu",
 		unknown_title: "titre inconnu"
@@ -303,10 +303,10 @@ exports.server = {
 		review_other_button: "Valider les informations sur d'autres morceaux",
 		upload_button: "Aller dans la partie \"Uploader\""
 	},
-	"invites/no_invite.html": {
+	"html/my/invites_none.html": {
 		no_invite: "Vous n'avez pas d'invitation à offrir. Désolé"
 	},
-	"invites/invites.html": {
+	"html/my/invites.html": {
 		title: "Invitations",
 		resume: "Il vous reste <strong name=\"count\">{{count}}</strong> invitations à envoyer pour faire découvrir Deezer10 à vos amis.",
 		send_title: "Envoyer une invitation",

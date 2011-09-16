@@ -644,10 +644,10 @@ exports.api = function(app) {
 		d10.couch.d10.view("artist/related",{key: request.params.artist},function(err,body,errBody) {
 			if ( err ) {
 // 				d10.log("got relatedArtists error",err,errBody);
-				return d10.rest.err(427,err,request.ctx);
+				return d10.realrest.err(427,err,request.ctx);
 			}
 			if ( ! body.rows.length ) {
-				return d10.rest.success( {artists: [], artistsRelated:[]}, request.ctx);
+				return d10.realrest.success( {artists: [], artistsRelated:[]}, request.ctx);
 			}
 			var related = [], relatedKeys = [], relatedHash = {} ; 
 // 			console.log("body; ",body.rows);
@@ -671,7 +671,7 @@ exports.api = function(app) {
 			d10.couch.d10.view("artist/related",opts,function(err,degree2,errBody ) {
 				if ( err ) {
 // 					d10.log("got relatedArtists error",err, errBody);
-					return d10.rest.err(427,err,request.ctx);
+					return d10.realrest.err(427,err,request.ctx);
 				}
 				
 				var relatedArtists = [], relatedArtistsHash = {};
@@ -691,19 +691,10 @@ exports.api = function(app) {
 						
 				});
 				
-				if ( request.query && request.query.weighted ) {
-					return d10.rest.success(
+				return d10.realrest.success(
 					{
 						artists: relatedHash,
 						artistsRelated: relatedArtistsHash
-					}
-					,request.ctx			);
-				}
-				
-				return d10.rest.success(
-					{
-						artists: related,
-						artistsRelated: relatedArtists
 					}
 					,request.ctx			);
 			});
