@@ -116,13 +116,14 @@ if (! "fn" in d10 ) {
 			if ( cacheNotExpired ) { 
 			}
 			
-			d10.bghttp.get({
-				url: site_url+"/api/genresResume",
-				dataType: "json",
-				success: function(response) {
+			d10.rest.genre.resume({
+				load: function(err, data) {
+					if ( err ) {
+						return ;
+					}
 					d10.localcache.setJSON("genres.index", {"f":"b"},true);
 					var content = "";
-					$.each(response.data,function(k,v) { //{"key":["Dub"],"value":{"count":50,"artists":["Velvet Shadows","Tommy McCook & The Aggrovators","Thomsons All Stars"]}}
+					$.each(data,function(k,v) { //{"key":["Dub"],"value":{"count":50,"artists":["Velvet Shadows","Tommy McCook & The Aggrovators","Thomsons All Stars"]}}
 						var artists = "";
 						$.each(v.value.artists,function(foo,artist) {
 							artists+=d10.mustacheView("library.listing.genre.line", {"artist": artist})
@@ -274,23 +275,24 @@ if (! "fn" in d10 ) {
 			if ( cacheNotExpired ) { return ; }
 			d10.localcache.setJSON("artists.allartists", {"f":"b"},true);
 			container.empty();
-			d10.bghttp.get({
-				"url": site_url+"/api/artistsListing",
-				"dataType": "json",
-				"success": function(data) {
-					displayAllArtists(container,data);
+			
+			d10.rest.artist.allByName({
+				"load": function(err, data) {
+					if ( !err ) {
+						displayAllArtists(container,data);
+					}
 				}
 			});
 		};
 
 		var displayAllArtists = function (container, data) {
-		debug("displayAllArtists",container,data);
-			data = data.data;
+			debug("displayAllArtists",container,data);
+// 			data = data.data;
 			var letter = '';
 			var letter_container = null;
-			for ( var index in data.rows ) {
-				var artist = data.rows[index].key.pop();
-				var songs = data.rows[index].value;
+			for ( var index in data ) {
+				var artist = data[index].key.pop();
+				var songs = data[index].value;
 				var current_letter = artist.substring(0,1);
 				if ( current_letter != letter ) {
 					if ( letter_container ) container.append(letter_container);
@@ -485,39 +487,29 @@ if (! "fn" in d10 ) {
 
 			d10.when({
 				artists: function(then) {
-					d10.bghttp.get({
-						url: site_url+"/api/list/genres/artists/"+genre,
-						dataType: "json",
-						success: function(resp) {
-							var back = [];
-							for ( var i in resp.data ) {
-								back.push($("<li />").html(resp.data[i].key[1])
-													.attr("data-name","library/artists/"+encodeURIComponent( resp.data[i].key[1])));
+					d10.rest.artist.allByGenre(genre, {
+						load: function(err, data) {
+							if ( err )	return then(err);
+							var back = {title:d10.mustacheView("library.extendedInfos.genre.artists"), data: []};
+							for ( var i in data ) {
+								back.data.push($("<li />").html(data[i].key[1])
+													.attr("data-name","library/artists/"+encodeURIComponent( data[i].key[1])));
 							}
-							var data = {title: d10.mustacheView("library.extendedInfos.genre.artists"), data: back};
-							then(null,data);
-						},
-						error: function(err) {
-							then(err);
+							then(null,back);
 						}
 					});
 				},
 				albums: function(then) {
-					d10.bghttp.get({
-						url: site_url+"/api/list/genres/albums/"+genre,
-						dataType: "json",
-						success: function(resp) {
-							var back = [];
-							for ( var i in resp.data ) {
-								back.push($("<li />").html(resp.data[i].key[1]+" ("+resp.data[i].value+" songs)")
-													.attr("data-name","library/albums/"+encodeURIComponent(resp.data[i].key[1])));
+					d10.rest.album.allByGenre(genre, {
+						load: function(err, data) {
+							if ( err ) { return then(err); }
+							var back = {title: d10.mustacheView("library.extendedInfos.genre.albums"), data: []};
+							for ( var i in data ) {
+								back.data.push($("<li />").html(data[i].key[1]+" ("+data[i].value+" songs)")
+													.attr("data-name","library/albums/"+encodeURIComponent(data[i].key[1])));
 							}
-							var data = {title: d10.mustacheView("library.extendedInfos.genre.albums"), data: back};
-							then(null,data);
+							then(null,back);
 						},
-						error: function(err) {
-							then(err);
-						}
 					});
 				}
 			},
@@ -564,17 +556,14 @@ if (! "fn" in d10 ) {
 			
 			d10.when({
 				artists: function(then) {
-					d10.bghttp.get({
-						url: site_url+"/api/relatedArtists/"+ encodeURIComponent(artist),
-						dataType: "json",
-						data: {weighted: "true"},
-						success: function(resp) {
-							debug(resp);
+					d10.rest.artist.related(artist,{
+						load: function(err, data) {
+							if ( err ) { return then(err); }
 							var back = [], sorted = [], source;
-							if ( d10.count(resp.data.artistsRelated) ) {
-								source = resp.data.artistsRelated;
+							if ( d10.count(data.artistsRelated) ) {
+								source = data.artistsRelated;
 							} else {
-								source = resp.data.artists;
+								source = data.artists;
 							}
 							for ( var i in source ) {
 								var currentArtist = { artist: i, weight: source[i] },
@@ -589,32 +578,26 @@ if (! "fn" in d10 ) {
 								}
 								if ( !added ) { sorted.push(currentArtist); }
 							}
-							debug(sorted);
+// 							debug(sorted);
 							for ( var  i in sorted ) {
 								back.push( $("<li />").html(sorted[i].artist)
 									.attr("data-name","library/artists/"+ encodeURIComponent(sorted[i].artist)) );
 							}
 
-							var data = {title: d10.mustacheView("library.extendedInfos.artist.artists"), data: back};
-							then(null,data);
-						},
-						error: function(err) {
-							then(err);
+							then(null,{title: d10.mustacheView("library.extendedInfos.artist.artists"), data: back});
 						}
 					});
 				},
 				albums: function(then) {
-					d10.bghttp.get({
-						url: site_url+"/api/list/artists/albums/"+ encodeURIComponent(artist),
-						dataType: "json",
-						success: function(resp) {
+					d10.rest.artist.albums(artist,{
+						load: function(err, data) {
+							if ( err ) { return then(err);}
 							var back = [];
-							for ( var i in resp.data ) {
-								back.push( $("<li />").html(resp.data[i].key[1])
-													.attr("data-name","library/albums/"+ encodeURIComponent(resp.data[i].key[1])) );
+							for ( var i in data ) {
+								back.push( $("<li />").html(data[i].key[1])
+													.attr("data-name","library/albums/"+ encodeURIComponent(data[i].key[1])) );
 							}
-							var data = {title: d10.mustacheView("library.extendedInfos.artist.albums"), data: back};
-							then(null,data);
+							then(null,{title: d10.mustacheView("library.extendedInfos.artist.albums"), data: back});
 						},
 						error: function(err) {
 							then(err);
@@ -622,20 +605,15 @@ if (! "fn" in d10 ) {
 					});
 				},
 				genres: function(then) {
-					d10.bghttp.get({
-						url: site_url+"/api/list/artists/genres/"+ encodeURIComponent(artist),
-						dataType: "json",
-						success: function(resp) {
+					d10.rest.artist.genres(artist,{
+						load: function(err,data) {
+							if (err) { return then(err); }
 							var back = [];
-							for ( var i in resp.data ) {
-								back.push( $("<li />").html(resp.data[i].key[1])
-													.attr("data-name","library/genres/"+ encodeURIComponent(resp.data[i].key[1])) );
+							for ( var i in data ) {
+								back.push( $("<li />").html(data[i].key[1])
+													.attr("data-name","library/genres/"+ encodeURIComponent(data[i].key[1])) );
 							}
-							var data = {title: d10.mustacheView("library.extendedInfos.artist.genres"), data: back};
-							then(null,data);
-						},
-						error: function(err) {
-							then(err);
+							then(null,{title: d10.mustacheView("library.extendedInfos.artist.genres"), data: back});
 						}
 					});
 				}
@@ -682,23 +660,18 @@ if (! "fn" in d10 ) {
 			
 			d10.when({
 				artists: function(then) {
-					d10.bghttp.get({
-						url: site_url+"/api/list/albums/artists/"+ encodeURIComponent(album),
-						dataType: "json",
-						success: function(resp) {
+					d10.rest.album.artists(album,{
+						load: function(err, data) {
+							if ( err ) { return then(err); }
 							var back = [];
-							for ( var i in resp.data ) {
-								back.push( $("<li />").html(resp.data[i].key[1])
-													.attr("data-name","library/artists/"+ encodeURIComponent(resp.data[i].key[1])) );
+							for ( var i in data ) {
+								back.push( $("<li />").html(data[i].key[1])
+													.attr("data-name","library/artists/"+ encodeURIComponent(data[i].key[1])) );
 							}
 							if ( back.length == 1 ) {
 								back = [];
 							}
-							var data = {title: d10.mustacheView("library.extendedInfos.album.artists"), data: back};
-							then(null,data);
-						},
-						error: function(err) {
-							then(err);
+							then(null,{title: d10.mustacheView("library.extendedInfos.album.artists"), data: back});
 						}
 					});
 				}

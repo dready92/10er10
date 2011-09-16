@@ -844,6 +844,11 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 	};
 	
 	d10.rest.album = {
+		/*
+		 * @param start starting string of the album name
+		 * 
+		 * @return ["album 1","album2", ...]
+		 */
 		list: function(start, options) {
 			if ( !options && $.isPlainObject(start) ) {
 				options = start;
@@ -854,9 +859,31 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			}
 			restQuery("album.list","GET",site_url+"/api/album",options);
 		},
+ 		/*
+		 * @param genre String genre the album should belong to
+		 * 
+		 * @return [ {key: [genre, "album1"], value: 4}, ...], 
+		 */
+		allByGenre: function(genre, options) {
+			restQuery("album.allByGenre","GET",site_url+"/api/list/genres/albums/"+encodeURIComponent(genre),options);
+		},
+		/*
+		 * @param album String album name
+		 * 
+		 * @return [ {key: [album, "artist 1"], value: 4}, ...]
+		 */
+		artists: function(album, options) {
+			restQuery("album.artists","GET",site_url+"/api/list/albums/artists/"+ encodeURIComponent(album),options);
+		}
+
 	};
 	
 	d10.rest.artist = {
+		/*
+		 * @param start starting string of the artist name
+		 * 
+		 * @return ["artist 1","artist 2", ...]
+		 */
 		list: function(start, options) {
 			if ( !options && $.isPlainObject(start) ) {
 				options = start;
@@ -867,9 +894,58 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			}
 			restQuery("artist.list","GET",site_url+"/api/artist",options);
 		},
+ 
+ 		/*
+		 * 
+		 * @return [ {key: ["ACDC"], value: 4} ]
+		 */
+		allByName: function(options) {
+			restQuery("artist.allByName","GET",site_url+"/api/artistsListing",options);
+		},
+ 
+		/*
+		 * @param genre String genre the artist should belong to
+		 * 
+		 * @return [ {key: [genre, "artist 1"], value: 4}, ...], 
+		 */
+		allByGenre: function(genre, options) {
+			restQuery("artist.allByGenre","GET",site_url+"/api/list/genres/artists/"+encodeURIComponent(genre),options);
+		},
+ 
+		/*
+		 * @param artist String artist name
+		 * 
+		 * @return { artists: { "artist name": 45, "other name": 5, ... }, artistsRelated: { "other artist name": 5, ...}}
+		 */
+		related: function(artist, options) {
+			restQuery("artist.related","GET",site_url+"/api/relatedArtists/"+ encodeURIComponent(artist),options);
+		},
+ 
+		/*
+		 * @param artist String artist name
+		 * 
+		 * @return [ {key: [artist, "album 1"], value: 4}, ...] 
+		 */
+		albums: function(artist, options) {
+			restQuery("artist.albums","GET",site_url+"/api/list/artists/albums/"+ encodeURIComponent(artist),options);
+		},
+ 
+		/*
+		 * @param artist String artist name
+		 * 
+		 * @return [ {key: [artist, "genre 1"], value: 4}, ...]
+		 */
+		genres: function(artist, options) {
+			restQuery("artist.genres","GET",site_url+"/api/list/artists/genres/"+ encodeURIComponent(artist),options);
+		}
 	};
 	
 	d10.rest.genre = {
+		/*
+		 * @param start starting string of the genre name
+		 * 
+		 * @return ["genre 1","genre 2", ...]
+		 */
 		list: function(start, options) {
 			if ( !options && $.isPlainObject(start) ) {
 				options = start;
@@ -880,9 +956,22 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			}
 			restQuery("genre.list","GET",site_url+"/api/genre",options);
 		},
+		/*
+		 * 
+		 * 
+		 * @return [ {"key":["Dub"],"value":{"count":50,"artists":["Velvet Shadows","Tommy McCook & The Aggrovators","Thomsons All Stars"]}}, ... ]
+		 */
+		resume: function(options) {
+			restQuery("genre.resume","GET",site_url+"/api/genresResume",options);
+		}
 	};
 	
 	d10.rest.song = {
+		/*
+		 * @param start starting string of the song title
+		 * 
+		 * @return ["song title 1","song title 2", ...]
+		 */
 		listByTitle: function(start, options) {
 			if ( !options && $.isPlainObject(start) ) {
 				options = start;
@@ -894,4 +983,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			restQuery("song.listByTitle","GET",site_url+"/api/title",options);
 		},
 	};
+	
+	
+	
 })(jQuery);
