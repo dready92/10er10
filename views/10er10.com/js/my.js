@@ -257,6 +257,26 @@ d10.fn.my = function (ui) {
 
 
 	var init_topic_review = function (topicdiv, arg ) {
+		
+		d10.rest.user.review.list({
+			load: function(err,songs) {
+				if ( err  ) {
+					// mainerror_json_client("textStatus", 'review', null);
+					return ;
+				}
+				if ( songs.length ) {
+					topicdiv.empty().append(d10.mustacheView("review.list", songs));
+					$('ul > li',topicdiv).click(function() {
+			// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
+						d10.router.navigateTo(["my","review",$(this).attr("arg")]);
+					});
+				} else {
+					topicdiv.empty().append(d10.mustacheView("review.list.none", {}));
+				}
+			}
+		});
+		/*
+		
 		var options = {
 		'url': site_url+"/html/my/review",
 		'context': this,
@@ -273,6 +293,7 @@ d10.fn.my = function (ui) {
 		}
 		};
 		d10.bghttp.get(options);
+		*/
 	}
 
   var postSongReview = function (topicdiv, success, complete ) {

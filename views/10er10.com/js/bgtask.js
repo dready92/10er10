@@ -35,12 +35,13 @@ var bgtask = function() {
   ];
 
   tasks.unshift(function() {
-    d10.rest.user.toReview({
+    d10.rest.user.review.count({
       load: function(err, data) {
         if ( !err  ) {
+		  var count = data.count;
           var rr = $("#reviewReminder");
-          if ( data.count ) {
-            $("strong",rr).html(data.count);
+          if ( count ) {
+            $("strong",rr).html(count);
             if ( rr.is(":visible") ) {
               rr.whoobee();
             } else {

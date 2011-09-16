@@ -812,7 +812,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		},	
 		review: {
 			count: function(options) {
-				restQuery("user.toReview","GET",site_url+"/api/toReview",options);
+				restQuery("user.review.count","GET",site_url+"/api/toReview",options);
 				/*
 				var endpoint = "user.toReview";
 				d10.bghttp.get ( 
@@ -834,6 +834,9 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				);
 				emitter.trigger("whenRestBegin",{ endpoint: endpoint });
 				*/
+			},
+			list: function(options) {
+				restQuery("user.review.list","GET",site_url+"/api/review/list",options);
 			}
 		},
 		invites: {
