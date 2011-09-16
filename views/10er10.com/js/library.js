@@ -313,7 +313,7 @@ if (! "fn" in d10 ) {
 				$("span[name=all]",catdiv).click(function(){ widget.val('').trigger('blur');  d10.router.navigateTo(["library","artists","<all>"]); });
 				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger('blur'); d10.router.navigateTo(["library",topic]); });
 				widget.val(widget.attr('defaultvalue'))
-				.permanentOvlay(site_url+'/api/artist', $(".overlay",catdiv),{
+				.permanentOvlay(d10.rest.artist.list, $(".overlay",catdiv),{
 					"autocss": true,
 					"minlength" : 1 ,
 					"select": function (data, json) {
@@ -328,7 +328,7 @@ if (! "fn" in d10 ) {
 				catdiv.append( d10.mustacheView('library.control.album') );
 				var widget = $('input[name=album]',catdiv);
 				widget.val(widget.attr('defaultvalue'))
-				.permanentOvlay(site_url+'/api/album', $(".overlay",catdiv),
+				.permanentOvlay(d10.rest.album.list, $(".overlay",catdiv),
 						{
 							"varname": "start", 
 							"minlength" : 1 ,
@@ -345,7 +345,7 @@ if (! "fn" in d10 ) {
 				catdiv.append( d10.mustacheView('library.control.title') );
 				var widget = $('input[name=title]',catdiv);
 				widget.val(widget.attr('defaultvalue'))
-				.permanentOvlay(site_url+'/api/title', $(".overlay",catdiv), 
+				.permanentOvlay(d10.rest.song.listByTitle, $(".overlay",catdiv), 
 					{
 						"autocss": true,
 						"varname": 'start', 

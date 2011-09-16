@@ -553,7 +553,7 @@ d10.fn.my = function (ui) {
 		});
 
 		$('input[name=album]',topicdiv).permanentOvlay(
-			site_url+'/api/album',
+			d10.rest.album.list,
 			$('input[name=album]',topicdiv).parent().find(".overlay"),
 			{
 				"autocss": true,
@@ -563,7 +563,7 @@ d10.fn.my = function (ui) {
 		);
 		
 		$('input[name=artist]',topicdiv).permanentOvlay(
-			site_url+'/api/artist',
+			d10.rest.artist.list,
 			$('input[name=artist]',topicdiv).parent().find(".overlay"),
 			{
 				"autocss": true,
@@ -573,7 +573,7 @@ d10.fn.my = function (ui) {
 		);
 		
 		$('input[name=genre]',topicdiv).permanentOvlay(
-			site_url+'/api/genre',
+			d10.rest.genre.list,
 			$('input[name=genre]',topicdiv).parent().find(".overlay"),
 			{
 				"autocss": true,

@@ -653,6 +653,12 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				restMode: true,
 				url: url
 			};
+			if ( options.data ) {
+				query.data = options.data;
+			}
+			if ( options.contentType ) {
+				query.contentType = options.contentType;
+			}
 			d10.bghttp.request(query);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
 	};
@@ -724,31 +730,13 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 	
 	d10.rest.templates = function(options) {
 		restQuery("templates","GET",site_url+"/api/htmlElements",options);
-		/*
-		var endpoint = "templates";
-		d10.bghttp.get ({
-			url: site_url+"/api/htmlElements", 
-			restMode: true,
-			complete: function(err,data) {
-				if ( options.load ) {
-					options.load.apply(this,arguments);
-				}
-				emitter.trigger("whenRestEnd",{
-					endpoint: endpoint,
-					status: this.code,
-					headers: this.headers,
-					response: data
-				});
-			}
-		});
-		emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-		*/
 	};
 	
 
 	d10.rest.user = {
 		infos: function(options) {
-			var endpoint = "user.infos";
+			restQuery("user.infos","GET",site_url+"/api/userinfos",options);
+			/*var endpoint = "user.infos";
 			d10.bghttp.get ( 
 				{ 
 					restMode: true,
@@ -768,9 +756,12 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-
+			*/
 		},
  		setPreference: function(name, value, options) {
+			options.data = {value: value};
+			options.contentType = "application/x-www-form-urlencoded";
+			restQuery("user.setPreference","PUT",site_url+"/api/preference/"+name,options);
 			/*
 			d10.bghttp.put({
 				url: site_url+"/api/preference/hiddenExtendedInfos",
@@ -778,6 +769,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				data: {value: value},
 				success: $.proxy(this.refresh_infos,this)
 			});*/
+			/*
 			var endpoint = "user.setPreference";
 			d10.bghttp.put ( 
 				{ 
@@ -799,8 +791,11 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+			*/
 		},
 		logout: function(options) {
+			restQuery("user.logout","GET",site_url+"/welcome/goodbye",options);
+			/*
 			var endpoint = "user.logout";
 			d10.bghttp.get ( 
 				{ 
@@ -820,8 +815,11 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+			*/
 		},
 		toReview: function(options) {
+			restQuery("user.toReview","GET",site_url+"/api/toReview",options);
+			/*
 			var endpoint = "user.toReview";
 			d10.bghttp.get ( 
 				{ 
@@ -841,8 +839,59 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				} 
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+			*/
 		}
 	};
 	
+	d10.rest.album = {
+		list: function(start, options) {
+			if ( !options && $.isPlainObject(start) ) {
+				options = start;
+				start = null;
+			}
+			if ( start ) {
+				options.data = {start: start};
+			}
+			restQuery("album.list","GET",site_url+"/api/album",options);
+		},
+	};
 	
+	d10.rest.artist = {
+		list: function(start, options) {
+			if ( !options && $.isPlainObject(start) ) {
+				options = start;
+				start = null;
+			}
+			if ( start ) {
+				options.data = {start: start};
+			}
+			restQuery("artist.list","GET",site_url+"/api/artist",options);
+		},
+	};
+	
+	d10.rest.genre = {
+		list: function(start, options) {
+			if ( !options && $.isPlainObject(start) ) {
+				options = start;
+				start = null;
+			}
+			if ( start ) {
+				options.data = {start: start};
+			}
+			restQuery("genre.list","GET",site_url+"/api/genre",options);
+		},
+	};
+	
+	d10.rest.song = {
+		listByTitle: function(start, options) {
+			if ( !options && $.isPlainObject(start) ) {
+				options = start;
+				start = null;
+			}
+			if ( start ) {
+				options.data = {start: start};
+			}
+			restQuery("song.listByTitle","GET",site_url+"/api/title",options);
+		},
+	};
 })(jQuery);
