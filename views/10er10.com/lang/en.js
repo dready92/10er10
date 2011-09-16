@@ -271,12 +271,12 @@ exports.server = {
 	"html/review/song_error.html": {
 		error_message: "This song can't be found."
 	},
-	"review/list.html": {
+	"html/review/list.html": {
 		title: "Songs to review",
 		unknown_artist: "unknown artist",
 		unknown_title: "unknown title"
 	},
-	"review/none.html": {
+	"html/review/none.html": {
 		message: "All your songs are reviewed. Go to the <a href=\"#upload\">Upload</a> page to put new songs on the server."
 	},
 	"review/song.html": {

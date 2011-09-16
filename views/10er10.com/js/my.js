@@ -251,50 +251,28 @@ d10.fn.my = function (ui) {
 			}
 		}
 	});
-	  return ;
-    d10.bghttp.get({
-      "url": site_url+"/html/invites",
-      "success": function (data) {
-        topicdiv.html(data);
-        var button = $("button",topicdiv);
-        if ( !button.length )
-          return ;
-        var invalidLabel = $("span[name=invalidEmail]",topicdiv);
-        $("input[name=email]",topicdiv).keyup(function() {
-//           debug("email reg testing ",$(this).val());
-          if ( d10.isValidEmailAddress($(this).val()) ) {
-            if ( invalidLabel.is(":visible") ) invalidLabel.hide(); 
-            if ( button.not(":visible") )      button.fadeIn();
-          } else {
-            if ( invalidLabel.not(":visible") ) invalidLabel.show();
-            if ( button.is(":visible") )      button.hide();
-          }
-        });
-        button.click(function() { sendInvite(topicdiv, $("input[name=email]",topicdiv).val() ) });
-      }
-    });
   };
 
 
 
 
 	var init_topic_review = function (topicdiv, arg ) {
-    var options = {
-      'url': site_url+"/html/my/review",
-      'context': this,
-      'callback': function(response) {
-        if ( response.status != 'success'  ) {
-          // mainerror_json_client("textStatus", 'review', null);
-          return ;
-        }
-		topicdiv.empty().append(response.data);
-		$('ul > li',topicdiv).click(function() {
-// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
-			d10.router.navigateTo(["my","review",$(this).attr("arg")]);
-		});
-      }
-    };
-    d10.bghttp.get(options);
+		var options = {
+		'url': site_url+"/html/my/review",
+		'context': this,
+		'callback': function(response) {
+			if ( response.status != 'success'  ) {
+			// mainerror_json_client("textStatus", 'review', null);
+			return ;
+			}
+			topicdiv.empty().append(response.data);
+			$('ul > li',topicdiv).click(function() {
+	// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
+				d10.router.navigateTo(["my","review",$(this).attr("arg")]);
+			});
+		}
+		};
+		d10.bghttp.get(options);
 	}
 
   var postSongReview = function (topicdiv, success, complete ) {

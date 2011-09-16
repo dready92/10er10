@@ -10,6 +10,19 @@ var d10 = require ("./d10"),
 
 
 exports.api = function(app) {
+	app.get("/api/songs/toReview", function(request, response) {
+		d10.couch.d10.view("user/song",{key: [request.ctx.user._id,false],include_docs: true},function(err,resp) {
+			if ( err ) {
+				d10.realrest.err(423, d10.http.statusMessage(423), request.ctx.headers );
+				return ;
+			}
+			var r = [];
+			if( resp.rows && resp.rows.length ) {
+				resp.rows.forEach(function(v) { r.push(v.doc); });
+			}
+			d10.realrest.success(r,request.ctx);
+		});
+	});
 	app.get("/html/my/review", function(request,response) {
 		request.ctx.headers["Content-Type"] = "text/html";
 		d10.couch.d10.view("user/song",{key: [request.ctx.user._id,false],include_docs: true},function(err,resp) {

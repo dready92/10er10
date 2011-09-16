@@ -270,7 +270,7 @@ exports.server = {
 	"html/review/song_error.html": {
 		error_message: "Le morceau n'a pas pu être trouvé."
 	},
-	"review/list.html": {
+	"html/review/list.html": {
 		title: "Morceaux à valider",
 		unknown_artist: "artiste inconnu",
 		unknown_title: "titre inconnu"

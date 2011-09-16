@@ -817,29 +817,31 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
 			*/
 		},
-		toReview: function(options) {
-			restQuery("user.toReview","GET",site_url+"/api/toReview",options);
-			/*
-			var endpoint = "user.toReview";
-			d10.bghttp.get ( 
-				{ 
-					restMode: true,
-					complete: function(err, data) {
-						if ( options.load ) {
-							options.load.apply(this,arguments);
-						}
-						emitter.trigger("whenRestEnd",{
-							endpoint: endpoint,
-							status: this.code,
-							headers: this.headers,
-							response: data
-						});
-					},
-					url: site_url+"/api/toReview"
-				} 
-			);
-			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-			*/
+		review: {
+			count: function(options) {
+				restQuery("user.toReview","GET",site_url+"/api/toReview",options);
+				/*
+				var endpoint = "user.toReview";
+				d10.bghttp.get ( 
+					{ 
+						restMode: true,
+						complete: function(err, data) {
+							if ( options.load ) {
+								options.load.apply(this,arguments);
+							}
+							emitter.trigger("whenRestEnd",{
+								endpoint: endpoint,
+								status: this.code,
+								headers: this.headers,
+								response: data
+							});
+						},
+						url: site_url+"/api/toReview"
+					} 
+				);
+				emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+				*/
+			}
 		},
 		invites: {
 			/*
