@@ -840,6 +840,23 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
 			*/
+		},
+		invites: {
+			/*
+			 * 
+			 * @return void
+			 */
+			send: function(email, options) {
+				options.data = {email: email};
+				restQuery("user.invites.send","POST",site_url+"/api/sendInvite",options);
+			},
+			/*
+			 *
+			 * @return int nr of invites a user can give
+			 */
+			count: function(options) {
+				restQuery("user.invites.cont","GET",site_url+"/api/invites/count",options);
+			}
 		}
 	};
 	

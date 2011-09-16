@@ -211,33 +211,47 @@ d10.fn.my = function (ui) {
 	
 	
   var sendInvite = function(topicdiv,email) {
-    d10.bghttp.post({
-      "url": site_url+"/api/sendInvite",
-      "method": "POST",
-	  "dataType": "json",
-      "data": {"email": email},
-	  "dataType": "json",
-      "success": function (data) {
-//         debug("success");
-		if( data && data.status && data.status == "error" ) {
+    d10.rest.user.invites.send(email, {
+      load: function (err, data) {
+		if ( err ) {
+				$("article.my",topicdiv).hide();
+				$("article.notsent",topicdiv).fadeIn();
+		} else {
+	//         debug("success");
 			$("article.my",topicdiv).hide();
-			$("article.notsent",topicdiv).fadeIn();
-			return ;
+			$("article.sent",topicdiv).fadeIn();
 		}
-
-		$("article.my",topicdiv).hide();
-		$("article.sent",topicdiv).fadeIn();
-      },
-      "error": function(a,b,c) {
-//         debug("error",a,b,c);
-        $("article.my",topicdiv).hide();
-        $("article.notsent",topicdiv).fadeIn();
-        
       }
     });
   }
   
   var init_topic_invites = function(topicdiv,args) {
+	  
+	d10.rest.user.invites.count({
+		load: function(err,count) {
+			if ( err ) return ;
+			if ( count ) {
+				topicdiv.html(d10.mustacheView("my.invites.invites",{count: count, ttl: d10.config.invites.ttl}) );
+				var button = $("button",topicdiv);
+				var invalidLabel = $("span[name=invalidEmail]",topicdiv);
+				$("input[name=email]",topicdiv).keyup(function() {
+			//           debug("email reg testing ",$(this).val());
+					if ( d10.isValidEmailAddress($(this).val()) ) {
+						if ( invalidLabel.is(":visible") ) invalidLabel.hide(); 
+						if ( button.not(":visible") )      button.fadeIn();
+					} else {
+						if ( invalidLabel.not(":visible") ) invalidLabel.show();
+						if ( button.is(":visible") )      button.hide();
+					}
+				});
+				button.click(function() { sendInvite(topicdiv, $("input[name=email]",topicdiv).val() ) });
+
+			} else {
+				topicdiv.html(d10.mustacheView("my.invites.invites.none",{count: count, ttl: d10.config.invites.ttl}) );
+			}
+		}
+	});
+	  return ;
     d10.bghttp.get({
       "url": site_url+"/html/invites",
       "success": function (data) {

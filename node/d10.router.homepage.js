@@ -22,7 +22,8 @@ exports.homepage = function(app) {
 			img_size: d10.config.images.maxSize,
 			rpp: d10.config.rpp,
 			genres: genres,
-			langs: []
+			langs: [],
+			invites_ttl: d10.config.invites.ttl
 		};
 		if ( request.query.o && request.query.o.indexOf("a") >= 0 ) {
 			vars.debugAudio = true;
