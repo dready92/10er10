@@ -810,6 +810,9 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		},
 		removeImage: function(song_id, filename, options) {
 			restQuery("song.removeImage","DELETE","/api/songImage/"+song_id+"/"+filename,options);
+		},
+		random: function(options) {
+			restQuery("song.random","POST","/api/random",options);
 		}
 	};
 	
@@ -858,6 +861,10 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			count: function(options) {
 				restQuery("user.invites.cont","GET",site_url+"/api/invites/count",options);
 			}
+		},
+		storeVolume: function(volume, options) {
+			options.data.volume = volume;
+			restQuery("user.storeVolume","POST",site_url+"/api/volume",options);
 		}
 	};
 	

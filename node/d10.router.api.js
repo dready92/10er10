@@ -3,6 +3,7 @@
 var d10 = require ("./d10"),
 	bodyDecoder = require("connect").bodyParser,
 	querystring = require("querystring"),
+	qs = require("qs"),
 	fs = require("fs"),
 	os = require("os"),
 	when = require("./when"),
@@ -354,34 +355,34 @@ exports.api = function(app) {
 		request.setEncoding("utf8");
 		request.on("data",function(chunk) { body+=chunk; });
 		request.on("end",function() {
-			request.body = querystring.parse(body);
+			request.body = qs.parse(body);
 			d10.log("request.body: ",request.body);
 			var count = parseInt(request.body.count);
 			if ( isNaN(count) || count < 1 ){
-				return d10.rest.err(427,"count",request.ctx);
+				return d10.realrest.err(427,"count",request.ctx);
 			}
 			var data = {};
-			var name = getArray(request.body["name[]"]);
+			var name = getArray(request.body["name"]);
 			if ( name.length ) {
 				data.keys = name;
 			}
-			var not = getArray(request.body["not[]"]);
-			var really_not = getArray(request.body["really_not[]"]);
+			var not = getArray(request.body["not"]);
+			var really_not = getArray(request.body["really_not"]);
 			d10.couch.d10.view("genre/unsorted",data,function(err,response) {
 				if ( err ) {
-					return d10.rest.err(423,err,request.ctx);
+					return d10.realrest.err(423,err,request.ctx);
 				}
 				var random = getRandomIds(response,count,not,really_not);
 				if ( !random.length ) {
-					return d10.rest.success({songs: []},request.ctx);
+					return d10.realrest.success({songs: []},request.ctx);
 				}
 				d10.couch.d10.getAllDocs({keys: random, include_docs: true},function(err,resp) {
 					if ( err ) {
-						return d10.rest.err(423,err,request.ctx);
+						return d10.realrest.err(423,err,request.ctx);
 					}
 					var back = [];
 					resp.rows.forEach(function(v) { back.push(v.doc); });
-					d10.rest.success({songs: back},request.ctx);
+					d10.realrest.success(back,request.ctx);
 				});
 			});
 		});

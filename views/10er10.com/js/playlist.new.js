@@ -265,10 +265,7 @@
 						clearTimeout(volumeUpdateTimeout);
 					}
 					volumeUpdateTimeout = setTimeout(function() {
-						d10.bghttp.post({
-							"url": site_url+"/api/volume",
-							"data": { "volume": $('body').data('volume') }
-						});
+						d10.rest.user.storeVolume($('body').data('volume'), {});
 						volumeUpdateTimeout = null;
 					},10000);
 				}
@@ -291,27 +288,27 @@
 			count = count || 3;
 			genres = genres || [];
 			var opts = {
-				"url": site_url+"/api/random",
-				"dataType": "json",
-				"data": {
+				data: {
 					"not[]": allIds(),
 					"really_not[]": [],
 					"type": "genre",
 					"count": count
 				},
-				"success": function (response) {
-					if ( response.status == "success" && response.data.songs.length ) {
-						var items = '';
-						for ( var index in response.data.songs ) {
-							items+= d10.song_template( response.data.songs[index] );
-						}
+				"load": function (err,songs) {
+					if ( err ) { return;
+					};
+					var items = "";
+					for ( var index in songs ) {
+						items+= d10.song_template( songs[index] );
+					}
+					if ( items.length ) {
 						append($(items));
 					}
 				}
 			};
 			for ( var index in d10.user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
 			if ( genres && genres.length )  opts.data["name[]"] = genres;
-			d10.bghttp.post(opts);
+			d10.rest.song.random(opts);
 		};
 		
 		
