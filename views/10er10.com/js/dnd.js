@@ -725,6 +725,91 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				filesize: filesize,
 				options: options
 			});
+		},
+		remove: function(song_id, options) {
+			restQuery("song.remove","DELETE",site_url+"/api/song/"+song_id,options);
+		},
+		get: function(song_id, options) {
+			restQuery("song.remove","GET",site_url+"/api/song/"+song_id,options);
+		},
+ 		/*
+		 * @param start starting string of the song title
+		 * 
+		 * @return ["song title 1","song title 2", ...]
+		 */
+		listByTitle: function(start, options) {
+			if ( !options && $.isPlainObject(start) ) {
+				options = start;
+				start = null;
+			}
+			if ( start ) {
+				options.data = {start: start};
+			}
+			restQuery("song.listByTitle","GET",site_url+"/api/title",options);
+		},
+ 
+		uploadImage: function(song_id, file, filename, filesize, options) {
+			var endpoint = "song.uploadImage";
+			var xhr = new XMLHttpRequest();
+			var url = site_url+"/api/songImage/"+song_id+"?"+$.d10param({filesize: file.size, filename: file.name});
+			xhr.upload.onprogress = function(event) {
+				if ( options.progress ) options.progress.call(this,event);
+				emitter.trigger("whenRestUploadProgress",{endpoint: endpoint, event: event});
+			}
+			if ( options.end ) xhr.upload.onload = options.end;
+			if ( options.readystatechange ) xhr.onreadystatechange = options.readystatechange;
+			xhr.onerror = function(event) {
+// 				debug("got error on upload",arguments);
+				if ( options.error ) options.error.call(this,event);
+				emitter.trigger("whenRestError",{endpoint: endpoint,event: event});
+				xhr= null;
+			};
+			xhr.onabort = function (event) {
+				if ( options.abort ) options.abort.call(this,event);
+				emitter.trigger("whenRestAbort",{endpoint: endpoint,event: event});
+				xhr= null;
+			};
+			xhr.onload = function() {
+				var data = this.responseText, contentType = this.getResponseHeader("Content-Type") || "text/html";
+				if ( contentType.match(/json$/) ) {
+					try  { data = JSON.parse(data); }
+					catch (e) { data = this.responseText; }
+				}
+				if ( options.load ) options.load.call(this, this.status == 200 ? null: this.status, this.getAllResponseHeaders(), data);
+				emitter.trigger("whenRestEnd",{
+					endpoint: endpoint,
+					status: this.status,
+					headers: this.getAllResponseHeaders(),
+					response: data
+				});
+				xhr=null;
+			};
+ 
+			if ( useFileReader ) {
+				debug("using filereader");
+				var reader = new FileReader();
+				reader.onload = function() {
+					xhr.open("POST",url);
+					xhr.sendAsBinary(reader.result);
+					reader = null;
+					file = null;
+				};
+				reader.readAsBinaryString(file);
+			} else {
+				debug("NOT using filereader");
+				xhr.open("POST",url);
+				xhr.send(file);
+				file = null;
+			}
+			emitter.trigger("whenRestBegin",{
+				endpoint: endpoint,
+				filename: filename,
+				filesize: filesize,
+				options: options
+			});
+		},
+		removeImage: function(song_id, filename, options) {
+			restQuery("song.removeImage","DELETE","/api/songImage/"+song_id+"/"+filename,options);
 		}
 	};
 	
@@ -736,107 +821,25 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 	d10.rest.user = {
 		infos: function(options) {
 			restQuery("user.infos","GET",site_url+"/api/userinfos",options);
-			/*var endpoint = "user.infos";
-			d10.bghttp.get ( 
-				{ 
-					restMode: true,
-					complete: function(err,data) {
-						if ( options.load ) {
-							options.load.apply(this,arguments);
-						}
-						emitter.trigger("whenRestEnd",{
-							endpoint: endpoint,
-							status: this.code,
-							headers: this.headers,
-							response: data
-						});
-					},
-					url: site_url+"/api/userinfos"
-					
-				} 
-			);
-			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-			*/
 		},
  		setPreference: function(name, value, options) {
 			options.data = {value: value};
 			options.contentType = "application/x-www-form-urlencoded";
 			restQuery("user.setPreference","PUT",site_url+"/api/preference/"+name,options);
-			/*
-			var endpoint = "user.setPreference";
-			d10.bghttp.put ( 
-				{ 
-					restMode: true,
-					complete: function(err, data) {
-						if ( options.load ) {
-							options.load.apply(this,arguments);
-						}
-						emitter.trigger("whenRestEnd",{
-							endpoint: endpoint,
-							status: this.code,
-							headers: this.headers,
-							response: data
-						});
-					},
-					url: site_url+"/api/preference/"+name,
-					contentType: "application/x-www-form-urlencoded",
-					data: {value: value}
-				} 
-			);
-			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-			*/
 		},
 		logout: function(options) {
 			restQuery("user.logout","GET",site_url+"/welcome/goodbye",options);
-			/*
-			var endpoint = "user.logout";
-			d10.bghttp.get ( 
-				{ 
-					restMode: true,
-					complete: function(err, data) {
-						if ( options.load ) {
-							options.load.apply(this,arguments);
-						}
-						emitter.trigger("whenRestEnd",{
-							endpoint: endpoint,
-							status: this.code,
-							headers: this.headers,
-							response: data
-						});
-					},
-					url: site_url+"/welcome/goodbye"
-				} 
-			);
-			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-*/
 		},	
 		review: {
 			count: function(options) {
 				restQuery("user.review.count","GET",site_url+"/api/toReview",options);
-				/*
-				var endpoint = "user.toReview";
-				d10.bghttp.get ( 
-					{ 
-						restMode: true,
-						complete: function(err, data) {
-							if ( options.load ) {
-								options.load.apply(this,arguments);
-							}
-							emitter.trigger("whenRestEnd",{
-								endpoint: endpoint,
-								status: this.code,
-								headers: this.headers,
-								response: data
-							});
-						},
-						url: site_url+"/api/toReview"
-					} 
-				);
-				emitter.trigger("whenRestBegin",{ endpoint: endpoint });
-				*/
 			},
 			list: function(options) {
 				restQuery("user.review.list","GET",site_url+"/api/review/list",options);
+			},
+			post: function(id, data,options) {
+				options.data = data;
+				restQuery("user.review.post", "PUT", site_url+'/api/meta/'+id,options);
 			}
 		},
 		invites: {
@@ -989,26 +992,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		resume: function(options) {
 			restQuery("genre.resume","GET",site_url+"/api/genresResume",options);
 		}
-	};
-	
-	d10.rest.song = {
-		/*
-		 * @param start starting string of the song title
-		 * 
-		 * @return ["song title 1","song title 2", ...]
-		 */
-		listByTitle: function(start, options) {
-			if ( !options && $.isPlainObject(start) ) {
-				options = start;
-				start = null;
-			}
-			if ( start ) {
-				options.data = {start: start};
-			}
-			restQuery("song.listByTitle","GET",site_url+"/api/title",options);
-		},
-	};
-	
+	};	
 	
 	
 })(jQuery);

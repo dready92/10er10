@@ -59,7 +59,7 @@ exports.api = function(app) {
 		});
 		request.on("end",function() {
 			if ( !body.length ) {
-				return d10.rest.err(427,"no parameters sent",request.ctx);
+				return d10.realrest.err(417,"no parameter sent",request.ctx);
 			}
 			request.body = querystring.parse(body);
 			var fields = {};
@@ -102,7 +102,7 @@ exports.api = function(app) {
 						errors.genre = responses.genre;
 					}
 					if ( d10.count(errors) ) {
-						request.ctx.headers["Content-Type"] = "application/json";
+/*						request.ctx.headers["Content-Type"] = "application/json";
 						response.writeHead(200,request.ctx.headers);
 						response.end(JSON.stringify(
 							{
@@ -113,7 +113,8 @@ exports.api = function(app) {
 								},
 								fields: errors
 							}
-										));
+										));*/
+						d10.realrest.err(412,errors,request.ctx);
 						return ;
 					}
 		// 			d10.log("debug","And here too");
@@ -133,7 +134,7 @@ exports.api = function(app) {
 					d10.couch.d10.getDoc(request.params.id,function(err,doc) {
 						if ( err ) {
 							d10.log("debug","getDoc error");
-							d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
+							d10.realrest.err(err.statusCode, err.statusMessage, request.ctx);
 							return ;
 						}
 						for ( var i in fields ) {
@@ -142,10 +143,10 @@ exports.api = function(app) {
 						d10.couch.d10.storeDoc(doc, function(err,resp) {
 							if ( err ) {
 								d10.log("debug","storeDoc error");
-								d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
+								d10.realrest.err(err.statusCode, err.statusMessage, request.ctx);
 							}else {
 								d10.log("debug","storeDoc success");
-								d10.rest.success("recorded",request.ctx);
+								d10.realrest.success(doc,request.ctx);
 								d10.couch.d10wi.storeDoc({_id: doc._id, hits: 0});
 							}
 						});

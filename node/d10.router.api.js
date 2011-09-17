@@ -64,9 +64,9 @@ exports.api = function(app) {
 	app.get("/api/song/aa:id",function(request,response) {
 		d10.couch.d10.getDoc("aa"+request.params.id, function(err,doc) {
 			if ( err ) {
-				return d10.rest.err(404,{error: "Document not found", reason: "id aa"+request.params.id+" not found"},request.ctx);
+				return d10.realrest.err(404,{error: "Document not found", reason: "id aa"+request.params.id+" not found"},request.ctx);
 			}
-			return d10.rest.success(doc,request.ctx);
+			return d10.realrest.success(doc,request.ctx);
 		});
 	});
 	
@@ -149,7 +149,7 @@ exports.api = function(app) {
 	
 	app.get("/api/serverLoad", function(request,response) {
 // 		var child;
-		d10.rest.success( {load: os.loadavg()}, request.ctx );
+		d10.realrest.success( {load: os.loadavg()}, request.ctx );
 
 	});
 	
@@ -720,7 +720,7 @@ exports.api = function(app) {
 	_id: aa....
 	_id: pl.... , songs: [aa....]
 	*/
-	app.put("/api/deleteSong/aa:id",function(request,response,next) {
+	app.delete("/api/song/aa:id",function(request,response,next) {
 		
 		var 
 			findAllSongReferences = function(id, then) {
@@ -895,27 +895,27 @@ exports.api = function(app) {
 		
 		d10.couch.d10.getDoc("aa"+request.params.id,function(err,doc) {
 			if ( err ) {
-				return d10.rest.err(423,err,request.ctx);
+				return d10.realrest.err(423,err,request.ctx);
 			}
 			if ( doc.user != request.ctx.user._id ) {
-				return d10.rest.err(403,"You are not allowed to delete this song",request.ctx);
+				return d10.realrest.err(403,"You are not allowed to delete this song",request.ctx);
 			}
 			
 			
 			
 			findAllSongReferences(doc._id,
 				function(errs,references) {
-					if ( errs ) { console.log("error on findAllSongReferences"); return d10.rest.err(423,errs,request.ctx); }
+					if ( errs ) { console.log("error on findAllSongReferences"); return d10.realrest.err(423,errs,request.ctx); }
 					getUnusedImages(doc,function(errs,images) {
-						if ( errs ) { console.log("error on getUnusedImages"); return d10.rest.err(423,errs,request.ctx); }
+						if ( errs ) { console.log("error on getUnusedImages"); return d10.realrest.err(423,errs,request.ctx); }
 // 						return d10.rest.success([references,images],request.ctx);
 						removeSongReferences(doc._id, errs, references, function(errs, modifiedDocs) {
-							if ( errs ) { console.log("error on removeSongReferences"); return d10.rest.err(423,errs,request.ctx); }
+							if ( errs ) { console.log("error on removeSongReferences"); return d10.realrest.err(423,errs,request.ctx); }
 							recordModifiedDocs(modifiedDocs,function(err,resp) {
 								if ( err ) {
-									console.log("error on recordModifiedDocs",err); return d10.rest.err(423,err,request.ctx);
+									console.log("error on recordModifiedDocs",err); return d10.realrest.err(423,err,request.ctx);
 								} else {
-									d10.rest.success([],request.ctx);
+									d10.realrest.success([],request.ctx);
 									removeSongFile(doc._id, function(err) { if ( err ) console.log("removeSongFile error",err); });
 									removeUnusedImages(images,function(err){ if ( err ) console.log("removeUnusedImages error",err); });
 									return ;
