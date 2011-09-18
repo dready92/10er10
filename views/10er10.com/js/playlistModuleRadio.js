@@ -10,20 +10,21 @@ var createModule= function (ui) {
 	var appendRandomSongs = function(count, genres) {
 		count = count || 3;
 		genres = genres || [];
+		
+		
+		
 		var opts = {
-			"url": site_url+"/api/random",
-			"dataType": "json",
-			"data": {
+			data: {
 				"not[]": d10.playlist.allIds(),
 				"really_not[]": [],
 				"type": "genre",
 				"count": count
 			},
-			"success": function (response) {
-				if ( response.status == "success" && response.data.songs.length && ui.find(".autofill").hasClass("enabled") && d10.playlist.driver().writable() ) {
+			load: function (err, response) {
+				if ( !err && response.length && ui.find(".autofill").hasClass("enabled") && d10.playlist.driver().writable() ) {
 					var items = '';
-					for ( var index in response.data.songs ) {
-						items+= d10.song_template( response.data.songs[index] );
+					for ( var index in response ) {
+						items+= d10.song_template( response[index] );
 					}
 					d10.playlist.append($(items));
 				}
@@ -31,7 +32,10 @@ var createModule= function (ui) {
 		};
 		for ( var index in d10.user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
 		if ( genres && genres.length )  opts.data["name[]"] = genres;
-		d10.bghttp.post(opts);
+				
+		d10.rest.song.random(opts);
+				
+// 		d10.bghttp.post(opts);
 	};
 
 	var appendSongs = function(count) {
@@ -42,16 +46,16 @@ var createModule= function (ui) {
 
 	var module = new d10.fn.playlistModule("radio", {
 		"playlist:currentSongChanged": function(e) {
-				if ( delayTimeout ) {
-					clearTimeout(delayTimeout);
+			if ( delayTimeout ) {
+				clearTimeout(delayTimeout);
+			}
+			delayTimeout = setTimeout(function() {
+				delayTimeout = null;
+				if ( ui.find(".autofill").hasClass("enabled") && d10.playlist.current().nextAll().length < 3 ) {
+					debug("radio2");
+					appendSongs(settings.count);
 				}
-				delayTimeout = setTimeout(function() {
-					delayTimeout = null;
-					if ( ui.find(".autofill").hasClass("enabled") && d10.playlist.current().nextAll().length < 3 ) {
-						debug("radio2");
-						appendSongs(settings.count);
-					}
-				}, settings.delay);
+			}, settings.delay);
 		}
 	}, {
 		enable: function() {ui.css({display:"block"});return this;},

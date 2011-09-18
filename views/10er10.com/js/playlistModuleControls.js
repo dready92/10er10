@@ -15,22 +15,32 @@ var createModule = function(ui) {
 		}
 	},{});
 	var starringControls = function () {
-					// test if user likes this song
-					starUp.removeClass('littletrans');
-					starDown.removeClass('littletrans');
-					var id = d10.playlist.current().attr('name');
-					var upref = d10.user.get_preferences();
-					if ( upref ) {
-							if ( typeof(upref.likes) == 'undefined' || !upref.likes[id] ) {
-									starUp.addClass('littletrans');
-							}
-							if ( typeof(upref.dislikes) == 'undefined' || !upref.dislikes[id] ) {
-									starDown.addClass('littletrans');
-							}
-					}
-			};
+		// test if user likes this song
+		starUp.removeClass('littletrans');
+		starDown.removeClass('littletrans');
+		var id = d10.playlist.current().attr('name');
+		var upref = d10.user.get_preferences();
+		if ( upref ) {
+			if ( typeof(upref.likes) == 'undefined' || !upref.likes[id] ) {
+					starUp.addClass('littletrans');
+			}
+			if ( typeof(upref.dislikes) == 'undefined' || !upref.dislikes[id] ) {
+					starDown.addClass('littletrans');
+			}
+		}
+	};
 
 	var handleStarring = function ( type, id ) {
+		d10.rest.song.starring.set(id, type, {
+			load: function(err,resp) {
+				if ( !err ) {
+					starringUpdated(resp.id, resp.star);
+					d10.user.refresh_infos();
+				}
+			}
+		});
+		/*
+		
 		d10.bghttp.put({
 			'url': site_url+'/api/starring/'+type+'/'+id,
 			'dataType': 'json',
@@ -40,6 +50,7 @@ var createModule = function(ui) {
 							d10.user.refresh_infos();
 			}
 		});
+		*/
 	};
 
 	var starringUpdated = function (id,star) {
