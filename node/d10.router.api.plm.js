@@ -7,12 +7,12 @@ exports.api = function(app) {
 	app.get("/api/plm/pl*",function(request,response) {
 		rpl.playlistAndSongs("pl"+request.params[0],function(err,playlist) {
 			if ( err ) {
-				return d10.rest.err(423,null,request.ctx);
+				return d10.realrest.err(423,null,request.ctx);
 			}
 			if ( playlist.user != request.ctx.user._id ) {
-				return d10.rest.err(403,null,request.ctx);
+				return d10.realrest.err(403,null,request.ctx);
 			}
-			d10.rest.success(playlist,request.ctx);
+			d10.realrest.success(playlist,request.ctx);
 		});
 	});
 	

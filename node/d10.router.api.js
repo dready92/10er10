@@ -34,29 +34,26 @@ exports.api = function(app) {
 	app.post("/api/songs",function(request,response) {
 		bodyDecoder()(request, response,function() {
 			request.ctx.headers["Content-type"] = "application/json";
-			console.log(request.body);
+			console.log("/api/songs",request.body);
 			if ( ! request.body["ids"] || 
 				Object.prototype.toString.call(request.body["ids"]) !== '[object Array]' ||
 				!request.body["ids"].length ) {
-				d10.rest.success({songs:[]},request.ctx);
+				d10.realrest.success([],request.ctx);
 			} else {
 				for ( var index in request.body["ids"] ) {
 					if ( request.body["ids"][index].substr(0,2) != "aa" ) {
-						d10.rest.success({songs:[]},request.ctx);
+						d10.realrest.success([],request.ctx);
 						return ;
 					}
 				}
 				d10.couch.d10.getAllDocs({keys:request.body["ids"],include_docs: true},function(err,resp) {
 					if ( err ) {
-						d10.rest.err(500,err,request.ctx);
+						d10.realrest.err(500,err,request.ctx);
 					} else {
-						
-						d10.rest.success({songs: resp.rows.map(function(v) {return v.doc;})},request.ctx);
+						d10.realrest.success(resp.rows.map(function(v) {return v.doc;}),request.ctx);
 					}
 				});
-				
 			} 
-			
 			
 		});
 	});
@@ -173,7 +170,7 @@ exports.api = function(app) {
 			var data = querystring.parse(body);
 // 			console.log("/api/current_playlist body: ",data);
 			d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,userPreferences) {
-				if ( err ) { return d10.rest.err(413,err,request.ctx);}
+				if ( err ) { return d10.realrest.err(413,err,request.ctx);}
 				
 				var recordDoc = function() {
 					userPreferences.playlist = {};
@@ -185,8 +182,8 @@ exports.api = function(app) {
 					}
 // 					console.log("storing doc ",userPreferences);
 					d10.couch.d10wi.storeDoc(userPreferences,function(err,response) {
-						if ( err )	d10.rest.err(413,err,request.ctx);
-						else		d10.rest.success( [], request.ctx );
+						if ( err )	d10.realrest.err(413,err,request.ctx);
+						else		d10.realrest.success( [], request.ctx );
 					});
 				};
 				
@@ -215,7 +212,7 @@ exports.api = function(app) {
 				if ( actions.length ) {
 					when(actions,function(err,responses) {
 						if ( err ) {
-							d10.rest.err(413,err,request.ctx);
+							d10.realrest.err(413,err,request.ctx);
 						} else {
 							recordDoc()
 						}
@@ -440,11 +437,10 @@ exports.api = function(app) {
 		});
 	});
 	
-	
 	app.put("/api/starring/likes/aa:id",function(request,response) {
 		var starring = function() {
 			d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
-				if ( err) { return d10.rest.err(423,err,request.ctx); }
+				if ( err) { return d10.realrest.err(423,err,request.ctx); }
 				var star = null;
 				if ( !doc.dislikes ) {
 					doc.dislikes = {};
@@ -463,13 +459,13 @@ exports.api = function(app) {
 					star = "likes";
 				}
 				d10.couch.d10wi.storeDoc(doc, function(err,resp) {
-					if ( err ) { d10.rest.err(423,err,request.ctx); }
-					else { d10.rest.success({id: "aa"+request.params.id, star: star },request.ctx); }
+					if ( err ) { d10.realrest.err(423,err,request.ctx); }
+					else { d10.realrest.success({id: "aa"+request.params.id, star: star },request.ctx); }
 				});
 			});
 		};
 		d10.couch.d10.getDoc("aa"+request.params.id, function(err,resp) {
-			if ( err ) { d10.rest.err(427,err,request.ctx); }
+			if ( err ) { d10.realrest.err(427,err,request.ctx); }
 			else {  starring(); }
 		});
 	});
@@ -477,7 +473,7 @@ exports.api = function(app) {
 	app.put("/api/starring/dislikes/aa:id",function(request,response) {
 		var starring = function() {
 			d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
-				if ( err ) { return d10.rest.err(423,err,request.ctx); }
+				if ( err ) { return d10.realrest.err(423,err,request.ctx); }
 				var star = null;
 				if ( !doc.dislikes ) {
 					doc.dislikes = {};
@@ -496,13 +492,13 @@ exports.api = function(app) {
 					star = "dislikes";
 				}
 				d10.couch.d10wi.storeDoc(doc,function(err,resp) {
-					if ( err ) { d10.rest.err(423,err,request.ctx);}
-					else { d10.rest.success({id: "aa"+request.params.id, star: star },request.ctx); }
+					if ( err ) { d10.realrest.err(423,err,request.ctx);}
+					else { d10.realrest.success({id: "aa"+request.params.id, star: star },request.ctx); }
 				});
 			});
 		};
 		d10.couch.d10.getDoc("aa"+request.params.id, function(err,resp) {
-			if ( err ) { d10.rest.err(427,err,request.ctx); }
+			if ( err ) { d10.realrest.err(427,err,request.ctx); }
 			else {  starring(); }
 		});
 	});

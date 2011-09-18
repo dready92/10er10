@@ -730,7 +730,13 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			restQuery("song.remove","DELETE",site_url+"/api/song/"+song_id,options);
 		},
 		get: function(song_id, options) {
-			restQuery("song.remove","GET",site_url+"/api/song/"+song_id,options);
+			if ( $.isArray(song_id) ) {
+				options.data = {ids: song_id};
+				restQuery("song.get","POST",site_url+"/api/songs",options);
+				
+			} else {
+				restQuery("song.get","GET",site_url+"/api/song/"+song_id,options);
+			}
 		},
  		/*
 		 * @param start starting string of the song title
@@ -813,6 +819,15 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		},
 		random: function(options) {
 			restQuery("song.random","POST","/api/random",options);
+		},
+		starring: {
+			/*
+			 * @param id String song id
+			 * @param type String starring type ( "likes","dislikes")
+			 */
+			set: function(id, type, options) {
+				restQuery("song.starring.set","PUT",site_url+"/api/starring/"+type+"/"+id, options);
+			}
 		}
 	};
 	
@@ -865,6 +880,20 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		storeVolume: function(volume, options) {
 			options.data.volume = volume;
 			restQuery("user.storeVolume","POST",site_url+"/api/volume",options);
+		},
+		playerList: {
+			default: {
+				store: function(list,options) {
+					options.data = { list: list, type: "default"};
+					restQuery("user.playerList.default.store","PUT",site_url+"/api/current_playlist",options);
+				}
+			},
+			rpl: {
+				store: function(id, options) {
+					options.data = { rpl: id, type: "rpl"};
+					restQuery("user.playerList.rpl.store","PUT",site_url+"/api/current_playlist",options);				
+				}
+			}
 		}
 	};
 	
@@ -1001,5 +1030,10 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		}
 	};	
 	
+	d10.rest.rpl = {
+		get: function(id,options) {
+			restQuery("rpl.get","GET",site_url+"/api/plm/"+id,options);
+		}
+	};
 	
 })(jQuery);

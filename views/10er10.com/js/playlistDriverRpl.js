@@ -30,15 +30,7 @@ d10.playlistDrivers.rpl = function(options) {
 		if ( !getDoc() || !getDoc()._id ) {
 			return ;
 		}
-		var options = {
-			url: site_url+"/api/current_playlist",
-			dataType: "json",
-			data: {
-				rpl: getDoc()._id,
-				type: "rpl"
-			}
-		};
-		d10.bghttp.put(options);
+		d10.rest.user.playerList.rpl.store(getDoc()._id,function() {});
 	};
 	
 	this.enable = function() {
@@ -63,6 +55,23 @@ d10.playlistDrivers.rpl = function(options) {
 			cb.call(this);
 		} else if (options.rpl ) {
 			var self = this;
+			d10.rest.rpl.get(options.rpl,{
+				load: function(err,resp) {
+					if ( err ) {
+						return cb.call(self,resp);
+					}
+					setDoc(resp);
+					var html = "";
+					$.each(resp.songs,function(k,v) {
+						if (  v ) {
+							html+=d10.song_template(v);
+						}
+					});
+					if ( html.length )	html = $(html);
+					cb.call(self,null,html);
+				}
+			});
+			/*
 			d10.bghttp.get(
 				{
 					url: site_url+"/api/plm/"+options.rpl,
@@ -87,6 +96,7 @@ d10.playlistDrivers.rpl = function(options) {
 					}
 				}
 			);
+*/
 			
 		} else {
 			return cb.call(this);
