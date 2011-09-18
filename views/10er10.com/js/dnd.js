@@ -1033,6 +1033,24 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 	d10.rest.rpl = {
 		get: function(id,options) {
 			restQuery("rpl.get","GET",site_url+"/api/plm/"+id,options);
+		},
+		create: function(name, songs, options) {
+			options.data = {
+				name: name,
+				"songs[]": songs ? songs : []
+			};
+			restQuery("rpl.create","PUT",site_url+"/api/plm/create",options);
+
+		},
+		update: function(id, songs, options) {
+			options.data = {
+				playlist: id,
+				"songs[]": songs
+			};
+			restQuery("rpl.update","PUT",site_url+"/api/plm/update",options);
+		},
+		remove: function(id, options) {
+			
 		}
 	};
 	
