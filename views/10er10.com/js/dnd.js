@@ -894,6 +894,18 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 					restQuery("user.playerList.rpl.store","PUT",site_url+"/api/current_playlist",options);				
 				}
 			}
+		},
+		likes: function(query, options) {
+			if ( query.startkey && query.startkey_docid ) {
+				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+			}
+			restQuery("user.likes","GET",site_url+"/api/list/likes",options);				
+		},
+		songs: function(query, options) {
+			if ( query.startkey && query.startkey_docid ) {
+				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+			}
+			restQuery("user.songs","GET",site_url+"/api/list/s_user",options);				
 		}
 	};
 	

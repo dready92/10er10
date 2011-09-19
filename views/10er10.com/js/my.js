@@ -73,7 +73,7 @@ d10.fn.my = function (ui) {
 	};
   
   
-	var bindControls = function(url, topicdiv, section, list, parseResults) {
+	var bindControls = function(endpoint, topicdiv, section, list, parseResults) {
 		
 		topicdiv.find(".pushAll").click(function() {
 			d10.playlist.append(topicdiv.find(".song").clone().removeClass("selected"));
@@ -87,13 +87,14 @@ d10.fn.my = function (ui) {
 			if ( is && "remove" in is ) {
 				is.remove();
 			}
-			createInfiniteScroll(url, topicdiv, section, list, parseResults);
+			createInfiniteScroll(endpoint, topicdiv, section, list, parseResults);
 		});
 	};
 
-	var createInfiniteScroll = function(url, topicdiv, section, list, parseResults) {
+	var createInfiniteScroll = function(endpoint, topicdiv, section, list, parseResults) {
 		var loadTimeout = null, 
-			innerLoading = topicdiv.find(".innerLoading");
+			innerLoading = topicdiv.find(".innerLoading"),
+			cursor = new d10.fn.couchMapCursor(endpoint);
 		
 		var callbacks = {
 			onFirstContent: function(length) {
@@ -144,9 +145,8 @@ d10.fn.my = function (ui) {
 		if ( parseResults ) { callbacks.parseResults = parseResults; }
 			
 		section.data("infiniteScroll",
-			section.infiniteScroll(
-				url,
-				{},
+			section.d10scroll(
+				cursor,
 				list,
 				callbacks
 			)
@@ -159,14 +159,13 @@ d10.fn.my = function (ui) {
 			topicdiv.append(d10.mustacheView("library.content.simple"));
 			section = topicdiv.find("section");
 			var list = section.find(".list");
-			var url = "/api/list/likes";
+			var endpoint = d10.rest.user.likes;
 			list.delegate("div.song .edit, div.song .review","click", function() {
 				d10.router.navigateTo(["my","review",$(this).closest('.song').attr('name')]);
-// 				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
 				return false;
 			});
-			bindControls (url, topicdiv, section, list);
-			createInfiniteScroll(url, topicdiv, section, list);
+			bindControls (endpoint, topicdiv, section, list);
+			createInfiniteScroll(endpoint, topicdiv, section, list);
 		}
 	};
 
@@ -176,7 +175,8 @@ d10.fn.my = function (ui) {
 			topicdiv.append(d10.mustacheView("library.content.simple"));
 			section = topicdiv.find("section");
 			var list = section.find(".list");
-			var url = "/api/list/s_user";
+// 			var url = "/api/list/s_user";
+			var endpoint = d10.rest.user.songs;
 			var parseResults = function(rows) {
 				var html = "";
 				rows.forEach(function(v) { html += d10.song_template(v.doc); });
@@ -199,8 +199,8 @@ d10.fn.my = function (ui) {
 // 				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
 				return false;
 			});
-			bindControls (url, topicdiv, section, list, parseResults);
-			createInfiniteScroll(url,topicdiv,section,list,parseResults);
+			bindControls (endpoint, topicdiv, section, list, parseResults);
+			createInfiniteScroll(endpoint,topicdiv,section,list,parseResults);
 			
 			
 		}
@@ -265,7 +265,7 @@ d10.fn.my = function (ui) {
 					return ;
 				}
 				if ( songs.length ) {
-					topicdiv.empty().append(d10.mustacheView("review.list", songs));
+					topicdiv.empty().append(d10.mustacheView("review.list", {rows: songs}));
 					$('ul > li',topicdiv).click(function() {
 			// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
 						d10.router.navigateTo(["my","review",$(this).attr("arg")]);
@@ -653,6 +653,7 @@ d10.fn.my = function (ui) {
 						if ( err )	return ;
 						for ( var index in rows ) {
 							if ( rows[index]._id != song_id ) {
+								debug("should show the alternative button");
 								$("button[name=reviewNext]",topicdiv).fadeIn(function() {
 									$(this).removeClass("hidden").click(function() {
 										$(this).hide();
@@ -676,7 +677,7 @@ d10.fn.my = function (ui) {
 								});
 								return;
 							}
-							$("button[name=reviewNext]",topicdiv).remove();
+							$("button[name=reviewNext]",topicdiv).addClass("hidden");
 						}
 					}
 				});
