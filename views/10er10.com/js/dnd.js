@@ -828,6 +828,58 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			set: function(id, type, options) {
 				restQuery("song.starring.set","PUT",site_url+"/api/starring/"+type+"/"+id, options);
 			}
+		},
+		list: {
+			hits: function(query, options) {
+				if ( query.startkey && query.startkey_docid ) {
+					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				}
+				restQuery("user.list.hits","GET",site_url+"/api/list/hits",options);
+			},
+			creations: function(query, options) {
+				if ( query.startkey && query.startkey_docid ) {
+					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				}
+				restQuery("user.list.creations","GET",site_url+"/api/list/creations",options);
+			},
+			genres: function(query, options) {
+				options.data = {};
+				if ( query.startkey && query.startkey_docid ) {
+					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				}
+				options.data.genre = query.genre;
+				restQuery("user.list.genres","GET",site_url+"/api/list/genres",options);
+			},
+			albums: function(query, options) {
+				options.data = {};
+				if ( query.startkey && query.startkey_docid ) {
+					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				}
+				if( query.album ) {
+					options.data.album = query.album;
+				}
+				restQuery("user.list.albums","GET",site_url+"/api/list/albums",options);
+			},
+ 			artists: function(query, options) {
+				options.data = {};
+				if ( query.startkey && query.startkey_docid ) {
+					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				}
+				if( query.artist ) {
+					options.data.artist = query.artist;
+				}
+				restQuery("user.list.artists","GET",site_url+"/api/list/artists",options);
+			},
+ 			titles: function(query, options) {
+				options.data = {};
+				if ( query.startkey && query.startkey_docid ) {
+					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				}
+				if( query.title ) {
+					options.data.title = query.title;
+				}
+				restQuery("user.list.titles","GET",site_url+"/api/list/titles",options);
+			}
 		}
 	};
 	

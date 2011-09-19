@@ -191,8 +191,8 @@ if (! "fn" in d10 ) {
 		
 		var createInfiniteScroll = function(categorydiv, topic, category) {
 			var section = categorydiv.find("section");
-			var url = "/api/list/"+topic;
-			var data = {};
+// 			var url = "/api/list/"+topic;
+			var data = {}, endpoint = d10.rest.song.list[topic];
 			if ( topic == "genres" ) {
 				data.genre = category;
 			} else if ( topic == "albums" ) {
@@ -205,11 +205,12 @@ if (! "fn" in d10 ) {
 				return false;
 			}
 			var loadTimeout = null, 
-				innerLoading = categorydiv.find(".innerLoading");
+				innerLoading = categorydiv.find(".innerLoading"),
+				cursor = new d10.fn.couchMapCursor(endpoint, data);
 			section.data("infiniteScroll",
-				section.infiniteScroll(
-					url,
-					data,
+				section.d10scroll(
+					cursor,
+// 					data,
 					section.find(".list"),
 					{
 						onFirstContent: function(length) {

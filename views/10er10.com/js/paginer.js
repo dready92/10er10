@@ -110,6 +110,7 @@
 // scrollHeight: total height in px ( height + padding )
 // scrollTop: nb of px hidden from the top
 // widget.outerHeight: the visible window
+/*
 $.fn.infiniteScroll = function(url, queryData, list, options) {
 	queryData = queryData || {};
 	options = options || {};
@@ -189,5 +190,5 @@ $.fn.infiniteScroll = function(url, queryData, list, options) {
 		remove: function() { widget.unbind("scroll",onScroll); widget = null; }
 	};
 };
-
+*/
 })(jQuery);
