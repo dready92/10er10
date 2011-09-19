@@ -1,5 +1,6 @@
 var 	path = require("path"),
-		url = require("url");
+		url = require("url"),
+		qs = require("qs");
 
 
 exports.context = function (req,res,next) { 
@@ -10,8 +11,8 @@ exports.context = function (req,res,next) {
 		status: 404,
 		session: {}
 	};
-	var u = url.parse("http://"+req.headers.host+req.url, true);
-	req.query = u.query || {};
+	var u = url.parse("http://"+req.headers.host+req.url);
+	req.query = u.query ? qs.parse(u.query) : {};
  	req.basepath =  path.dirname(u.pathname);
  	next();
 };

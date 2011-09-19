@@ -54,29 +54,42 @@ onmessage = function(e){
 
 	if ( data.contentType ) {
 		xmlhttp.setRequestHeader("Content-Type", data.contentType);
-	} else if ( data.method == 'POST' ) {
+	} else if ( data.method == 'POST' || data.method == 'PUT' ) {
 		xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	}
   
   
-  if ( data.toSend )	xmlhttp.send(data.toSend);
+	if ( data.toSend )	xmlhttp.send(data.toSend);
 	else									xmlhttp.send(null);
 	
-	if ( xmlhttp.status != 200 ) {
-		sendError(data, 'Server status: '+xmlhttp.status);
-		return ;
-	}
-	if ( data.dataType == 'html' ) {
-		sendResult(data, xmlhttp.responseText);
-	} else if ( data.dataType == 'json' ) {
-		var decoded = null;
-		try {
-			decoded = JSON.parse(xmlhttp.responseText);
-		} catch (ex) {
-			xmlhttp=false;
-			sendError(data, 'JSON response parsing failed');
+	if ( data.restMode ) {
+		var decoded = xmlhttp.responseText,
+			contentType = xmlhttp.getResponseHeader("Content-Type") || "text/html";
+		if ( data.dataType == 'json' || contentType.match(/json$/) ) {
+			try {
+				decoded = JSON.parse(xmlhttp.responseText);
+			} catch (ex) {
+				decoded = xmlhttp.responseText;
+			}
 		}
-		sendResult(data, decoded);
+		sendRestResult(data, xmlhttp.status, xmlhttp.getAllResponseHeaders(), decoded);
+	} else {
+		if ( xmlhttp.status != 200 ) {
+			sendError(data, 'Server status: '+xmlhttp.status);
+			return ;
+		}
+		if ( data.dataType == 'html' ) {
+			sendResult(data, xmlhttp.responseText);
+		} else if ( data.dataType == 'json' ) {
+			var decoded = null;
+			try {
+				decoded = JSON.parse(xmlhttp.responseText);
+			} catch (ex) {
+				xmlhttp=false;
+				sendError(data, 'JSON response parsing failed');
+			}
+			sendResult(data, decoded);
+		}
 	}
 };
 
@@ -93,5 +106,11 @@ function sendError(request,error) {
 function sendResult (request, result ) {
 	postMessage ( 
     JSON.stringify({ 'status': 'success', 'data': result, 'request_id': request.request_id })
+  );
+}
+
+function sendRestResult (request, status, headers, result ) {
+	postMessage ( 
+    JSON.stringify({ status: "success", code: status, headers: headers, 'data': result, 'request_id': request.request_id })
   );
 }

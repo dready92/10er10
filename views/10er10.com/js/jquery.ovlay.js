@@ -233,9 +233,9 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 		}
 		lastSearchText = searchText;
 		if ( searchText.length >= settings.minlength ) {
-			var data = {  };
-			data[settings.varname] = searchText;
-			ajaxCall(data, settings.searchResults, settings.searchNoResults);
+// 			var data = {  };
+// 			data[settings.varname] = searchText;
+			ajaxCall(searchText, settings.searchResults, settings.searchNoResults);
 		} else {
 			$("ul",overlayNode).empty().hide();
 		}
@@ -243,26 +243,24 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 	
 	var ajaxCall = function ( data, with_results, no_results ) {
 		settings.searchStart.call(searchinput);
-		d10.bghttp.get({
-			"url": url,
-			"dataType": "json",
-			"data": data,
-			"searchText": lastSearchText,
-			"success": function(response) {
-				// check if we're too late
-				if ( this.searchText != lastSearchText ) {
+		
+		url(data, {
+			load: function(err,response) {
+				debug("ajax response:",response);
+				if ( data != lastSearchText ) {
 					return ;
 				}
-				results = response;
-				delete response;
-				parseAjaxResponse (results);
-				overlayNode.attr("scrollTop",0);
-				with_results.call(overlayNode, results);
-				settings.searchStop.call(searchinput);
-			},
-			"error": function() {
-				no_results.call(overlayNode);
-				settings.searchStop.call(searchinput);
+				if ( !err ) {
+					results = response;
+					delete response;
+					parseAjaxResponse (results);
+					overlayNode.attr("scrollTop",0);
+					with_results.call(overlayNode, results);
+					settings.searchStop.call(searchinput);
+				} else {
+					no_results.call(overlayNode);
+					settings.searchStop.call(searchinput);
+				}
 			}
 		});
 	};

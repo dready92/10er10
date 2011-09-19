@@ -101,14 +101,12 @@ var step2 = function () {
 		// récupération des templates HTML
 		//
 		templates: function(cb) {
-			d10.bghttp.get ({
-				'url': site_url+'/api/htmlElements', 
-				'dataType':'json', 
-				'callback': function(data) {
-					if ( data.status !=  'success' || data.data.status != 'success' ) { return cb("server error"); }
-					for ( var index in data.data.data ) { d10.localcache.setTemplate(index,data.data.data[index]); }
+			d10.rest.templates({
+				load: function(err,resp) {
+					if ( err )	return cb("server error");
+					for ( var index in resp ) { d10.localcache.setTemplate(index,resp[index]); }
 					return cb();
-				} 
+				}
 			});
 		},
 		//
@@ -207,10 +205,13 @@ var step2 = function () {
 	$("footer a.logout").click(function() {
 		$("footer .loggedin").hide();
 		$("footer .loggingOut").removeClass("hidden");
-		d10.bghttp.get({
-			url: site_url+"/welcome/goodbye",
-			success: function() {
-				window.location.reload(true);
+		d10.rest.user.logout({
+			load: function(err) {
+				if ( err ) {
+					debug("can't logout user...",err);
+				} else {
+					window.location.reload(true);
+				}
 			}
 		});
 		return false;

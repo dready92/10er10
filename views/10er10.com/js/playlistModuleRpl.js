@@ -168,7 +168,7 @@ $(document).one("bootstrap:playlist",function() {
 		if ( !module.isEnabled() )	return ;
 		if ( d10.playlist.driver() && d10.playlist.driver().playlistId ) {
 			var id = d10.playlist.driver().playlistId();
-			if ( id && id.substr(0,2) == "pl" && id == data.playlist._id ) {
+			if ( id && id.substr(0,2) == "pl" && id == data._id ) {
 				d10.playlist.loadDriver ("default",{}, {}, function() {d10.playlist.setDriver(this);} );
 					debug("playlistModuleRpl setting default driver");
 					

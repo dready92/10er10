@@ -22,9 +22,11 @@ function user () {
 		return pl;
 	};
 
-	$(document).bind('user.infos',function(e,data) { infos = data.data.data; debug(infos); infos.playlists = orderPlaylists(infos.playlists);	});
-	$(document).bind('user.playlists',function(e,data) {
-		infos.playlists = orderPlaylists(data.data.data);
+	$(document).bind('user.infos',function(e,data) { 
+		debug(data);
+		infos = data;
+		infos.playlists = orderPlaylists(infos.playlists);	
+		
 	});
 	$(document).bind('rplAppendSuccess',function(e,data) {
 		infos.playlists = jQuery.map(infos.playlists, function(n, i){
@@ -49,19 +51,19 @@ function user () {
 		infos.playlists = newlist;
 	});
 
-  $(document).bind('rplRenameSuccess',function(e,data) {
+  $(document).bind('rplRenameSuccess',function(e,playlist) {
     for ( var index in infos.playlists ) {
-      if ( infos.playlists[index]._id == data.playlist._id ) {
-        infos.playlists[index].name = data.playlist.name;
+      if ( infos.playlists[index]._id == playlist._id ) {
+        infos.playlists[index].name = playlist.name;
         break;
       }
     }
   });
 
-  $(document).bind('rplDropSuccess',function(e,data) {
+  $(document).bind('rplDropSuccess',function(e,playlist) {
     var newlist = [] ;
     for ( var index in infos.playlists ) {
-      if ( infos.playlists[index]._id != data.playlist._id) {
+      if ( infos.playlists[index]._id != playlist._id) {
         newlist[ newlist.length ] = infos.playlists[index];
       }
     }
@@ -70,20 +72,24 @@ function user () {
 
   
 	this.refresh_infos = function () {
-		d10.bghttp.get ( { 'callback': 'triggerEvent:user.infos','url': site_url+'/api/userinfos','dataType': 'json' } );
+		d10.rest.user.infos(
+			{
+				load: function(err,resp) {
+					if (!err) {
+						$(document).trigger("user.infos",resp);
+					}
+				}
+			}
+		);
 	}
-
-	this.refresh_playlists = function () {
-		d10.bghttp.get ( { 'callback': 'triggerEvent:user.playlists','url': site_url+'/api/userinfos/playlists','dataType': 'json' } );
-	}
-
+	
 	this.got_infos = function () {
 		if ( infos == null )	return false;
 		return true;
 	}
 
 	this.get_preferences = function () {
-		if ( infos == null || ! infos.preferences )	return false;
+		if ( infos == null || !infos.preferences  )	return false;
 		return infos.preferences;
 	}
 	
@@ -91,11 +97,11 @@ function user () {
 		if ( name == "hiddenExtendedInfos" ) {
 			
 			value = value ? "true" : "false";
-			d10.bghttp.put({
-				url: site_url+"/api/preference/hiddenExtendedInfos",
-				contentType: "application/x-www-form-urlencoded",
-				data: {value: value},
-				success: $.proxy(this.refresh_infos,this)
+			d10.rest.user.setPreference("hiddenExtendedInfos",value, {
+				load: function(err,resp) {
+					if ( err ) return ;
+					$.proxy(this.refresh_infos,this);
+				}
 			});
 		}
 	};
@@ -113,17 +119,6 @@ function user () {
 		}
 		return false;
 	}
-	
-// 	this.get_playlist = function (id, success) {
-// 		if ( !id.length || id.substr(0,2) != 'pl' ) {
-// 			return false;
-// 		}
-// 		var opts = { 'callback': 'triggerEvent:user.playlist.get','url': site_url+'/api/plm/'+id,'dataType': 'json' };
-// 		if ( typeof success == "function" ) {
-// 			opts.success = success;
-// 		}
-// 		d10.bghttp.get ( opts );
-// 	}
 	
 	this.get_invites_count = function() {
 		if ( infos == null )  return 0;

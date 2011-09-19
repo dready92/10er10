@@ -73,7 +73,7 @@ d10.fn.my = function (ui) {
 	};
   
   
-	var bindControls = function(url, topicdiv, section, list, parseResults) {
+	var bindControls = function(endpoint, topicdiv, section, list, parseResults) {
 		
 		topicdiv.find(".pushAll").click(function() {
 			d10.playlist.append(topicdiv.find(".song").clone().removeClass("selected"));
@@ -87,13 +87,14 @@ d10.fn.my = function (ui) {
 			if ( is && "remove" in is ) {
 				is.remove();
 			}
-			createInfiniteScroll(url, topicdiv, section, list, parseResults);
+			createInfiniteScroll(endpoint, topicdiv, section, list, parseResults);
 		});
 	};
 
-	var createInfiniteScroll = function(url, topicdiv, section, list, parseResults) {
+	var createInfiniteScroll = function(endpoint, topicdiv, section, list, parseResults) {
 		var loadTimeout = null, 
-			innerLoading = topicdiv.find(".innerLoading");
+			innerLoading = topicdiv.find(".innerLoading"),
+			cursor = new d10.fn.couchMapCursor(endpoint);
 		
 		var callbacks = {
 			onFirstContent: function(length) {
@@ -144,9 +145,8 @@ d10.fn.my = function (ui) {
 		if ( parseResults ) { callbacks.parseResults = parseResults; }
 			
 		section.data("infiniteScroll",
-			section.infiniteScroll(
-				url,
-				{},
+			section.d10scroll(
+				cursor,
 				list,
 				callbacks
 			)
@@ -159,14 +159,13 @@ d10.fn.my = function (ui) {
 			topicdiv.append(d10.mustacheView("library.content.simple"));
 			section = topicdiv.find("section");
 			var list = section.find(".list");
-			var url = "/api/list/likes";
+			var endpoint = d10.rest.user.likes;
 			list.delegate("div.song .edit, div.song .review","click", function() {
 				d10.router.navigateTo(["my","review",$(this).closest('.song').attr('name')]);
-// 				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
 				return false;
 			});
-			bindControls (url, topicdiv, section, list);
-			createInfiniteScroll(url, topicdiv, section, list);
+			bindControls (endpoint, topicdiv, section, list);
+			createInfiniteScroll(endpoint, topicdiv, section, list);
 		}
 	};
 
@@ -176,7 +175,8 @@ d10.fn.my = function (ui) {
 			topicdiv.append(d10.mustacheView("library.content.simple"));
 			section = topicdiv.find("section");
 			var list = section.find(".list");
-			var url = "/api/list/s_user";
+// 			var url = "/api/list/s_user";
+			var endpoint = d10.rest.user.songs;
 			var parseResults = function(rows) {
 				var html = "";
 				rows.forEach(function(v) { html += d10.song_template(v.doc); });
@@ -199,8 +199,8 @@ d10.fn.my = function (ui) {
 // 				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
 				return false;
 			});
-			bindControls (url, topicdiv, section, list, parseResults);
-			createInfiniteScroll(url,topicdiv,section,list,parseResults);
+			bindControls (endpoint, topicdiv, section, list, parseResults);
+			createInfiniteScroll(endpoint,topicdiv,section,list,parseResults);
 			
 			
 		}
@@ -211,105 +211,97 @@ d10.fn.my = function (ui) {
 	
 	
   var sendInvite = function(topicdiv,email) {
-    d10.bghttp.post({
-      "url": site_url+"/api/sendInvite",
-      "method": "POST",
-	  "dataType": "json",
-      "data": {"email": email},
-	  "dataType": "json",
-      "success": function (data) {
-//         debug("success");
-		if( data && data.status && data.status == "error" ) {
+    d10.rest.user.invites.send(email, {
+      load: function (err, data) {
+		if ( err ) {
+				$("article.my",topicdiv).hide();
+				$("article.notsent",topicdiv).fadeIn();
+		} else {
+	//         debug("success");
 			$("article.my",topicdiv).hide();
-			$("article.notsent",topicdiv).fadeIn();
-			return ;
+			$("article.sent",topicdiv).fadeIn();
 		}
-
-		$("article.my",topicdiv).hide();
-		$("article.sent",topicdiv).fadeIn();
-      },
-      "error": function(a,b,c) {
-//         debug("error",a,b,c);
-        $("article.my",topicdiv).hide();
-        $("article.notsent",topicdiv).fadeIn();
-        
       }
     });
   }
   
   var init_topic_invites = function(topicdiv,args) {
-    d10.bghttp.get({
-      "url": site_url+"/html/invites",
-      "success": function (data) {
-        topicdiv.html(data);
-        var button = $("button",topicdiv);
-        if ( !button.length )
-          return ;
-        var invalidLabel = $("span[name=invalidEmail]",topicdiv);
-        $("input[name=email]",topicdiv).keyup(function() {
-//           debug("email reg testing ",$(this).val());
-          if ( d10.isValidEmailAddress($(this).val()) ) {
-            if ( invalidLabel.is(":visible") ) invalidLabel.hide(); 
-            if ( button.not(":visible") )      button.fadeIn();
-          } else {
-            if ( invalidLabel.not(":visible") ) invalidLabel.show();
-            if ( button.is(":visible") )      button.hide();
-          }
-        });
-        button.click(function() { sendInvite(topicdiv, $("input[name=email]",topicdiv).val() ) });
-      }
-    });
+	  
+	d10.rest.user.invites.count({
+		load: function(err,count) {
+			if ( err ) return ;
+			if ( count ) {
+				topicdiv.html(d10.mustacheView("my.invites.invites",{count: count, ttl: d10.config.invites.ttl}) );
+				var button = $("button",topicdiv);
+				var invalidLabel = $("span[name=invalidEmail]",topicdiv);
+				$("input[name=email]",topicdiv).keyup(function() {
+			//           debug("email reg testing ",$(this).val());
+					if ( d10.isValidEmailAddress($(this).val()) ) {
+						if ( invalidLabel.is(":visible") ) invalidLabel.hide(); 
+						if ( button.not(":visible") )      button.fadeIn();
+					} else {
+						if ( invalidLabel.not(":visible") ) invalidLabel.show();
+						if ( button.is(":visible") )      button.hide();
+					}
+				});
+				button.click(function() { sendInvite(topicdiv, $("input[name=email]",topicdiv).val() ) });
+
+			} else {
+				topicdiv.html(d10.mustacheView("my.invites.invites.none",{count: count, ttl: d10.config.invites.ttl}) );
+			}
+		}
+	});
   };
 
 
 
 
 	var init_topic_review = function (topicdiv, arg ) {
-    var options = {
-      'url': site_url+"/html/my/review",
-      'context': this,
-      'callback': function(response) {
-        if ( response.status != 'success'  ) {
-          // mainerror_json_client("textStatus", 'review', null);
-          return ;
-        }
-		topicdiv.empty().append(response.data);
-		$('ul > li',topicdiv).click(function() {
-// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
-			d10.router.navigateTo(["my","review",$(this).attr("arg")]);
+		
+		d10.rest.user.review.list({
+			load: function(err,songs) {
+				if ( err  ) {
+					// mainerror_json_client("textStatus", 'review', null);
+					return ;
+				}
+				if ( songs.length ) {
+					topicdiv.empty().append(d10.mustacheView("review.list", {rows: songs}));
+					$('ul > li',topicdiv).click(function() {
+			// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
+						d10.router.navigateTo(["my","review",$(this).attr("arg")]);
+					});
+				} else {
+					topicdiv.empty().append(d10.mustacheView("review.list.none", {}));
+				}
+			}
 		});
-      }
-    };
-    d10.bghttp.get(options);
 	}
 
   var postSongReview = function (topicdiv, success, complete ) {
-    d10.bghttp.put ({
-      'url': site_url+'/api/meta/'+$('input[name=_id]',topicdiv).val(),
-      'dataType': 'json',
-      'data': $('form',topicdiv).serialize(),
-      'timeout': 300000,
-      'complete': function(xhr,text) {
-        complete.call();
-      },
-      'error': function (xhr,text,errorThrown) {
-      },
-      'success': function(data) {
-        if ( data.status == 'error' && data.data.code == 6 ) {
-          for ( var k in data.fields ) {
-            $('.form_error[name='+k+']',topicdiv).html(data.fields[k]).slideDown();
-          }
-          $('span.uploading',topicdiv).hide();
-		  $("button[name=remove]",topicdiv).show();
-          $("button[name=review]",topicdiv).show();
-          $("button[name=reviewNext]",topicdiv).show();
-        } else if ( data.status == 'error' ) {
-          // mainerror_json(data, 'my', arg)
-        } else {
-          success.call();
-        }
-      }
-    });
+	d10.rest.user.review.post(
+		$('input[name=_id]',topicdiv).val(),
+		$('form',topicdiv).serialize(),
+		{
+			load: function(err,data) {
+				complete.call();
+				if ( err ) {
+					if ( err == 412 ) {
+						for ( var k in data ) {
+							$('.form_error[name='+k+']',topicdiv).html(data[k]).slideDown();
+						}
+						$('span.uploading',topicdiv).hide();
+						$("button[name=remove]",topicdiv).show();
+						$("button[name=review]",topicdiv).show();
+						$("button[name=reviewNext]",topicdiv).show();
+					} else {
+						d10.osd.send("info","Unable to record song...");
+					}
+				} else {
+					success.call();
+				}
+			}
+		}
+	);
   };
 
 	var init_songreview_imagesbox = function(topicdiv, song_id) {
@@ -368,14 +360,12 @@ d10.fn.my = function (ui) {
 				if ( !isImage(file) ) {
 					continue;
 				}
-				
+
+				// Closure to capture the file information.
 				jobs.push( (function(file) { 
 					return function() {
 						var reader = new FileReader();
-						// Closure to capture the file information.
 						reader.onload = function(e) {
-// 							debug("reader.onload");
-							// Render thumbnail.
 							var img = $("<img />").attr("src",e.target.result).css(
 								{
 									"visibility":"none",
@@ -409,64 +399,30 @@ d10.fn.my = function (ui) {
 								}
 								img.width(w).height(h).css("position","static").appendTo(dropbox.find(".images")).css("visibility","visible");
 								
-								var binReader = new FileReader();
-								binReader.onload = function(e) {
-									var xhr = new XMLHttpRequest();
-									var url = site_url+"/api/songImage/"+song_id+"?"+$.d10param({"filesize": file.size, "filename": file.name } );
-									xhr.upload.addEventListener("load", function(e) {  
-										debug("File transfer completed");
-									},false);
-									xhr.addEventListener("readystatechange",function() {
-										//         console.log("ready state changed : ", xhr.readyState);
-										if ( xhr.readyState == 4 ) {
-											if ( xhr.status == 200 ) {
-												debug("image upload got status 200");
-											} else {
-												debug("image upload failed",xhr.status,xhr.responseText);
-												d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
-												xhr = null;
-												return ;
-											}
-											var back = null;
-											try {
-												back = JSON.parse(xhr.responseText);
-											} catch (e) {
-												back = {'status': 'error'};
-											}
-											debug("xhr response : ",back);
-											xhr = null;
-											if ( back.status == "error" ) {
-												d10.osd.send("error",back.data.infos);
-												img.remove();
-												return ;
-											}
-											d10.osd.send("info",d10.mustacheView("my.review.success.filetransfert",{filename: file.name}));
-											img.remove();
-
-											dropbox.find(".images").append(
-												d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+back.data.filename})
-																	);
+								d10.rest.song.uploadImage(song_id, file, file.name, file.size, {
+									load: function(err, headers, body) {
+										if ( err || !body || !body.filename ) {
+											debug("image upload failed",err, body);
+											d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
+											return ;
 										}
-									},false);
-									xhr.open("POST",url);
-									if ( "sendAsBinary" in xhr ) {
-										xhr.sendAsBinary(binReader.result);
-									} else {
-										xhr.send(file);
+										d10.osd.send("info",d10.mustacheView("my.review.success.filetransfert",{filename: file.name}));
+										img.remove();
+										dropbox.find(".images").append(
+												d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+body.filename})
+																	);
 									}
-								};
-								binReader.readAsBinaryString(file);
+								});
 							};
-// 							debug("setting timeout");
 							setTimeout(doTheRest,1000);
 						};
 						// Read in the image file as a data URL.
 						reader.readAsDataURL(file);
 						if ( jobs.length ) {
 // 							debug("launching next job, currently job length is",jobs.length);
-							setTimeout(jobs.pop(),1000);
+							setTimeout(jobs.pop(),1200);
 						}
-					}
+					};
 				})(file) );
 			}
 			debug("jobs length",jobs.length);
@@ -474,7 +430,6 @@ d10.fn.my = function (ui) {
 				jobs.pop()();
 			}
 		}
-		
 	};
 
 	var init_reviewImage_remove = function(topicdiv, song_id) {
@@ -485,201 +440,168 @@ d10.fn.my = function (ui) {
 				return ;
 			}
 			
-			d10.bghttp.del({
-				url: "/api/songImage/"+song_id+"/"+filename,
-				success: function(resp) {
-					img.closest("div.imageReview").remove();
-				},
-				error: function(err,resp) {
-					d10.osd.send("error",err+" "+resp);
+			d10.rest.song.removeImage(song_id, filename, {
+				load: function(err,data) {
+					if ( err ) {d10.osd.send("error",err+" "+resp);}
+					else {img.closest("div.imageReview").remove();}
 				}
 			});
-			
 		});
 	};
 	
 	
 	var deleteSong = function(id, then ) {
 		debug("deleteSongURL: ",site_url+"/api/deleteSong/"+id);
-// 			setTimeout(function() {
-		d10.bghttp.put({
-			url: site_url+"/api/deleteSong/"+id,
-			dataType: "json",
-			success: function(response) {
-				
-				if ( response.status && response.status == "error" ) {
-					return then(response);
-				}
-				return then();
-			},
-			error: function(err) {
-				return then(err);
-			}
+		d10.rest.song.remove(id, {
+			load: then
 		});
 	};
 	
 	var init_topic_songreview = function (topicdiv, song_id ) {
-//     console.log("init_topic_songreview",topicdiv,arg);
 		topicdiv.html(d10.mustacheView("loading"));
-		d10.bghttp.get({
-			url: site_url+"/api/song/"+song_id,
-			dataType: "json",
-			success: function(msg) {
-		debug("init_topic_songreview: ",msg);
-		if ( msg.status == "error" ) {
-			topicdiv.html( d10.mustacheView("review.song.error",{id: song_id})  );
-			return ;
-		}
-		var doc = msg.data, images = doc.images ? doc.images : [];
-		doc.images = [];
-		doc.download_link = "audio/download/"+doc._id;
-		$.each(images, function(k,v) {
-			doc.images.push(
-				d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+v.filename})
-					   );
-		});
-		
-		
-		topicdiv.html( d10.mustacheView("review.song",doc)  );
-		init_songreview_imagesbox (topicdiv,song_id);
-		init_reviewImage_remove (topicdiv,song_id);
-		$("button[name=my]",topicdiv).click(function() { 
-			d10.router.navigateTo(["my","review"]);
-// 			window.location.hash = "#/my/review";
-		});
-		$('button[name=upload]',topicdiv).click(function() { 
-// 			d10.globalMenu.route("/upload");
-			d10.router.navigateTo(["upload"]);
-		});
-
-		$('input[name=album]',topicdiv).permanentOvlay(
-			site_url+'/api/album',
-			$('input[name=album]',topicdiv).parent().find(".overlay"),
-			{
-				"autocss": true,
-				"varname": 'start', 
-				"minlength" : 1 
-			}
-		);
-		
-		$('input[name=artist]',topicdiv).permanentOvlay(
-			site_url+'/api/artist',
-			$('input[name=artist]',topicdiv).parent().find(".overlay"),
-			{
-				"autocss": true,
-				"varname": 'start', 
-				"minlength" : 1 
-			}
-		);
-		
-		$('input[name=genre]',topicdiv).permanentOvlay(
-			site_url+'/api/genre',
-			$('input[name=genre]',topicdiv).parent().find(".overlay"),
-			{
-				"autocss": true,
-				"varname": 'start', 
-				"minlength" : 1 
-			}
-		);
-		
-		$("button[name=remove]",topicdiv).click(function(e) {
-// 			$(this).hide();
-// 			$('button[name=review]',topicdiv).hide();
-// 			$('button[name=reviewNext]',topicdiv).hide();
-// 			$('span.uploading',topicdiv).show();
-// 			$('.form_error',topicdiv).hide();
-			topicdiv.find("div[name=form]").hide();
-			topicdiv.find("div[name=delete]").show();
-// 			deleteSong(song_id,function() {});
-// 			e.preventDefault();
-			return false;
-		});
-		
-		topicdiv.find("button[name=cancelDelete]").click(function() {
-			topicdiv.find("div[name=delete]").hide();
-			topicdiv.find("div[name=form]").show();
-			return false;
-		});
-		
-		topicdiv.find("button[name=doDelete]").click(function() {
-			$(this).attr("disabled","true");
- 			deleteSong(song_id,function(err) {
-				topicdiv.find("div[name=delete]").hide();
+		d10.rest.song.get(song_id, {
+			load: function(err,doc) {
+				debug("init_topic_songreview: ",doc);
 				if ( err ) {
-					topicdiv.find("div[name=deleteError]").show();
-				} else {
-					topicdiv.find("div[name=deleteSuccess]").show();
+					topicdiv.html( d10.mustacheView("review.song.error",{id: song_id})  );
+					return ;
 				}
-			});
-			return false;
-		});
-		
+				var images = doc.images ? doc.images : [];
+				doc.images = [];
+				doc.download_link = "audio/download/"+doc._id;
+				$.each(images, function(k,v) {
+					doc.images.push(
+						d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+v.filename})
+							);
+				});
+				topicdiv.html( d10.mustacheView("review.song",doc)  );
+				init_songreview_imagesbox (topicdiv,song_id);
+				init_reviewImage_remove (topicdiv,song_id);
+				$("button[name=my]",topicdiv).click(function() { 
+					d10.router.navigateTo(["my","review"]);
+				});
+				$('button[name=upload]',topicdiv).click(function() { 
+		// 			d10.globalMenu.route("/upload");
+					d10.router.navigateTo(["upload"]);
+				});
 
-		$('button[name=review]',topicdiv).click(function() {
-			// disappear
-			$(this).hide();
-			$('button[name=remove]',topicdiv).hide();
-			$('button[name=reviewNext]',topicdiv).hide();
-			$('span.uploading',topicdiv).show();
-			$('.form_error',topicdiv).hide();
-
-			var validate_interval = window.setInterval(function () {
-				$('span.uploading',topicdiv).animate ( { "opacity": 0 }, 1500,
-					function() { $(this).animate ( { "opacity": 1 }, 1500); }
+				$('input[name=album]',topicdiv).permanentOvlay(
+					d10.rest.album.list,
+					$('input[name=album]',topicdiv).parent().find(".overlay"),
+					{
+						"autocss": true,
+						"varname": 'start', 
+						"minlength" : 1 
+					}
 				);
-			},3100);
+				
+				$('input[name=artist]',topicdiv).permanentOvlay(
+					d10.rest.artist.list,
+					$('input[name=artist]',topicdiv).parent().find(".overlay"),
+					{
+						"autocss": true,
+						"varname": 'start', 
+						"minlength" : 1 
+					}
+				);
+				
+				$('input[name=genre]',topicdiv).permanentOvlay(
+					d10.rest.genre.list,
+					$('input[name=genre]',topicdiv).parent().find(".overlay"),
+					{
+						"autocss": true,
+						"varname": 'start', 
+						"minlength" : 1 
+					}
+				);
+				
+				$("button[name=remove]",topicdiv).click(function(e) {
+					topicdiv.find("div[name=form]").hide();
+					topicdiv.find("div[name=delete]").show();
+					return false;
+				});
+				
+				topicdiv.find("button[name=cancelDelete]").click(function() {
+					topicdiv.find("div[name=delete]").hide();
+					topicdiv.find("div[name=form]").show();
+					return false;
+				});
+				
+				topicdiv.find("button[name=doDelete]").click(function() {
+					$(this).attr("disabled","true");
+					deleteSong(song_id,function(err) {
+						topicdiv.find("div[name=delete]").hide();
+						if ( err ) {
+							topicdiv.find("div[name=deleteError]").show();
+						} else {
+							topicdiv.find("div[name=deleteSuccess]").show();
+						}
+					});
+					return false;
+				});
+				
 
-          postSongReview(topicdiv,function() {
-              $('div[name=ok] span[name=artist]',topicdiv).html($('input[name=artist]',topicdiv).val());
-              $('div[name=ok] span[name=title]',topicdiv).html($('input[name=title]',topicdiv).val());
-              $('div[name=form]',topicdiv).slideUp(function() {
-                $('div[name=ok]',topicdiv).slideDown();
-              });
-            }, function () {
-              clearInterval(validate_interval);
-          });
-          return false;
-		});
+				$('button[name=review]',topicdiv).click(function() {
+					// disappear
+					$(this).hide();
+					$('button[name=remove]',topicdiv).hide();
+					$('button[name=reviewNext]',topicdiv).hide();
+					$('span.uploading',topicdiv).show();
+					$('.form_error',topicdiv).hide();
 
-        d10.bghttp.get({
-          "url": site_url+"/api/songsToReview",
-          "dataType": "json",
-          "success": function (response) {
-            for ( var index in response.data.rows ) {
-              if ( response.data.rows[index].id != song_id ) {
-                $("button[name=reviewNext]",topicdiv).fadeIn(function() {
-                  $(this).removeClass("hidden").click(function() {
-                    $(this).hide();
-                    $("button[name=review]",topicdiv).hide();
-                    $('span.uploading',topicdiv).show();
-                    $('.form_error',topicdiv).hide();
+					var validate_interval = window.setInterval(function () {
+						$('span.uploading',topicdiv).animate ( { "opacity": 0 }, 1500,
+							function() { $(this).animate ( { "opacity": 1 }, 1500); }
+						);
+					},3100);
 
-                    var validate_interval = window.setInterval(function () {
-                    $('span.uploading',topicdiv).animate ( { "opacity": 0 }, 1500,
-                        function() { $(this).animate ( { "opacity": 1 }, 1500); }
-                      );
-                    },3100);
+					postSongReview(topicdiv,function() {
+							$('div[name=ok] span[name=artist]',topicdiv).html($('input[name=artist]',topicdiv).val());
+							$('div[name=ok] span[name=title]',topicdiv).html($('input[name=title]',topicdiv).val());
+							$('div[name=form]',topicdiv).slideUp(function() {
+								$('div[name=ok]',topicdiv).slideDown();
+							});
+						}, function () {
+							clearInterval(validate_interval);
+						}
+					);
+					return false;
+				});
 
-                    postSongReview(topicdiv,function() {
-                        init_topic_songreview (topicdiv, response.data.rows[index].id );
-                      }, function () {
-                        clearInterval(validate_interval);
-                    });
-                    return false;
-                  });
-                });
-                return;
-              }
-            }
-            $("button[name=reviewNext]",topicdiv).remove();
-          }
-        });
+				
+				d10.rest.user.review.list({
+					load: function(err,rows) {
+						if ( err )	return ;
+						for ( var index in rows ) {
+							if ( rows[index]._id != song_id ) {
+								debug("should show the alternative button");
+								$("button[name=reviewNext]",topicdiv).fadeIn(function() {
+									$(this).removeClass("hidden").click(function() {
+										$(this).hide();
+										$("button[name=review]",topicdiv).hide();
+										$('span.uploading',topicdiv).show();
+										$('.form_error',topicdiv).hide();
 
+										var validate_interval = window.setInterval(function () {
+											$('span.uploading',topicdiv).animate ( { "opacity": 0 }, 1500,
+												function() { $(this).animate ( { "opacity": 1 }, 1500); }
+											);
+										},3100);
 
-			},
-			error: function (XMLHttpRequest, textStatus, errorThrown) {
-				debug ("Ajax error: textStatus="+textStatus+", errorThrown="+errorThrown);
-				//mainerror_json_client(textStatus, 'review', null);
+										postSongReview(topicdiv,function() {
+											init_topic_songreview (topicdiv, rows[index]._id );
+										}, function () {
+											clearInterval(validate_interval);
+										});
+										return false;
+									});
+								});
+								return;
+							}
+							$("button[name=reviewNext]",topicdiv).addClass("hidden");
+						}
+					}
+				});
 			}
 		});
 	}

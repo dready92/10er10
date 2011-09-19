@@ -10,6 +10,19 @@ var d10 = require ("./d10"),
 
 
 exports.api = function(app) {
+	app.get("/api/review/list", function(request, response) {
+		d10.couch.d10.view("user/song",{key: [request.ctx.user._id,false],include_docs: true},function(err,resp) {
+			if ( err ) {
+				d10.realrest.err(423, d10.http.statusMessage(423), request.ctx.headers );
+				return ;
+			}
+			var r = [];
+			if( resp.rows && resp.rows.length ) {
+				resp.rows.forEach(function(v) { r.push(v.doc); });
+			}
+			d10.realrest.success(r,request.ctx);
+		});
+	});
 	app.get("/html/my/review", function(request,response) {
 		request.ctx.headers["Content-Type"] = "text/html";
 		d10.couch.d10.view("user/song",{key: [request.ctx.user._id,false],include_docs: true},function(err,resp) {
@@ -46,7 +59,7 @@ exports.api = function(app) {
 		});
 		request.on("end",function() {
 			if ( !body.length ) {
-				return d10.rest.err(427,"no parameters sent",request.ctx);
+				return d10.realrest.err(417,"no parameter sent",request.ctx);
 			}
 			request.body = querystring.parse(body);
 			var fields = {};
@@ -89,7 +102,7 @@ exports.api = function(app) {
 						errors.genre = responses.genre;
 					}
 					if ( d10.count(errors) ) {
-						request.ctx.headers["Content-Type"] = "application/json";
+/*						request.ctx.headers["Content-Type"] = "application/json";
 						response.writeHead(200,request.ctx.headers);
 						response.end(JSON.stringify(
 							{
@@ -100,7 +113,8 @@ exports.api = function(app) {
 								},
 								fields: errors
 							}
-										));
+										));*/
+						d10.realrest.err(412,errors,request.ctx);
 						return ;
 					}
 		// 			d10.log("debug","And here too");
@@ -120,7 +134,7 @@ exports.api = function(app) {
 					d10.couch.d10.getDoc(request.params.id,function(err,doc) {
 						if ( err ) {
 							d10.log("debug","getDoc error");
-							d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
+							d10.realrest.err(err.statusCode, err.statusMessage, request.ctx);
 							return ;
 						}
 						for ( var i in fields ) {
@@ -129,10 +143,10 @@ exports.api = function(app) {
 						d10.couch.d10.storeDoc(doc, function(err,resp) {
 							if ( err ) {
 								d10.log("debug","storeDoc error");
-								d10.rest.err(err.statusCode, err.statusMessage, request.ctx);
+								d10.realrest.err(err.statusCode, err.statusMessage, request.ctx);
 							}else {
 								d10.log("debug","storeDoc success");
-								d10.rest.success("recorded",request.ctx);
+								d10.realrest.success(doc,request.ctx);
 								d10.couch.d10wi.storeDoc({_id: doc._id, hits: 0});
 							}
 						});
@@ -148,7 +162,7 @@ exports.api = function(app) {
 	app.put("/api/song", function(request,response) {
 		if ( !request.query.filename || !request.query.filename.length 
 			|| !request.query.filesize || !request.query.filesize.length ) {
-			return d10.rest.err(427,"filename and filesize arguments required",request.ctx);
+			return d10.realrest.err(427,"filename and filesize arguments required",request.ctx);
 		}
 		
 		var safeErrResp = function(code,data,ctx) {
@@ -157,8 +171,8 @@ exports.api = function(app) {
 			d10.log("debug",data);
 			if ( errResponse ) return ;
 			errResponse = {code: code, data: data};
-			if ( job.requestEnd ) {d10.rest.err(code,data,ctx);}
-			else	{ request.on("end",function() {d10.rest.err(code,data,ctx);}); };
+			if ( job.requestEnd ) {d10.realrest.err(code,data,ctx);}
+			else	{ request.on("end",function() {d10.realrest.err(code,data,ctx);}); };
 		};
 		
 		var bytesCheck = function() {
@@ -596,7 +610,7 @@ exports.api = function(app) {
 		job.complete("createDocument",function(err,resp) {
 			d10.log("debug","db document recorded");
 // 			d10.log("debug",resp);
-			d10.rest.success(resp,request.ctx);
+			d10.realrest.success(resp,request.ctx);
 		});
 		
 		
@@ -715,7 +729,7 @@ exports.api = function(app) {
 
 				job.fileWriter.on("end", function() {
 					if ( parseInt(request.query.filesize) != job.fileWriter.bytesWritten() ) {
-						return d10.rest.err(421, request.query.filesize+" != "+n,request.ctx);
+						return d10.realrest.err(421, request.query.filesize+" != "+n,request.ctx);
 					}
 					job.bufferJoin = 20;
 					

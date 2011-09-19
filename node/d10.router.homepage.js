@@ -22,7 +22,8 @@ exports.homepage = function(app) {
 			img_size: d10.config.images.maxSize,
 			rpp: d10.config.rpp,
 			genres: genres,
-			langs: []
+			langs: [],
+			invites_ttl: d10.config.invites.ttl
 		};
 		if ( request.query.o && request.query.o.indexOf("a") >= 0 ) {
 			vars.debugAudio = true;
@@ -172,11 +173,11 @@ exports.homepage = function(app) {
 		var checkPass = function() {
 			users.checkAuthFromLogin(request.body.username,request.body.password,function(err, uid, loginResponse) {
 				if ( err ) {
-					return d10.rest.err(500,{error: "login failed",reason: "server messed up"},request.ctx);
+					return d10.realrest.err(500,{error: "login failed",reason: "server messed up"},request.ctx);
 				}
 				if ( !uid ) {
 					console.log("not found");
-					return d10.rest.err(500,{error: "login failed",reason: "invalid credentials"},request.ctx);
+					return d10.realrest.err(500,{error: "login failed",reason: "invalid credentials"},request.ctx);
 				}
 				d10.log("debug","user logged with login/password: ",uid);
 				users.makeSession(uid, function(err,sessionDoc) {
@@ -187,9 +188,9 @@ exports.homepage = function(app) {
 						d.setTime ( d.getTime() + d10.config.cookieTtl );
 						request.ctx.headers["Set-Cookie"] = d10.config.cookieName+"="+escape(JSON.stringify(cookie))+"; expires="+d.toUTCString()+"; path="+d10.config.cookiePath;
 						if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
-						return d10.rest.err(200,{ok: true},request.ctx);
+						return d10.realrest.err(200,{ok: true},request.ctx);
 					} else {
-						return d10.rest.err(500,{error: "login failed",reason: "invalid credentials"},request.ctx);
+						return d10.realrest.err(500,{error: "login failed",reason: "invalid credentials"},request.ctx);
 					}
 				});
 				
@@ -202,7 +203,7 @@ exports.homepage = function(app) {
 				d10.log("debug","got a username & password : try to find uid with username");
 				checkPass();
 			} else {
-				return d10.rest.err(500,{error: "login failed",reason: "invalid parameters"},request.ctx);
+				return d10.realrest.err(500,{error: "login failed",reason: "invalid parameters"},request.ctx);
 			}
 		});
 	});

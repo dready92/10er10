@@ -414,15 +414,7 @@ d10.playlistDrivers.default = function(options) {
 	};
 	
 	var record = this.record = function() {
-		var options = {
-			url: site_url+"/api/current_playlist",
-			data: {
-				list: d10.playlist.allIds(),
-				type: "default"
-			}
-		};
-		d10.bghttp.put(options);
-		
+		d10.rest.user.playerList.default.store(d10.playlist.allIds(),{});
 	};
 	
 	this.load = function(options,cb) {
@@ -437,31 +429,26 @@ d10.playlistDrivers.default = function(options) {
 		}
 // 		debug("posting...");
 		var self = this;
-		var res = d10.bghttp.post({
-			url: site_url+"/api/songs",
-			dataType: "json",
-			data: { ids: options.list },
-			success: function(resp) {
-// 				debug("load success: ",resp);
-				var html = "";
-				$.each(resp.data.songs,function(i,song) {
-					if ( song ) {
-						html+=d10.song_template(song);
-					}
-				});
-				if ( html.length ) {
-					cb.call(self,null,$(html));
+		d10.rest.song.get(options.list, {
+			load: function(err,resp) {
+				if ( err ) {
+					debug("load error: ",err,resp);
+					cb.call(self,err);
 				} else {
-					cb.call(self);
+					var html = "";
+					$.each(resp,function(i,song) {
+						if ( song ) {
+							html+=d10.song_template(song);
+						}
+					});
+					if ( html.length ) {
+						cb.call(self,null,$(html));
+					} else {
+						cb.call(self);
+					}
 				}
-				
-			},
-			error: function(e) {
-				debug("load error: ",e);
-				cb.call(self,e);
 			}
 		});
-// 		debug("posting res: ",res);
 	};
 	
 };

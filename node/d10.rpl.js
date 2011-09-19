@@ -120,7 +120,7 @@ exports.create = function(login, name, songs, then) {
 			});
 		},
 		function(resp) {
-			return d10.rest.err(423,resp,request.ctx);
+			return d10.realrest.err(423,resp,request.ctx);
 		}
 	);
 };
@@ -152,7 +152,7 @@ exports.rename = function(login,playlist, name, then) {
 			});
 		},
 		function(resp) {
-			return d10.rest.err(423,resp,request.ctx);
+			return d10.realrest.err(423,resp,request.ctx);
 		}
 	);
 };

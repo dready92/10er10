@@ -4,10 +4,10 @@ d10.fn.plm = function (mydiv,mypldiv) {
 	var that = this;
 	var plmUpdateTimeout = null;
 
-  $(document).bind('rplRenameResponse',function(e,data) {		rplRenameResponseHandler(data);	});
+//   $(document).bind('rplRenameResponse',function(e,data) {		rplRenameResponseHandler(data);	});
   $(document).bind('rplRenameSuccess',function(e,data) {    rplRenameSuccessHandler(data);	});
 
-  $(document).bind('rplDropResponse',function(e,data) {		rplDropResponseHandler(data);	});
+//   $(document).bind('rplDropResponse',function(e,data) {		rplDropResponseHandler(data);	});
   $(document).bind('rplDropSuccess',function(e,data) {		rplDropSuccessHandler(data);	});
 
 	/*
@@ -244,14 +244,17 @@ d10.fn.plm = function (mydiv,mypldiv) {
 				$('.empty',pldiv).addClass("hidden");
 				$('.controls',pldiv).hide();
 				
-				var onPlaylistResponse = function ( response ) {
+				var onPlaylistResponse = function ( err, response ) {
+					if ( err ) {
+						return ;
+					}
 					debug("plm load response",response);
 					$('.list',pldiv).empty();
 
 					var songs = '';
-					for ( var index in response.data.songs ) {
-						if ( response.data.songs[index] ) {
-							songs+= d10.song_template(response.data.songs[index]);
+					for ( var index in response.songs ) {
+						if ( response.songs[index] ) {
+							songs+= d10.song_template(response.songs[index]);
 						}
 					}
 					_appendSong ($(songs), pldiv) ;
@@ -266,8 +269,9 @@ d10.fn.plm = function (mydiv,mypldiv) {
 						$('.controls',pldiv).show();
 					}
 				};
-				var opts = {"url": site_url+"/api/plm/"+id,"dataType": "json", "success": onPlaylistResponse };
-				d10.bghttp.get ( opts );
+				d10.rest.rpl.get(id,{
+					load: onPlaylistResponse
+				});
 
 			}
 	}
@@ -287,27 +291,18 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			$('section.plm-list-container button[name=plm-new]',mypldiv).slideDown('fast');
 			return ;
 		}
-		var data = {name: name};
-		if ( opts.songs ) {
-			data["songs[]"] = opts.songs;
-		}
-		d10.bghttp.put(
-			{
-				url: site_url+'/api/plm/create',
-				data: data, 
-				dataType: "json",
-				error: function(e) {
+		
+		d10.rest.rpl.create(name, opts.songs ? opts.songs : [], {
+			load: function(err,resp) {
+				if(err) {
 					debug('trigger; rplCreationFailure');
-					$(document).trigger('rplCreationFailure', e.request);
+					$(document).trigger('rplCreationFailure', err);
 					if ( opts.error ) {
-						opts.error(e);
+						opts.error(err);
 					}
-
 					$('section.plm-list-container img',topicdiv).remove();
 					$('section.plm-list-container button[name=plm-new]',topicdiv).show();
-				},
-				success: function(resp) {
-					
+				} else {
 					var rplCreationSuccessHandler = function(response) {
 						debug("plm:rplCreationSuccessHandler response: ",response);
 						if ( !mypldiv.length )	return ;
@@ -345,16 +340,15 @@ d10.fn.plm = function (mydiv,mypldiv) {
 						pl_item.trigger('click');
 					}
 					debug(resp);
-					rplCreationSuccessHandler(resp.data);
+					rplCreationSuccessHandler(resp);
 					if ( opts.success ) {
-						opts.success(resp.data.playlist);
+						opts.success(resp.playlist);
 					}
 					debug('trigger; rplCreationSuccess');
-					$(document).trigger('rplCreationSuccess', { 'playlist': resp.data.playlist});
+					$(document).trigger('rplCreationSuccess', { 'playlist': resp.playlist});
 				}
-				
 			}
-		);
+		});
 		$(document).trigger('rplCreationRequest', { 'name': name , 'from':'plm' });
 	}
   /*
@@ -366,19 +360,17 @@ d10.fn.plm = function (mydiv,mypldiv) {
   
 	var _update_playlist = function(name, songs, opts) {
 		opts = opts || {};
-		d10.bghttp.put(
-			{
-				url: site_url+'/api/plm/update',
-				data:	{ 'playlist': name, 'songs[]': songs },
-				dataType: 'json',
-				success: function(response) {
-					if ( opts.success ) { opts.success(response); }
-				},
-				error: function(e) {
-					if ( opts.error ) { opts.error(e); }
+		d10.rest.rpl.update(name,songs,{
+			load: function(err,resp) {
+				if ( err ) {
+					if ( opts.error ) {
+						opts.error(err);
+					}
+				} else {
+					if ( opts.success ) { opts.success(resp); }
 				}
 			}
-		);
+		});
 	};
   
 
@@ -398,12 +390,12 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			_update_playlist(name, songs_id, {
 				success: function(response) {
 					if ( opts.success ) { opts.success(response); }
-					$(document).trigger('rplUpdateSuccess', { 'playlist': response.data.playlist  });
+					$(document).trigger('rplUpdateSuccess', { 'playlist': response.playlist  });
 				},
 				error: function(e) {
 					if ( opts.error ) { opts.error(e); }
 					debug('triggering rplUpdateFailure');
-					$(document).trigger('rplUpdateFailure', response.request);
+					$(document).trigger('rplUpdateFailure', e);
 				}
 			}); 
 		};		
@@ -441,26 +433,21 @@ d10.fn.plm = function (mydiv,mypldiv) {
 	};
 
   var rplDropRequestHandler = function ( pldiv ) {
-    d10.bghttp.put({
-      'url': site_url+'/api/plm/drop',
-      'callback':'triggerEvent:rplDropResponse',
-      'data': { 'playlist': pldiv.attr('name') },
-      'dataType': 'json'
-    });
+	d10.rest.rpl.remove(pldiv.attr('name'), {
+		load: function(err,resp) {
+			if ( !err ) {
+				$(document).trigger('rplDropSuccess', resp);
+			} else {
+				$(document).trigger('rplDropFailure', resp);
+			}
+		}
+	});
   }
 
-  var rplDropResponseHandler = function ( response ) {
-//     debug(response);
-    if ( response.status == 'success' && response.data.status == 'success' ) {
-      $(document).trigger('rplDropSuccess', response.data.data);
-    } else {
-      $(document).trigger('rplDropFailure', response.request);
-    }
-  }
-
-  var rplDropSuccessHandler = function ( response ) {
-    $('.plm-list .plm-list-item[name='+response.playlist._id+']',mydiv).slideUp(function() {$(this).remove();});
-    $('.plm-content-container .rpl[name='+response.playlist._id+']',mydiv).fadeOut(function() {$(this).remove();});
+  var rplDropSuccessHandler = function ( playlist ) {
+		debug("drop success : ",playlist);
+		$('.plm-list .plm-list-item[name='+playlist._id+']',mydiv).slideUp(function() {$(this).remove();});
+		$('.plm-content-container .rpl[name='+playlist._id+']',mydiv).fadeOut(function() {$(this).remove();});
   }
 
 
@@ -472,61 +459,48 @@ d10.fn.plm = function (mydiv,mypldiv) {
    *
    */
 
+	var rplRenameRequestHandler = function ( pldiv, newname ) {
+		d10.rest.rpl.rename(pldiv.attr('name'), newname, {
+			load: function(err,resp) {
+				if ( err ) {
+					$(document).trigger('rplRenameFailure', err);
+				} else {
+					$(document).trigger('rplRenameSuccess', resp);
+				}
+			}
+		});
+	};
 
-  var rplRenameRequestHandler = function ( pldiv, newname ) {
-    d10.bghttp.put({
-      'url': site_url+'/api/plm/rename',
-      'callback':'triggerEvent:rplRenameResponse',
-      'data': {'playlist': pldiv.attr('name'), 'name': newname},
-      'dataType': 'json'
-    });
-  }
 
-  var rplRenameResponseHandler = function ( response ) {
-//    debug('rplRename response hander');
-    if ( response.status == 'success' && response.data.status == 'success' ) {
-      debug("triggering rplRenameSuccess");
-      $(document).trigger('rplRenameSuccess', response.data.data);
-    } else {
-      debug("triggering rplRenameFailure");
-      $(document).trigger('rplRenameFailure', response.request);
-    }
-  }
-
-  var rplRenameSuccessHandler = function ( response ) {
-    var item = $('.plm-list .plm-list-item[name='+response.playlist._id+']',mydiv);
-    if ( item.length ) {
-      item.html(response.playlist.name);
-    }
-  }
+	var rplRenameSuccessHandler = function ( response ) {
+		var item = $('.plm-list .plm-list-item[name='+response._id+']',mydiv);
+		if ( item.length ) {
+		item.html(response.name);
+		}
+	}
 	
 
 	this.append_song = function(song_id,playlist_id,opts) {
 		opts = opts || {};
-		d10.bghttp.put(
-			{
-				url: site_url+'/api/plm/append',
-				data: {song: song_id, playlist: playlist_id}, 
-				dataType: 'json',
-				success: function(resp) {
-					var playlistdiv=$('div[name=plm] .rpl[name='+resp.data.playlist._id+']',mydiv);
+		d10.rest.rpl.append(playlist_id,song_id,{
+			load: function(err,resp) {
+				if ( err ) {
+					if ( opts.error ) {
+						opts.error.call(e);
+					}
+					$(document).trigger('rplAppendFailure', err);
+				} else  {
+					var playlistdiv=$('div[name=plm] .rpl[name='+resp.playlist._id+']',mydiv);
 					if ( !playlistdiv.length )	return ;
-					_appendSong (resp.data.song, playlistdiv, -1) ;
+					_appendSong (resp.song, playlistdiv, -1) ;
 					if ( opts.success ) {
 						opts.success.call(resp);
 					}
 					debug('trigger; rplAppendSuccess');
-					$(document).trigger('rplAppendSuccess', { 'playlist': resp.data.playlist, 'song': resp.data.song, 'index': -1 });
-				},
-				error: function(e) {
-					if ( opts.error ) {
-						opts.error.call(e);
-					}
-					debug('trigger; rplAppendFailure');
-					$(document).trigger('rplAppendFailure', e.request);
+					$(document).trigger('rplAppendSuccess', { 'playlist': resp.playlist, 'song': resp.song, 'index': -1 });
 				}
 			}
-		);
+		});
 	};
 
 }

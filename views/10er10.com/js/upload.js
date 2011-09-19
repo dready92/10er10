@@ -135,89 +135,73 @@ d10.fn.upload = function (ui) {
       }
     }
 
-    function launchUpload (widget) {
-      var xhr = new XMLHttpRequest();
-      var file = widget.data('file');
-      var waitText = d10.mustacheView("upload.song.processing");
-      widget.data("status",1);
-      var url = site_url+'/api/song?'+$.d10param({"filesize": file.size, "filename": file.name } );
-	  $("span.cancel",widget).hide();
-	  $("span.progress",widget).show();
-      xhr.upload.addEventListener("progress", function(e) { 
-// 		  debug("progress",e);
-        if (e.lengthComputable) {
-          var percentage = Math.round((e.loaded * 100) / e.total);
-          if ( percentage < 99 ) {
-            $("div.controls span.progress",widget).html(percentage+'%');
-          } else {
-            $("div.controls span.progress",widget).hide();
-            $("div.controls span.status",widget).html(waitText);
-          }
-        }  
-      }, false);
-	  xhr.upload.addEventListener("end", function(e) {  
-		  debug("File transfer completed");
-	  },false);
-      xhr.addEventListener("readystatechange",function() {
-//         console.log("ready state changed : ", xhr.readyState);
-        if ( xhr.readyState == 4 ) {
-          widget.data("status",2);
-          var back = null;
-          try {
-            back = JSON.parse(xhr.responseText);
-          } catch (e) {
-            back = {'status': 'error'};
-          }
-          $("button.close",widget).show();
-          if ( back.status == "success" ) {
-            $("div.controls span.status",widget).html(d10.mustacheView("upload.song.success"));
-            $("button.review",widget).click(function() {
-                  var route = ["my", "review", back.data._id];
-                  d10.router.navigateTo( route );
-            }).show();
+	function launchUpload (widget) {
+		var file = widget.data('file');
+		var waitText = d10.mustacheView("upload.song.processing");
+		widget.data("status",1);
+	//       var url = site_url+'/api/song?'+$.d10param({"filesize": file.size, "filename": file.name } );
+		$("span.cancel",widget).hide();
+		$("span.progress",widget).show();
+	  
+		d10.rest.song.upload(file, file.name, file.size, {
+			progress: function(e) { 
+		// 		  debug("progress",e);
+				if (e.lengthComputable) {
+					var percentage = Math.round((e.loaded * 100) / e.total);
+	// 				if ( percentage < 99 ) {
+					$("div.controls span.progress",widget).html(percentage+'%');
+					if ( percentage == 100 ) {
+						$("div.controls span.progress",widget).hide();
+						$("div.controls span.status",widget).html(waitText);
+					}
+	// 				} else {
+	// 					$("div.controls span.progress",widget).hide();
+	// 					$("div.controls span.status",widget).html(waitText);
+	// 				}
+				}  
+			},
+			end: function(e) {  
+				debug("File transfer completed");
+				$("div.controls span.progress",widget).hide();
+				$("div.controls span.status",widget).html(waitText);
+			},
+			load: function(code,headers,body) {
+				widget.data("status",2);
+				var back = null;
+				try {
+					back = JSON.parse(body);
+				} catch (e) {
+					back = {'status': 'error'};
+				}
+				$("button.close",widget).show();
+				if ( code == 200 ) {
+					$("div.controls span.status",widget).html(d10.mustacheView("upload.song.success"));
+					$("button.review",widget).click(function() {
+						var route = ["my", "review", back._id];
+						d10.router.navigateTo( route );
+					}).show();
 
-          } else if ( back.data && back.data.code && back.data.code == 14 ) {
-            $("div.controls span.progress",widget).hide();
-            $("div.controls span.status",widget).html(d10.mustacheView("upload.song.alreadyindb"));
-          } else {
-            if ( back.data && back.data.message ) {
-              $("div.controls span.progress",widget).hide();
-              $("div.controls span.status",widget).html(back.data.message);
-            } else {
-              $("div.controls span.status",widget).html(d10.mustacheView("upload.song.serverError"));
-            }
-          }
-          xhr = null;
-        }
-      }, false);
-
-      var useFileReader = false;
-      if ( typeof FileReader != "undefined" ) {
-        var fr = new FileReader();
-        if ( fr.addEventListener ) {
-          useFileReader = true;
-        }
-      }
-      
-      if ( useFileReader ) {
-        debug("using filereader");
-        var reader = new FileReader();
-        reader.onload = function() {
-          xhr.open("PUT",url);
-          xhr.sendAsBinary(reader.result);
-		  reader = null;
-		  file = null;
-        };
-        reader.readAsBinaryString(file);
-      } else {
-        debug("NOT using filereader");
-        xhr.open("PUT",url);
-        xhr.send(file);
-		file = null;
-      }
-      $("div.controls span.status",widget).html(d10.mustacheView("upload.song.uploading"));
-    }
-  }
+				} else if ( code == 433 ) {
+					$("div.controls span.progress",widget).hide();
+					$("div.controls span.status",widget).html(d10.mustacheView("upload.song.alreadyindb"));
+				} else {
+					if ( body.message ) {
+						$("div.controls span.progress",widget).hide();
+						$("div.controls span.status",widget).html(body.message);
+					} else {
+						$("div.controls span.status",widget).html(d10.mustacheView("upload.song.serverError"));
+					}
+				}
+			},
+			error: function() {
+				widget.data("status",2);
+				$("div.controls span.progress",widget).hide();
+				$("div.controls span.status",widget).html(d10.mustacheView("upload.song.serverError"));
+			}
+		}, function(){}); 
+		$("div.controls span.status",widget).html(d10.mustacheView("upload.song.uploading"));
+		}
+}
 
 	function launchVideo () {
 		var container = $("div.center",ui).last();
