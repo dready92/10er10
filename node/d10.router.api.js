@@ -523,7 +523,7 @@ exports.api = function(app) {
 // 		db.include_docs(true).getView({
 // 			success: function(resp) {
 		d10.couch.d10.view("song/search",options, function(err,resp) {
-			if ( err ) { return d10.rest.err(423,err,request.ctx); }
+			if ( err ) { return d10.realrest.err(423,err,request.ctx); }
 			var results = {title: [], artist: [], album: []};
 			resp.rows.forEach(function(v,k) {
 				var doc = v.doc;
@@ -576,9 +576,10 @@ exports.api = function(app) {
 					}
 				}
 			});
-			request.ctx.headers["Content-Type"] = "application/json";
-			response.writeHead(200,request.ctx.headers);
-			response.end( JSON.stringify(results) );
+			d10.realrest.success(results, request.ctx);
+// 			request.ctx.headers["Content-Type"] = "application/json";
+// 			response.writeHead(200,request.ctx.headers);
+// 			response.end( JSON.stringify(results) );
 		});
 	});
 	
@@ -625,12 +626,13 @@ exports.api = function(app) {
 				function(err,resp) {
 					if ( err ){
 // 						d10.log("got details error",err);
-						d10.rest.err(427,err,request.ctx);
+						d10.realrest.err(427,err,request.ctx);
 					} else {
 // 						d10.log("got when positive response",resp);
-						request.ctx.headers["Content-Type"] = "application/json";
-						response.writeHead(200,request.ctx.headers);
-						response.end(JSON.stringify(resp));
+// 						request.ctx.headers["Content-Type"] = "application/json";
+// 						response.writeHead(200,request.ctx.headers);
+// 						response.end(JSON.stringify(resp));
+						d10.realrest.success(resp, request.ctx);
 					}
 				}
 			);

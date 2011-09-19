@@ -121,8 +121,8 @@ d10.fn.results = function (search,mainUi) {
 	};
 	
 	// ajax callback : this is the ajax options 
-	var displayDetailsResponse = function (data) {
-		if ( this.route != lastRoute ) {
+	var displayDetailsResponse = function (err, data, token) {
+		if ( token != lastRoute ) {
 			debug("details info too late",data);
 			return false;
 		}
@@ -207,15 +207,18 @@ d10.fn.results = function (search,mainUi) {
 		cacheStore(	this.route, cache);	  
 	};
 	
-	var displayAjaxResponse = function(data) {
+	var displayAjaxResponse = function(err, data, token) {
 		debug(data);
-		if ( this.route != lastRoute ) {
+		if ( token != lastRoute ) {
 			debug("info too late");
 			return false;
 		}
 		if ( animated ) {
 			animated = false;
 			mainUi.find("img.loop").stop(true).css({visibility: "hidden", opacity: 0.6});
+		}
+		if ( err ) {
+			return false;
 		}
 		var html = '';
 		$("div.rBox.songs div.list",ui).empty();
@@ -254,17 +257,25 @@ d10.fn.results = function (search,mainUi) {
 		}
 		if ( details.artists.length || details.albums.length ) {
 			debug("posting details request");
-			var ajax = {
+			var tmpRoute = lastRoute;
+			/*var ajax = {
 				"type": "POST",
 				"url": site_url+"/api/details",
 				"route": lastRoute,
 				"dataType": "json",
 				"data": details,
 				"success": displayDetailsResponse
-			};
+			};*/
 			setTimeout(function() {
-				if ( ajax.route == lastRoute ) {
-					d10.bghttp.post(ajax);
+				if ( tmpRoute == lastRoute ) {
+// 					d10.bghttp.post(ajax);
+					(function(token) {
+						d10.rest.search.details(details, {
+							load: function(err,resp) {
+								displayDetailsResponse.call(this,err,resp,token);
+							}
+						});
+					})(lastRoute);
 				}
 			} , 50);
 		}
@@ -321,6 +332,13 @@ d10.fn.results = function (search,mainUi) {
 				return;
 			}
 			
+			(function(token) {
+				d10.rest.search.all(token,{
+					load: function(err,resp) {
+						displayAjaxResponse.call(this, err, resp, token);
+					}
+				});
+			})(lastRoute);
 			
 			var request = {
 				"type": "GET",
@@ -331,8 +349,8 @@ d10.fn.results = function (search,mainUi) {
 				"success": displayAjaxResponse
 			};
 			
-			debug("testing animated");
-			d10.bghttp.get(request);
+// 			debug("testing animated");
+// 			d10.bghttp.get(request);
 			debug("testing animated");
 			if ( !animated ) {
 				animated = true;

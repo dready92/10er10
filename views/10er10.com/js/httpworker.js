@@ -54,7 +54,7 @@ onmessage = function(e){
 
 	if ( data.contentType ) {
 		xmlhttp.setRequestHeader("Content-Type", data.contentType);
-	} else if ( data.method == 'POST' ) {
+	} else if ( data.method == 'POST' || data.method == 'PUT' ) {
 		xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	}
   

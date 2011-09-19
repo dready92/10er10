@@ -842,7 +842,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		},
  		setPreference: function(name, value, options) {
 			options.data = {value: value};
-			options.contentType = "application/x-www-form-urlencoded";
+// 			options.contentType = "application/x-www-form-urlencoded";
 			restQuery("user.setPreference","PUT",site_url+"/api/preference/"+name,options);
 		},
 		logout: function(options) {
@@ -1073,7 +1073,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			options.data = {
 				name:name
 			};
-			options.contentType = "application/x-www-form-urlencoded";
+// 			options.contentType = "application/x-www-form-urlencoded";
 			restQuery("rpl.rename","PUT",site_url+"/api/plm/rename/"+id,options);
 		},
 		/*
@@ -1084,8 +1084,19 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			options.data = {
 				song:song_id
 			};
-			options.contentType = "application/x-www-form-urlencoded";
+// 			options.contentType = "application/x-www-form-urlencoded";
 			restQuery("rpl.append","PUT",site_url+"/api/plm/append/"+id,options);
+		}
+	};
+	
+	d10.rest.search = {
+		all: function(query, options) {
+			options.data = { start: query };
+			restQuery("search.all","GET",site_url+"/api/search2",options);
+		},
+		details: function(details, options) {
+			options.data = details;
+			restQuery("search.details","POST",site_url+"/api/details",options);
 		}
 	};
 	
