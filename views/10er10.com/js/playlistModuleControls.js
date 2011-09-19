@@ -39,18 +39,6 @@ var createModule = function(ui) {
 				}
 			}
 		});
-		/*
-		
-		d10.bghttp.put({
-			'url': site_url+'/api/starring/'+type+'/'+id,
-			'dataType': 'json',
-			'success': function(response) {
-// 				debug("response",response);
-				starringUpdated(response.data.id, response.data.star);
-							d10.user.refresh_infos();
-			}
-		});
-		*/
 	};
 
 	var starringUpdated = function (id,star) {
@@ -71,7 +59,6 @@ var createModule = function(ui) {
 
 	var play,pause,next,prev,starUp,starDown;
 
-// 	ui = $("#controls");
 	play = ui.find('img[name=play]');
 	pause = ui.find('img[name=pause]');
 	next = ui.find('img[name=next]');

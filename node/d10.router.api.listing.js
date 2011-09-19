@@ -4,245 +4,6 @@ var d10 = require ("./d10"),
 	exec = require('child_process').exec;
 
 exports.api = function(app) {
-	app.get("/api/pagination/:sort", function(request,response) {
-		var sortTypes = [ "hits","ts_creation","album","artist","genre","title","s_user","s_user_likes" ],
-		query = {rpp: d10.config.rpp},
-		db = d10.couch.d10;
-
-		var preHooks = {
-			hits: function() {
-				query.reduce = false;
-				query.descending = true;
-				db = d10.couch.d10wi;
-			},
-			ts_creation: function() {
-				query.reduce = false;
-				query.descending = true;
-			},
-			album: function() {
-				if ( request.query.album && request.query.album.length ) {
-					query.startkey = [request.query.album];
-					query.endkey = [request.query.album,[]];
-				}
-				query.reduce = false;
-			},
-			artist: function() {
-				if ( request.query.artist && request.query.artist.length ) {
-					query.startkey = [request.query.artist];
-					query.endkey = [request.query.artist,[]];
-				}
-				query.reduce = false;
-			},
-			genre: function() {
-				if ( !request.query.genre || d10.config.genres.indexOf(request.query.genre) < 0 ) {
-					return d10.rest.err(428, request.query.genre, request.ctx);
-				}
-				query.reduce = false;
-				query.startkey = [request.query.genre];
-				query.endkey = [request.query.genre,[]];
-			},
-			title: function () {
-				query.reduce = false;
-				if ( request.query.title && request.query.title.length ) {
-					query.startkey = [request.query.title];
-					query.endkey = [request.query.title,[]];
-				}
-			},
-			s_user: function () {
-				query.startkey = [request.ctx.user._id];
-				query.endkey = [request.ctx.user._id,[]];
-			},
-			s_user_likes: function () {
-				query.startkey = [request.ctx.user._id];
-				query.endkey = [request.ctx.user._id,[]];
-				db = d10.couch.d10wi;
-			}
-		};
-		
-		if ( sortTypes.indexOf(request.params.sort) < 0 ){
-			return d10.rest.err(427, request.params.sort, request.ctx);
-		}
-		if ( preHooks[request.params.sort] && preHooks[request.params.sort].call ) {
-			preHooks[request.params.sort].call(this);
-		}
-		
-		db.list("pagination/mapping/"+request.params.sort+"/name",query,function(err,resp) {
-			if ( err ) {
-				d10.log(err);
-				d10.rest.err(423, request.params.sort, request.ctx);
-			} else {
-				d10.rest.success(resp.pages,request.ctx);
-			}
-		});
-	});
-
-/*
-	app.get("/api/ts_creation",function(request,response) {
-		console.log(request.query);
-		var query = {include_docs: true, reduce: false, descending: true, limit: d10.config.rpp};
-		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
-			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
-			query.startkey = request.query["startkey[]"];
-			query.startkey_docid = request.query.startkey_docid;
-		}
-		console.log(query);
-		d10.couch.d10.view("ts_creation/name",query,function(err,resp,meta) {
-			d10.log(err,resp,meta);
-			if ( err ) {
-				return d10.rest.err(423, request.params.sort, request.ctx);
-			}
-			d10.rest.success(resp,request.ctx);
-		});
-	});
-
-	app.get("/api/hits",function(request,response) {
-		var query = {reduce: false, descending: true, limit: d10.config.rpp};
-		d10.log("/api/hits query: ",request.query);
-		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
-			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
-			query.startkey = request.query["startkey[]"];
-			query.startkey_docid = request.query.startkey_docid
-		}
-		d10.couch.d10wi.view("hits/name",query,function(err,resp) {
-			if ( err ) {
-				return d10.rest.err(423, request.params.sort, request.ctx);
-			}
-			var keys = [];
-			for ( var i in resp.rows ) { keys.push(resp.rows[i].id);	}
-			
-			d10.couch.d10.getAllDocs( {keys: keys, include_docs: true}, function(err,resp ) {
-				if ( err ) {
-					return d10.rest.err(423, request.params.sort, request.ctx);
-				}
-				d10.rest.success(resp,request.ctx);
-			});
-			
-
-		});
-	});
-	
-	app.get("/api/titles/titles",function(request,response) {
-		var query = {include_docs: true, reduce: false, limit: d10.config.rpp};
-		if ( request.query.title && request.query.title.length ) {
-			query.endkey = [request.query.title,[]];
-		}
-		
-		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
-			query.startkey = request.query["startkey[]"];
-			query.startkey_docid = request.query.startkey_docid;
-		}
-		
-		d10.couch.d10.view("title/name",query,function(err,resp) {
-			if ( err ) {
-				return d10.rest.err(423, request.params.sort, request.ctx);
-			}
-			d10.rest.success(resp,request.ctx);
-		});
-	});
-	
-	app.get("/api/artists/artists",function(request,response) {
-		var query = {include_docs: true, reduce: false, limit: d10.config.rpp};
-		if ( request.query.artist && request.query.artist.length ) {
-			query.endkey = [request.query.artist,[]];
-		}
-		
-		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
-			query.startkey = request.query["startkey[]"];
-			query.startkey_docid = request.query.startkey_docid;
-		}
-		
-		d10.couch.d10.view("artist/name",query,function(err,resp) {
-			if( err ) {
-				return d10.rest.err(423, request.params.sort, request.ctx);
-			}
-			d10.rest.success(resp,request.ctx);
-		});
-	});
-	
-	app.get("/api/albums/albums",function(request,response) {
-		var query = {include_docs: true, reduce: false, limit: d10.config.rpp};
-		if ( request.query.album && request.query.album.length ) {
-			query.endkey = [request.query.album,[]];
-		}
-		
-		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
-			request.query["startkey[]"][1] = parseInt(request.query["startkey[]"][1]);
-			query.startkey = request.query["startkey[]"];
-			query.startkey_docid = request.query.startkey_docid;
-		}
-		
-		d10.couch.d10.view("album/name",query,function(err,resp) {
-			if ( err ) {
-				return d10.rest.err(423, err, request.ctx);
-			}
-			d10.rest.success(resp,request.ctx);
-		});
-	});
-	*/
-	app.get("/api/songs/s_user",function(request,response) {
-		var query = {include_docs: true, endkey: [request.ctx.user._id,[]], limit: d10.config.rpp};
-		if ( request.query.limit ) {
-			query.limit = request.query.limit;
-		}
-		if ( request.query.startkey_docid && request.query["startkey"] ) {
-			query.startkey = request.query["startkey"];
-			query.startkey_docid = request.query.startkey_docid;
-		}
-		
-		d10.couch.d10.view("s_user/name",query,function(err,resp) {
-			if ( err ) {
-				return d10.realrest.err(423, err, request.ctx);
-			} else {
-				d10.realrest.success(resp.rows,request.ctx);
-			}
-		});
-	});
-	
-
-	app.get("/api/usersongs",function(request,response) {
-		var query = {include_docs: true, endkey: [request.ctx.user._id,[]], limit: d10.config.rpp};
-		
-		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
-			query.startkey = request.query["startkey[]"];
-			query.startkey_docid = request.query.startkey_docid;
-		}
-		
-		d10.couch.d10wi.view("s_user_likes/name",query,function(err,resp) {
-			if ( err ) {
-				return d10.rest.err(423, err, request.ctx);
-			}
-			var keys = [];
-			for ( var  i in resp.rows ) {
-				keys.push(resp.rows[i].value);
-			}
-			
-			d10.couch.d10.getAllDocs({include_docs: true, keys: keys},function(err,resp) {
-				if ( err ) {
-					return d10.rest.err(423, err, request.ctx);
-				}
-				d10.rest.success(resp,request.ctx);
-			});
-		});
-	});
-	
-	app.get("/api/genres/genres",function(request,response) {
-		if ( !request.query.genre || d10.config.genres.indexOf(request.query.genre) < 0 ) {
-			return d10.rest.err(428, request.query.genre, request.ctx);
-		}
-		var query = {include_docs: true, reduce: false, limit: d10.config.rpp,endkey: [request.query.genre, {} ]};
-		if ( request.query.startkey_docid && request.query["startkey[]"] ) {
-			query.startkey = request.query["startkey[]"];
-			query.startkey_docid = request.query.startkey_docid ;
-		}
-		d10.couch.d10.view("genre/name",query,function(err,resp) {
-			if ( err ) {
-				return d10.rest.err(423, err, request.ctx);
-			}
-			d10.rest.success(resp,request.ctx);
-		});
-	});
-	
-	
 	app.get("/api/title",function(request,response) {
 		var query = {inclusive_end: false};
 		if ( request.query.start && request.query.start.length ) {
@@ -369,16 +130,12 @@ exports.api = function(app) {
 	});
 	
 	app.get("/api/list/creations",function(request,response) {
-// 		console.log(request.query);
 		var query = {include_docs: true, reduce: false, descending: true, limit: d10.config.rpp+1};
 		if ( request.query.startkey_docid && request.query["startkey"] ) {
-// 			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
 			query.startkey = JSON.parse(request.query["startkey"]);
 			query.startkey_docid = request.query.startkey_docid;
 		}
-// 		console.log(query);
 		d10.couch.d10.view("ts_creation/name",query,function(err,resp,meta) {
-// 			d10.log(err,resp,meta);
 			if ( err ) {
 				return d10.realrest.err(423, request.params.sort, request.ctx);
 			}
@@ -388,26 +145,20 @@ exports.api = function(app) {
 	
 	app.get("/api/list/hits",function(request,response) {
 		var query = {reduce: false, descending: true, limit: d10.config.rpp+1};
-// 		d10.log("/api/hits query: ",request.query);
 		if ( request.query.startkey_docid && request.query["startkey"] ) {
-// 			request.query["startkey[]"][0] = parseInt(request.query["startkey[]"][0]);
 			query.startkey = JSON.parse(request.query["startkey"]);
 			query.startkey_docid = request.query.startkey_docid
 		}
-// 		d10.log("/api/hits query: ",query);
 		d10.couch.d10wi.view("hits/name",query,function(err,resp) {
 			if ( err ) {
 				return d10.realrest.err(423, request.params.sort, request.ctx);
 			}
 			var keys=[];
-// 			d10.log("first response: ",resp.rows);
 			for ( var i in resp.rows ) { keys.push(resp.rows[i].id);	}
-// 			d10.log("keys length: ",keys.length);
 			d10.couch.d10.getAllDocs( {keys: keys, include_docs: true}, function(err,resp2 ) {
 				if ( err ) {
 					return d10.realrest.err(423, request.params.sort, request.ctx);
 				}
-// 				d10.log("second response: ",resp2.rows);
 				var back = [];
 				resp.rows.forEach(function(v,i) {
 					back.push ({
@@ -416,7 +167,6 @@ exports.api = function(app) {
 						doc: resp2.rows[i].doc
 					});
 				});
-// 				d10.log("returning "+resp.rows.length+" rows");
 				d10.realrest.success(back,request.ctx);
 			});
 		});
@@ -469,7 +219,6 @@ exports.api = function(app) {
 		}
 		
 		if ( request.query.startkey_docid && request.query["startkey"] ) {
-// 			request.query["startkey[]"][1] = parseInt(request.query["startkey[]"][1]);
 			query.startkey = JSON.parse(request.query["startkey"]);
 			query.startkey_docid = request.query.startkey_docid;
 		}
@@ -564,7 +313,6 @@ exports.api = function(app) {
 				console.log("error: ",err);
 				return d10.realrest.err(423, err, request.ctx);
 			}
-// 			console.log(resp.rows);
 			d10.realrest.success(resp.rows,request.ctx);
 		});
 	});
@@ -591,30 +339,7 @@ exports.api = function(app) {
 				console.log("error: ",err);
 				return d10.realrest.err(423, err, request.ctx);
 			}
-// 			console.log(resp.rows);
 			d10.realrest.success(resp.rows,request.ctx);
 		});
 	});
-	
-	app.get("/api/list/artist/genre/:artist/:genre",function(request,response) {
-// 		if ( !request.query.genre || d10.config.genres.indexOf(request.query.genre) < 0 ) {
-// 			return d10.rest.err(428, request.query.genre, request.ctx);
-// 		}
-		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1 ,key: [request.params.genre, request.params.artist ]};
-		if ( request.query.startkey_docid && request.query.startkey ) {
-			query.startkey = JSON.parse(request.query.startkey);
-			query.startkey_docid = request.query.startkey_docid ;
-		} else {
-			query.startkey =  [request.query.genre, request.params.artist];
-		}
-		d10.couch.d10.view("artist/genre",query,function(err,resp) {
-			if ( err ) {
-				return d10.rest.err(423, err, request.ctx);
-			}
-			d10.rest.success(resp.rows,request.ctx);
-		});
-	});
-	
-	
-	
 }; // exports.api

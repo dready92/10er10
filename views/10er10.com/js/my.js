@@ -275,25 +275,6 @@ d10.fn.my = function (ui) {
 				}
 			}
 		});
-		/*
-		
-		var options = {
-		'url': site_url+"/html/my/review",
-		'context': this,
-		'callback': function(response) {
-			if ( response.status != 'success'  ) {
-			// mainerror_json_client("textStatus", 'review', null);
-			return ;
-			}
-			topicdiv.empty().append(response.data);
-			$('ul > li',topicdiv).click(function() {
-	// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
-				d10.router.navigateTo(["my","review",$(this).attr("arg")]);
-			});
-		}
-		};
-		d10.bghttp.get(options);
-		*/
 	}
 
   var postSongReview = function (topicdiv, success, complete ) {
@@ -321,34 +302,6 @@ d10.fn.my = function (ui) {
 			}
 		}
 	);
-	/*
-    d10.bghttp.put ({
-      'url': site_url+'/api/meta/'+$('input[name=_id]',topicdiv).val(),
-      'dataType': 'json',
-      'data': $('form',topicdiv).serialize(),
-      'timeout': 300000,
-      'complete': function(xhr,text) {
-        complete.call();
-      },
-      'error': function (xhr,text,errorThrown) {
-      },
-      'success': function(data) {
-        if ( data.status == 'error' && data.data.code == 6 ) {
-          for ( var k in data.fields ) {
-            $('.form_error[name='+k+']',topicdiv).html(data.fields[k]).slideDown();
-          }
-          $('span.uploading',topicdiv).hide();
-		  $("button[name=remove]",topicdiv).show();
-          $("button[name=review]",topicdiv).show();
-          $("button[name=reviewNext]",topicdiv).show();
-        } else if ( data.status == 'error' ) {
-          // mainerror_json(data, 'my', arg)
-        } else {
-          success.call();
-        }
-      }
-    });
-*/
   };
 
 	var init_songreview_imagesbox = function(topicdiv, song_id) {
@@ -413,8 +366,6 @@ d10.fn.my = function (ui) {
 					return function() {
 						var reader = new FileReader();
 						reader.onload = function(e) {
-// 							debug("reader.onload");
-							// Render thumbnail.
 							var img = $("<img />").attr("src",e.target.result).css(
 								{
 									"visibility":"none",
@@ -501,35 +452,13 @@ d10.fn.my = function (ui) {
 	
 	var deleteSong = function(id, then ) {
 		debug("deleteSongURL: ",site_url+"/api/deleteSong/"+id);
-// 			setTimeout(function() {
 		d10.rest.song.remove(id, {
 			load: then
 		});
-		/*
-		d10.bghttp.put({
-			url: site_url+"/api/deleteSong/"+id,
-			dataType: "json",
-			success: function(response) {
-				
-				if ( response.status && response.status == "error" ) {
-					return then(response);
-				}
-				return then();
-			},
-			error: function(err) {
-				return then(err);
-			}
-		});
-		*/
 	};
 	
 	var init_topic_songreview = function (topicdiv, song_id ) {
-//     console.log("init_topic_songreview",topicdiv,arg);
 		topicdiv.html(d10.mustacheView("loading"));
-// 		d10.bghttp.get({
-// 			url: site_url+"/api/song/"+song_id,
-// 			dataType: "json",
-// 			success: function(msg) {
 		d10.rest.song.get(song_id, {
 			load: function(err,doc) {
 				debug("init_topic_songreview: ",doc);
@@ -550,7 +479,6 @@ d10.fn.my = function (ui) {
 				init_reviewImage_remove (topicdiv,song_id);
 				$("button[name=my]",topicdiv).click(function() { 
 					d10.router.navigateTo(["my","review"]);
-		// 			window.location.hash = "#/my/review";
 				});
 				$('button[name=upload]',topicdiv).click(function() { 
 		// 			d10.globalMenu.route("/upload");
@@ -588,15 +516,8 @@ d10.fn.my = function (ui) {
 				);
 				
 				$("button[name=remove]",topicdiv).click(function(e) {
-		// 			$(this).hide();
-		// 			$('button[name=review]',topicdiv).hide();
-		// 			$('button[name=reviewNext]',topicdiv).hide();
-		// 			$('span.uploading',topicdiv).show();
-		// 			$('.form_error',topicdiv).hide();
 					topicdiv.find("div[name=form]").hide();
 					topicdiv.find("div[name=delete]").show();
-		// 			deleteSong(song_id,function() {});
-		// 			e.preventDefault();
 					return false;
 				});
 				
@@ -681,41 +602,6 @@ d10.fn.my = function (ui) {
 						}
 					}
 				});
-				/*
-				d10.bghttp.get({
-					"url": site_url+"/api/songsToReview",
-					"dataType": "json",
-					"success": function (response) {
-						for ( var index in response.data.rows ) {
-						if ( response.data.rows[index].id != song_id ) {
-							$("button[name=reviewNext]",topicdiv).fadeIn(function() {
-							$(this).removeClass("hidden").click(function() {
-								$(this).hide();
-								$("button[name=review]",topicdiv).hide();
-								$('span.uploading',topicdiv).show();
-								$('.form_error',topicdiv).hide();
-
-								var validate_interval = window.setInterval(function () {
-								$('span.uploading',topicdiv).animate ( { "opacity": 0 }, 1500,
-									function() { $(this).animate ( { "opacity": 1 }, 1500); }
-								);
-								},3100);
-
-								postSongReview(topicdiv,function() {
-									init_topic_songreview (topicdiv, response.data.rows[index].id );
-								}, function () {
-									clearInterval(validate_interval);
-								});
-								return false;
-							});
-							});
-							return;
-						}
-						}
-						$("button[name=reviewNext]",topicdiv).remove();
-					}
-				});
-				*/
 			}
 		});
 	}

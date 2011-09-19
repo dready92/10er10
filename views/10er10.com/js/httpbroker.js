@@ -5,7 +5,7 @@
 
 
 function httpmanager ( domainUrl ) {
-	debug("worker base_url: ", domainUrl);
+// 	debug("worker base_url: ", domainUrl);
   var worker = new Worker(domainUrl+'js/httpworker.js');
   var that = this;
   var cache = {};

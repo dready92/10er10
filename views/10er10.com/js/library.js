@@ -191,7 +191,6 @@ if (! "fn" in d10 ) {
 		
 		var createInfiniteScroll = function(categorydiv, topic, category) {
 			var section = categorydiv.find("section");
-// 			var url = "/api/list/"+topic;
 			var data = {}, endpoint = d10.rest.song.list[topic];
 			if ( topic == "genres" ) {
 				data.genre = category;

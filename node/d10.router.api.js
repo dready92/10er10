@@ -12,25 +12,6 @@ var d10 = require ("./d10"),
 
 exports.api = function(app) {
 
-	
-	
-	/*
-	var checkSession = function(request,response,next) {
-		if ( !request.ctx.session || !request.ctx.user || !request.ctx.user._id ) {
-			response.writeHead(404,{"Content-Type":"text/plain"});
-			response.end("Page not found");
-		}
-		else
-		{
-			next();
-		}
-	};
-	
-	app.get("/api/*",checkSession);
-	app.post("/api/*",checkSession);
-	app.put("/api/*",checkSession);
-	app.delete("/api/*",checkSession);
-*/
 	app.post("/api/songs",function(request,response) {
 		bodyDecoder()(request, response,function() {
 			request.ctx.headers["Content-type"] = "application/json";
@@ -146,14 +127,11 @@ exports.api = function(app) {
 	
 	
 	app.get("/api/serverLoad", function(request,response) {
-// 		var child;
 		d10.realrest.success( {load: os.loadavg()}, request.ctx );
 
 	});
 	
 	app.get("/api/toReview",function(request,response) {
-// 		d10.log("debug","router:","/api/toReview");
-
 		d10.couch.d10.view("user/song",{key: [ request.ctx.user._id, false ]},function(err,resp) {
 			if ( err )	d10.realrest.err(423,err,request.ctx)
 			else		d10.realrest.success( {count: resp.rows.length}, request.ctx );
@@ -168,7 +146,6 @@ exports.api = function(app) {
 		request.on("data",function(chunk) { body+=chunk; });
 		request.on("end",function() {
 			var data = querystring.parse(body);
-// 			console.log("/api/current_playlist body: ",data);
 			d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,userPreferences) {
 				if ( err ) { return d10.realrest.err(413,err,request.ctx);}
 				
@@ -180,7 +157,6 @@ exports.api = function(app) {
 					if ( userPreferences.playlist.list && typeof userPreferences.playlist.list == "string" ) {
 						userPreferences.playlist.list = [ userPreferences.playlist.list ];
 					}
-// 					console.log("storing doc ",userPreferences);
 					d10.couch.d10wi.storeDoc(userPreferences,function(err,response) {
 						if ( err )	d10.realrest.err(413,err,request.ctx);
 						else		d10.realrest.success( [], request.ctx );
@@ -226,13 +202,6 @@ exports.api = function(app) {
 		});
 	}
 	);
-
-	app.get("/api/songsToReview:end?",function(request,response) {
-		d10.couch.d10.view("user/song",{include_docs: true, key: [ request.ctx.user._id, false ]}, function(err,resp) {
-			if ( err ) { d10.rest.err(err.statusCode, err.statusMessage,request.ctx); }
-			else {d10.rest.success(resp,request.ctx);}
-		});
-	});
 	
 	app.post("/api/ping",function(request,response) {
 		d10.log("debug","router:","POST /api/ping");
@@ -241,7 +210,6 @@ exports.api = function(app) {
 		var updateAliveDoc = function() {
 			d10.couch.track.updateDoc("tracking/ping/"+request.ctx.user._id.replace(/^us/,"pi"),function(err,resp) {
 				if ( err ) d10.log(err);
-// 				d10.log("debug", err ? "error updating tracking ping" : "tracking ping updated");
 			});
 		};
 
@@ -290,7 +258,6 @@ exports.api = function(app) {
 				v._id="pt"+d10.uid();
 				v.user = request.ctx.user._id;
 				d10.couch.track.storeDoc(v,function(){});
-// 				d10.db.db("track").storeDoc({},v);
 			});
 			
 		};
@@ -299,7 +266,7 @@ exports.api = function(app) {
 			d10.log("debug",request.body,"after decode");
 			updateAliveDoc();
 			parsePlayerInfos();
-			d10.rest.success( [], request.ctx );
+			d10.realrest.success( [], request.ctx );
 		});
 	
 	});
@@ -390,11 +357,11 @@ exports.api = function(app) {
 			var volume = (request.body && "volume" in request.body) ? parseFloat(request.body.volume) : 0;
 			if ( isNaN(volume) )	volume=0;
 			d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
-				if ( err ) { return d10.rest.err(423,err,request.ctx); }
+				if ( err ) { return d10.realrest.err(423,err,request.ctx); }
 				doc.volume = volume;
 				d10.couch.d10wi.storeDoc(doc,function(err,resp) {
-					if ( err ) { d10.rest.err(423,err,request.ctx); }
-					else { d10.rest.success([],request.ctx); }
+					if ( err ) { d10.realrest.err(423,err,request.ctx); }
+					else { d10.realrest.success([],request.ctx); }
 				});
 			});
 		});
@@ -405,8 +372,6 @@ exports.api = function(app) {
 		d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
 			if ( err ) { return callback(err); }
 			onDoc(doc);
-// 			console.log("recording",doc);
-// 			doc.volume = volume;
 			d10.couch.d10wi.storeDoc(doc,callback);
 		});
 	};
@@ -417,7 +382,6 @@ exports.api = function(app) {
 			else { d10.realrest.success([],request.ctx); }
 		};
 		bodyDecoder()(request, response,function() {
-// 			console.log("body: ",request.body);
 			var prefValue = (request.body && "value" in request.body) ? request.body.value : null;
 			if ( request.params.name == "hiddenExtendedInfos" ) {
 				updateUserPreferences(
@@ -577,9 +541,6 @@ exports.api = function(app) {
 				}
 			});
 			d10.realrest.success(results, request.ctx);
-// 			request.ctx.headers["Content-Type"] = "application/json";
-// 			response.writeHead(200,request.ctx.headers);
-// 			response.end( JSON.stringify(results) );
 		});
 	});
 	
@@ -625,13 +586,8 @@ exports.api = function(app) {
 				jobs,
 				function(err,resp) {
 					if ( err ){
-// 						d10.log("got details error",err);
 						d10.realrest.err(427,err,request.ctx);
 					} else {
-// 						d10.log("got when positive response",resp);
-// 						request.ctx.headers["Content-Type"] = "application/json";
-// 						response.writeHead(200,request.ctx.headers);
-// 						response.end(JSON.stringify(resp));
 						d10.realrest.success(resp, request.ctx);
 					}
 				}
@@ -642,16 +598,13 @@ exports.api = function(app) {
 	app.get("/api/relatedArtists/:artist",function(request,response,next) {
 		d10.couch.d10.view("artist/related",{key: request.params.artist},function(err,body,errBody) {
 			if ( err ) {
-// 				d10.log("got relatedArtists error",err,errBody);
 				return d10.realrest.err(427,err,request.ctx);
 			}
 			if ( ! body.rows.length ) {
 				return d10.realrest.success( {artists: [], artistsRelated:[]}, request.ctx);
 			}
 			var related = [], relatedKeys = [], relatedHash = {} ; 
-// 			console.log("body; ",body.rows);
 			body.rows.forEach(function(v) {
-// 				console.log("v",v);
 				if ( v.value in relatedHash ) {
 					relatedHash[v.value]++;
 				} else {
@@ -663,13 +616,9 @@ exports.api = function(app) {
 				relatedKeys.push( v.value );
 			});
 			
-			
-// 			related = related.rows.pop().value;
 			var opts = {keys: relatedKeys};
-// 			d10.log(opts);
 			d10.couch.d10.view("artist/related",opts,function(err,degree2,errBody ) {
 				if ( err ) {
-// 					d10.log("got relatedArtists error",err, errBody);
 					return d10.realrest.err(427,err,request.ctx);
 				}
 				

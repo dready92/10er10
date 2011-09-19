@@ -930,7 +930,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			}
 		},
 		storeVolume: function(volume, options) {
-			options.data.volume = volume;
+			options.data = {volume: volume};
 			restQuery("user.storeVolume","POST",site_url+"/api/volume",options);
 		},
 		playerList: {

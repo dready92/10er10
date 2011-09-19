@@ -258,17 +258,8 @@ d10.fn.results = function (search,mainUi) {
 		if ( details.artists.length || details.albums.length ) {
 			debug("posting details request");
 			var tmpRoute = lastRoute;
-			/*var ajax = {
-				"type": "POST",
-				"url": site_url+"/api/details",
-				"route": lastRoute,
-				"dataType": "json",
-				"data": details,
-				"success": displayDetailsResponse
-			};*/
 			setTimeout(function() {
 				if ( tmpRoute == lastRoute ) {
-// 					d10.bghttp.post(ajax);
 					(function(token) {
 						d10.rest.search.details(details, {
 							load: function(err,resp) {
@@ -339,18 +330,7 @@ d10.fn.results = function (search,mainUi) {
 					}
 				});
 			})(lastRoute);
-			
-			var request = {
-				"type": "GET",
-				"url": site_url+"/api/search2",
-				"route": lastRoute,
-				"dataType": "json",
-				"data": {"start": data},
-				"success": displayAjaxResponse
-			};
-			
-// 			debug("testing animated");
-// 			d10.bghttp.get(request);
+
 			debug("testing animated");
 			if ( !animated ) {
 				animated = true;

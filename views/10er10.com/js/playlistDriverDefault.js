@@ -449,33 +449,6 @@ d10.playlistDrivers.default = function(options) {
 				}
 			}
 		});
-		/*
-		var res = d10.bghttp.post({
-			url: site_url+"/api/songs",
-			dataType: "json",
-			data: { ids: options.list },
-			success: function(resp) {
-// 				debug("load success: ",resp);
-				var html = "";
-				$.each(resp.data.songs,function(i,song) {
-					if ( song ) {
-						html+=d10.song_template(song);
-					}
-				});
-				if ( html.length ) {
-					cb.call(self,null,$(html));
-				} else {
-					cb.call(self);
-				}
-				
-			},
-			error: function(e) {
-				debug("load error: ",e);
-				cb.call(self,e);
-			}
-		});
-		*/
-// 		debug("posting res: ",res);
 	};
 	
 };

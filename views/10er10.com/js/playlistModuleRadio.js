@@ -34,8 +34,6 @@ var createModule= function (ui) {
 		if ( genres && genres.length )  opts.data["name[]"] = genres;
 				
 		d10.rest.song.random(opts);
-				
-// 		d10.bghttp.post(opts);
 	};
 
 	var appendSongs = function(count) {

@@ -97,12 +97,6 @@ function user () {
 		if ( name == "hiddenExtendedInfos" ) {
 			
 			value = value ? "true" : "false";
-			/*d10.bghttp.put({
-				url: site_url+"/api/preference/hiddenExtendedInfos",
-				contentType: "application/x-www-form-urlencoded",
-				data: {value: value},
-				success: $.proxy(this.refresh_infos,this)
-			});*/
 			d10.rest.user.setPreference("hiddenExtendedInfos",value, {
 				load: function(err,resp) {
 					if ( err ) return ;
@@ -125,17 +119,6 @@ function user () {
 		}
 		return false;
 	}
-	
-// 	this.get_playlist = function (id, success) {
-// 		if ( !id.length || id.substr(0,2) != 'pl' ) {
-// 			return false;
-// 		}
-// 		var opts = { 'callback': 'triggerEvent:user.playlist.get','url': site_url+'/api/plm/'+id,'dataType': 'json' };
-// 		if ( typeof success == "function" ) {
-// 			opts.success = success;
-// 		}
-// 		d10.bghttp.get ( opts );
-// 	}
 	
 	this.get_invites_count = function() {
 		if ( infos == null )  return 0;

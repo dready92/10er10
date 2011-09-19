@@ -263,30 +263,6 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 				}
 			}
 		});
-		/*
-		d10.bghttp.get({
-			"url": url,
-			"dataType": "json",
-			"data": data,
-			"searchText": lastSearchText,
-			"success": function(response) {
-				// check if we're too late
-				if ( this.searchText != lastSearchText ) {
-					return ;
-				}
-				results = response;
-				delete response;
-				parseAjaxResponse (results);
-				overlayNode.attr("scrollTop",0);
-				with_results.call(overlayNode, results);
-				settings.searchStop.call(searchinput);
-			},
-			"error": function() {
-				no_results.call(overlayNode);
-				settings.searchStop.call(searchinput);
-			}
-		})
-		;*/
 	};
 	
 	var parseAjaxResponse = function (response) {
