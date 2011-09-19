@@ -51,19 +51,19 @@ function user () {
 		infos.playlists = newlist;
 	});
 
-  $(document).bind('rplRenameSuccess',function(e,data) {
+  $(document).bind('rplRenameSuccess',function(e,playlist) {
     for ( var index in infos.playlists ) {
-      if ( infos.playlists[index]._id == data.playlist._id ) {
-        infos.playlists[index].name = data.playlist.name;
+      if ( infos.playlists[index]._id == playlist._id ) {
+        infos.playlists[index].name = playlist.name;
         break;
       }
     }
   });
 
-  $(document).bind('rplDropSuccess',function(e,data) {
+  $(document).bind('rplDropSuccess',function(e,playlist) {
     var newlist = [] ;
     for ( var index in infos.playlists ) {
-      if ( infos.playlists[index]._id != data.playlist._id) {
+      if ( infos.playlists[index]._id != playlist._id) {
         newlist[ newlist.length ] = infos.playlists[index];
       }
     }

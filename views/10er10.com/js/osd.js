@@ -5,8 +5,8 @@ function osd () {
 	var default_width = 600;
 	var display_length = 4000;
 
-	$(document).bind('rplDropSuccess',function(e,data) {
-		send('info', d10.mustacheView("osd.rpl.success.removed",{name: data.playlist.name}) );
+	$(document).bind('rplDropSuccess',function(e,playlist) {
+		send('info', d10.mustacheView("osd.rpl.success.removed",{name: playlist.name}) );
 	});
 	$(document).bind('rplCreationSuccess',function(e,data) {
 // 		debug("in osd",data);
@@ -18,8 +18,8 @@ function osd () {
 	$(document).bind('rplUpdateSuccess',function(e,data) {
 		send('info',d10.mustacheView("osd.rpl.success.updated",{name: data.playlist.name}));
 	});
-	$(document).bind('rplRenameSuccess',function(e,data) {
-		send('info',d10.mustacheView("osd.rpl.success.renamed",{name: data.playlist.name}));
+	$(document).bind('rplRenameSuccess',function(e,playlist) {
+		send('info',d10.mustacheView("osd.rpl.success.renamed",{name: playlist.name}));
 	});
 
 

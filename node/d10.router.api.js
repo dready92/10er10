@@ -34,7 +34,7 @@ exports.api = function(app) {
 	app.post("/api/songs",function(request,response) {
 		bodyDecoder()(request, response,function() {
 			request.ctx.headers["Content-type"] = "application/json";
-			console.log("/api/songs",request.body);
+// 			console.log("/api/songs",request.body);
 			if ( ! request.body["ids"] || 
 				Object.prototype.toString.call(request.body["ids"]) !== '[object Array]' ||
 				!request.body["ids"].length ) {

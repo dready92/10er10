@@ -1,7 +1,8 @@
 var d10 = require ("./d10"),
 	querystring = require("querystring"),
 	qs = require("qs"),
-	rpl = require("./d10.rpl");
+	rpl = require("./d10.rpl"),
+	bodyDecoder = require("connect").bodyParser;
 	
 exports.api = function(app) {
 	
@@ -51,32 +52,33 @@ exports.api = function(app) {
 	});
 	
 	
-	app.put("/api/plm/append",function(request,response) {
-		var body = "";
-		request.setEncoding("utf8");
-		request.on("data",function(chunk) { body+=chunk; });
-		request.on("end",function() {
-			request.body = querystring.parse(body)
+	app.put("/api/plm/append/pl:id",function(request,response) {
+// 		var body = "";
+// 		request.setEncoding("utf8");
+// 		request.on("data",function(chunk) { body+=chunk; });
+// 		request.on("end",function() {
+		bodyDecoder()(request, response,function() {
+// 			request.body = querystring.parse(body)
 			d10.log("debug",request.body,"after decode");
-			if ( !request.body.playlist ) {
-				return d10.rest.err(427,"playlist parameter is empty",request.ctx);
-			}
+// 			if ( !request.body.playlist ) {
+// 				return d10.rest.err(427,"playlist parameter is empty",request.ctx);
+// 			}
 			if ( !request.body.song ) {
-				return d10.rest.err(427,"song parameter is empty",request.ctx);
+				return d10.realrest.err(427,"song parameter is empty",request.ctx);
 			}
 			
-			d10.couch.d10.getDoc(request.body.playlist,function(err,playlist) {
+			d10.couch.d10.getDoc("pl"+request.params.id,function(err,playlist) {
 				if ( err ) {
-					return d10.rest.err(423,err,request.ctx);
+					return d10.realrest.err(423,err,request.ctx);
 				}
 				if ( playlist.user != request.ctx.user._id ) {
-					return d10.rest.err(403,null,request.ctx);
+					return d10.realrest.err(403,null,request.ctx);
 				}
 				rpl.append(playlist, request.body.song, function(err,resp) {
 					if ( !err ) {
-						return d10.rest.success({playlist: resp.playlist,song: resp.song }, request.ctx);
+						return d10.realrest.success({playlist: resp.playlist, song: resp.song }, request.ctx);
 					}
-					return d10.rest.err(423,null,request.ctx);
+					return d10.realrest.err(423,null,request.ctx);
 				});
 			});
 		});
@@ -107,55 +109,57 @@ exports.api = function(app) {
 		});
 	});
 	
-	app.put("/api/plm/rename",function(request,response) {
-		var body = "";
-		request.setEncoding("utf8");
-		request.on("data",function(chunk) { body+=chunk; });
-		request.on("end",function() {
-			request.body = querystring.parse(body);
+	app.put("/api/plm/rename/pl:id",function(request,response) {
+// 		var body = "";
+// 		request.setEncoding("utf8");
+// 		request.on("data",function(chunk) { body+=chunk; });
+// 		request.on("end",function() {
+		bodyDecoder()(request, response,function() {
+// 			request.body = querystring.parse(body);
+// 			console.log("plm.rename",request);
 			if ( !request.body.name || !request.body.name.length ) {
-				return d10.rest.err(427,"name parameter missing",request.ctx);
+				return d10.realrest.err(427,"name parameter missing",request.ctx);
 			}
-			if ( !request.body.playlist || request.body.playlist.substr(0,2) != "pl" ) {
-				return d10.rest.err(427,"playlist parameter missing",request.ctx);
-			}
-			rpl.rename(request.ctx.user._id, request.body.playlist, request.body.name,
+// 			if ( !request.body.playlist || request.body.playlist.substr(0,2) != "pl" ) {
+// 				return d10.rest.err(427,"playlist parameter missing",request.ctx);
+// 			}
+			rpl.rename(request.ctx.user._id, "pl"+request.params.id, request.body.name,
 					   function(err,playlist) {
 						   if ( err ) {
-							   d10.rest.err(423,err,request.ctx);
+							   d10.realrest.err(423,err,request.ctx);
 						   } else {
-							   d10.rest.success({playlist: playlist}, request.ctx);
+							   d10.realrest.success(playlist, request.ctx);
 						   }
 					   }
 			);
 		});
 	});
 	
-	app.put("/api/plm/drop",function(request,response) {
-		var body = "";
-		request.setEncoding("utf8");
-		request.on("data",function(chunk) { body+=chunk; });
-		request.on("end",function() {
-			request.body = querystring.parse(body);
-			if ( !request.body.playlist || request.body.playlist.substr(0,2) != "pl" ) {
-				return d10.rest.err(427,"playlist parameter missing",request.ctx);
+	app.delete("/api/plm/pl:id",function(request,response) {
+// 		var body = "";
+// 		request.setEncoding("utf8");
+// 		request.on("data",function(chunk) { body+=chunk; });
+// 		request.on("end",function() {
+// 			request.body = querystring.parse(body);
+// 			if ( !request.body.playlist || request.body.playlist.substr(0,2) != "pl" ) {
+// 				return d10.rest.err(427,"playlist parameter missing",request.ctx);
+// 			}
+		var playlist_id = "pl"+request.params.id;
+		d10.couch.d10.getDoc(playlist_id,function(err, playlist) {
+			if ( err ) {
+				d10.realrest.err(423,err,request.ctx);
 			}
-			
-			d10.couch.d10.getDoc(request.body.playlist,function(err, playlist) {
+			if ( playlist.user != request.ctx.user._id ) {
+				return d10.realrest.err(403,"",request.ctx);
+			}
+			d10.couch.d10.deleteDoc(playlist,function(err,resp) {
 				if ( err ) {
-					d10.rest.err(423,err,request.ctx);
+					return d10.realrest.err(423,err,request.ctx);
 				}
-				if ( playlist.user != request.ctx.user._id ) {
-					return d10.rest.err(403,"",request.ctx);
-				}
-				d10.couch.d10.deleteDoc(playlist,function(err,resp) {
-					if ( err ) {
-						return d10.rest.err(423,err,request.ctx);
-					}
 // 					playlist._rev = resp.rev;
-					d10.rest.success({playlist: playlist}, request.ctx);
-				});
+				d10.realrest.success(playlist, request.ctx);
 			});
 		});
+// 		});
 	});
 };

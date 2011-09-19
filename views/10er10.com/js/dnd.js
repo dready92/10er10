@@ -1031,9 +1031,14 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 	};	
 	
 	d10.rest.rpl = {
+		/*
+		 * 
+		 * @return {_id: "pl....", ...}
+		 */
 		get: function(id,options) {
 			restQuery("rpl.get","GET",site_url+"/api/plm/"+id,options);
 		},
+
 		create: function(name, songs, options) {
 			options.data = {
 				name: name,
@@ -1042,6 +1047,10 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			restQuery("rpl.create","PUT",site_url+"/api/plm/create",options);
 
 		},
+		/*
+		 * 
+		 * @return {playlist: {_id: "pl...",...}, songs: [{_id: "aa...", ...}, ... ]}
+		 */
 		update: function(id, songs, options) {
 			options.data = {
 				playlist: id,
@@ -1049,8 +1058,34 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			};
 			restQuery("rpl.update","PUT",site_url+"/api/plm/update",options);
 		},
+		/*
+		 * 
+		 * @return {_id: "pl....", ...}
+		 */		
 		remove: function(id, options) {
-			
+			restQuery("rpl.delete","DELETE",site_url+"/api/plm/"+id,options);
+		},
+		/*
+		 * 
+		 * @return {_id: "pl....", ...}
+		 */
+		rename: function(id,name,options) {
+			options.data = {
+				name:name
+			};
+			options.contentType = "application/x-www-form-urlencoded";
+			restQuery("rpl.rename","PUT",site_url+"/api/plm/rename/"+id,options);
+		},
+		/*
+		 * 
+		 * @return {playlist: {_id: "pl...",...}, song: {_id: "aa...", ...}}
+		 */		
+		append: function(id,song_id,options) {
+			options.data = {
+				song:song_id
+			};
+			options.contentType = "application/x-www-form-urlencoded";
+			restQuery("rpl.append","PUT",site_url+"/api/plm/append/"+id,options);
 		}
 	};
 	
