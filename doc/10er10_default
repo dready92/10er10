@@ -1,0 +1,10 @@
+# Default settings for 10er10.
+
+#path 10er10 install
+PATH_REP=/root/10er10/node/
+
+#dev mode
+DEV_MOD=NO
+
+#drop user
+DROP_USER=root
