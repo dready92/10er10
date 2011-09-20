@@ -487,7 +487,7 @@ if (! "fn" in d10 ) {
 
 			d10.when({
 				artists: function(then) {
-					d10.rest.artist.allByGenre(genre, {
+					d10.rest.genre.artists(genre, {
 						load: function(err, data) {
 							if ( err )	return then(err);
 							var back = {title:d10.mustacheView("library.extendedInfos.genre.artists"), data: []};
@@ -500,7 +500,7 @@ if (! "fn" in d10 ) {
 					});
 				},
 				albums: function(then) {
-					d10.rest.album.allByGenre(genre, {
+					d10.rest.genre.albums(genre, {
 						load: function(err, data) {
 							if ( err ) { return then(err); }
 							var back = {title: d10.mustacheView("library.extendedInfos.genre.albums"), data: []};

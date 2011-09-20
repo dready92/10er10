@@ -894,7 +894,6 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		},
  		setPreference: function(name, value, options) {
 			options.data = {value: value};
-// 			options.contentType = "application/x-www-form-urlencoded";
 			restQuery("user.setPreference","PUT",site_url+"/api/preference/"+name,options);
 		},
 		logout: function(options) {
@@ -909,7 +908,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			},
 			post: function(id, data,options) {
 				options.data = data;
-				restQuery("user.review.post", "PUT", site_url+'/api/meta/'+id,options);
+				restQuery("user.review.post", "PUT", site_url+"/api/meta/"+id,options);
 			}
 		},
 		invites: {
@@ -987,14 +986,6 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			}
 			restQuery("album.list","GET",site_url+"/api/album",options);
 		},
- 		/*
-		 * @param genre String genre the album should belong to
-		 * 
-		 * @return [ {key: [genre, "album1"], value: 4}, ...], 
-		 */
-		allByGenre: function(genre, options) {
-			restQuery("album.allByGenre","GET",site_url+"/api/list/genres/albums/"+encodeURIComponent(genre),options);
-		},
 		/*
 		 * @param album String album name
 		 * 
@@ -1030,16 +1021,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		allByName: function(options) {
 			restQuery("artist.allByName","GET",site_url+"/api/artistsListing",options);
 		},
- 
-		/*
-		 * @param genre String genre the artist should belong to
-		 * 
-		 * @return [ {key: [genre, "artist 1"], value: 4}, ...], 
-		 */
-		allByGenre: function(genre, options) {
-			restQuery("artist.allByGenre","GET",site_url+"/api/list/genres/artists/"+encodeURIComponent(genre),options);
-		},
- 
+  
 		/*
 		 * @param artist String artist name
 		 * 
@@ -1091,6 +1073,22 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 		 */
 		resume: function(options) {
 			restQuery("genre.resume","GET",site_url+"/api/genresResume",options);
+		},
+		/*
+		 * @param genre String genre the album should belong to
+		 * 
+		 * @return [ {key: [genre, "album1"], value: 4}, ...], 
+		 */
+		albums: function(genre, options) {
+			restQuery("genre.albums","GET",site_url+"/api/list/genres/albums/"+encodeURIComponent(genre),options);
+		},
+ 		/*
+		 * @param genre String genre the artist should belong to
+		 * 
+		 * @return [ {key: [genre, "artist 1"], value: 4}, ...], 
+		 */
+		artists: function(genre, options) {
+			restQuery("genre.artists","GET",site_url+"/api/list/genres/artists/"+encodeURIComponent(genre),options);
 		}
 	};	
 	
