@@ -355,7 +355,7 @@ exports.api = function(app) {
 				});
 			});
 		});
-	});
+	};
 	
 	app.post("/api/volume",function(request,response) {
 		bodyDecoder()(request, response,function() {
