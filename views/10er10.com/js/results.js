@@ -13,6 +13,7 @@ d10.fn.results = function (search,mainUi) {
 	var rcache = [],
 	rcacheSize = 15,
 	rcacheTTL = 120000,
+	restEndPoint = d10.rest.search.all,
 	cacheStore = function(key,data) {
 		data.key = key;
 		rcache.push(data);
@@ -31,8 +32,16 @@ d10.fn.results = function (search,mainUi) {
 				return rcache[i];
 			}
 		}
-	};
+	},
 	
+	cacheReset = function() {
+		rcache = [];
+	},
+	uiReset = function() {
+		$("div.rBox.songs div.list",ui).empty();
+		$("div.rBox.albums div.items",ui).empty().removeData("songs");
+		$("div.rBox.artists div.items",ui).empty().removeData("songs");
+	};
 	
 	var load = function () {
 		ui = mainUi.find("div.resultContainer").eq(0);
@@ -274,9 +283,9 @@ d10.fn.results = function (search,mainUi) {
 	};
 	
 	var display = function(data) {
-
+// 		debug("lastRoute : ",lastRoute);
 		data = data || "";
-		if ( !ui ) { load(); }
+// 		if ( !ui ) { load(); }
 		if ( data.length ) {
 			if ( search.val() != data ) {
 				debug("1 #results:"+search.val().length ? "/"+encodeURIComponent(search.val()) : "");
@@ -291,14 +300,14 @@ d10.fn.results = function (search,mainUi) {
 				return ;
 			}
 		}
-		debug("results: ",data,lastRoute);
+// 		debug("results: ",data,lastRoute);
 		if ( data.length ) {
 			if ( data == lastRoute ) {
 				return ;
 			}
 			lastRoute = data;
 		} else {
-			data.route = "/results";
+// 			data.route = "/results";
 			if ( lastRoute != data ) {
 				$("div.rBox.albums div.items, div.rBox.artists div.items",ui).empty();
 				$("div.rBox.songs div.items div.list",ui).empty();
@@ -324,9 +333,9 @@ d10.fn.results = function (search,mainUi) {
 			}
 			
 			(function(token) {
-				d10.rest.search.all(token,{
+				restEndPoint(token,{
 					load: function(err,resp) {
-						displayAjaxResponse.call(this, err, resp, token);
+						displayAjaxResponse(err, resp, token);
 					}
 				});
 			})(lastRoute);
@@ -336,7 +345,7 @@ d10.fn.results = function (search,mainUi) {
 				animated = true;
 				debug("animate...");
 				var startAnim = function() {
-					debug("launching animation on ",mainUi.find("img.loop"));
+// 					debug("launching animation on ",mainUi.find("img.loop"));
 					$("#results img.loop").css("visibility","visible").animate({opacity: 0.2},500,function() {
 						$(this).animate({opacity: 0.6},500,startAnim);
 					});
@@ -348,6 +357,19 @@ d10.fn.results = function (search,mainUi) {
 		}
 		
 	};
+	
+	d10.events.bind("whenLibraryScopeChange",function() {
+		cacheReset();
+		uiReset();
+		query = lastRoute;
+		lastRoute = "";
+		if ( d10.libraryScope.current == "full" ) {
+			restEndPoint = d10.rest.search.all;
+		} else {
+			restEndPoint = d10.rest.user.search.all;
+		}
+		display(query);
+	});
 	
 	load();
 	

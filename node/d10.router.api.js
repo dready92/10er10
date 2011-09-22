@@ -470,7 +470,8 @@ exports.api = function(app) {
 	
 	
 	app.get("/api/own/search",function(request,response) {
-		_songSearch(request.ctx.user._id+"song_search", request, response);
+		console.log("api.own.search");
+		_songSearch(request.ctx.user._id+"/song_search", request, response);
 	});
 	app.get("/api/search",function(request,response) {
 		_songSearch("song/search", request, response);
@@ -491,7 +492,9 @@ exports.api = function(app) {
 		}
 // 		db.include_docs(true).getView({
 // 			success: function(resp) {
+		console.log("api.own.search launching couch");
 		d10.couch.d10.view(view, options, function(err,resp) {
+			console.log("api.own.search couch response",  err, resp);
 			if ( err ) { return d10.realrest.err(423,err,request.ctx); }
 			var results = {title: [], artist: [], album: []};
 			resp.rows.forEach(function(v,k) {

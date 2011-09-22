@@ -140,6 +140,8 @@ var dnd = function() {
 
 };
 
+
+
 if ( !window.d10.mustache ) {
         window.d10.mustache = Mustache;
 }
@@ -180,6 +182,17 @@ window.d10.microtime = function() {
 window.d10.time = function() {
   return parseInt(this.microtime(),10);
 };
+
+
+window.d10.libraryScope = {
+	current: "full",
+	toggle: function() {
+		var event = this.current == "full" ? "user" : "full";
+		this.current = event;
+		d10.events.trigger("whenLibraryScopeChange", {scope: event});
+	}
+};
+
 
 window.d10.routeEncode = function ( segments ) {
 	var back = "/";
@@ -616,6 +629,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 	};
 };
 
+window.d10.events = new window.d10.fn.eventEmitter();
 
 })(jQuery);
 
@@ -664,7 +678,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 	};
 	
 	d10.rest = {};
-	var emitter = d10.rest.events = new d10.fn.eventEmitter();
+	var emitter = d10.events;
 	d10.rest.song = {
 		upload: function (file, filename, filesize, options, callback) {
 			var endpoint = "song.upload";
@@ -957,6 +971,12 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 			}
 			restQuery("user.songs","GET",site_url+"/api/list/s_user",options);
+		},
+		search: {
+			all: function(query, options) {
+				options.data = { start: query };
+				restQuery("user.search.all","GET",site_url+"/api/own/search",options);
+			}
 		}
 	};
 	
