@@ -1,33 +1,44 @@
 var d10 = require ("./d10"),
-	querystring = require("querystring"),
-	qs = require("qs"),
-	exec = require('child_process').exec;
+	qs = require("qs");
 
 exports.api = function(app) {
+	
+	app.get("/api/own/title",function(request,response) {
+		_titleSearch("title/search/"+request.ctx.user._id+"/title_search",request,response);
+	});
 	app.get("/api/title",function(request,response) {
+		_titleSearch("title/search/search",request,response);
+	});
+	var _titleSearch = function(view, request,response) {
 		var query = {inclusive_end: false};
 		if ( request.query.start && request.query.start.length ) {
 			var q = d10.ucwords(request.query.start);
 			query.startkey = [q];
 			query.endkey = [d10.nextWord(q)];
 		}
-		d10.couch.d10.list("title/search/search",query, function(err,resp) {
+		d10.couch.d10.list(view, query, function(err,resp) {
 			if ( err ) {
 				d10.realrest.success([], request.ctx);
 			} else {
 				d10.realrest.success(resp.titles, request.ctx);
 			}
 		});
-	});
+	};
 	
+	app.get("/api/own/artist",function(request,response) {
+		_artistSearch(request.ctx.user._id+"/artist_search",request,response);
+	});
 	app.get("/api/artist",function(request,response) {
+		_artistSearch("artist/search",request,response);
+	});
+	var _artistSearch = function(view, request,response) {
 		var query = {group: true};
 		if ( request.query.start && request.query.start.length ) {
 			var q = d10.ucwords(request.query.start);
 			query.startkey = [q];
 			query.endkey = [d10.nextWord(q)];
 		}
-		d10.couch.d10.view("artist/search",query, function(err,resp) {
+		d10.couch.d10.view(view, query, function(err,resp) {
 			if ( err ) {
 				d10.realrest.success([], request.ctx);
 			} else {
@@ -42,24 +53,29 @@ exports.api = function(app) {
 				d10.realrest.success(back, request.ctx);
 			}
 		});
-	});
+	};
 	
+	app.get("/api/own/album",function(request,response) {
+		_albumSearch("album/search/"+request.ctx.user._id+"/album_search",request,response);
+	});
 	app.get("/api/album",function(request,response) {
+		_albumSearch("album/search/search",request,response);
+	});
+	var _albumSearch = function(view, request,response) {
 		var query = {inclusive_end: false};
 		if ( request.query.start && request.query.start.length ) {
 			var q = d10.ucwords(request.query.start);
 			query.startkey = [q];
 			query.endkey = [d10.nextWord(q)];
 		}
-
-		d10.couch.d10.list("album/search/search",query,function(err,resp) {
+		d10.couch.d10.list(view, query, function(err,resp) {
 			if( err ) {
 				d10.realrest.success([], request.ctx);
 			} else {
 				d10.realrest.success(resp.albums, request.ctx);
 			}
 		});
-	});
+	};
 	
 	app.get("/api/genre",function(request,response) {
 		if ( request.query.start && request.query.start.length ) { 
@@ -75,10 +91,15 @@ exports.api = function(app) {
 		}
 	});
 	
-	
+	app.get("/api/own/artistsListing",function(request,response) {
+		_artistTokenized(request.ctx.user._id+"/artist_tokenized",request,response);
+	});
 	app.get("/api/artistsListing",function(request,response) {
+		_artistTokenized("artist/tokenized",request,response);
+	});
+	var _artistTokenized = function(view, request,response) {
 		var query = {group:true, group_level: 1};
-		d10.couch.d10.view("artist/tokenized",query,function(err,resp) {
+		d10.couch.d10.view(view,query,function(err,resp) {
 			if ( err ) {
 				d10.realrest.err(423, err, request.ctx);
 			}else {
@@ -86,24 +107,37 @@ exports.api = function(app) {
 				d10.realrest.success(resp.rows,request.ctx);
 			}
 		});
+	};
+	
+	app.get("/api/own/genresResume",function(request,response) {
+		_genreArtist(request.ctx.user._id+"/genre_artist",request,response);
 	});
 	app.get("/api/genresResume",function(request,response) {
-		d10.couch.d10.view("genre/artist",{group:true, group_level: 1},function(err,resp) {
+		_genreArtist("genre/artist",request,response);
+	});
+	var _genreArtist = function(view, request,response) {
+		d10.couch.d10.view(view, {group:true, group_level: 1}, function(err,resp) {
 			if ( err ) {
 				d10.realrest.err(423, err, request.ctx);
 			}else {
 				d10.realrest.success(resp.rows,request.ctx);
 			}
 		});
-	});
+	};
 	
+	app.get("/api/own/list/artists",function(request,response) {
+		_artistBaseName(request.ctx.user._id+"/artist_",request,response);
+	});
 	app.get("/api/list/artists",function(request,response) {
+		_artistBaseName("artist/",request,response);
+	});
+	var _artistBaseName = function(view, request,response) {
 		var query = {include_docs: true, limit: d10.config.rpp + 1};
-		var view = "basename";
+		var viewPart = "basename";
 		if ( request.query.artist && request.query.artist.length ) {
 			query.startkey = [request.query.artist];
 			query.endkey = [request.query.artist,[]];
-			view = "name";
+			viewPart = "name";
 			query.reduce = false;
 		}
 		if ( request.query.startkey_docid && request.query["startkey"] ) {
@@ -111,29 +145,33 @@ exports.api = function(app) {
 			query.startkey_docid = request.query.startkey_docid;
 		}
 		
-		d10.couch.d10.view("artist/"+view,query,function(err,resp) {
+		d10.couch.d10.view(view+viewPart,query,function(err,resp) {
 			if( err ) {
 				return d10.realrest.err(423, request.params.sort, request.ctx);
 			}
-// 			setTimeout(function() {
-				d10.realrest.success(resp.rows,request.ctx);
-// 			},2000);
+			d10.realrest.success(resp.rows,request.ctx);
 		});
-	});
+	};
 	
+	app.get("/api/own/list/creations",function(request,response) {
+		_ts_creationName(request.ctx.user._id+"/ts_creation_name",request,response);
+	});
 	app.get("/api/list/creations",function(request,response) {
+		_ts_creationName("ts_creation/name",request,response);
+	});
+	var _ts_creationName = function (view, request, response) {
 		var query = {include_docs: true, reduce: false, descending: true, limit: d10.config.rpp+1};
 		if ( request.query.startkey_docid && request.query["startkey"] ) {
 			query.startkey = JSON.parse(request.query["startkey"]);
 			query.startkey_docid = request.query.startkey_docid;
 		}
-		d10.couch.d10.view("ts_creation/name",query,function(err,resp,meta) {
+		d10.couch.d10.view(view,query,function(err,resp,meta) {
 			if ( err ) {
 				return d10.realrest.err(423, request.params.sort, request.ctx);
 			}
 			d10.realrest.success(resp.rows,request.ctx);
 		});
-	});
+	};
 	
 	app.get("/api/list/hits",function(request,response) {
 		var query = {reduce: false, descending: true, limit: d10.config.rpp+1};
@@ -164,7 +202,13 @@ exports.api = function(app) {
 		});
 	});
 	
+	app.get("/api/own/list/genres",function(request,response) {
+		_genreName(request.ctx.user._id+"/genre_name",request,response);
+	});
 	app.get("/api/list/genres",function(request,response) {
+		_genreName("genre/name",request,response);
+	});
+	var _genreName = function(view, request,response) {
 		if ( !request.query.genre || d10.config.genres.indexOf(request.query.genre) < 0 ) {
 			return d10.realrest.err(428, request.query.genre, request.ctx);
 		}
@@ -175,15 +219,21 @@ exports.api = function(app) {
 		} else {
 			query.startkey =  [request.query.genre];
 		}
-		d10.couch.d10.view("genre/name",query,function(err,resp) {
+		d10.couch.d10.view(view,query,function(err,resp) {
 			if ( err ) {
 				return d10.realrest.err(423, err, request.ctx);
 			}
 			d10.realrest.success(resp.rows,request.ctx);
 		});
-	});
+	};
 	
+	app.get("/api/own/list/titles",function(request,response) {
+		_titleName(request.ctx.user._id+"/title_name",request,response);
+	});
 	app.get("/api/list/titles",function(request,response) {
+		_titleName("title/name",request,response);
+	});
+	var _titleName = function(view, request,response) {
 		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1};
 		if ( request.query.title && request.query.title.length ) {
 			query.startkey = [request.query.title];
@@ -195,15 +245,21 @@ exports.api = function(app) {
 			query.startkey_docid = request.query.startkey_docid;
 		}
 		
-		d10.couch.d10.view("title/name",query,function(err,resp) {
+		d10.couch.d10.view(view,query,function(err,resp) {
 			if ( err ) {
 				return d10.realrest.err(423, request.params.sort, request.ctx);
 			}
 			d10.realrest.success(resp.rows,request.ctx);
 		});
-	});
+	};
 
+	app.get("/api/own/list/albums",function(request,response) {
+		_albumName(request.ctx.user._id+"/album_name",request,response);
+	});
 	app.get("/api/list/albums",function(request,response) {
+		_albumName("album/name",request,response);
+	});
+	var _albumName = function(view, request,response) {
 		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1};
 		if ( request.query.album && request.query.album.length ) {
 			query.startkey = [request.query.album];
@@ -215,13 +271,13 @@ exports.api = function(app) {
 			query.startkey_docid = request.query.startkey_docid;
 		}
 		
-		d10.couch.d10.view("album/name",query,function(err,resp) {
+		d10.couch.d10.view(view,query,function(err,resp) {
 			if ( err ) {
 				return d10.realrest.err(423, err, request.ctx);
 			}
 			d10.realrest.success(resp.rows, request.ctx);
 		});
-	});
+	};
 	
 	app.get("/api/list/s_user",function(request,response) {
 		var query = {include_docs: true, startkey: [request.ctx.user._id], endkey: [request.ctx.user._id,[]], limit: d10.config.rpp + 1};
@@ -272,66 +328,97 @@ exports.api = function(app) {
 		});
 	});
 	
+	app.get("/api/own/list/genres/artists/:genre",function(request,response) {
+		_genreArtists(request.ctx.user._id+"/genre_artists",request,response);
+	});
 	app.get("/api/list/genres/artists/:genre",function(request,response) {
+		_genreArtists("genre/artists",request,response);
+	});
+	var genreArtists = function(view, request,response) {
 		if ( !request.params.genre || d10.config.genres.indexOf(request.params.genre) < 0 ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
-		d10.couch.d10.view("genre/artists",{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},function(err,resp) {
+		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},function(err,resp) {
 			if ( err ) {
 				return d10.realrest.err(423, err, request.ctx);
 			}
 			d10.realrest.success(resp.rows,request.ctx);
 		});
-	});
+	};
 	
+	app.get("/api/own/list/genres/albums/:genre",function(request,response) {
+		_genreAlbums(request.ctx.user._id+"/genre_albums",request,response);
+	});
 	app.get("/api/list/genres/albums/:genre",function(request,response) {
+		_genreAlbums("genre/albums",request,response);
+	});
+	var _genreAlbums = function(view,request,response) {
 		if ( !request.params.genre || d10.config.genres.indexOf(request.params.genre) < 0 ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
-		d10.couch.d10.view("genre/albums",{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},function(err,resp) {
+		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},function(err,resp) {
 			if ( err ) {
 				return d10.realrest.err(423, err, request.ctx);
 			}
 			d10.realrest.success(resp.rows,request.ctx);
 		});
-	});
+	};
 	
+	app.get("/api/own/list/artists/albums/:artist",function(request,response) {
+		_artistAlbums(request.ctx.user._id+"/artist_albums",request,response);
+	});
 	app.get("/api/list/artists/albums/:artist",function(request,response) {
-		if ( !request.params.artist ) {
-			return d10.realrest.err(428, request.params.artist, request.ctx);
-		}
-		d10.couch.d10.view("artist/albums",{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},function(err,resp) {
-			if ( err ) {
-				console.log("error: ",err);
-				return d10.realrest.err(423, err, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		_artistAlbums("artist/albums",request,response);
 	});
-	
-	app.get("/api/list/artists/genres/:artist",function(request,response) {
+	var _artistAlbums = function(view,request,response) {
 		if ( !request.params.artist ) {
 			return d10.realrest.err(428, request.params.artist, request.ctx);
 		}
-		d10.couch.d10.view("artist/genres",{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},function(err,resp) {
+		d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},function(err,resp) {
 			if ( err ) {
 				console.log("error: ",err);
 				return d10.realrest.err(423, err, request.ctx);
 			}
 			d10.realrest.success(resp.rows,request.ctx);
 		});
+	};
+	
+	app.get("/api/own/list/artists/genres/:artist",function(request,response) {
+		_artistGenres(request.ctx.user._id+"/artist_genres",request,response);
+	});
+	app.get("/api/list/artists/genres/:artist",function(request,response) {
+		_artistGenres("artist/genres",request,response);
+	});
+	var _artistGenres = function(view,request,response) {
+		if ( !request.params.artist ) {
+			return d10.realrest.err(428, request.params.artist, request.ctx);
+		}
+		d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},function(err,resp) {
+			if ( err ) {
+				console.log("error: ",err);
+				return d10.realrest.err(423, err, request.ctx);
+			}
+			d10.realrest.success(resp.rows,request.ctx);
+		});
+	};
+	
+	app.get("/api/own/list/albums/artists/:album",function(request,response) {
+		_albumArtists(request.ctx.user._id+"/album_artists", request, response);
 	});
 	app.get("/api/list/albums/artists/:album",function(request,response) {
+		_albumArtists("album/artists", request, response);
+	});
+	var _albumArtists = function(view,request,response) {
 		if ( !request.params.album ) {
 			console.log("no album");
 			return d10.realrest.err(428, request.params.album, request.ctx);
 		}
-		d10.couch.d10.view("album/artists",{startkey: [request.params.album], endkey: [request.params.album,[]], group: true, group_level: 2},function(err,resp) {
+		d10.couch.d10.view(view,{startkey: [request.params.album], endkey: [request.params.album,[]], group: true, group_level: 2},function(err,resp) {
 			if ( err ) {
 				console.log("error: ",err);
 				return d10.realrest.err(423, err, request.ctx);
 			}
 			d10.realrest.success(resp.rows,request.ctx);
 		});
-	});
+	};
 }; // exports.api

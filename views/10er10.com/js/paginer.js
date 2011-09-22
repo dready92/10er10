@@ -30,7 +30,6 @@
 				}
 			});
 		};
-		
 		this.hasMoreResults = function() { return !endOfStream ;}
 		this.getNext = getResults;
 	};

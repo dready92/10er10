@@ -372,8 +372,12 @@ function ncouch (url) {
 				cb = data;
 				data = {};
 			}
+			var url = dburl+"/_design/"+encodeURIComponent(parts[0])+"/_list/"+encodeURIComponent(parts[1])+"/" +encodeURIComponent(parts[2]) ;
+			if ( parts.length == 4 ) {
+				url+="/"+encodeURIComponent(parts[3]);
+			}
 			var options = {
-				url: dburl+"/_design/"+encodeURIComponent(parts[0])+"/_list/"+encodeURIComponent(parts[1])+"/" +encodeURIComponent(parts[2]),
+				url:  url,
 				type: "GET",
 				data: data,
 				event: function(err,resp,meta) {

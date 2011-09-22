@@ -469,8 +469,13 @@ exports.api = function(app) {
 	
 	
 	
-	
-	app.get("/api/search2",function(request,response) {
+	app.get("/api/own/search",function(request,response) {
+		_songSearch(request.ctx.user._id+"song_search", request, response);
+	});
+	app.get("/api/search",function(request,response) {
+		_songSearch("song/search", request, response);
+	});
+	var _songSearch = function(view, request,response) {
 // 		var db = d10.db.db("d10");
 		var options = {include_docs: true};
 		if ( request.query.start ) {
@@ -486,7 +491,7 @@ exports.api = function(app) {
 		}
 // 		db.include_docs(true).getView({
 // 			success: function(resp) {
-		d10.couch.d10.view("song/search",options, function(err,resp) {
+		d10.couch.d10.view(view, options, function(err,resp) {
 			if ( err ) { return d10.realrest.err(423,err,request.ctx); }
 			var results = {title: [], artist: [], album: []};
 			resp.rows.forEach(function(v,k) {
@@ -542,7 +547,7 @@ exports.api = function(app) {
 			});
 			d10.realrest.success(results, request.ctx);
 		});
-	});
+	};
 	
 	app.post("/api/details",function(request,response) {
 		bodyDecoder()(request, response,function() {

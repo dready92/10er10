@@ -1154,7 +1154,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 	d10.rest.search = {
 		all: function(query, options) {
 			options.data = { start: query };
-			restQuery("search.all","GET",site_url+"/api/search2",options);
+			restQuery("search.all","GET",site_url+"/api/search",options);
 		},
 		details: function(details, options) {
 			options.data = details;
