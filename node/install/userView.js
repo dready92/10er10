@@ -1,7 +1,7 @@
 var config,
 	configParser = require("../configParser"),
 	when = require("../when");
-
+/*
 configParser.getConfig(function(err,resp) {
 // 	if ( process.argv.length > 4 && process.argv[4] == "-p" ) {
 // 		configParser.switchProd();
@@ -11,38 +11,33 @@ configParser.getConfig(function(err,resp) {
 	config = resp;
 	onConfig();
 });
-
-var onConfig = function() {
-
-	var d10 = require("../d10");
-// 		users = require("../d10.users");
-	d10.setConfig(config);
-	
+*/
+exports.createUserDesignDocs = function(couchd10, couchAuth, then) {
 	when(
 		{
 			users: function(cb) {
-				findUsers(d10.couch.auth, cb);
+				findUsers(couchAuth, cb);
 			},
 			views: function(cb) {
-				getViews(d10.couch.d10, cb);
-			},
+				getViews(couchd10, cb);
+			}/*,
 			lists: function(cb) {
-				getLists(d10.couch.d10, cb);
-			}
+				getLists(couchd10, cb);
+			}*/
 		},
 		function(err,resp) {
 			if ( err ) {
 				console.log(err);
-				return ;
+				then(err);
 			}
 			var users = [];
 			resp.users.rows.forEach(function(row) {
 				users.push(row.id);			
 			});
-			getUsersDocRev(d10.couch.d10, users,function(err,userRevs) {
+			getUsersDocRev(couchd10, users,function(err,userRevs) {
 				if ( err ) {
 					console.log(err);
-					return ;
+					then(err);
 				}
 				var docs = [];
 				users.forEach(function(uid) {
@@ -52,7 +47,7 @@ var onConfig = function() {
 				});
 // 				console.log(docs);
 				console.log("recording docs");
-				d10.couch.d10.storeDocs(docs);
+				couchd10.storeDocs(docs, then);
 			});
 		}
 	);
@@ -124,6 +119,7 @@ var getViews = function(ncouch, then) {
 	when(jobs,then);
 };
 
+/*
 var getLists = function(ncouch, then) {
 	var jobs = {};
 	d10lists.forEach(function(v) {
@@ -142,6 +138,7 @@ var getLists = function(ncouch, then) {
 	});
 	when(jobs,then);
 };
+*/
 
 var prepareUserViews = function(uid, rev, views) {
 	console.log("parsing user view for ",uid);

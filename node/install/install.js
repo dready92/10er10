@@ -2,6 +2,7 @@ var ncouch = require("../ncouch");
 var config ,
 configParser = require("../configParser");
 var configChecker = require("./configChecker");
+var userView = require("./userView");
 var when = require("../when");
 var fs = require("fs");
 var dbs;
@@ -95,9 +96,21 @@ var createDatabases = function() {
 	}
 	when(whenFns,function(errs,resp) {
 		if ( !errs ) {
-			console.log("End of installation");
+			userDocs(function(err,resp) {
+				if ( err ) {
+					console.log("errors...",err);
+				} else {
+					console.log("installation successfull");
+				}
+			});
 		}
 	});
+};
+
+var userDocs = function(then) {
+	var d10client = ncouch.server(dbs.d10.dsn).debug(false).database(dbs.d10.database);
+	var authclient = ncouch.server(dbs.auth.dsn).debug(false).database(dbs.auth.database);
+	userView.createUserDesignDocs(d10client, authclient, then);
 };
 
 
