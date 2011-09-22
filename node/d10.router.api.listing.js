@@ -11,7 +11,6 @@ exports.api = function(app) {
 			query.startkey = [q];
 			query.endkey = [d10.nextWord(q)];
 		}
-		
 		d10.couch.d10.list("title/search/search",query, function(err,resp) {
 			if ( err ) {
 				d10.realrest.success([], request.ctx);
@@ -97,13 +96,6 @@ exports.api = function(app) {
 			}
 		});
 	});
-	
-	
-	
-	
-	
-	
-	
 	
 	app.get("/api/list/artists",function(request,response) {
 		var query = {include_docs: true, limit: d10.config.rpp + 1};

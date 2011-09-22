@@ -942,7 +942,7 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			rpl: {
 				store: function(id, options) {
 					options.data = { rpl: id, type: "rpl"};
-					restQuery("user.playerList.rpl.store","PUT",site_url+"/api/current_playlist",options);				
+					restQuery("user.playerList.rpl.store","PUT",site_url+"/api/current_playlist",options);
 				}
 			}
 		},
@@ -950,13 +950,13 @@ d10.fn.eventEmitter = function (simpleTrigger) {
 			if ( query.startkey && query.startkey_docid ) {
 				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 			}
-			restQuery("user.likes","GET",site_url+"/api/list/likes",options);				
+			restQuery("user.likes","GET",site_url+"/api/list/likes",options);
 		},
 		songs: function(query, options) {
 			if ( query.startkey && query.startkey_docid ) {
 				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 			}
-			restQuery("user.songs","GET",site_url+"/api/list/s_user",options);				
+			restQuery("user.songs","GET",site_url+"/api/list/s_user",options);
 		}
 	};
 	
