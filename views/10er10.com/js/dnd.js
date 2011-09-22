@@ -848,13 +848,13 @@ window.d10.events = new window.d10.fn.eventEmitter();
 				if ( query.startkey && query.startkey_docid ) {
 					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 				}
-				restQuery("user.list.hits","GET",site_url+"/api/list/hits",options);
+				restQuery("song.list.hits","GET",site_url+"/api/list/hits",options);
 			},
 			creations: function(query, options) {
 				if ( query.startkey && query.startkey_docid ) {
 					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 				}
-				restQuery("user.list.creations","GET",site_url+"/api/list/creations",options);
+				restQuery("song.list.creations","GET",site_url+"/api/list/creations",options);
 			},
 			genres: function(query, options) {
 				options.data = {};
@@ -862,7 +862,7 @@ window.d10.events = new window.d10.fn.eventEmitter();
 					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 				}
 				options.data.genre = query.genre;
-				restQuery("user.list.genres","GET",site_url+"/api/list/genres",options);
+				restQuery("song.list.genres","GET",site_url+"/api/list/genres",options);
 			},
 			albums: function(query, options) {
 				options.data = {};
@@ -872,7 +872,7 @@ window.d10.events = new window.d10.fn.eventEmitter();
 				if( query.album ) {
 					options.data.album = query.album;
 				}
-				restQuery("user.list.albums","GET",site_url+"/api/list/albums",options);
+				restQuery("song.list.albums","GET",site_url+"/api/list/albums",options);
 			},
  			artists: function(query, options) {
 				options.data = {};
@@ -882,7 +882,7 @@ window.d10.events = new window.d10.fn.eventEmitter();
 				if( query.artist ) {
 					options.data.artist = query.artist;
 				}
-				restQuery("user.list.artists","GET",site_url+"/api/list/artists",options);
+				restQuery("song.list.artists","GET",site_url+"/api/list/artists",options);
 			},
  			titles: function(query, options) {
 				options.data = {};
@@ -892,7 +892,7 @@ window.d10.events = new window.d10.fn.eventEmitter();
 				if( query.title ) {
 					options.data.title = query.title;
 				}
-				restQuery("user.list.titles","GET",site_url+"/api/list/titles",options);
+				restQuery("song.list.titles","GET",site_url+"/api/list/titles",options);
 			}
 		}
 	};
@@ -977,7 +977,98 @@ window.d10.events = new window.d10.fn.eventEmitter();
 				options.data = { start: query };
 				restQuery("user.search.all","GET",site_url+"/api/own/search",options);
 			}
+		},
+		artist: {
+			list: function(start, options) {
+				if ( !options && $.isPlainObject(start) ) {
+					options = start;
+					start = null;
+				}
+				if ( start ) {
+					options.data = {start: start};
+				}
+				restQuery("user.artist.list","GET",site_url+"/api/own/artist",options);
+			},
+			allByName: function(options) {
+				restQuery("user.artist.allByName","GET",site_url+"/api/own/artistsListing",options);
+			}
+		},
+		album: {
+			list: function(start, options) {
+				if ( !options && $.isPlainObject(start) ) {
+					options = start;
+					start = null;
+				}
+				if ( start ) {
+					options.data = {start: start};
+				}
+				restQuery("user.album.list","GET",site_url+"/api/own/album",options);
+			}
+		},
+		genre: {
+			resume: function(options) {
+				restQuery("user.genre.resume","GET",site_url+"/api/own/genresResume",options);
+			}
+		},
+		song: {
+			listByTitle: function(start, options) {
+				if ( !options && $.isPlainObject(start) ) {
+					options = start;
+					start = null;
+				}
+				if ( start ) {
+					options.data = {start: start};
+				}
+				restQuery("user.song.listByTitle","GET",site_url+"/api/own/title",options);
+			},
+			list: {
+				creations: function(query, options) {
+					if ( query.startkey && query.startkey_docid ) {
+						options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+					}
+					restQuery("user.song.list.creations","GET",site_url+"/api/own/list/creations",options);
+				},
+				genres: function(query, options) {
+					options.data = {};
+					if ( query.startkey && query.startkey_docid ) {
+						options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+					}
+					options.data.genre = query.genre;
+					restQuery("user.song.list.genres","GET",site_url+"/api/own/list/genres",options);
+				},
+				albums: function(query, options) {
+					options.data = {};
+					if ( query.startkey && query.startkey_docid ) {
+						options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+					}
+					if( query.album ) {
+						options.data.album = query.album;
+					}
+					restQuery("user.song.list.albums","GET",site_url+"/api/own/list/albums",options);
+				},
+				artists: function(query, options) {
+					options.data = {};
+					if ( query.startkey && query.startkey_docid ) {
+						options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+					}
+					if( query.artist ) {
+						options.data.artist = query.artist;
+					}
+					restQuery("user.song.list.artists","GET",site_url+"/api/own/list/artists",options);
+				},
+				titles: function(query, options) {
+					options.data = {};
+					if ( query.startkey && query.startkey_docid ) {
+						options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+					}
+					if( query.title ) {
+						options.data.title = query.title;
+					}
+					restQuery("user.song.list.titles","GET",site_url+"/api/own/list/titles",options);
+				}
+			}
 		}
+ 		
 	};
 	
 	d10.rest.server = {

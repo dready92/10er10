@@ -243,7 +243,6 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 	
 	var ajaxCall = function ( data, with_results, no_results ) {
 		settings.searchStart.call(searchinput);
-		
 		url(data, {
 			load: function(err,response) {
 				debug("ajax response:",response);
@@ -295,7 +294,12 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 		searchinput.val( settings.select(params.text,params.json) );
 	};
 	
-	return this;
+	return {
+		setUrl: function(value) {
+			url = value;
+			lastSearchText = "";
+		}
+	};
 };
 
 

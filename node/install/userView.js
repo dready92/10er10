@@ -151,7 +151,7 @@ var prepareUserViews = function(uid, rev, views) {
 	}
 	for ( var fullName in views ) {
 		var view = JSON.parse(JSON.stringify(views[fullName])), spl =  fullName.split("/");
-		view.map = view.map.replace("function (doc) {","function (doc) { if ( doc.user && doc.user != '"+uid+"' ) return ;");
+		view.map = view.map.replace(/function\s*\(doc\)\s*{/,"function (doc) { if ( doc.user && doc.user != '"+uid+"' ) return ;");
 // 		console.log(view.map);
 		doc.views[ spl.join("_") ] = view;
 	}
