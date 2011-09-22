@@ -1011,6 +1011,9 @@ window.d10.events = new window.d10.fn.eventEmitter();
 			}
 		},
 		song: {
+			random: function(options) {
+				restQuery("user.song.random","POST","/api/own/random",options);
+			},
 			listByTitle: function(start, options) {
 				if ( !options && $.isPlainObject(start) ) {
 					options = start;

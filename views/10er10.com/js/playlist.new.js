@@ -308,7 +308,11 @@
 			};
 			for ( var index in d10.user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
 			if ( genres && genres.length )  opts.data["name[]"] = genres;
-			d10.rest.song.random(opts);
+			if ( d10.libraryScope.current == "full" ) {
+				d10.rest.song.random(opts);
+			} else {
+				d10.rest.user.song.random(opts);
+			}
 		};
 		
 		

@@ -271,8 +271,13 @@ exports.api = function(app) {
 	
 	});
 
-	app.post("/api/random",function(request,response) 
-	{
+	app.post("/api/own/random",function(request,response) {
+		_random( request.ctx.user._id +"/genre_unsorted", request, response);
+	});
+	app.post("/api/random",function(request,response) {
+		_random("genre/unsorted", request, response);
+	});
+	var _random = function(view, request,response) {
 		var getArray = function(v) {
 			if ( typeof v == "undefined" ) return [];
 			if ( Object.prototype.toString.call(v) !== '[object Array]' ) {
@@ -332,7 +337,7 @@ exports.api = function(app) {
 			}
 			var not = getArray(request.body["not"]);
 			var really_not = getArray(request.body["really_not"]);
-			d10.couch.d10.view("genre/unsorted",data,function(err,response) {
+			d10.couch.d10.view(view,data,function(err,response) {
 				if ( err ) {
 					return d10.realrest.err(423,err,request.ctx);
 				}
