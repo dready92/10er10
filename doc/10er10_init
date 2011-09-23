@@ -1,0 +1,48 @@
+#!/bin/bash -e
+
+### BEGIN INIT INFO
+# Provides:             10er10
+# Required-Start:       $remote_fs $syslog $couchbase-server
+# Required-Stop:        $remote_fs $syslog $couchbase-server
+# Default-Start:        2 3 4 5
+# Default-Stop:         
+# Short-Description:    Start 10er10
+### END INIT INFO
+
+if test -f /etc/default/10er10; then
+	. /etc/default/10er10
+else
+	echo "please configure /etc/default/10er10"
+	exit
+fi
+
+
+case "$1" in
+start)
+	su -l $DROP_USER -c "forever start  --sourceDir $PATH_REP server.js -p"
+	if [ $DEV_MOD = "YES" ]; then
+		su -l $DROP_USER -c "forever start  --sourceDir $PATH_REP server.js"
+	fi
+	;;
+stop)
+	su -l $DROP_USER -c "forever stopall"
+	;;
+
+restart) 
+	su -l $DROP_USER -c "forever stopall"
+	su -l $DROP_USER -c "forever start  --sourceDir $PATH_REP server.js -p"
+	if [ $DEV_MOD = "YES" ]; then
+                su -l $DROP_USER -c "forever start  --sourceDir $PATH_REP server.js"
+        fi
+	;;
+
+status)
+        forever list
+        ;;
+
+  *)
+        echo "Usage: /etc/init.d/10er10 {start|stop|restart|status}"
+        exit 1
+esac
+
+exit 0
