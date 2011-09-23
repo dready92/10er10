@@ -28,6 +28,9 @@ if (! "fn" in d10 ) {
 				hitsTab.fadeOut();
 			}
 		});
+		
+		ui.children("nav").find(".libraryMenuButton");
+		
 			
 		var init_topic = function (topic,category) {
 			debug("library.display start");

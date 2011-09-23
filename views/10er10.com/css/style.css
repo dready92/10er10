@@ -372,12 +372,12 @@ div.tooltip > p {
 	color: #BF9730;
 	cursor: pointer;
 	vertical-align: middle;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -moz-transition-property: background-color;
-  -moz-transition-duration: 0.8s;
-  -webkit-transition-property: background-color;
-  -webkit-transition-duration: 0.8s;  
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 0.8s;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 0.8s;  
 }
 
 #container > nav > ul > li:hover {
@@ -639,6 +639,31 @@ article.review .form_error {
 	margin: 0 0 10px 0;
 /* 	padding-top: 20px; */
 	position: relative;
+}
+
+#library nav {
+	position: relative;
+}
+
+.libraryMenuButton {
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	font-weight: bold;
+	padding: 0 2px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+	-moz-box-shadow: 0 0 4px #121212;
+	box-shadow: 0 0 4px #121212;
+	cursor: pointer;
+}
+
+.libraryMenuButton:hover {
+	background-color: rgba(100,100,100,0.4);
+	color: #BF9730;
+	-webkit-transition: color 0.3s;
+	-moz-transition: color 0.3s;
 }
 
 #library article h2 {
