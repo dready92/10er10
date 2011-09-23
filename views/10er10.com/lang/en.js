@@ -349,5 +349,7 @@ exports.client = {
 	"library.extendedInfos.genre.artists": "Artists",
 	"library.extendedInfos.genre.albums": "Albums",
 	"library.extendedInfos.artist.genres": "Genres",
-	"library.extendedInfos.album.artists": "Artists"
+	"library.extendedInfos.album.artists": "Artists",
+	"library.scope.toggle.full": "Show full catalog",
+	"library.scope.toggle.user": "Only show my own songs"
 };

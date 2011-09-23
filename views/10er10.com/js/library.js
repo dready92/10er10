@@ -29,7 +29,23 @@ if (! "fn" in d10 ) {
 			}
 		});
 		
-		ui.children("nav").find(".libraryMenuButton");
+		ui.children("nav").find(".libraryMenuButton").click(function() {
+			var button = $(this), offset = button.offset(), height = button.height();
+// 			debug(button.offset());
+			var label = ( d10.libraryScope.current == "full" ) ? d10.mustacheView("library.scope.toggle.user",{}) : d10.mustacheView("library.scope.toggle.full",{}) ;
+			var widget = $(
+				d10.mustacheView("hoverbox.library.scope", {toggle_scope: label})
+				).hide();
+			$("body").append(widget);
+			offset.left = offset.left - widget.width();
+			offset.top += height;
+			widget.offset(offset);
+			widget.find(".toggleScope").click(function() {
+				widget.ovlay().close();
+				d10.libraryScope.toggle();
+			});
+			widget.ovlay({"onClose": function() {this.getOverlay().remove()}, "closeOnMouseOut": true });
+		});
 		
 			
 		var init_topic = function (topic,category) {

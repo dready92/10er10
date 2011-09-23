@@ -90,8 +90,8 @@ var overlay = function(panel, options) {
 
 $.fn.ovlay = function(options) {
   if ( !options ) { return this.data("ovlay"); }
-  if ( opened ) { opened.data("ovlay").close(true); }
-  new overlay(this,options);
+  if ( opened ) { opened.close(true); }
+  opened = new overlay(this,options);
   return this;
 };
 
