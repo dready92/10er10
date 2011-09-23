@@ -1,8 +1,22 @@
 (function($){
 
 var visibleBaby = function () {
+	
+	
+	var pos = $("#search > div").eq(0).position();
+	var height = $("#search > div").eq(0).height();
+	$("#search > div").eq(1).css({"top": pos.top + height, "left": pos.left,"min-width": $("#search input").width() });
+	
+	
 	d10.playlist.bootstrap();
 	$(document).trigger("bootstrap:playlist");
+	$("#side").css("display","");
+	
+	var startHistory = Backbone.history.start();
+	debug("------starting history",startHistory);
+	if ( !startHistory ) {
+		d10.router.navigateTo(["welcome"]);
+	}
 	
 	$.each(d10.playlist.modules,function(k,mod) { mod.enable(); });
 	
@@ -20,7 +34,7 @@ var visibleBaby = function () {
 	d10.jobs = new d10.fn.jobs(base_url+"js/jobworker.js",4,function(job,data) {debug("job response: ",job,data);});
 	d10.jobs.push("enablePing",{"url": site_url+"/api/ping"},{
 	"success": function(data) {debug("enablePingSuccess",data);},
-	"error": function(err,msg) {debug("enablePingError",err,msg);},                    
+	"error": function(err,msg) {debug("enablePingError",err,msg);}
 	});
 	$(document).bind("audioDump",function(e,data) { 
 		d10.jobs.push("player",data,{}); 
@@ -31,12 +45,7 @@ var visibleBaby = function () {
 	// init background tasks
 	//
 	setTimeout(function() { d10.bgtask.init(); },7000);
-	
-	pos = $("#search > div").eq(0).position();
-	height = $("#search > div").eq(0).height();
-	$("#search > div").eq(1).css({"top": pos.top + height, "left": pos.left,"min-width": $("#search input").width() });
-	
-	$("#side").css("display","");
+
 };
 	
 	
@@ -67,12 +76,6 @@ var launchMeBaby = function() {
 	// preload la vue "playlists"
 	//
 	d10.my.plmanager.init_topic_plm ();
-
-	var startHistory = Backbone.history.start();
-	debug("------starting history",startHistory);
-	if ( !startHistory ) {
-		d10.router.navigateTo(["welcome"]);
-	}
 	
 	d10.router._containers.main.tab.delegate("[action]","click",function() {
 		var elem = $(this), action = elem.attr("action");

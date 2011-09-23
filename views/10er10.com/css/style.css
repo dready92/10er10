@@ -1413,15 +1413,24 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 	background: rgba(23,23,23,0.2);
 	width: 250px;
 	font-size: 1.4em;
-	-moz-transition-property: padding;
-	-moz-transition-duration: 0.6s;
-	-webkit-transition-property: padding;
-	-webkit-transition-duration: 0.6s;
+	-moz-transform: rotate(0deg);
+	-webkit-transform: rotate(0deg);
+	-moz-transition-property: padding -moz-transform;
+	-moz-transition-duration: 0.6s 0.6s;
+	-webkit-transition-property: padding -webkit-transform;
+	-webkit-transition-duration: 0.6s 0.6s;
 }
 
 #search.active input,#search.active input:hover {
 	padding: 4px 8px;
 	color: #121212;
+}
+
+#search.active input {
+	-webkit-transform: rotate(360deg);
+	-moz-transform: rotate(360deg);
+	-webkit-transition: -webkit-transform 0.6s;
+	-moz-transition: -moz-transform 0.6s;
 }
 
 
