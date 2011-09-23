@@ -1,4 +1,4 @@
-Upgrade from 0.7 to 0.6
+Upgrade from 0.6 to 0.7
 =======================
 
 - install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
@@ -13,7 +13,12 @@ To upgrade your PROD databases, run
     node install.js -p
 
 - restart the node 10er10 server
- 
+
+**What changed ?**
+
+- added /etc/init.d scripts for debian & ubuntu based distros (thks abeudin)
+- new (real) REST api
+- you can choose to only display your songs : this has impact on the library, on the search and on the radio mode
 
 Upgrade from 0.5 to 0.6
 =======================
