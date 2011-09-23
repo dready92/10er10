@@ -124,7 +124,7 @@ exports.homepage = function(app) {
 		}
 	}
 	app.get("/welcome/goodbye",function(request,response,next) {
-		d10.couch.d10.deleteDoc(request.ctx.session,function(){});
+		d10.couch.auth.deleteDoc(request.ctx.session,function(){});
 	    delete request.ctx.session;
 	    delete request.ctx.user;
 	    delete request.ctx.userPrivateConfig;
