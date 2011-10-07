@@ -22,10 +22,47 @@ function ncouch (url) {
 
 	var srvurl = uri.pathname ;
 
-	//increase the max number of connections to the couch
-	if ( "getAgent" in http ) {
-		http.getAgent(uri.host, uri.port).maxSockets = 50;
+	var httpRequest;
+
+	// node v0.5 detector
+	if ( http.globalAgent ) {
+		//node >= 0.5 
+		var agent = new http.Agent();
+		agent.maxSockets = 50;
+		httpRequest = function(uri, settings, cb) {
+			var request = http.request(
+				{
+					host: uri.hostname,
+					port: uri.port ? uri.port : 80,
+					method: settings.type,
+					path: settings.url,
+					headers: settings.headers,
+					agent: agent
+				},
+				cb
+			);
+// 			request.on("error",err);
+			return request;
+		};
+		
+		
+	} else {
+		//increase the max number of connections to the couch
+		if ( "getAgent" in http ) {
+			http.getAgent(uri.host, uri.port).maxSockets = 50;
+		}
+		//node 0.4
+		httpRequest = function(uri, settings, cb) {
+			var client = http.createClient(uri.port ? uri.port : 80, uri.hostname);
+			var request = client.request(settings.type,settings.url ? settings.url : "",settings.headers);
+			request.on("response",cb);
+			return request;
+		};
 	}
+
+	
+	
+	
 
 	var components = {
 		database: {}
@@ -66,6 +103,7 @@ function ncouch (url) {
 		if ( settings.body ) {
 			settings.headers["Content-Length"] = Buffer.byteLength(settings.body);
 		}
+		/*
 		var client = http.createClient(uri.port ? uri.port : 80, uri.hostname);
 		if ( debug ) {
 			console.log("request",settings.type,settings.url);
@@ -108,6 +146,46 @@ function ncouch (url) {
 				);
 			});
 		});
+		*/
+		var request = httpRequest(
+			uri, 
+			settings,
+			function(resp) {
+				if ( debug ) {
+					console.log(ruid,"request response: ",resp.statusCode);
+				}
+				resp.setEncoding("utf8");
+				var body = "";
+				resp.on("data",function(d) { body+=d;});
+				resp.on("error", function() {
+					settings.complete(resp.statusCode,null,
+							{
+								statusCode: resp.statusCode,
+								headers: JSON.parse(JSON.stringify(resp.headers)),
+								query: options
+							}
+					);
+				});
+				resp.on("end",function() {
+					if ( body.length && resp.headers["content-type"] == "application/json" ) {
+						try {
+							var b = JSON.parse(body);
+							body = b;
+						} catch (e) {}
+					}
+					if ( debug ) {
+						console.log(ruid,"request body: ",body);
+					}
+					settings.complete(null,body,
+						{
+							statusCode: resp.statusCode,
+							headers: JSON.parse(JSON.stringify(resp.headers)),
+							query: options
+						}
+					);
+				});
+			}
+		);
 		request.end( settings.body ? settings.body : null );
 	};
 	
