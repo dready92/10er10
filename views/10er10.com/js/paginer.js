@@ -34,6 +34,25 @@
 		this.getNext = getResults;
 	};
 	
+	d10.fn.emulatedCursor = function(data) {
+		var rpp = d10.config.rpp;
+		
+		this.getNext = function(cb) {
+			if ( !data.length ) {
+				cb();
+			} else {
+				if ( data.length > rpp ) {
+					cb(null,data.splice(0,rpp));
+				}else {
+					cb(null,data.splice(0,data.length));
+				}
+			}
+		};
+		
+		this.hasMoreResults = function() {
+			return data.length > 0;
+		};
+	};
 	
 	$.fn.d10scroll = function(cursor, list, options) {
 		options = options || {};
