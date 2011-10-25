@@ -205,9 +205,7 @@ exports.nextWord = function(w) {
 };
 
 exports.ucwords = function(str) {
-    // Uppercase the first character of every word in a string  
-    // 
-    // version: 1009.2513
+	// originally from :
     // discuss at: http://phpjs.org/functions/ucwords    // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
     // +   improved by: Waldo Malqui Silva
     // +   bugfixed by: Onno Marsman
@@ -217,7 +215,7 @@ exports.ucwords = function(str) {
     // *     returns 1: 'Kevin Van  Zonneveld'
     // *     example 2: ucwords('HELLO WORLD');
     // *     returns 2: 'HELLO WORLD'    
-    return (str + '').replace(/^([a-z])|\s+([a-z])/g, function ($1) {
+    return (str + '').replace(/^([a-z])|[\s\[\(\.0-9-]+([a-z])/g, function ($1) {
         return $1.toUpperCase();
     });
 };
