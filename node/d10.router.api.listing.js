@@ -334,7 +334,7 @@ exports.api = function(app) {
 	app.get("/api/list/genres/artists/:genre",function(request,response) {
 		_genreArtists("genre/artists",request,response);
 	});
-	var genreArtists = function(view, request,response) {
+	var _genreArtists = function(view, request,response) {
 		if ( !request.params.genre || d10.config.genres.indexOf(request.params.genre) < 0 ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
