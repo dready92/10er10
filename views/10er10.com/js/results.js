@@ -6,7 +6,6 @@
 	
 
 d10.fn.results = function (search,mainUi) {
-	// 		var loaded = false;
 	var ui = null;
 	var lastRoute = null;
 	var animated = false;
@@ -65,16 +64,7 @@ d10.fn.results = function (search,mainUi) {
 			d10.playlist.append($(this).closest(".rItem").find("div.song").clone());
 		})
 		.delegate("button[name=loadNow]","click",function() {
-			
 			return d10.playlist.appendToCurrent($(this).closest(".rItem").find("div.song").clone());
-			/*
-			var cur = d10.playlist.current();
-			if ( cur.length ) {
-				return d10.playlist.append($(this).closest(".rItem").find("div.song").clone(),cur);
-			}else {
-				return d10.playlist.append($(this).closest(".rItem").find("div.song").clone());
-			}
-			*/
 		})
 		;
 		
@@ -97,7 +87,6 @@ d10.fn.results = function (search,mainUi) {
 																  
 		});
 		search.bind("keyup",function() {
-// 			window.location.hash="#/results/"+encodeURIComponent($(this).val());
 			d10.router.navigateTo(["results",$(this).val()]);
 		});
 
@@ -249,9 +238,7 @@ d10.fn.results = function (search,mainUi) {
 	};
 	
 	var display = function(data) {
-// 		debug("lastRoute : ",lastRoute);
 		data = data || "";
-// 		if ( !ui ) { load(); }
 		if ( data.length ) {
 			if ( search.val() != data ) {
 				debug("1 #results:"+search.val().length ? "/"+encodeURIComponent(search.val()) : "");
@@ -266,14 +253,12 @@ d10.fn.results = function (search,mainUi) {
 				return ;
 			}
 		}
-// 		debug("results: ",data,lastRoute);
 		if ( data.length ) {
 			if ( data == lastRoute ) {
 				return ;
 			}
 			lastRoute = data;
 		} else {
-// 			data.route = "/results";
 			if ( lastRoute != data ) {
 				$("div.rBox.albums div.items, div.rBox.artists div.items",ui).empty();
 				$("div.rBox.songs div.items div.list",ui).empty();
