@@ -10,33 +10,7 @@ d10.fn.results = function (search,mainUi) {
 	var ui = null;
 	var lastRoute = null;
 	var animated = false;
-	var rcache = [],
-	rcacheSize = 15,
-	rcacheTTL = 120000,
-	restEndPoint = d10.rest.search.all,
-	cacheStore = function(key,data) {
-		data.key = key;
-		rcache.push(data);
-		while ( rcache.length > rcacheSize ) {
-			rcache.shift();
-		}
-	},
-	cacheGet = function(key) {
-		for ( var i in rcache ) {
-			if ( rcache[i].key == key ) {
-				if ( rcache[i].date + rcacheTTL < new Date().getTime() ) {
-					debug("results cache : cache expired");
-					rcache.splice(i,1);
-					break;
-				}
-				return rcache[i];
-			}
-		}
-	},
-	
-	cacheReset = function() {
-		rcache = [];
-	},
+	var restEndPoint = d10.rest.search.all,
 	uiReset = function() {
 		$("div.rBox.songs div.list",ui).empty();
 		$("div.rBox.albums div.items",ui).empty().removeData("songs");
@@ -206,14 +180,6 @@ d10.fn.results = function (search,mainUi) {
 			$("span.duration",anode).prepend(parseInt(val.duration/60));
 			anode.data("songs",val.songs).addClass("details");
 		});
-		
-		var cache = {
-			artists: $("div.rBox.artists div.items",ui).html(),
-			albums: $("div.rBox.albums div.items",ui).html(),
-			songs: $("div.rBox.songs div.items",ui).html(),
-			date: new Date().getTime()
-		};
-		cacheStore(	this.route, cache);	  
 	};
 	
 	var displayAjaxResponse = function(err, data, token) {
@@ -317,21 +283,6 @@ d10.fn.results = function (search,mainUi) {
 		}
 		if ( data.length ) {
 // 			var q = data ;
-			
-			var cache = cacheGet(lastRoute);
-			if ( cache ) {
-				debug("getting results from cache");
-				$("div.rBox.songs div.items",ui).html(cache.songs);
-				
-				setTimeout(function() {
-					$("div.rBox.albums div.items",ui).html(cache.albums);
-				},15);
-				setTimeout(function() {
-					$("div.rBox.artists div.items",ui).html(cache.artists);	
-				},35);
-				return;
-			}
-			
 			(function(token) {
 				restEndPoint(token,{
 					load: function(err,resp) {
@@ -359,7 +310,6 @@ d10.fn.results = function (search,mainUi) {
 	};
 	
 	d10.events.bind("whenLibraryScopeChange",function() {
-		cacheReset();
 		uiReset();
 		query = lastRoute;
 		lastRoute = "";
