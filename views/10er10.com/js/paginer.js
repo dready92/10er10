@@ -50,7 +50,7 @@
 		};
 		
 		this.hasMoreResults = function() {
-			debug("hasMoreResults: ",data, (data.length > 0));
+			debug("hasMoreResults: ", (data.length > 0));
 			return (data.length > 0);
 		};
 	};
@@ -79,7 +79,7 @@
 		
 		
 		var onScroll = function() {
-	 		debug("got scroll event");
+// 	 		debug("got scroll event");
 // 	 		debug("scrollHeight: ",widget.prop("scrollHeight"),"scrolltop", widget.prop("scrollTop"),"outerHeight", widget.outerHeight() );
 			if ( pxToBottom() < settings.pxMin && !ajaxRunning ) { fetchResult(); }
 		};
@@ -101,10 +101,11 @@
 						widget.bind("scroll",onScroll);
 					}
 					settings.onFirstContent.call(widget, resp.length);
+					firstRun=false;
 				} else {
-					debug("cursor have results ? ");
+// 					debug("cursor have results ? ", cursor.hasMoreResults());
 					if ( !cursor.hasMoreResults() ) {
-						debug("cursor doesn't have results, unbinding scroll");
+// 						debug("cursor doesn't have results, unbinding scroll");
 						widget.unbind("scroll",onScroll);
 					}
 				}

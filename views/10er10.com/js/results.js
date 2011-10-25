@@ -5,7 +5,7 @@
 	}
 	
 var createResultsPager = function(cursor, widget, opts) {
-	widget.d10scroll(cursor, widget.find("div.list"), opts);
+	return widget.d10scroll(cursor, widget.find("div.list"), opts);
 
 };
 	
@@ -16,10 +16,16 @@ d10.fn.results = function (search,mainUi) {
 	var lastRoute = null;
 	var animated = false;
 	var restEndPoint = d10.rest.search.all,
+	pagers = [],
 	uiReset = function() {
 		$("div.rBox.songs div.list",ui).empty();
+		ui.find("div.itmes").attr("scrollTop",0);
 		$("div.rBox.albums div.items",ui).empty().removeData("songs");
 		$("div.rBox.artists div.items",ui).empty().removeData("songs");
+		$.each(pagers, function(k,pager) {
+			pager.remove();
+		});
+		pagers = [];
 	};
 	
 	var load = function () {
@@ -178,7 +184,80 @@ d10.fn.results = function (search,mainUi) {
 		});
 	};
 	*/
+	var displayArtistsDetails = function(widget, details) {
+		var looped = {};
+		$.each ( details.artists, function(key,val) {
+			if ( !looped[val.key] ) {
+				looped[val.key] = {
+					"duration": val.doc.duration,
+					"count": 1,
+					"songs": [ val.doc ]
+				};
+			} else {
+				looped[val.key].duration += val.doc.duration;
+				looped[val.key].count++;
+				var inserted = false;
+				$.each ( looped[val.key].songs , function (k,v) {
+					if ( val.doc.title < v.title ) {
+						looped[val.key].songs.splice(k,0,val.doc);
+						inserted = true;
+						return false;
+					}
+				});
+				if ( !inserted ) {
+					looped[val.key].songs.push(val.doc);
+				}
+			}
+		});
+		$.each(looped,function(key,val) {
+			var anode = widget.find("div[name='"+escape(key)+"']");
+			if ( !anode ) {
+				debug("no node found for ",key,val);
+				return ;
+			}
+			$("span.count",anode).prepend(val.count);
+			$("span.duration",anode).prepend(parseInt(val.duration/60));
+			anode.data("songs",val.songs).addClass("details");
+		});
+	};
 	
+	var displayAlbumsDetails = function(widget, details) {
+		debug("displaying albums details",widget,details);
+		var looped = {};
+		$.each ( details.albums, function(key,val) {
+			if ( !looped[val.key] ) {
+				looped[val.key] = {
+					"duration": val.doc.duration ,
+					"count": 1,
+					"songs": [ val.doc ]
+				};
+			} else {
+				looped[val.key].duration += val.doc.duration;
+				looped[val.key].count++;
+				var inserted = false;
+				$.each ( looped[val.key].songs , function (k,v) {
+					if ( val.doc.tracknumber < v.tracknumber ) {
+						looped[val.key].songs.splice(k,0,val.doc);
+						inserted = true;
+						return false;
+					}
+				});
+				if ( !inserted ) {
+					looped[val.key].songs.push(val.doc);
+				}
+			}
+		});
+		$.each(looped,function(key,val) {
+			var anode = widget.find("div[name='"+escape(key)+"']");
+			if ( !anode ) {
+				debug("no node found for ",key,val);
+				return ;
+			}
+			$("span.count",anode).prepend(val.count);
+			$("span.duration",anode).prepend(parseInt(val.duration/60));
+			anode.data("songs",val.songs).addClass("details");
+		});
+	};
 	var displayAjaxResponse = function(err, data, token) {
 		debug(data);
 		if ( token != lastRoute ) {
@@ -193,10 +272,13 @@ d10.fn.results = function (search,mainUi) {
 			return false;
 		}
 		var html = '';
-		$("div.rBox.songs div.list",ui).empty();
+// 		$("div.rBox.songs div.list",ui).empty();
+		uiReset();
 		
 		var titleCursor = new d10.fn.emulatedCursor(data.title);
-		createResultsPager(titleCursor, ui.find("div.rBox.songs div.items"));
+		pagers.push(
+			ui.find("div.rBox.songs div.items").d10scroll(titleCursor, ui.find("div.rBox.songs div.list"), {pxMin: 100})
+		);
 		
 /*		if ( data.title ) {
 			for ( var index in data.title ) {
@@ -206,7 +288,84 @@ d10.fn.results = function (search,mainUi) {
 				$("div.rBox.songs div.list",ui).html(html);
 			}
 		}*/
+		var albumCursor = new d10.fn.emulatedCursor(data.album);
+		pagers.push(
+			ui.find("div.rBox.albums div.items").d10scroll(albumCursor, ui.find("div.rBox.albums div.items"), 
+				{
+					pxMin: 100,
+					parseResults: function(rows) {
+						var html = "";
+						for ( var index in rows ) {
+							html+= d10.mustacheView ( "results.album", {"name": rows[index].doc.album, "ename": escape(rows[index].doc.album) } ) ;
+						}
+						return html;
+					},
+					onContent: function(rows) {
+						var details = {albums: []};
+						for ( var index in rows ) {
+							details.albums.push( rows[index].doc.album );
+						}
+						(function(token,widget) {
+							d10.rest.search.details(details, {
+								load: function(err,resp) {
+// 										displayDetailsResponse.call(this,err,resp,token);
+									if ( token != lastRoute ) {
+										debug("Album details response is too late");
+										return ;
+									}
+									if ( err ) {
+										debug("Album details is in error: ",err);
+										return ;
+									}
+									debug("Album details: ",resp);
+									displayAlbumsDetails(widget,resp);
+								}
+							});
+						})(lastRoute,this);
+						
+					}
+				})
+		);
 		
+		var artistCursor = new d10.fn.emulatedCursor(data.artist);
+		pagers.push(
+			ui.find("div.rBox.artists div.items").d10scroll(artistCursor, ui.find("div.rBox.artists div.items"), 
+				{
+					pxMin: 100,
+					parseResults: function(rows) {
+						var html = "";
+						for ( var index in rows ) {
+							html+= d10.mustacheView ( "results.artist", {"name": rows[index].value.json.value, "ename": escape(rows[index].value.json.value) } ) ;
+						}
+						return html;
+					},
+					onContent: function(rows) {
+						var details = {artists: []};
+						for ( var index in rows ) {
+							details.artists.push( rows[index].value.json.value );
+						}
+						(function(token,widget) {
+							d10.rest.search.details(details, {
+								load: function(err,resp) {
+// 										displayDetailsResponse.call(this,err,resp,token);
+									if ( token != lastRoute ) {
+										debug("Artist details response is too late");
+										return ;
+									}
+									if ( err ) {
+										debug("Artist details is in error: ",err);
+										return ;
+									}
+									debug("Artist details: ",resp);
+									displayArtistsDetails(widget,resp);
+								}
+							});
+						})(lastRoute,this);
+						
+					}
+				})
+		);
+/*
 		var details = {"albums": [], "artists": []};
 		
 		$("div.rBox.albums div.items",ui).empty().removeData("songs");
@@ -247,6 +406,7 @@ d10.fn.results = function (search,mainUi) {
 			} , 50);
 		}
 		debug(details);
+*/
 	};
 	
 	var display = function(data) {
