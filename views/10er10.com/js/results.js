@@ -4,7 +4,13 @@
 		d10.fn = {};
 	}
 	
+var createResultsPager = function(cursor, widget, opts) {
+	widget.d10scroll(cursor, widget.find("div.list"), opts);
 
+};
+	
+	
+	
 d10.fn.results = function (search,mainUi) {
 	var ui = null;
 	var lastRoute = null;
@@ -93,6 +99,7 @@ d10.fn.results = function (search,mainUi) {
 	};
 	
 	// ajax callback : this is the ajax options 
+	/*
 	var displayDetailsResponse = function (err, data, token) {
 		if ( token != lastRoute ) {
 			debug("details info too late",data);
@@ -170,6 +177,7 @@ d10.fn.results = function (search,mainUi) {
 			anode.data("songs",val.songs).addClass("details");
 		});
 	};
+	*/
 	
 	var displayAjaxResponse = function(err, data, token) {
 		debug(data);
@@ -186,14 +194,18 @@ d10.fn.results = function (search,mainUi) {
 		}
 		var html = '';
 		$("div.rBox.songs div.list",ui).empty();
-		if ( data.title ) {
+		
+		var titleCursor = new d10.fn.emulatedCursor(data.title);
+		createResultsPager(titleCursor, ui.find("div.rBox.songs div.items"));
+		
+/*		if ( data.title ) {
 			for ( var index in data.title ) {
 				html+= d10.song_template ( data.title[index].doc ) ;
 			}
 			if ( html.length ) {
 				$("div.rBox.songs div.list",ui).html(html);
 			}
-		}
+		}*/
 		
 		var details = {"albums": [], "artists": []};
 		

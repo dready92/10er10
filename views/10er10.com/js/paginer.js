@@ -43,14 +43,15 @@
 			} else {
 				if ( data.length > rpp ) {
 					cb(null,data.splice(0,rpp));
-				}else {
+				} else {
 					cb(null,data.splice(0,data.length));
 				}
 			}
 		};
 		
 		this.hasMoreResults = function() {
-			return data.length > 0;
+			debug("hasMoreResults: ",data, (data.length > 0));
+			return (data.length > 0);
 		};
 	};
 	
@@ -78,8 +79,8 @@
 		
 		
 		var onScroll = function() {
-	// 		debug("got scroll event");
-	// 		debug("scrollHeight: ",widget.prop("scrollHeight"),"scrolltop", widget.prop("scrollTop"),"outerHeight", widget.outerHeight() );
+	 		debug("got scroll event");
+// 	 		debug("scrollHeight: ",widget.prop("scrollHeight"),"scrolltop", widget.prop("scrollTop"),"outerHeight", widget.outerHeight() );
 			if ( pxToBottom() < settings.pxMin && !ajaxRunning ) { fetchResult(); }
 		};
 		
@@ -101,11 +102,13 @@
 					}
 					settings.onFirstContent.call(widget, resp.length);
 				} else {
+					debug("cursor have results ? ");
 					if ( !cursor.hasMoreResults() ) {
+						debug("cursor doesn't have results, unbinding scroll");
 						widget.unbind("scroll",onScroll);
 					}
 				}
-				settings.onContent.call(widget);
+				settings.onContent.call(widget,resp);
 				ajaxRunning = false;
 			});
 		};
