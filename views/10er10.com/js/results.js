@@ -96,87 +96,7 @@ d10.fn.results = function (search,mainUi) {
 		});
 
 	};
-	
-	// ajax callback : this is the ajax options 
-	/*
-	var displayDetailsResponse = function (err, data, token) {
-		if ( token != lastRoute ) {
-			debug("details info too late",data);
-			return false;
-		}
-		var looped = {};
-		data.artists = data.artists || [];
-		data.albums = data.albums || [];
-		
-		$.each ( data.artists, function(key,val) {
-			if ( !looped[val.key] ) {
-				looped[val.key] = {
-					"duration": val.doc.duration,
-					"count": 1,
-					"songs": [ val.doc ]
-				};
-			} else {
-				looped[val.key].duration += val.doc.duration;
-				looped[val.key].count++;
-				var inserted = false;
-				$.each ( looped[val.key].songs , function (k,v) {
-					if ( val.doc.title < v.title ) {
-						looped[val.key].songs.splice(k,0,val.doc);
-						inserted = true;
-						return false;
-					}
-				});
-				if ( !inserted ) {
-					looped[val.key].songs.push(val.doc);
-				}
-			}
-		});
-		$.each(looped,function(key,val) {
-			var anode = $("div.rBox.artists div.items div[name='"+escape(key)+"']",ui);
-			if ( !anode ) {
-				debug("no node found for ",key,val);
-				return ;
-			}
-			$("span.count",anode).prepend(val.count);
-			$("span.duration",anode).prepend(parseInt(val.duration/60));
-			anode.data("songs",val.songs).addClass("details");
-		});
-		looped = {};
-		$.each ( data.albums, function(key,val) {
-			if ( !looped[val.key] ) {
-				looped[val.key] = {
-					"duration": val.doc.duration ,
-					"count": 1,
-					"songs": [ val.doc ]
-				};
-			} else {
-				looped[val.key].duration += val.doc.duration;
-				looped[val.key].count++;
-				var inserted = false;
-				$.each ( looped[val.key].songs , function (k,v) {
-					if ( val.doc.tracknumber < v.tracknumber ) {
-						looped[val.key].songs.splice(k,0,val.doc);
-						inserted = true;
-						return false;
-					}
-				});
-				if ( !inserted ) {
-					looped[val.key].songs.push(val.doc);
-				}
-			}
-		});
-		$.each(looped,function(key,val) {
-			var anode = $("div.rBox.albums div.items div[name='"+escape(key)+"']",ui);
-			if ( !anode ) {
-				debug("no node found for ",key,val);
-				return ;
-			}
-			$("span.count",anode).prepend(val.count);
-			$("span.duration",anode).prepend(parseInt(val.duration/60));
-			anode.data("songs",val.songs).addClass("details");
-		});
-	};
-	*/
+
 	var displayArtistsDetails = function(widget, details) {
 		var looped = {};
 		$.each ( details.artists, function(key,val) {
@@ -265,7 +185,6 @@ d10.fn.results = function (search,mainUi) {
 			return false;
 		}
 		var html = '';
-// 		$("div.rBox.songs div.list",ui).empty();
 		uiReset();
 		
 		var titleCursor = new d10.fn.emulatedCursor(data.title);
@@ -273,14 +192,6 @@ d10.fn.results = function (search,mainUi) {
 			ui.find("div.rBox.songs div.items").d10scroll(titleCursor, ui.find("div.rBox.songs div.list"), {pxMin: 100})
 		);
 		
-/*		if ( data.title ) {
-			for ( var index in data.title ) {
-				html+= d10.song_template ( data.title[index].doc ) ;
-			}
-			if ( html.length ) {
-				$("div.rBox.songs div.list",ui).html(html);
-			}
-		}*/
 		var albumCursor = new d10.fn.emulatedCursor(data.album);
 		pagers.push(
 			ui.find("div.rBox.albums div.items").d10scroll(albumCursor, ui.find("div.rBox.albums div.items"), 
@@ -358,48 +269,6 @@ d10.fn.results = function (search,mainUi) {
 					}
 				})
 		);
-/*
-		var details = {"albums": [], "artists": []};
-		
-		$("div.rBox.albums div.items",ui).empty().removeData("songs");
-		if ( data.album ) {
-			html = '';
-			for ( var index in data.album ) {
-				html+= d10.mustacheView ( "results.album", {"name": data.album[index].doc.album, "ename": escape(data.album[index].doc.album) } ) ;
-				details.albums.push(data.album[index].doc.album);
-			}
-			if ( html.length ) {
-				$("div.rBox.albums div.items",ui).html(html);
-			}
-		}
-		$("div.rBox.artists div.items",ui).empty().removeData("songs");
-		if ( data.artist ) {
-			html = '';
-			for ( var index in data.artist ) {
-				html+= d10.mustacheView ( "results.artist", {"name": data.artist[index].value.json.value, "ename": escape(data.artist[index].value.json.value) } ) ;
-				details.artists.push(data.artist[index].value.json.value);
-			}
-			if ( html.length ) {
-				$("div.rBox.artists div.items",ui).html(html);
-			}
-		}
-		if ( details.artists.length || details.albums.length ) {
-			debug("posting details request");
-			var tmpRoute = lastRoute;
-			setTimeout(function() {
-				if ( tmpRoute == lastRoute ) {
-					(function(token) {
-						d10.rest.search.details(details, {
-							load: function(err,resp) {
-								displayDetailsResponse.call(this,err,resp,token);
-							}
-						});
-					})(lastRoute);
-				}
-			} , 50);
-		}
-		debug(details);
-*/
 	};
 	
 	var display = function(data) {
@@ -432,7 +301,6 @@ d10.fn.results = function (search,mainUi) {
 			return ;
 		}
 		if ( data.length ) {
-// 			var q = data ;
 			(function(token) {
 				restEndPoint(token,{
 					load: function(err,resp) {
