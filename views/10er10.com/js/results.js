@@ -2,14 +2,7 @@
 
 	if ( ! "fn" in d10 ) {
 		d10.fn = {};
-	}
-	
-var createResultsPager = function(cursor, widget, opts) {
-	return widget.d10scroll(cursor, widget.find("div.list"), opts);
-
-};
-	
-	
+	}	
 	
 d10.fn.results = function (search,mainUi) {
 	var ui = null;
