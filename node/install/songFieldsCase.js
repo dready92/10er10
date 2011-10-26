@@ -7,6 +7,7 @@ var fixDoc = function(doc, couchd10, ucwords) {
 		doc.artist = artist;
 		doc.album = album;
 		return function(then) {
+			console.log("Fix song ",doc._id,doc.title,doc.artist,doc.album);
 			couchd10.storeDoc(doc, function(err,resp) {
 				if ( err ) {
 					console.log("Warning: unable to fix case for song ",doc,err,resp);

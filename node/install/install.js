@@ -6,6 +6,8 @@ var userView = require("./userView");
 var when = require("../when");
 var fs = require("fs");
 var dbs;
+var d10 = require("../d10");
+var songFieldsCase = require("./songFieldsCase");
 
 var configCheck = function() {
 	configChecker.check(function(err) {
@@ -100,7 +102,9 @@ var createDatabases = function() {
 				if ( err ) {
 					console.log("errors...",err);
 				} else {
-					console.log("installation successfull");
+					songFieldsCase.fixSongFieldsCase(ncouch.server(dbs.d10.dsn).debug(false).database(dbs.d10.database), d10.ucwords, function() {
+						console.log("installation successfull");
+					});
 				}
 			});
 		}
@@ -112,6 +116,8 @@ var userDocs = function(then) {
 	var authclient = ncouch.server(dbs.auth.dsn).debug(false).database(dbs.auth.database);
 	userView.createUserDesignDocs(d10client, authclient, then);
 };
+
+
 
 
 
