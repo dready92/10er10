@@ -1,4 +1,24 @@
 var d10 = require("./d10"), when = require("./when"), hash = require("./hash");
+var d10views = [
+	"album/artists",
+	"album/name",
+	"album/search",
+	"artist/albums",
+	"artist/basename",
+	"artist/genres",
+	"artist/name",
+	"artist/related",
+	"artist/search",
+	"artist/tokenized",
+	"genre/artist",
+	"genre/name",
+	"genre/unsorted",
+	"song/search",
+	"title/name",
+	"title/search",
+	"ts_creation/name"
+];
+
 
 var errCodes = {
 	430: "Login already registered",
@@ -8,6 +28,43 @@ var errCodes = {
 	441: "Password does not contain enough different characters"
 };
 
+
+var getd10Views = function(ncouch, then) {
+	var jobs = {};
+	d10views.forEach(function(v) {
+		var spl = v.split("/"), doc = spl[0], view = spl[1];
+		jobs[v] = 
+			(function(doc, view) {
+				return function(cb) {
+					ncouch.getDoc("_design/"+doc, function(err,resp) {
+						if ( err ) { return cb(err); }
+						return cb(null, resp.views[view]);
+					});
+				};
+			})(doc,view) 
+			
+		;
+	});
+	when(jobs,then);
+};
+exports.getd10Views = getd10Views;
+
+var prepareUserViews = function(uid, rev, views) {
+	console.log("parsing user view for ",uid);
+	var doc = {_id: "_design/"+uid, language: "javascript", views: {}};
+	if ( rev ) {
+		doc._rev = rev;
+	}
+	for ( var fullName in views ) {
+		var view = JSON.parse(JSON.stringify(views[fullName])), spl =  fullName.split("/");
+		view.map = view.map.replace(/function\s*\(doc\)\s*{/,"function (doc) { if ( doc.user && doc.user != '"+uid+"' ) return ;");
+// 		console.log(view.map);
+		doc.views[ spl.join("_") ] = view;
+	}
+	return doc;
+};
+
+exports.prepareUserViews = prepareUserViews;
 
 var isValidLogin = function(login, callback) {
 	if ( login.length < 3 ) {	return callback(431); }
@@ -82,6 +139,9 @@ var createUser = function(login,password,opts) {
 			},
 			password: function(cb) {
 				isValidPassword(password,cb);
+			},
+			views: function(cb) {
+				getd10Views(d10.couch.d10, cb);
 			}
 		},
 		function(err,resp) {
@@ -102,10 +162,11 @@ var createUser = function(login,password,opts) {
 			var d10PreferencesDoc = {_id: "up"+uuid};
 			var d10PrivateDoc = {_id: "pr"+uuid};
 			
+			var d10designDoc = prepareUserViews("us"+uuid, null, resp.views);
 			
 			when({
 				auth: function(cb) {
-					d10.couch.auth.storeDocs( [ authUserDoc, authPrivDoc ], function(err,resp) {
+					d10.couch.auth.storeDocs( [ authUserDoc, authPrivDoc, d10designDoc ], function(err,resp) {
 						if ( err ) {
 							console.log(err,resp);
 							cb(500,err);
