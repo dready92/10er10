@@ -146,6 +146,12 @@ var createUser = function(login,password,opts) {
 		},
 		function(err,resp) {
 			if ( err ) {
+				if ( err.password ) {
+					err.password = errCodes[ err.password ];
+				}
+				if ( err.login ) {
+					err.login = errCodes[ err.login ];
+				}
 				return sendResponse(err,resp);
 			}
 			
@@ -166,7 +172,17 @@ var createUser = function(login,password,opts) {
 			
 			when({
 				auth: function(cb) {
-					d10.couch.auth.storeDocs( [ authUserDoc, authPrivDoc, d10designDoc ], function(err,resp) {
+					d10.couch.auth.storeDocs( [ authUserDoc, authPrivDoc ], function(err,resp) {
+						if ( err ) {
+							console.log(err,resp);
+							cb(500,err);
+						} else {
+							cb();
+						}
+					});
+				},
+				d10wi: function(cb) {
+					d10.couch.d10wi.storeDocs( [ d10PreferencesDoc, d10PrivateDoc ], function(err,resp) {
 						if ( err ) {
 							console.log(err,resp);
 							cb(500,err);
@@ -176,11 +192,9 @@ var createUser = function(login,password,opts) {
 					});
 				},
 				d10: function(cb) {
-					d10.couch.d10wi.storeDocs( [ d10PreferencesDoc, d10PrivateDoc ], function(err,resp) {
+					d10.couch.d10.storeDocs( [ d10designDoc ], function(err,resp) {
 						if ( err ) {
 							console.log(err,resp);
-							d10.couch.auth.deleteDoc(authUserDoc._id);
-							d10.couch.auth.deleteDoc(authPrivDoc._id);
 							cb(500,err);
 						} else {
 							cb();
@@ -191,6 +205,11 @@ var createUser = function(login,password,opts) {
 			function(err,resp) {
 				if ( err ) {
 					sendResponse(err,resp);
+					d10.couch.auth.deleteDoc(authUserDoc._id);
+					d10.couch.auth.deleteDoc(authPrivDoc._id);
+					d10.couch.d10wi.deleteDoc(d10PreferencesDoc._id);
+					d10.couch.d10wi.deleteDoc(d10PrivateDoc._id);
+					d10.couch.d10.deleteDoc(d10designDoc._id);
 				} else {
 					sendResponse(null,uuid);
 				}

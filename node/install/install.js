@@ -102,6 +102,7 @@ var createDatabases = function() {
 				if ( err ) {
 					console.log("errors...",err);
 				} else {
+					console.log("checking and fixing songs titles/artists/albums");
 					songFieldsCase.fixSongFieldsCase(ncouch.server(dbs.d10.dsn).debug(false).database(dbs.d10.database), d10.ucwords, function() {
 						console.log("installation successfull");
 					});

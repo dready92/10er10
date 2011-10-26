@@ -33,7 +33,6 @@ exports.createUserDesignDocs = function(couchd10, couchAuth, then) {
 						d10users.prepareUserViews (uid, userRevs[uid], resp.views)
 						 );
 				});
-// 				console.log(docs);
 				console.log("recording docs");
 				couchd10.storeDocs(docs, then);
 			});

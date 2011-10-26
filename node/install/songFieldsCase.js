@@ -7,7 +7,7 @@ var fixDoc = function(doc, couchd10, ucwords) {
 		doc.artist = artist;
 		doc.album = album;
 		return function(then) {
-			console.log("Fix song ",doc._id,doc.title,doc.artist,doc.album);
+			console.log("Fix song",doc._id,doc.title,doc.artist,doc.album);
 			couchd10.storeDoc(doc, function(err,resp) {
 				if ( err ) {
 					console.log("Warning: unable to fix case for song ",doc,err,resp);
@@ -33,6 +33,7 @@ exports.fixSongFieldsCase = function(couchd10, ucwords, then) {
 				return ;
 			}
 			var toFix = [];
+			console.log(resp.rows.length + " songs to check");
 			resp.rows.forEach(function(v,k) {
 				var fix = fixDoc(v.doc, couchd10, ucwords);
 				if(fix) {
@@ -40,7 +41,7 @@ exports.fixSongFieldsCase = function(couchd10, ucwords, then) {
 				}
 			});
 			if ( toFix.length ) {
-				console.log("got ",toFix.length," songs to fix");
+				console.log(toFix.length + " songs to fix");
 				var fixNext = function() {
 					if ( toFix.length ) {
 						var fix = toFix.pop();
