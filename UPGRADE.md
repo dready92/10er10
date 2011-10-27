@@ -19,6 +19,9 @@ To upgrade your PROD databases, run
 - added /etc/init.d scripts for debian & ubuntu based distros (thks abeudin)
 - new (real) REST api
 - you can choose to only display your songs : this has impact on the library, on the search and on the radio mode
+- config option allowCustomGenres disable the strict checking of songs genre
+- search results now works with infinite scrolling. UX also slightly modified
+- prepared support for node.js 0.6
 
 Upgrade from 0.5 to 0.6
 =======================

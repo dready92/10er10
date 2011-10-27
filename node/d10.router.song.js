@@ -66,7 +66,11 @@ exports.api = function(app) {
 			var errors = {};
 			fields.title = request.body.title ? d10.sanitize.string(request.body.title) : "";
 			fields.artist = request.body.artist ? d10.sanitize.string(request.body.artist) : "";
-			fields.genre = request.body.genre? d10.sanitize.genre(request.body.genre) : "";
+			if ( !d10.config.allowCustomGenres ) {
+				fields.genre = request.body.genre? d10.sanitize.genre(request.body.genre) : "";
+			} else {
+				fields.genre = request.body.genre && request.body.genre.length ? request.body.genre : "Other";
+			}
 			when (
 				{
 					title: function(cb) {

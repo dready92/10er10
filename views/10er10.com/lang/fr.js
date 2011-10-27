@@ -277,7 +277,7 @@ exports.server = {
 		unknown_artist: "artiste inconnu",
 		unknown_title: "titre inconnu"
 	},
-	"review/none.html": {
+	"html/review/none.html": {
 		message: "Tous vos morceaux ont déjà été validés. Rendez-vous sur la page <a href=\"#upload\">d'Upload</a> afin de déposer de nouveaux morceaux sur le serveur."
 	},
 	"review/song.html": {

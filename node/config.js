@@ -138,7 +138,8 @@ exports.invites = {
 }
 		
 		
-
+// set it to true if 10er10 should allow genres that aren't in the exports.genres list
+exports.allowCustomGenres = false;
 exports.genres = [
 'Blues',
 'Classic Rock',
