@@ -224,7 +224,8 @@ exports.server = {
 		songs: "morceau(x)",
 		minutes: "minute(s)",
 		add_to_player: "Ajouter à la lecture en cours",
-		add_after_current_song: "Ajouter juste après le morceau en écoute"
+		add_after_current_song: "Ajouter juste après le morceau en écoute",
+		open_in_library: "Afficher dans le catalogue"
 	},
 	"html/results/artist.html": {
 		open: "voir les morceaux",
@@ -232,7 +233,8 @@ exports.server = {
 		songs: "morceau(x)",
 		minutes: "minute(s)",
 		add_to_player: "Ajouter à la lecture en cours",
-		add_after_current_song: "Ajouter juste après le morceau en écoute"
+		add_after_current_song: "Ajouter juste après le morceau en écoute",
+		open_in_library: "Afficher dans le catalogue"
 	},
 	"html/review/song.html": {
 		page_title: "Informations sur le morceau",

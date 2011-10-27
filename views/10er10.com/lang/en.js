@@ -225,7 +225,8 @@ exports.server = {
 		songs: "song(s)",
 		minutes: "minute(s)",
 		add_to_player: "Add to player queue",
-		add_after_current_song: "Add next to the currently playing song"
+		add_after_current_song: "Add next to the currently playing song",
+		open_in_library: "View in library"
 	},
 	"html/results/artist.html": {
 		open: "see songs",
@@ -233,7 +234,8 @@ exports.server = {
 		songs: "song(s)",
 		minutes: "minute(s)",
 		add_to_player: "Add to player queue",
-		add_after_current_song: "Add next to the currently playing song"
+		add_after_current_song: "Add next to the currently playing song",
+		open_in_library: "View in library"
 	},
 	"html/review/song.html": {
 		page_title: "Song metadata",

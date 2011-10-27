@@ -7,19 +7,40 @@
 d10.fn.results = function (search,mainUi) {
 	var ui = null;
 	var lastRoute = null;
-	var animated = false;
-	var restEndPoint = d10.rest.search.all,
+	var animated = false,
+	stopAnimated = function() {
+		if ( animated ) {
+			animated = false;
+			mainUi.find("img.loop").stop(true).css({visibility: "hidden", opacity: 0.6});
+		}
+	},
+	startAnimated = function() {
+		debug("testing animated");
+		if ( !animated ) {
+			animated = true;
+			debug("animate...");
+			var startAnim = function() {
+				mainUi.find("img.loop").css("visibility","visible").animate({opacity: 0.2},500,function() {
+					$(this).animate({opacity: 0.6},500,startAnim);
+				});
+			};
+			startAnim();
+		}
+	},
+	restEndPoint = d10.rest.search.all,
 	pagers = [],
 	uiReset = function() {
 		$("div.rBox.songs div.list",ui).empty();
-		ui.find("div.itmes").attr("scrollTop",0);
+		ui.find("div.items").attr("scrollTop",0);
 		$("div.rBox.albums div.items",ui).empty().removeData("songs");
 		$("div.rBox.artists div.items",ui).empty().removeData("songs");
+		stopAnimated();
 		$.each(pagers, function(k,pager) {
 			pager.remove();
 		});
 		pagers = [];
-	};
+	},
+	minChars=3;
 	
 	var load = function () {
 		ui = mainUi.find("div.resultContainer").eq(0);
@@ -35,6 +56,7 @@ d10.fn.results = function (search,mainUi) {
 			n.node.addClass(n.class).removeClass(n.oldClass);
 			o.node.addClass(o.class).removeClass(o.oldClass);
 		});
+		/*
 		ui.delegate("button.toggleDetails","click",function() {
 			var item = $(this).closest(".rItem");
 			if ( item.hasClass("parsed") ) {
@@ -54,8 +76,38 @@ d10.fn.results = function (search,mainUi) {
 			}
 			item.addClass("parsed").addClass("opened").removeData("songs");
 			
+		})*/
+		
+		ui.delegate(".rCenter .head", "click", function() {
+			var item = $(this).closest(".rItem");
+			if ( item.hasClass("parsed") ) {
+				if ( item.hasClass("opened") ) {
+					item.removeClass("opened");
+				} else {
+					item.addClass("opened");
+				}
+				return ;
+			}
+			if ( item.data("songs") ) {
+				var html = "";
+				$.each(item.data("songs"),function(key,val) {
+					html+=d10.song_template(val);
+				});
+				item.find("div.details div.list").html(html);
+			}
+			item.addClass("parsed").addClass("opened").removeData("songs");
 		})
-		.delegate("div.song","dragstart", d10.dnd.onDragDefault)
+		.delegate(".openInLibrary","click",function(e) {
+			e.stopPropagation();
+			var item = $(this).closest(".rItem"), box = item.closest(".rBox");
+			if ( box.hasClass("artists") ) {
+				d10.router.navigateTo(["library","artists",unescape(item.attr("name"))]);
+			} else {
+				d10.router.navigateTo(["library","albums",unescape(item.attr("name"))]);
+			}
+		});
+		
+		ui.delegate("div.song","dragstart", d10.dnd.onDragDefault)
 		.delegate("div.song","dragend",d10.dnd.removeDragItem)
 		.delegate("div.song","dblclick",function(e) {
 			d10.playlist.append($(this).clone());
@@ -177,10 +229,7 @@ d10.fn.results = function (search,mainUi) {
 			debug("info too late");
 			return false;
 		}
-		if ( animated ) {
-			animated = false;
-			mainUi.find("img.loop").stop(true).css({visibility: "hidden", opacity: 0.6});
-		}
+		stopAnimated();
 		if ( err ) {
 			return false;
 		}
@@ -287,6 +336,11 @@ d10.fn.results = function (search,mainUi) {
 				return ;
 			}
 		}
+		if ( data.length < minChars ) {
+			lastRoute = "";
+			uiReset();
+			return ;
+		}
 		if ( data.length ) {
 			if ( data == lastRoute ) {
 				return ;
@@ -294,35 +348,25 @@ d10.fn.results = function (search,mainUi) {
 			lastRoute = data;
 		} else {
 			if ( lastRoute != data ) {
-				$("div.rBox.albums div.items, div.rBox.artists div.items",ui).empty();
-				$("div.rBox.songs div.items div.list",ui).empty();
+				uiReset();
 				lastRoute = data;
 			}
 			return ;
 		}
 		if ( data.length ) {
 			(function(token) {
-				restEndPoint(token,{
-					load: function(err,resp) {
-						displayAjaxResponse(err, resp, token);
+				setTimeout(function() {
+					if ( token != lastRoute ) {
+						return ;
 					}
-				});
-			})(lastRoute);
-
-			debug("testing animated");
-			if ( !animated ) {
-				animated = true;
-				debug("animate...");
-				var startAnim = function() {
-// 					debug("launching animation on ",mainUi.find("img.loop"));
-					$("#results img.loop").css("visibility","visible").animate({opacity: 0.2},500,function() {
-						$(this).animate({opacity: 0.6},500,startAnim);
+					restEndPoint(token,{
+						load: function(err,resp) { displayAjaxResponse(err, resp, token); }
 					});
-				};
-				startAnim();
-			}
+					startAnimated();
+				},150);
+			})(lastRoute);
 		} else {
-			$("div.items",ui).empty();
+			uiReset();
 		}
 		
 	};
