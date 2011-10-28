@@ -1613,7 +1613,6 @@ div.hoverbox hr {
 
 #welcome div[name=introduction] div.items> div{
   position: absolute;
-  opacity: 0;
 }
 
 #welcome div[name=introduction] a {
