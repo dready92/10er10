@@ -1675,6 +1675,27 @@ div.hoverbox hr {
 	
 }
 
+#welcome .whatsNew { display: none; }
+#welcome .whatsNew>.head{ text-align: center; font-size: 1.4em; padding: 20px 0;}
+#welcome .whatsNew>.body { 
+	-moz-column-count: 2;
+	-moz-column-gap: 10px;
+	-webkit-column-count: 2;
+	-webkit-column-gap: 10px;
+}
+#welcome .whatsNewWidget {
+	width: 330px;
+	height: 170px;
+	border-radius: 9px;
+	border: 2px solid #676767;
+	margin: 0 auto 10px auto;
+	background: #121212;
+}
+#welcome .whatsNewWidget .head { text-align: center; font-weight: bold; padding: 4px 0; }
+#welcome .whatsNewWidget .body { min-height: 130px;} 
+#welcome .whatsNewWidget img {	float: left;	vertical-align: center; }
+#welcome .whatsNewWidget .footer { text-align: center;}
+
 html.csstransitions #welcome div[name=introduction] div.welcomeBox {
 /* 	-webkit-transform: scale(1); */
 	-moz-transform: scale(1);

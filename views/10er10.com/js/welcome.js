@@ -45,13 +45,14 @@ d10.fn.welcome = function  (ui) {
 			}
 		});
 	},
-	arrangeLatest = function(latest) {
+	undefinedAlbum = "__undefined_album__",
+	arrangeLatest = function(latest, then) {
 		var songs = $.map(latest,function(v) { return v.doc });
 		var songsByAlbum = {};
 		var songsByAlbumMeta = {};
 		
 		for ( var i in songs ) {
-			var album = "__undefined_album__";
+			var album = undefinedAlbum;
 			if ( songs[i].album ) {
 				album = songs[i].album;
 			}
@@ -74,9 +75,51 @@ d10.fn.welcome = function  (ui) {
 		for ( var i in songsByAlbum ) {
 			debug(i, songsByAlbum[i], songsByAlbumMeta[i]);
 		}
+		then(songsByAlbum, songsByAlbumMeta);
+	},
+	artistsLimitChars = 300,
+	displayLatest = function(songsByAlbum, songsByAlbumMeta) {
+		var widgets = [];
+		for ( var i in songsByAlbum ) {
+			if ( i == undefinedAlbum ) {
+				continue;
+			}
+			if ( !songsByAlbumMeta[i].images.length ) {
+				continue;
+			}
+			var songs = songsByAlbum[i], image = songsByAlbumMeta[i].images[0], artists = songsByAlbumMeta[i].artists;
+			var artistsTokenized = "";
+			for ( var a in artists ) {
+				if ( artistsTokenized.length ) artistsTokenized+=", ";
+				artistsTokenized+=artists[a];
+				if ( artistsTokenized.length > artistsLimitChars ) {
+					artistsTokenized+=", ...";
+					break;
+				}
+			}
+			widgets.push(
+				d10.mustacheView("welcome.wnWidget.album",
+					{
+						album: i,
+						songs: songs.length,
+						artists: artistsTokenized,
+						image_url: d10.config.img_root+"/"+image
+					}
+				)
+			);
+		}
+		var container = ui.find(".whatsNew .body");
+		if ( widgets.length ) {
+			$.each(widgets,function(k,v) {
+				container.append(v);
+			});
+			ui.find(".whatsNew").slideDown();
+		}
 	};
 	
-	findLatest(arrangeLatest);
+	findLatest(function(latest) {
+		arrangeLatest(latest,displayLatest);
+	});
 };
 
 })( window.d10 ? window.d10 : {}  , jQuery) ;
