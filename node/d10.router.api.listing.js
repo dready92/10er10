@@ -209,7 +209,7 @@ exports.api = function(app) {
 		_genreName("genre/name",request,response);
 	});
 	var _genreName = function(view, request,response) {
-		if ( !request.query.genre || d10.config.genres.indexOf(request.query.genre) < 0 ) {
+		if ( !request.query.genre || d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.query.genre) < 0 ) {
 			return d10.realrest.err(428, request.query.genre, request.ctx);
 		}
 		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1 ,endkey: [request.query.genre, {} ]};
@@ -335,7 +335,7 @@ exports.api = function(app) {
 		_genreArtists("genre/artists",request,response);
 	});
 	var _genreArtists = function(view, request,response) {
-		if ( !request.params.genre || d10.config.genres.indexOf(request.params.genre) < 0 ) {
+		if ( !request.params.genre || d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
 		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},function(err,resp) {
@@ -353,7 +353,7 @@ exports.api = function(app) {
 		_genreAlbums("genre/albums",request,response);
 	});
 	var _genreAlbums = function(view,request,response) {
-		if ( !request.params.genre || d10.config.genres.indexOf(request.params.genre) < 0 ) {
+		if ( !request.params.genre || d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
 		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},function(err,resp) {
