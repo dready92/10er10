@@ -38,7 +38,7 @@ d10.fn.welcome = function  (ui) {
 								return then(resp);
 							}
 							resp = resp.concat(resp2);
-							return then(resp2);
+							return then(resp);
 						}
 					}
 				);
@@ -47,6 +47,7 @@ d10.fn.welcome = function  (ui) {
 	},
 	undefinedAlbum = "__undefined_album__",
 	arrangeLatest = function(latest, then) {
+		debug("arrangeLatest: working with ", latest.length, "songs");
 		var songs = $.map(latest,function(v) { return v.doc });
 		var songsByAlbum = {};
 		var songsByAlbumMeta = {};
