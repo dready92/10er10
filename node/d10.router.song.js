@@ -383,7 +383,10 @@ exports.api = function(app) {
 							);
 						};
 						fs.stat(d10.config.audio.dir+"/"+c,function(err,stat) {
-							if ( err && err.errno != 2 ) {
+							if ( err ) {
+								console.log(err);
+							}
+							if ( err && err.errno != 2 && err.errno != 32 ) { // errno32 = no such file on node > 0.5.10
 								then(err);
 							} else if ( err ) {
 								fs.mkdir(d10.config.audio.dir+"/"+c,0775, function(err,stat) {

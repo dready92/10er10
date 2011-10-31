@@ -98,37 +98,62 @@ d10.fn.welcome = function  (ui) {
 				}
 			}
 			widgets.push(
-				d10.mustacheView("welcome.wnWidget.album",
+				$(d10.mustacheView("welcome.wnWidget.album",
 					{
 						album: i,
 						songs: songs.length,
 						artists: artistsTokenized,
 						image_url: d10.config.img_root+"/"+image
 					}
-				)
+				)).data("songs",songs)
 			);
 		}
 		var container = ui.find(".whatsNew .body");
+		if ( widgets.length % 2 != 0 ) {
+			widgets.pop();
+		}
 		if ( widgets.length ) {
 			$.each(widgets,function(k,v) {
 				container.append(v);
 			});
 			ui.find(".whatsNew").slideDown();
 		}
+	},
+	bindEvents = function() {
+		ui.find(".whatsNew")
+		.delegate(".albumWidget .head","click",function() {
+			d10.router.navigateTo(["library","albums",$(this).attr("data-album")]);
+		})
+		.delegate(".whatsNewWidget .footer","click",function() {
+			var songs = $(this).closest(".whatsNewWidget").data("songs");
+			$.each(songs,function(k,v) {
+				d10.playlist.append( $( d10.song_template(v) ) );
+			});
+		})
+		;
 	};
-	
-	findLatest(function(latest) {
-		arrangeLatest(latest,displayLatest);
-	});
+	this.whatsNew = function() {
+		bindEvents();
+		findLatest(function(latest) {
+			arrangeLatest(latest,displayLatest);
+		});
+	};
 };
 
 })( window.d10 ? window.d10 : {}  , jQuery) ;
 
 
 $(document).one("bootstrap:router",function() {
-	var welcomeRouteHandler = function() { this._activate("main","welcome",this.switchMainContainer); };
+	var welcomeRouteHandler = function() { this._activate("main","welcome",this.switchMainContainer); },
+		firstLoad = true;
 	d10.welcome = new d10.fn.welcome($('#welcome'));
 	d10.router.route("welcome","welcome",welcomeRouteHandler);
+	d10.router.bind("route:welcome",function() {
+		if ( firstLoad ) {
+			d10.welcome.whatsNew();
+			firstLoad = false;
+		}
+	});
 });
 
 

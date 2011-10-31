@@ -108,6 +108,11 @@ exports.server = {
 		search_title: "Recherchez",
 		search_body: "des artistes, des titres de morceaux, ou des albums"
 	},
+	"html/welcome/wnWidget.album.html": {
+		album_by: "par",
+		album_songs: "Cet album contient {{songs}} morceau(x)",
+		album_add_to_player: "Ajouter dans la liste de lecture"
+	},
 	"html/my/song_template_trailer.html": {
 		edit: "edit"
 	},

@@ -1,14 +1,14 @@
 <div class="whatsNewWidget albumWidget">
-	<div class="head">
+	<div class="head" data-album="{{album}}">
 {{album}}
 	</div>
 	<div class="body">
 <img src="{{image_url}}">
-by {{artists}}
+((album_by)) {{artists}}
 <br>
-This album contains {{songs}} songs
+((album_songs))
 	</div>
 	<div class="footer">
-Add songs to player queue
+((album_add_to_player))
 	</div>
 </div>

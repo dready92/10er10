@@ -108,6 +108,11 @@ exports.server = {
 		search_title: "Search",
 		search_body: "artists, song titles and albums"
 	},
+	"html/welcome/wnWidget.album.html": {
+		album_by: "by",
+		album_songs: "This album contains {{songs}} song(s)",
+		album_add_to_player: "Add songs to player queue"
+	},
 	"html/my/song_template_trailer.html": {
 		edit: "edit"
 	},

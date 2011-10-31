@@ -97,11 +97,11 @@
 					list.append(html);
 				}
 				if ( firstRun ) {
+					firstRun=false;
 					if ( cursor.hasMoreResults() ) {
 						widget.bind("scroll",onScroll);
 					}
 					settings.onFirstContent.call(widget, resp.length);
-					firstRun=false;
 				} else {
 // 					debug("cursor have results ? ", cursor.hasMoreResults());
 					if ( !cursor.hasMoreResults() ) {

@@ -1685,16 +1685,18 @@ div.hoverbox hr {
 }
 #welcome .whatsNewWidget {
 	width: 330px;
-	height: 170px;
+	height: 175px;
 	border-radius: 9px;
-	border: 2px solid #676767;
+	border: 2px solid #494949;
 	margin: 0 auto 10px auto;
 	background: #121212;
 }
-#welcome .whatsNewWidget .head { text-align: center; font-weight: bold; padding: 4px 0; }
-#welcome .whatsNewWidget .body { min-height: 130px;} 
-#welcome .whatsNewWidget img {	float: left;	vertical-align: center; }
-#welcome .whatsNewWidget .footer { text-align: center;}
+#welcome .whatsNewWidget .head { text-align: center; font-weight: bold; padding: 4px 0; cursor: pointer; }
+#welcome .whatsNewWidget .head:hover { color: #BF9730 }
+#welcome .whatsNewWidget .body { min-height: 135px;} 
+#welcome .whatsNewWidget img {	float: left;	vertical-align: center; margin: 2px; border: 1px solid #494949;}
+#welcome .whatsNewWidget .footer { text-align: center; cursor: pointer;}
+#welcome .whatsNewWidget .footer:hover { color: #BF9730 }
 
 html.csstransitions #welcome div[name=introduction] div.welcomeBox {
 /* 	-webkit-transform: scale(1); */
