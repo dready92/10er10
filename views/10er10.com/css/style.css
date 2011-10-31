@@ -1691,7 +1691,8 @@ div.hoverbox hr {
 	margin: 0 auto 10px auto;
 	background: #121212;
 }
-#welcome .whatsNewWidget .head { text-align: center; font-weight: bold; padding: 4px 0; cursor: pointer; }
+#welcome .whatsNewWidget .head { text-align: center; font-weight: bold; padding: 4px 2px; cursor: pointer;
+	white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 #welcome .whatsNewWidget .head:hover { color: #BF9730 }
 #welcome .whatsNewWidget .body { min-height: 135px;} 
 #welcome .whatsNewWidget img {	float: left;	vertical-align: center; margin: 2px; border: 1px solid #494949;}
