@@ -6,7 +6,7 @@ d10.fn.welcome = function  (ui) {
 	//self ref
 	var that=this;
 
-	$("div.scrollContainer div.welcomeBox[data-target]").click(function() {
+	ui.find(".welcomeBox[data-target]").click(function() {
 		d10.router.navigateTo($(this).attr("data-target"));
 		return false;
 	});
