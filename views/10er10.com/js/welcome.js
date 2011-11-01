@@ -46,6 +46,15 @@ d10.fn.welcome = function  (ui) {
 		});
 	},
 	undefinedAlbum = "__undefined_album__",
+	getHighestInHash = function(h) {
+		var highest = {count: 0, value: null};
+		for ( var i in h ) {
+			if ( h[i] > highest.count ) {
+				highest = {count: h[i], value: i};
+			}
+		}
+		return highest.value;
+	},
 	arrangeLatest = function(latest, then) {
 		debug("arrangeLatest: working with ", latest.length, "songs");
 		var songs = $.map(latest,function(v) { return v.doc });
@@ -59,7 +68,7 @@ d10.fn.welcome = function  (ui) {
 			}
 			if ( !songsByAlbum[album] ) {
 				songsByAlbum[album] = [];
-				songsByAlbumMeta[album] = {artists: [], images: []};
+				songsByAlbumMeta[album] = {artists: [], images: [], genres: {} };
 			}
 			songsByAlbum[album].push(songs[i]);
 			if ( songsByAlbumMeta[album].artists.indexOf(songs[i].artist) < 0 ) {
@@ -70,6 +79,13 @@ d10.fn.welcome = function  (ui) {
 					if ( songsByAlbumMeta[album].images.indexOf(songs[i].images[j].filename) < 0 ) {
 						songsByAlbumMeta[album].images.push(songs[i].images[j].filename);
 					}
+				}
+			}
+			if ( songs[i].genre ) {
+				if ( songs[i].genre in songsByAlbumMeta[album].genres ) {
+					songsByAlbumMeta[album].genres[songs[i].genre]++;
+				} else {
+					songsByAlbumMeta[album].genres[songs[i].genre]=1;
 				}
 			}
 		}
@@ -88,7 +104,10 @@ d10.fn.welcome = function  (ui) {
 			if ( !songsByAlbumMeta[i].images.length ) {
 				continue;
 			}
-			var songs = songsByAlbum[i], image = songsByAlbumMeta[i].images[0], artists = songsByAlbumMeta[i].artists;
+			var songs = songsByAlbum[i], 
+				image = songsByAlbumMeta[i].images[0], 
+				artists = songsByAlbumMeta[i].artists, 
+				genre = getHighestInHash(songsByAlbumMeta[i].genres);
 			var artistsTokenized = "";
 			for ( var a in artists ) {
 				if ( artistsTokenized.length ) artistsTokenized+=", ";
@@ -104,6 +123,7 @@ d10.fn.welcome = function  (ui) {
 						album: i,
 						songs: songs.length,
 						artists: artistsTokenized,
+						genre: genre ? [ genre ] : [],
 						image_url: d10.config.img_root+"/"+image
 					}
 				)).data("songs",songs)
@@ -125,8 +145,16 @@ d10.fn.welcome = function  (ui) {
 		.delegate(".albumWidget .head","click",function() {
 			d10.router.navigateTo(["library","albums",$(this).attr("data-album")]);
 		})
+		.delegate(".albumWidget img","click",function() {
+			var widget = $(this).closest(".albumWidget");
+			d10.router.navigateTo(["library","albums",widget.find(".head").attr("data-album")]);
+		})
+		.delegate(".albumWidget .whatsNewGenre","click",function() {
+			d10.router.navigateTo(["library","genres",$(this).attr("data-genre")]);
+			
+		})
 		.delegate(".whatsNewWidget .footer","click",function() {
-			var songs = $(this).closest(".whatsNewWidget").data("songs");
+			var songs = JSON.parse(JSON.stringify($(this).closest(".whatsNewWidget").data("songs")));
 			$.each(songs,function(k,v) {
 				d10.playlist.append( $( d10.song_template(v) ) );
 			});
@@ -134,6 +162,7 @@ d10.fn.welcome = function  (ui) {
 		;
 	};
 	this.whatsNew = function() {
+		ui.find(".whatsNew .body").empty();
 		bindEvents();
 		findLatest(function(latest) {
 			arrangeLatest(latest,displayLatest);

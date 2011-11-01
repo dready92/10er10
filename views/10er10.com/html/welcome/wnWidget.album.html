@@ -5,8 +5,9 @@
 	<div class="body">
 <img src="{{image_url}}">
 ((album_by)) {{artists}}
-<br>
-((album_songs))
+<p>
+{{#genre}}<span class="whatsNewGenre" data-genre="{{.}}">{{.}}</span>, {{/genre}}((album_songs))
+</p>
 	</div>
 	<div class="footer">
 ((album_add_to_player))

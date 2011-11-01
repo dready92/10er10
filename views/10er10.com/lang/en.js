@@ -110,7 +110,7 @@ exports.server = {
 	},
 	"html/welcome/wnWidget.album.html": {
 		album_by: "by",
-		album_songs: "This album contains {{songs}} song(s)",
+		album_songs: "{{songs}} song(s)",
 		album_add_to_player: "Add songs to player queue"
 	},
 	"html/my/song_template_trailer.html": {

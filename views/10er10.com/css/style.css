@@ -1679,9 +1679,9 @@ div.hoverbox hr {
 #welcome .whatsNew>.head{ text-align: center; font-size: 1.4em; padding: 20px 0;}
 #welcome .whatsNew>.body { 
 	-moz-column-count: 2;
-	-moz-column-gap: 10px;
+/* 	-moz-column-gap: 10px; */
 	-webkit-column-count: 2;
-	-webkit-column-gap: 10px;
+/* 	-webkit-column-gap: 10px; */
 }
 #welcome .whatsNewWidget {
 	width: 330px;
@@ -1694,8 +1694,11 @@ div.hoverbox hr {
 #welcome .whatsNewWidget .head { text-align: center; font-weight: bold; padding: 4px 2px; cursor: pointer;
 	white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 #welcome .whatsNewWidget .head:hover { color: #BF9730 }
-#welcome .whatsNewWidget .body { min-height: 135px;} 
-#welcome .whatsNewWidget img {	float: left;	vertical-align: center; margin: 2px; border: 1px solid #494949;}
+#welcome .whatsNewWidget .body { min-height: 135px;}
+#welcome .whatsNewWidget p { padding-top: 2px; font-style: italic; color: #6A6A6A; }
+#welcome .whatsNewWidget .whatsNewGenre { cursor: pointer; }
+#welcome .whatsNewWidget .whatsNewGenre:hover { color: #BF9730; }
+#welcome .whatsNewWidget img {	float: left;	vertical-align: center; margin: 2px; border: 1px solid #494949; cursor: pointer}
 #welcome .whatsNewWidget .footer { text-align: center; cursor: pointer;}
 #welcome .whatsNewWidget .footer:hover { color: #BF9730 }
 
