@@ -138,11 +138,11 @@ header div.playing {
   padding: 5px 10px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
-  background: -webkit-gradient(linear, left top, left bottom, 
-                color-stop(0,rgba(255,255,255,0.4)), 
-                color-stop(20%,rgba(255,255,255,0.1)), 
-                color-stop(75%,rgba(255,255,255,0.1)),
-                color-stop(100%,rgba(255,255,255,0.3)));
+  background: -webkit-linear-gradient(top,  
+                rgba(255,255,255,0.4) 0%,  
+                rgba(255,255,255,0.05) 35%,
+                rgba(255,255,255,0.05) 80%,
+                rgba(255,255,255,0.3) 100%);
   background: -moz-linear-gradient(top,  
                 rgba(255,255,255,0.4) 0%,  
                 rgba(255,255,255,0.05) 35%,
@@ -184,11 +184,11 @@ footer {
 	clear: both;
 	margin-top: 5px;
 	padding: 2px 10px;
-	background: -webkit-gradient(linear, left top, left bottom, 
-				color-stop(0,#444444), 
-				color-stop(15%,#343434), 
-				color-stop(85%,#343434),
-				color-stop(100%,#121212));
+	background: -webkit-linear-gradient(top,  
+				#444444 0%,  
+				#343434 15%,
+				#343434 85%,
+				#121212 100%);
 	background: -moz-linear-gradient(top,  
 				#444444 0%,  
 				#343434 15%,
@@ -215,11 +215,11 @@ button {
   text-shadow: #121212 0px 1px 1px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
-  background: -webkit-gradient(linear, left top, left bottom, 
-                color-stop(0,#595959), 
-                color-stop(25%,#454545), 
-                color-stop(75%,#454545),
-                color-stop(100%,#393939));
+    background: -webkit-linear-gradient(top,  
+                #595959 0%,  
+                #454545 25%,
+                #454545 75%,
+                #393939 100%);
   background: -moz-linear-gradient(top,  
                 #595959 0%,  
                 #454545 25%,
@@ -247,12 +247,12 @@ button.risky {
 }
 
 button:hover {
-  background: -webkit-gradient(linear, left top, left bottom, from(#696969), to(#454545));
+  background: -webkit-linear-gradient(top,  #696969,  #454545);
   background: -moz-linear-gradient(top,  #696969,  #454545);
 }
 
 button:active {
-  background: -webkit-gradient(linear, left top, left bottom, from(#343434), to(#595959));
+  background: -webkit-linear-gradient(top,  #343434,  #595959);
   background: -moz-linear-gradient(top,  #343434,  #595959);
 }
 
@@ -290,7 +290,7 @@ section > h1 {
 div.tooltip {
   display:none;
   padding: 8px 8px;
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(35,35,35,0.8)), to(rgba(52,52,52,0.8)));
+  background: -webkit-linear-gradient(top,  #232323,  #343434);
   background: -moz-linear-gradient(top,  #232323,  #343434);
   color: rgba(255,255,255,0.8);
   border: 2px solid rgba(255,255,255,0.4);
@@ -333,7 +333,7 @@ div.tooltip > p {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border: 2px solid rgba(255,255,255,0.1);
-  background: -webkit-gradient(linear, left top, left bottom, from(#232323), to(#343434));
+  background: -webkit-linear-gradient(top,  #232323,  #343434);
   background: -moz-linear-gradient(top,  #232323,  #343434);
 }
 
@@ -601,9 +601,9 @@ article.review .form_error {
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
 /* background: url(minitile.png) 0% 0% repeat-x;  */
-  background: -webkit-gradient(linear, left top, left bottom, 
-                color-stop(0,rgb(100,100,100)), 
-                color-stop(0.5,rgb(52,52,52)));
+   background: -webkit-linear-gradient(top,  
+                rgb(100,100,100) 0%,
+                rgb(52,52,52) 10px);
   background: -moz-linear-gradient(top,  
                 rgb(100,100,100) 0%,
                 rgb(52,52,52) 10px);
@@ -627,9 +627,9 @@ article.review .form_error {
   color: #9A9A9A;
   text-shadow: #121212 0 1px 1px;
 /* 	background: #086FA1 url(littletile.png) 0% 0% repeat-x; */
-  background: -webkit-gradient(linear, left top, left bottom, 
-                color-stop(0,rgb(84,155,190)), 
-                color-stop(0.5,rgb(8,111,161)));
+  background: -webkit-linear-gradient(top,  
+                rgb(84,155,190) 0%,
+                rgb(8,111,161) 10px);
   background: -moz-linear-gradient(top,  
                 rgb(84,155,190) 0%,
                 rgb(8,111,161) 10px);
@@ -683,8 +683,8 @@ article div.refreshList {
 	width: 100%;
 	cursor: pointer;
 	color: #232323;
+	background: -webkit-linear-gradient(top, rgba(191,151,48,0.8), rgba(191,151,48,0.5));
 	background: -moz-linear-gradient(top, rgba(191,151,48,0.8), rgba(191,151,48,0.5));
-	background: -webkit-gradient(linear, left top, left bottom, from(rgba(191,151,48,0.8)), to(rgba(191,151,48,0.5)));
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 }
@@ -894,10 +894,12 @@ article div.refreshList {
 aside {
   width: 300px;
   background-color: #343434;
-  background: -moz-linear-gradient(top,  
+	background: -moz-linear-gradient(top,  
                 rgb(100,100,100) 0%,
                 rgb(52,52,52) 10px);
-
+	background: -webkit-linear-gradient(top,  
+                rgb(100,100,100) 0%,
+                rgb(52,52,52) 10px);
     float: right;
 
   -moz-border-radius: 3px;
@@ -942,7 +944,7 @@ aside.over, #playlist .hover {
 
 
 aside div.emptyPlaylist {
-  background: -webkit-gradient(linear, left top, left bottom, from(#232323), to(#292929));
+  background: -webkit-linear-gradient(top,  #232323,  #292929);
   background: -moz-linear-gradient(top,  #232323,  #292929);
   margin: 10px 30px 10px 30px;
   padding: 10px;
@@ -957,7 +959,7 @@ aside div.emptyPlaylist {
   z-index: 99;
   padding: 5px;
   display:none;
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(35,35,35,0.8)), to(rgba(52,52,52,0.8)));
+  background: -webkit-linear-gradient(top,  rgba(35,35,35,0.8),  rgba(52,52,52,0.8));
   background: -moz-linear-gradient(top,  rgba(35,35,35,0.8),  rgba(52,52,52,0.8));
   color: rgba(255,255,255,0.8);
   border: 2px solid rgba(255,255,255,0.4);
@@ -1604,6 +1606,17 @@ div.hoverbox hr {
 	height: 560px;
 }
 
+#welcome div[name=introduction] {
+	background: -moz-linear-gradient(top,  
+                rgb(100,100,100) 0%,
+                rgb(52,52,52) 10px);
+	background: -webkit-linear-gradient(top,  
+                rgb(100,100,100) 0%,
+                rgb(52,52,52) 10px);
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;	
+}
+
 #welcome div[name=introduction] div.items{
   width: 700px;
   min-height: 400px;
@@ -1634,7 +1647,7 @@ div.hoverbox hr {
   -webkit-transition-property: opacity;
   -webkit-transition-duration: 0.5s;
 }
-
+/*
 #welcome div[name=introduction] div.scrollContainer:hover a { opacity: 0.8; }
 
 #welcome div[name=introduction] a.prev {
@@ -1651,7 +1664,7 @@ div.hoverbox hr {
 #welcome div[name=introduction] br {
   clear: both;
 }
-
+*/
 
 #welcome div[name=introduction] div.items> div:first-child{
 	text-align: center;
@@ -1695,6 +1708,7 @@ div.hoverbox hr {
 	white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 #welcome .whatsNewWidget .head:hover { color: #BF9730 }
 #welcome .whatsNewWidget .body { min-height: 135px;}
+#welcome .whatsNewWidget.noImageWidget .body { min-height: 131px; padding: 2px;}
 #welcome .whatsNewWidget p { padding-top: 2px; font-style: italic; color: #6A6A6A; }
 #welcome .whatsNewWidget .whatsNewGenre { cursor: pointer; }
 #welcome .whatsNewWidget .whatsNewGenre:hover { color: #BF9730; }
@@ -1741,23 +1755,23 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 
 #welcome div[name=introduction] div.welcomeBox:nth-child(1) {
 	background-image:  url(folder-sound-grey-128x128.png), -moz-linear-gradient(top, #71aac6 0%, #466777 100%);
-	background-image:  url(folder-sound-grey-128x128.png), -webkit-gradient(linear, left top, left bottom, from(#71aac6), to(#466777));
+	background-image:  url(folder-sound-grey-128x128.png), -webkit-linear-gradient(top, #71aac6 0%, #466777 100%);
 }
 
 
 #welcome div[name=introduction] div.welcomeBox:nth-child(2) {
 	background-image:  url(go-jump-grey-128x128.png), -moz-linear-gradient(top, #71aac6 0%, #466777 100%);
-	background-image:  url(go-jump-grey-128x128.png), -webkit-gradient(linear, left top, left bottom, from(#71aac6), to(#466777));
+	background-image:  url(go-jump-grey-128x128.png), -webkit-linear-gradient(top, #71aac6 0%, #466777 100%);
 }
 
 #welcome div[name=introduction] div.welcomeBox:nth-child(3) {
 	background-image:  url(user-home-grey-128x128.png), -moz-linear-gradient(top, #71aac6 0%, #466777 100%);
-	background-image:  url(user-home-grey-128x128.png), -webkit-gradient(linear, left top, left bottom, from(#71aac6), to(#466777));
+	background-image:  url(user-home-grey-128x128.png), -webkit-linear-gradient(top, #71aac6 0%, #466777 100%);
 }
 
 #welcome div[name=introduction] div.welcomeBox:nth-child(4) {
 	background-image:  url(edit-find-grey-128x128.png), -moz-linear-gradient(top, #71aac6 0%, #466777 100%);
-	background-image:  url(edit-find-grey-128x128.png), -webkit-gradient(linear, left top, left bottom, from(#71aac6), to(#466777));
+	background-image:  url(edit-find-grey-128x128.png), -webkit-linear-gradient(top, #71aac6 0%, #466777 100%);
 }
 
 #results {

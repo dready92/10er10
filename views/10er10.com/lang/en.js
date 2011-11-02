@@ -106,7 +106,8 @@ exports.server = {
 		playlists_title: "Create",
 		playlists_body: "your playlists in your personnal space",
 		search_title: "Search",
-		search_body: "artists, song titles and albums"
+		search_body: "artists, song titles and albums",
+		thats_new: "That's new !"
 	},
 	"html/welcome/wnWidget.album.html": {
 		album_by: "by",

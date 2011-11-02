@@ -94,18 +94,18 @@ d10.fn.welcome = function  (ui) {
 		}
 		then(songsByAlbum, songsByAlbumMeta);
 	},
-	artistsLimitChars = 300,
+	artistsLimitChars = 180,
 	displayLatest = function(songsByAlbum, songsByAlbumMeta) {
 		var widgets = [];
 		for ( var i in songsByAlbum ) {
 			if ( i == undefinedAlbum ) {
 				continue;
 			}
-			if ( !songsByAlbumMeta[i].images.length ) {
-				continue;
-			}
+// 			if ( !songsByAlbumMeta[i].images.length ) {
+// 				continue;
+// 			}
 			var songs = songsByAlbum[i], 
-				image = songsByAlbumMeta[i].images[0], 
+				image = songsByAlbumMeta[i].images.length ? songsByAlbumMeta[i].images[0] : "", 
 				artists = songsByAlbumMeta[i].artists, 
 				genre = getHighestInHash(songsByAlbumMeta[i].genres);
 			var artistsTokenized = "";
@@ -117,8 +117,7 @@ d10.fn.welcome = function  (ui) {
 					break;
 				}
 			}
-			widgets.push(
-				$(d10.mustacheView("welcome.wnWidget.album",
+			var widget = $(d10.mustacheView("welcome.wnWidget.album",
 					{
 						album: i,
 						songs: songs.length,
@@ -126,7 +125,13 @@ d10.fn.welcome = function  (ui) {
 						genre: genre ? [ genre ] : [],
 						image_url: d10.config.img_root+"/"+image
 					}
-				)).data("songs",songs)
+				)).data("songs",songs);
+			if ( !image ) {
+				widget.find("img").remove();
+				widget.addClass("noImageWidget");
+			}
+			widgets.push(
+				widget
 			);
 		}
 		var container = ui.find(".whatsNew .body");

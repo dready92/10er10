@@ -106,7 +106,8 @@ exports.server = {
 		playlists_title: "Créez",
 		playlists_body: "vos playlists dans votre espace dédié",
 		search_title: "Recherchez",
-		search_body: "des artistes, des titres de morceaux, ou des albums"
+		search_body: "des artistes, des titres de morceaux, ou des albums",
+		thats_new: "Nouveautés"
 	},
 	"html/welcome/wnWidget.album.html": {
 		album_by: "par",
