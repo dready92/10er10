@@ -22,6 +22,7 @@ To upgrade your PROD databases, run
 - config option allowCustomGenres disable the strict checking of songs genre
 - search results now works with infinite scrolling. UX also slightly modified
 - prepared support for node.js 0.6
+- latest songs posted now show up on frontpage
 
 Upgrade from 0.5 to 0.6
 =======================

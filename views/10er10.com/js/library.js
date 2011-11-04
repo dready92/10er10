@@ -256,73 +256,100 @@ if (! "fn" in d10 ) {
 			}
 			var loadTimeout = null, 
 				innerLoading = categorydiv.find(".innerLoading"), cursor;
+			
+			var isOpts = 
+			{
+				onFirstContent: function(length) {
+					categorydiv.find(".pleaseWait").remove();
+					categorydiv.find(".songlist").removeClass("hidden");
+					if ( !length ) {
+						categorydiv.find("article").hide();
+						categorydiv.find(".noResult").removeClass("hidden");
+						return ;
+					}
+					
+					var list = categorydiv.find(".list");
+					section.next(".grippie").show();
+					section.makeResizable(
+						{
+							vertical: true,
+							minHeight: 100,
+							maxHeight: function() {
+								// always the scrollHeight
+								var sh = list.prop("scrollHeight");
+								if ( sh ) {
+									return sh -10;
+								}
+								return 0;
+							},
+							grippie: $(categorydiv).find(".grippie")
+						}
+					);
+					
+					if ( d10.fn.library.extendedInfos[topic] ) {
+						d10.fn.library.extendedInfos[topic](category,categorydiv);
+					}
+					
+				},
+				onQuery: function() {
+					loadTimeout = setTimeout(function() {
+						loadTimeout = null;
+						debug("Loading...");
+						innerLoading.css("top", section.height() - 32).removeClass("hidden");
+					},500);
+				},
+				onContent: function() {
+					if ( loadTimeout ) {
+						clearTimeout(loadTimeout);
+					} else {
+						innerLoading.addClass("hidden");
+					}
+				}
+			};
+
 			if ( topic == "albums" && category == "<list>" ) {
 				cursor = new d10.fn.couchMapMergedCursor(d10.rest.song.list.albums,{},"album");
+				isOpts.parseResults = function(rows) { //[ [ {key:.., doc: song}, ...], ... ]
+					var html="" ;
+					rows.forEach(function(songs) {
+						var artists = {}, genres = {}, images = {}, duration = 0, songsHtml = "", tpl = {duration: 0, songsNb: songs.length, artists: [], genres: []};
+						songs.forEach(function(row) {
+								tpl.album = row.doc.album;
+								artists[row.doc.artist] = 1;
+								if ( row.doc.genre ) {
+									genres[row.doc.genre] = 1;
+								}
+								duration+=row.doc.duration;
+								if ( row.doc.images ) {
+									row.doc.images.forEach(function(i) {
+										if ( images[i.filename] ) {
+											images[i.filename]++;
+										} else {
+											images[i.filename]=1;
+										}
+									});
+								}
+								songsHtml+=d10.song_template(row.doc);
+
+						});
+						for ( var k in artists ) { tpl.artists.push(k); }
+						for ( var k in genres ) { tpl.genres.push(k); }
+						var d = new Date(1970,1,1,0,0,duration);
+						tpl.duration = d.getMinutes()+':'+d.getSeconds();
+						html+=d10.mustacheView("library.content.album.widget",tpl);
+					});
+					return html;
+				};
 			} else {
 				cursor = new d10.fn.couchMapCursor(endpoint, data);
 			}
+
 			section.data("infiniteScroll",
-				section.d10scroll(
-					cursor,
-// 					data,
-					section.find(".list"),
-					{
-						onFirstContent: function(length) {
-							categorydiv.find(".pleaseWait").remove();
-							categorydiv.find(".songlist").removeClass("hidden");
-							if ( !length ) {
-								categorydiv.find("article").hide();
-								categorydiv.find(".noResult").removeClass("hidden");
-								return ;
-							}
-							
-							var list = categorydiv.find(".list");
-							// list of items < section height
-// 							if ( list.height() < section.height() )  {
-// 								section.height(list.height()+10);
-// 								section.next(".grippie").hide();
-// 							} else {
-								section.next(".grippie").show();
-								section.makeResizable(
-									{
-										vertical: true,
-										minHeight: 100,
-										maxHeight: function() {
-											// always the scrollHeight
-											var sh = list.prop("scrollHeight");
-											if ( sh ) {
-												return sh -10;
-											}
-											return 0;
-										},
-										grippie: $(categorydiv).find(".grippie")
-									}
-															);
-// 							}
-							
-							if ( d10.fn.library.extendedInfos[topic] ) {
-								d10.fn.library.extendedInfos[topic](category,categorydiv);
-							}
-							
-						},
-						onQuery: function() {
-							loadTimeout = setTimeout(function() {
-								loadTimeout = null;
-								debug("Loading...");
-								innerLoading.css("top", section.height() - 32).removeClass("hidden");
-							},500);
-						},
-						onContent: function() {
-							if ( loadTimeout ) {
-								clearTimeout(loadTimeout);
-							} else {
-								innerLoading.addClass("hidden");
-							}
-						}
-					}
-				)
+				section.d10scroll(cursor,section.find(".list"),isOpts)
 			);
 		};
+		
+		
 		
 		var allArtistsListener = false;
 		var allArtists = function (container) {
