@@ -255,8 +255,12 @@ if (! "fn" in d10 ) {
 				return false;
 			}
 			var loadTimeout = null, 
-				innerLoading = categorydiv.find(".innerLoading"),
+				innerLoading = categorydiv.find(".innerLoading"), cursor;
+			if ( topic == "albums" && category == "<list>" ) {
+				cursor = new d10.fn.couchMapMergedCursor(d10.rest.song.list.albums,{},"album");
+			} else {
 				cursor = new d10.fn.couchMapCursor(endpoint, data);
+			}
 			section.data("infiniteScroll",
 				section.d10scroll(
 					cursor,
@@ -803,11 +807,6 @@ $(document).one("bootstrap:router",function() {
 		}
 		library.display( decodeURIComponent(topic), category ? decodeURIComponent(category) : null );
 		this._activate("main","library",this.switchMainContainer)._activate("library",topic);
-	},
-	libraryAlbumListHandler = function() {
-		debug("Albumlist handler");
-		library.display( decodeURIComponent("albumsList") );
-		this._activate("main","library",this.switchMainContainer)._activate("library","albums");
 	};
 	d10.router._containers["library"] = 
 	{
@@ -821,7 +820,7 @@ $(document).one("bootstrap:router",function() {
 	d10.router.route("library","library",libraryRouteHandler);
 	d10.router.route("library/:topic","library",libraryRouteHandler);
 	d10.router.route("library/:topic/:category","library",libraryRouteHandler);
-	d10.router.route("library/albumsList","library", libraryAlbumListHandler);
+// 	d10.router.route("library/albumsList","library", libraryAlbumListHandler);
 	
 	d10.router._containers.library.tab.delegate("[action]","click",function() {
 		var elem = $(this), action = elem.attr("action"), currentCategory = library.getCurrentCategory(action);

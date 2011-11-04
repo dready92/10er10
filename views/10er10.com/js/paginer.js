@@ -1,5 +1,81 @@
 (function($){
 	
+	d10.fn.couchMapMergedCursor = function(endpoint,queryData, mergeField) {
+		var innerCursor = new d10.fn.couchMapCursor(endpoint, queryData);
+		var buffer = [];
+		var merged = [];
+		var rpp = d10.config.rpp;
+		var onGetResults = function(err,resp,cb) {
+			
+		};
+
+		var innerCursorFetchUntilRpp = function(then) {
+			if ( !innerCursor.hasMoreResults() || merged.length >= rpp ) {
+				var back = merged.splice(0,rpp);
+				return then(back);
+			} else {
+				innerCursorFetch(function(err,resp) {
+					if ( err ) {
+						return then([]);
+					} else {
+						return innerCursorFetchUntilRpp(then);
+					}
+				});
+			}
+		};
+		
+		var innerCursorFetch = function(cb) {
+			innerCursor.getNext(function(err,resp) {
+				if ( err ) {
+					merged = [];
+					buffer = [];
+					return cb(err,resp);
+				} else {
+					var currentFieldValue ;
+					if ( buffer.length ) {
+						currentFieldValue = buffer[0].doc[mergeField];
+					} else {
+						currentFieldValue = resp[0].doc[mergeField];
+					}
+					for (var i in resp ) {
+						if ( resp[i].doc[mergeField] == currentFieldValue ) {
+							buffer.push(resp[i]);
+						} else {
+							merged.push(buffer);
+							buffer = [resp[i]];
+							currentFieldValue = resp[i].doc[mergeField];
+						}
+					}
+					cb();
+				}
+			});
+		};
+		
+		var getResults = function(cb) {
+			if ( !innerCursor.hasMoreResults() ) {
+				if ( buffer.length ) {
+					merged.push(buffer);
+					buffer = [];
+				}
+				if ( merged.length ) {
+					var localMerged = merged;
+					merged = [];
+					return cb(null,merged);
+				} else {
+					return cb(null,null);
+				}
+			} else {
+				innerCursorFetchUntilRpp(function(results) {
+					return cb(null,results);
+				});
+			}
+		};
+		var hasMoreResults = function() {
+			return innerCursor.hasMoreResults() || merged.length || buffer.length;
+		}
+		this.hasMoreResults = hasMoreResults;
+		this.getNext = getResults;
+	};
 	
 	d10.fn.couchMapCursor = function(endpoint, queryData) {
 		var originalData = queryData || {};
