@@ -1,4 +1,4 @@
-10er10 is an HTML5 audio jukebox. It works on Firefox 3.6+ and Chromium/Chrome.
+10er10 is an HTML5 audio jukebox. It works on Firefox 4+ and Chromium/Chrome.
 
 Install
 =======
