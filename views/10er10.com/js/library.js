@@ -389,7 +389,7 @@ if (! "fn" in d10 ) {
 			};
 
 			if ( topic == "albums" && !category ) {
-				cursor = new d10.fn.couchMapMergedCursor(d10.rest.song.list.albums,{},"album");
+				cursor = new d10.fn.couchMapMergedCursor(restBase.albums,{},"album");
 				isOpts.parseResults = albumResultsParser;
 			} else {
 				cursor = new d10.fn.couchMapCursor(endpoint, data);
