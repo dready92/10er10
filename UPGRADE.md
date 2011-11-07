@@ -1,4 +1,4 @@
-Upgrade from 0.6 to 0.7
+Upgrade from 0.7 to 0.8
 =======================
 
 - install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
@@ -12,11 +12,17 @@ To upgrade your PROD databases, run
 
     node install.js -p
 
+- install the node **audiometadata** module : from the UNIX user you setup node & npm, run
+
+    npm install audiometadata
+
 - restart the node 10er10 server
 
 **What changed ?**
 
 - prettyfied albums list
+- use internal node.js library audiometadata to decode audio tags: no more need for utrac, taginfo, vorbiscomment, metaflac.
+- get image from audio metadata
 
 Upgrade from 0.6 to 0.7
 =======================

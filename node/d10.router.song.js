@@ -5,6 +5,7 @@ var d10 = require ("./d10"),
 	util = require("util"),
 	when = require("./when"),
 	audioUtils = require("./audioFileUtils"),
+	gu = require("./graphicsUtils"),
 	spawn = require('child_process').spawn,
 	exec = require('child_process').exec;
 
@@ -453,13 +454,27 @@ exports.api = function(app) {
 							doc.valid = true;
 						}
 //  						return then(null,doc);
-						d10.couch.d10.storeDoc(doc,function(err,resp) {
-							if ( err ) { then(err); }
-							else {
-								doc._rev = resp.rev;
-								then(null,doc);
-							}
-						});						
+						var recordDoc = function() {
+							d10.couch.d10.storeDoc(doc,function(err,resp) {
+								if ( err ) { then(err); }
+								else {
+									doc._rev = resp.rev;
+									then(null,doc);
+								}
+							});
+						};
+
+						if ( this.tasks.fileMeta.response && this.tasks.fileMeta.response.PICTURES && this.tasks.fileMeta.response.PICTURES.length ) {
+							gu.imageFromMeta(this.tasks.fileMeta.response,function(err,resp) {
+								console.log("imageFromMeta response",err,resp);
+								if ( !err ) {
+									doc.images = [ resp ];
+								}
+								recordDoc();
+							});
+						} else {
+							recordDoc();
+						}
 					}
 				}
 			},

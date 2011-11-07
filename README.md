@@ -33,13 +33,7 @@ Install audio utilities
 
 * install **ogginfo** executable : it's certainly available from your distribution packages
 
-* install **utrac** executable : it's a utlity to convert whatever the f**** encoding of id3 tags to utf8. Download it from here : http://utrac.sourceforge.net/
-
-* install **taginfo** executable : it's a utility using taglib id3 library to parse id3 tags. ( http://grecni.com/software/taginfo/ ). (Debian users : you have to install libtagc0-dev to compile taginfo)
-
-* install **vorbiscomment** executable : it's certainly available from your distribution packages
-
-* install **flac** and **metaflac** executables : they're certainly available from your distribution packages
+* install **flac** executable : they're certainly available from your distribution packages
 
 Install graphics utilities
 ---------------------------

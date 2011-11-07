@@ -1,5 +1,7 @@
 var d10 = require("./d10"),
-	exec = require('child_process').exec;
+	exec = require('child_process').exec,
+	fs = require("fs"),
+	musicmetadata = require("musicmetadata");
 
 exports.oggLength = function(file,cb) {
 	var ogginfo = exec(d10.config.cmds.ogginfo+" "+file,{maxBuffer: 2000*1024},function(err,stdout,stderr) {
@@ -20,32 +22,63 @@ exports.oggLength = function(file,cb) {
 		}
 	});
 };
-/*
-exports.flacLength = function(file,cb) {
-	var pipe = exec(d10.config.cmds.metaflac+" --list "+file,{maxBuffer: 2000*1024},function(err,stdout,stderr) {
-		if ( stdout.length ) {
-			var samplerate = stdout.match(/sample_rate: ([0-9]+)/);
-			var totalsamples = stdout.match(/total samples: ([0-9]+)/);
-			if ( !samplerate || !totalsamples ) {
-				cb("no match");
-				return ;
-			}
-			if ( samplerate.length > 1 && totalsamples.length > 1  ) {
-				samplerate = parseInt(samplerate[1],10);
-				totalsamples = parseInt(totalsamples[1],10);
-				if ( !isNaN(samplerate) && !isNaN(totalsamples) ) {
-					return cb(null,Math.floor( (totalsamples/samplerate) ) );
-				}
+
+exports.id3tags = function(file,cb) {
+	var stream = fs.createReadStream(file);
+	var back = { ALBUM: "", ARTIST: "", TRACKNUMBER: "", TITLE: "", GENRE: "", DATE: "", PICTURES: [] };
+	var cbCalled = false;
+	stream.on("end",function() {
+		console.log("debug id3tags : end of stream ");
+		if ( !cbCalled ) {
+			return cb(null,back);
+		}
+	});
+	var parser = new musicmetadata(stream);
+	parser.on('metadata', function(result) {
+		console.log("debug id3tags: ");
+		for ( var i in result ) {
+			if ( i != "picture" ) {
+				console.log(i,result[i]);
 			}
 		}
-		if ( err !== null ) {
+		if ( result.picture && Array.isArray(result.picture) && result.picture.length ) {
+			console.log("this song got picture");
+		}
+		
+		if ( result.artist && Array.isArray(result.artist) && result.artist.length ) {
+			back.ARTIST = result.artist.pop();
+		}
+		if ( result.title ) {
+			back.TITLE = result.title;
+		}
+		if ( result.album ) {
+			back.ALBUM = result.album;
+		}
+		if ( result.track && result.track.no ) {
+			back.TRACKNUMBER = result.track.no;
+		}
+		if ( result.genre && Array.isArray(result.genre) && result.genre.length ) {
+			back.GENRE = result.genre.pop();
+		}
+		if ( result.year ) {
+			back.DATE = result.year;
+		}
+		if ( result.picture && Array.isArray(result.picture) && result.picture.length ) {
+			back.PICTURES = result.picture;
+		}
+		cbCalled = true;
+		return cb(null,back);
+	});
+	parser.on('done', function(err) {
+		console.log("debug id3tags done: ",err);
+		if (err) {
+			console.log("Got error decoding metadata: ",err);
+			cbCalled = true;
 			cb(err);
-		} else {
-			cb("no match");
 		}
 	});
 };
-*/
+/*
 exports.id3tags = function(file, cb, secondTry) {
 	var utrac_opts = " -t UTF-8";
 	if ( secondTry ) {
@@ -77,7 +110,8 @@ exports.id3tags = function(file, cb, secondTry) {
 		cb(null,tags);
 	});
 };
-
+*/
+/*
 exports.oggtags = function(file, cb) {
 	var tagsPipe = exec(d10.config.cmds.vorbiscomment+" -l "+file+" | "+d10.config.cmds.utrac+" -t UTF-8",{maxBuffer: 2000*1024},function(err,stdout,stderr) {
 		if ( err )	{
@@ -98,7 +132,10 @@ exports.oggtags = function(file, cb) {
 		cb(null,tags);
 	});
 };
+*/
 
+exports.oggtags = exports.id3tags;
+/*
 exports.flactags = function(file,cb) {
 	d10.log("launching flactags");
 	var tagsPipe = exec(d10.config.cmds.metaflac+" --list "+file+" | grep -F comment[ | "+d10.config.cmds.utrac+" -t UTF-8",{maxBuffer: 2000*1024},function(err,stdout,stderr) {
@@ -126,6 +163,8 @@ exports.flactags = function(file,cb) {
 		cb(null,tags);
 	});
 };
+*/
+exports.flactags = exports.id3tags;
 
 exports.escapeShellArg = function(s) {
 	return "'"+s.replace(/'/g, "'\\''")+"'";

@@ -2,42 +2,9 @@ var d10 = require("./d10"),
 			fs = require("fs"),
 			files = require("./files"),
 			when = require("./when"),
-			gm = require("gm");
+			gm = require("gm"),
+			gu = require("./graphicsUtils");
 
-var resizeImage = function (tmpfile, targetfile, cb) {
-	gm(tmpfile).size(function(err,size) {
-		if ( err ) {
-			cb("image manipulation error (get image size failed)");
-			return ;
-		}
-		if ( !size.width || !size.height ) {
-			cb("image manipulation error (get image size returns null)");
-		}
-		var newH, newW;
-		if ( size.height > size.width ) {
-			newH = d10.config.images.maxSize;
-			newW = size.width / size.height * newH;
-		} else {
-			newW = d10.config.images.maxSize;
-			newH = size.height / size.width * newW;
-		}
-		newH = Math.round(newH);
-		newW = Math.round(newW);
-		if ( !newH || !newW ) {
-			cb("image manipulation error (new image size returns null)");
-		}
-// 						console.log("resizing image to ",newW,newH);
-		gm(tmpfile)
-		.resize(newW,newH)
-		.write(targetfile,function(err) {
-			if ( err ) {
-				return cb("image manipulation error (writing modified image)");
-			}
-// 							console.log("image written to disk");
-			cb();
-		});
-	});
-};
 			
 			
 exports.api = function(app) {
@@ -183,7 +150,7 @@ exports.api = function(app) {
 							} else {
 // 								console.log("image is not already in db",view);
 
-								resizeImage(
+								gu.resizeImage(
 									d10.config.images.tmpdir+"/"+fileName,
 									d10.config.images.dir+"/"+fileName,
 									function(err) {
