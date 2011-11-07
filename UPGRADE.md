@@ -14,14 +14,14 @@ To upgrade your PROD databases, run
 
 - install the node **audiometadata** module : from the UNIX user you setup node & npm, run
 
-    npm install audiometadata
+    npm install musicmetadata
 
 - restart the node 10er10 server
 
 **What changed ?**
 
 - prettyfied albums list
-- use internal node.js library audiometadata to decode audio tags: no more need for utrac, taginfo, vorbiscomment, metaflac.
+- use internal node.js library musicmetadata to decode audio tags: no more need for utrac, taginfo, vorbiscomment, metaflac.
 - get image from audio metadata
 
 Upgrade from 0.6 to 0.7

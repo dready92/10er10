@@ -339,30 +339,32 @@ exports.api = function(app) {
 							cleanupFileSystem();
 							return ;
 						}
-
-						var tags = null;
-						try {
-							tags = JSON.parse(JSON.stringify(this.tasks.fileMeta.response));
-						} catch (e) {
-							d10.log("debug","parsing failed for ",this.tasks.fileMeta.response);
-						}
+						if ( !this.tasks.fileMeta.response ) { this.tasks.fileMeta.response={}; }
+						var tags = {};
+// 						try {
+// 							tags = JSON.parse(JSON.stringify(this.tasks.fileMeta.response));
+// 						} catch (e) {
+// 							d10.log("debug","parsing failed for ",this.tasks.fileMeta.response);
+// 						}
 						
-						if ( tags.genre ) {
+						if ( this.tasks.fileMeta.response.GENRE ) {
 							var value = "";
 							d10.config.genres.forEach(function(v,k) {
-								if ( value == v.toLowerCase() ) {
+								if ( this.tasks.fileMeta.response.GENRE == v.toLowerCase() ) {
 									value=v;
 								}
 							});
-							tags.genre = value;
+							tags.genre = value.length ? value : this.tasks.fileMeta.response.GENRE ;
 						}
+						var that=this;
 						['ALBUM','ARTIST','TITLE'].forEach(function(v,k) {
-							if ( tags[v] ) {
-								tags[v] = d10.ucwords(tags[v].toLowerCase());
+							if ( that.tasks.fileMeta.response[v] ) {
+								tags[v] = d10.ucwords(that.tasks.fileMeta.response[v].toLowerCase());
 							}
 						});
 						['ALBUM','TRACKNUMBER','ARTIST','TITLE','GENRE','DATE'].forEach(function(v,k) {
-							if ( !tags[v] ) { tags[v] = null; }
+							if ( that.tasks.fileMeta.response[v] ) { tags[v] = that.tasks.fileMeta.response[v]; }
+							else { tags[v] = null }
 						});
 // 						d10.log("debug",tags);
 						then(null,tags);
