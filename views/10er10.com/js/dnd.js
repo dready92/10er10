@@ -224,6 +224,22 @@ window.d10.routeDecode = function ( route ) {
 	return segments;
 };
 
+window.d10.keyOfHighestValue = function(h) {
+	var count= 0, value=null;
+	for ( var i in h ) {
+		if ( h[i] > count ) {
+			count= h[i];
+			value=i;
+		}
+	}
+	return value;
+};
+
+window.d10.getAlbumDefaultImage = function() {
+	var randomnumber=Math.floor(Math.random()*d10.config.img_default.length);
+	return d10.config.img_default[randomnumber];
+};
+
 var jobWorker = function(url,onresponse) {
 	var worker = new Worker(url);
 	var callbacks = {};

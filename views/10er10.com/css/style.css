@@ -451,6 +451,44 @@ article.songlist div.controls button{
 	margin: 0 10px;
 }
 
+#library .albumWidget {
+	height: 140px;
+	overflow: auto;
+	border-bottom: 1px solid #454545;
+	padding-top: 8px;
+	-webkit-transition: background 0.4s;
+}
+
+#library .albumWidget:hover {	background: #454545; }
+
+#library .albumWidget img {
+	float: left;
+	border: 1px solid #dfdfdf;
+	margin: 1px;
+	cursor: pointer;
+}
+#library .albumWidget .albumInfos { margin-left: 133px; }
+#library .albumWidget .albumName { padding-bottom: 3px; cursor: pointer; }
+#library .albumWidget .albumName .name { font-size: 1.2em; color: #086FA1; }
+#library .albumWidget .albumName .otherInfos {
+	font-size: 0.9em;
+	color: rgba(154, 154, 154, 0.8);
+	padding-left: 10px;
+}
+#library .albumWidget .oneArtist:hover, #library .albumWidget .oneGenre:hover, #library .albumWidget .albumName:hover, #library .albumWidget .albumName .name:hover {
+	color: #BF9730;
+	cursor: pointer;
+}
+
+#library .oneArtist:not(:last-child):after, #library .oneGenre:not(:last-child):after {
+	content: ", ";
+}
+
+#library .albumWidget .albumGenres {
+	padding-top: 5px;
+}
+
+
 #main {
 	min-width: 705px;	/* #container.width - aside.width */
 	margin-right: 310px;

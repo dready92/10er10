@@ -5,17 +5,19 @@
 		var buffer = [];
 		var merged = [];
 		var rpp = d10.config.rpp;
+		var mergedRpp = 10;
 		var onGetResults = function(err,resp,cb) {
 			
 		};
 
 		var innerCursorFetchUntilRpp = function(then) {
-			if ( !innerCursor.hasMoreResults() || merged.length >= rpp ) {
-				var back = merged.splice(0,rpp);
+			if ( !innerCursor.hasMoreResults() || merged.length >= mergedRpp ) {
+				var back = merged.splice(0,mergedRpp);
 				return then(back);
 			} else {
 				innerCursorFetch(function(err,resp) {
 					if ( err ) {
+						debug("ERROR returning ",err,merged, buffer);
 						return then([]);
 					} else {
 						return innerCursorFetchUntilRpp(then);
@@ -60,7 +62,7 @@
 				if ( merged.length ) {
 					var localMerged = merged;
 					merged = [];
-					return cb(null,merged);
+					return cb(null,localMerged);
 				} else {
 					return cb(null,null);
 				}

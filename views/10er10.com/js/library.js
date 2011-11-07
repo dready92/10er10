@@ -17,6 +17,19 @@ if (! "fn" in d10 ) {
 					$(this).toggleClass("selected");
 		});
 
+		ui.delegate(".albumWidget .albumName","click",function() {
+			d10.router.navigateTo(["library","albums",$(this).closest(".albumWidget").attr("data-name")]);
+		}).delegate(".albumWidget img","click",function() {
+			d10.router.navigateTo(["library","albums",$(this).closest(".albumWidget").attr("data-name")]);
+		})
+		.delegate(".albumWidget .oneArtist","click",function() {
+			d10.router.navigateTo(["library","artists",$(this).attr("data-name")]);
+		})
+		.delegate(".albumWidget .oneGenre","click",function() {
+			d10.router.navigateTo(["library","genres",$(this).attr("data-name")]);
+		})
+		;
+			
 		d10.events.bind("whenLibraryScopeChange", function() {
 			var hitsTab = ui.children("nav").find("li[action=hits]");
 			if ( hitsTab.hasClass("active") ) {
@@ -82,6 +95,7 @@ if (! "fn" in d10 ) {
 			// get id
 			//
 			var id = get_id(topic,topicdiv,category);
+			debug("ID: ",id);
 			//
 			// get topic category container
 			//
@@ -97,8 +111,14 @@ if (! "fn" in d10 ) {
 				} else {
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.simple")+"</div>");
 					bindControls(categorydiv, topic, category);
+					if ( topic == "albums" && !category ) {
+						categorydiv.find(".selectVisible").hide();
+						categorydiv.find(".pushAll").hide();
+					}
 				}
 				topicdiv.append(categorydiv);
+			} else {
+				debug("already got category div", id, topicdiv.data('activeCategory'));
 			}
 			
 			// special pages
@@ -143,6 +163,53 @@ if (! "fn" in d10 ) {
 		var resetCache = function() {
 			d10.localcache.unset("genres.index");
 			d10.localcache.unset("artists.allartists");
+		};
+		
+		var albumResultsParser = function(rows) { //[ [ {key:.., doc: song}, ...], ... ]
+			var html=null ;
+			rows.forEach(function(songs) {
+				var artists = {}, genres = {}, images = {}, image = null, duration = 0, songsHtml = "", tpl = {duration: 0, songsNb: songs.length, artists: [], genres: []};
+				songs.forEach(function(row) {
+						tpl.album = row.doc.album;
+						artists[row.doc.artist] = 1;
+						if ( row.doc.genre ) {
+							genres[row.doc.genre] = 1;
+						}
+						duration+=row.doc.duration;
+						if ( row.doc.images ) {
+							row.doc.images.forEach(function(i) {
+								if ( images[i.filename] ) {
+									images[i.filename]++;
+								} else {
+									images[i.filename]=1;
+								}
+							});
+						}
+						songsHtml+=d10.song_template(row.doc);
+
+				});
+				for ( var k in artists ) { tpl.artists.push(k); }
+				for ( var k in genres ) { tpl.genres.push(k); }
+				var d = new Date(1970,1,1,0,0,duration);
+				tpl.duration = d.getMinutes()+':'+d.getSeconds();
+				image = d10.keyOfHighestValue(images);
+				if ( image ) { 
+					image = d10.config.img_root+"/"+image ;
+				} else {
+					image = d10.getAlbumDefaultImage();
+				}
+				tpl.image_url = image;
+				if ( !html ) {
+					html=$(d10.mustacheView("library.content.album.widget",tpl));
+				} else {
+					html = html.add($(d10.mustacheView("library.content.album.widget",tpl)));
+				}
+			});
+			if ( !html ) {
+				debug("no html for ",rows.length, rows);
+				html = "";
+			}
+			return html;
 		};
 		
 		var displayGenresListener = false;
@@ -222,7 +289,8 @@ if (! "fn" in d10 ) {
 			});
 			
 			var refresh = function() {
-				categorydiv.find(".song").remove();
+// 				categorydiv.find(".song").remove();
+				categorydiv.find(".list").empty();
 				categorydiv.find(".extendedInfos").empty();
 				var is = categorydiv.find("section").data("infiniteScroll");
 				if ( is && "remove" in is ) {
@@ -307,39 +375,9 @@ if (! "fn" in d10 ) {
 				}
 			};
 
-			if ( topic == "albums" && category == "<list>" ) {
+			if ( topic == "albums" && !category ) {
 				cursor = new d10.fn.couchMapMergedCursor(d10.rest.song.list.albums,{},"album");
-				isOpts.parseResults = function(rows) { //[ [ {key:.., doc: song}, ...], ... ]
-					var html="" ;
-					rows.forEach(function(songs) {
-						var artists = {}, genres = {}, images = {}, duration = 0, songsHtml = "", tpl = {duration: 0, songsNb: songs.length, artists: [], genres: []};
-						songs.forEach(function(row) {
-								tpl.album = row.doc.album;
-								artists[row.doc.artist] = 1;
-								if ( row.doc.genre ) {
-									genres[row.doc.genre] = 1;
-								}
-								duration+=row.doc.duration;
-								if ( row.doc.images ) {
-									row.doc.images.forEach(function(i) {
-										if ( images[i.filename] ) {
-											images[i.filename]++;
-										} else {
-											images[i.filename]=1;
-										}
-									});
-								}
-								songsHtml+=d10.song_template(row.doc);
-
-						});
-						for ( var k in artists ) { tpl.artists.push(k); }
-						for ( var k in genres ) { tpl.genres.push(k); }
-						var d = new Date(1970,1,1,0,0,duration);
-						tpl.duration = d.getMinutes()+':'+d.getSeconds();
-						html+=d10.mustacheView("library.content.album.widget",tpl);
-					});
-					return html;
-				};
+				isOpts.parseResults = albumResultsParser;
 			} else {
 				cursor = new d10.fn.couchMapCursor(endpoint, data);
 			}

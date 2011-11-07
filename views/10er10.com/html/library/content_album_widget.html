@@ -1,11 +1,10 @@
-<div class="albumWidget">
+<div class="albumWidget" data-name="{{album}}">
 	<div class="head">
-		<img />
+		<img src="{{image_url}}"/>
 		<div class="albumInfos">
-			<div class="albumName">{{album}}</div>
-			<div>{{songsNb}} songs, {{duration}} minutes.</div>
-			<div>{{#artists}}{{.}} {{/artists}}</div>
-			<div>{{#genres}}{{.}} {{/genres}}</div>
+			<div class="albumName"><span class="name">{{album}}</span> <span class="otherInfos">{{duration}} minutes, {{songsNb}} songs</span></div>
+			<div class="albumArtists">{{#artists}}<span class="oneArtist" data-name="{{.}}">{{.}}</span> {{/artists}}</div>
+			<div class="albumGenres">{{#genres}}<span class="oneGenre" data-name="{{.}}">{{.}}</span> {{/genres}}</div>
 		</div>
 	</div>
 </div>
