@@ -35,6 +35,7 @@ a:active { color: #FFCA40 }
 .hidden {	display: none;}
 .center {	text-align: center;}
 .middle {	vertical-align:middle;}
+.right {	text-align: right;}
 .table {	display: table;}
 .row {	display: table-row;}
 .cell {	display: table-cell;}
@@ -452,8 +453,6 @@ article.songlist div.controls button{
 }
 
 #library .albumWidget {
-	height: 140px;
-	overflow: auto;
 	border-bottom: 1px solid #454545;
 	padding-top: 8px;
 	-webkit-transition: background 0.4s;
@@ -461,7 +460,12 @@ article.songlist div.controls button{
 
 #library .albumWidget:hover {	background: #454545; }
 
-#library .albumWidget img {
+#library .albumWidget .head {
+	height: 134px;
+	overflow: auto;
+}
+
+#library .albumWidget .head img {
 	float: left;
 	border: 1px solid #dfdfdf;
 	margin: 1px;
@@ -488,13 +492,17 @@ article.songlist div.controls button{
 	padding-top: 5px;
 }
 
+#library .albumWidget .list { padding: 5px 30px; display:none;}
+#library .albumWidget .list .album {display: none;}
+#library .albumWidget .hideSongs { display: none; }
+
 
 #main {
 	min-width: 705px;	/* #container.width - aside.width */
 	margin-right: 310px;
 	background-color: #343434;
 	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
+	-webkit-border-radius: 3px;	
 	margin-bottom: 10px;
 	-moz-transition: margin-right 0.5s;
 	-webkit-transition: margin-right 0.5s;

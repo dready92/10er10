@@ -168,6 +168,10 @@ exports.server = {
 	"html/library/content_artist_related.html": {
 		see_also: "Voir aussi "
 	},
+	"html/library/content_album_widget.html": {
+		show_songs: "Afficher les morceaux de cet album",
+		hide_songs: "Cacher les morceaux"
+	},
 	"html/library/control_genre.html": {
 		loading: "Chargement en cours..."
 	},

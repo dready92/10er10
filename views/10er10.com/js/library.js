@@ -28,6 +28,18 @@ if (! "fn" in d10 ) {
 		.delegate(".albumWidget .oneGenre","click",function() {
 			d10.router.navigateTo(["library","genres",$(this).attr("data-name")]);
 		})
+		.delegate(".albumWidget .showSongs","click",function() {
+			var widget = $(this).closest(".albumWidget");
+			widget.find(".showSongs").hide();
+			widget.find(".hideSongs").show();
+			widget.find(".list").css("display","table");
+		})
+		.delegate(".albumWidget .hideSongs","click",function() {
+			var widget = $(this).closest(".albumWidget");
+			widget.find(".hideSongs").hide();
+			widget.find(".showSongs").show();
+			widget.find(".list").hide();
+		})
 		;
 			
 		d10.events.bind("whenLibraryScopeChange", function() {
@@ -199,6 +211,7 @@ if (! "fn" in d10 ) {
 					image = d10.getAlbumDefaultImage();
 				}
 				tpl.image_url = image;
+				tpl.songs = songsHtml;
 				if ( !html ) {
 					html=$(d10.mustacheView("library.content.album.widget",tpl));
 				} else {

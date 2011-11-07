@@ -5,6 +5,13 @@
 			<div class="albumName"><span class="name">{{album}}</span> <span class="otherInfos">{{duration}} minutes, {{songsNb}} songs</span></div>
 			<div class="albumArtists">{{#artists}}<span class="oneArtist" data-name="{{.}}">{{.}}</span> {{/artists}}</div>
 			<div class="albumGenres">{{#genres}}<span class="oneGenre" data-name="{{.}}">{{.}}</span> {{/genres}}</div>
+			<div class="right">
+				<span class="showSongs link">((show_songs))</span>
+				<span class="hideSongs link">((hide_songs))</span>
+			</div>
 		</div>
 	</div>
-</div>
+	<div class="list">
+		{{{songs}}}
+	</div>
+</div>	

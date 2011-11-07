@@ -169,6 +169,10 @@ exports.server = {
 	"html/library/content_artist_related.html": {
 		see_also: "See also"
 	},
+	"html/library/content_album_widget.html": {
+		show_songs: "Show album songs",
+		hide_songs: "Hide album songs"
+	},
 	"html/library/control_genre.html": {
 		loading: "Loading..."
 	},
