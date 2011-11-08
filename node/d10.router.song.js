@@ -190,6 +190,8 @@ exports.api = function(app) {
 			}
 		};
 
+		var uploadComplete = false;
+		
 		var jobid = "aa"+d10.uid(),job = {
 			id: jobid,
 			fileName: jobid+".mp3",
@@ -231,7 +233,7 @@ exports.api = function(app) {
 								if ( job.requestEnd ) {
 									job.decoder.stdin.end();
 								} else {
-									d10.log("debug","================= Lame pumping from request ===============");
+									d10.log("debug","================= Decoder pumping from request ===============");
 									util.pump(request, job.decoder.stdin);
 									job.inputFileBuffer.status = false;
 								}
@@ -248,7 +250,9 @@ exports.api = function(app) {
 								job.decoder.stdin.once("drain",function() {writeBuffer();});
 							}
 						};
-						writeBuffer();
+						if ( job.tasks.fileType.response != "audio/mp4" ) {// faad does not support stdin streaming
+							writeBuffer();
+						}
 					}
 				},
 				fileType: {
@@ -270,7 +274,7 @@ exports.api = function(app) {
 				fileMeta: {
 					status: null,
 					run: function(then) {
-						if ( this.tasks.fileType.response == "audio/mpeg" )  {
+						if ( this.tasks.fileType.response == "audio/mpeg" || this.tasks.fileType.response == "audio/mp4" )  {
 							audioUtils.id3tags(d10.config.audio.tmpdir+"/"+this.fileName,function(err,cb) {
 								then(err,cb);
 							});
@@ -590,6 +594,8 @@ exports.api = function(app) {
 				job.decoder = spawn(d10.config.cmds.flac, d10.config.cmds.flac_opts);
 				job.spawns.push(job.decoder);
 				job.run("oggEncode");
+			} else if ( resp == "audio/mp4" ) {
+				console.log("It's m4a, will launch decoder later");
 			} else {
 				job.inputFileBuffer.status = false;
 				job.inputFileBuffer.buffer = [];
@@ -599,6 +605,19 @@ exports.api = function(app) {
 			}
 		});
 
+		request.on("uploadCompleteAndFileTypeAvailable", function() {
+			if ( job.tasks.fileType.response == "audio/mp4" ) {
+				var args = d10.config.cmds.faad_opts.join("\n").split("\n");
+				args.push(d10.config.audio.tmpdir+"/"+job.fileName);
+				job.decoder = spawn(d10.config.cmds.faad, args);
+				job.decoder.stderr.on('data', function (data) {
+					console.log('stderr: ' + data);
+				});
+				job.spawns.push(job.decoder);
+				job.run("oggEncode");
+			}
+		});
+		
 		job.complete("fileMeta",function(err,data) {
 			if ( err ) {
 				return safeErrResp(503,err,request.ctx);
@@ -626,7 +645,8 @@ exports.api = function(app) {
 			if ( err ) {
 				return safeErrResp(432,err,request.ctx);
 			}
-			if ( job.tasks.fileType.response == "audio/mpeg" ) {
+			if ( job.tasks.fileType.response != "application/ogg" ) { // if the file is not an ogg we move it
+				console.log("unlink file ",d10.config.audio.tmpdir+"/"+job.fileName);
 				fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName,function()  {});
 			}
 			if ( job.tasks.fileMeta.status === null ) {
@@ -739,7 +759,10 @@ exports.api = function(app) {
 			if ( bytesIval ) { clearInterval(bytesIval); }
 			if ( job.fileWriter  ) {
 				if ( job.tasks.fileType.status === null ) {
-					job.fileWriter.close(function() {d10.log("debug","launching fileType job after filewriter close");job.run("fileType");});
+					job.fileWriter.close(function() {
+						d10.log("debug","launching fileType job after filewriter close");
+						job.run("fileType");
+					});
 				} else {
 					job.fileWriter.close();
 				}
@@ -747,8 +770,6 @@ exports.api = function(app) {
 				response.writeHead(200, {'Content-Type': 'text/plain'});
 				response.end('Nothing sent\n');
 			}
-			
-			
 		});
 		
 		request.on("data",function(chunk) {
@@ -774,11 +795,16 @@ exports.api = function(app) {
 							return ;
 					}
 					job.run("sha1File");
+					uploadComplete = true;
 					if ( job.tasks.fileType.status === null ) {
 						job.complete("fileType",function(err,resp) {
+							request.emit("uploadCompleteAndFileTypeAvailable");
 							if (  job.tasks.fileType.response == "application/ogg" ) { job.emit("oggAvailable",[]); }
 						});
-					} else if ( job.tasks.fileType.response == "application/ogg" ) { job.emit("oggAvailable",[]); }
+					} else {
+						if ( job.tasks.fileType.response == "application/ogg" ) { job.emit("oggAvailable",[]); }
+						request.emit("uploadCompleteAndFileTypeAvailable");
+					}
 					d10.log("debug","fileWriter end event");
 				});
 			}

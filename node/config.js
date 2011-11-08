@@ -66,8 +66,9 @@ exports.cmds = {
 	vorbiscomment: "/usr/bin/vorbiscomment",
 	metaflac: "/usr/bin/metaflac",
 	flac: "/usr/bin/flac",
-	flac_opts: ["-d","--totally-silent","-"]
-	
+	flac_opts: ["-d","--totally-silent","-"],
+	faad: "/usr/bin/faad",
+	faad_opts: ["-qw"]
 }
 
 
