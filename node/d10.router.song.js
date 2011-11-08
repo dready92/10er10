@@ -346,17 +346,18 @@ exports.api = function(app) {
 // 						} catch (e) {
 // 							d10.log("debug","parsing failed for ",this.tasks.fileMeta.response);
 // 						}
+						var that=this;
 						
 						if ( this.tasks.fileMeta.response.GENRE ) {
 							var value = "";
 							d10.config.genres.forEach(function(v,k) {
-								if ( this.tasks.fileMeta.response.GENRE == v.toLowerCase() ) {
+								if ( that.tasks.fileMeta.response.GENRE == v.toLowerCase() ) {
 									value=v;
 								}
 							});
-							tags.genre = value.length ? value : this.tasks.fileMeta.response.GENRE ;
+							tags.genre = value.length ? value : that.tasks.fileMeta.response.GENRE ;
 						}
-						var that=this;
+						
 						['ALBUM','ARTIST','TITLE'].forEach(function(v,k) {
 							if ( that.tasks.fileMeta.response[v] ) {
 								tags[v] = d10.ucwords(that.tasks.fileMeta.response[v].toLowerCase());
@@ -389,7 +390,7 @@ exports.api = function(app) {
 							if ( err ) {
 								console.log(err);
 							}
-							if ( err && err.errno != 2 && err.errno != 32 ) { // errno32 = no such file on node > 0.5.10
+							if ( err && err.errno != 2 && err.code != "ENOENT" ) { // err.code == ENOENT = no such file on node > 0.5.10
 								then(err);
 							} else if ( err ) {
 								fs.mkdir(d10.config.audio.dir+"/"+c,0775, function(err,stat) {
@@ -455,6 +456,16 @@ exports.api = function(app) {
 							typeof doc.artist == "string" && doc.artist.length ) {
 							doc.valid = true;
 						}
+						
+						// test for tracknumber and get it from filename if possible
+						if ( doc.tracknumber == 0 ) {
+							var tracknumberFromFilename = doc.filename.match(/^[0-9]+/);
+							if ( tracknumberFromFilename ) {
+								doc.tracknumber = parseInt( tracknumberFromFilename[0] , 10);
+							}
+						}
+						
+						
 //  						return then(null,doc);
 						var recordDoc = function() {
 							d10.couch.d10.storeDoc(doc,function(err,resp) {
