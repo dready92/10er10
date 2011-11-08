@@ -33,7 +33,11 @@ Install audio utilities
 
 * install **ogginfo** executable : it's certainly available from your distribution packages
 
-* install **flac** executable : they're certainly available from your distribution packages
+* install **vorbiscomment** executable : it's certainly available from your distribution packages
+
+* install **flac** executable : it's certainly available from your distribution packages
+
+* install **faad** executable : it's certainly available from your distribution packages
 
 Install graphics utilities
 ---------------------------

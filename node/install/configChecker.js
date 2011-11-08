@@ -9,11 +9,9 @@ var binaries = [
 	config.cmds.lame,
 	config.cmds.oggenc,
 	config.cmds.ogginfo,
-	config.cmds.utrac,
-	config.cmds.taginfo,
+	config.cmds.flac,
 	config.cmds.vorbiscomment,
-	config.cmds.metaflac,
-	config.cmds.flac
+	config.cmds.faad
 ];
 
 var directories = [

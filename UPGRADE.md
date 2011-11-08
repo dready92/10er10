@@ -21,8 +21,9 @@ To upgrade your PROD databases, run
 **What changed ?**
 
 - prettyfied albums list
-- use internal node.js library musicmetadata to decode audio tags: no more need for utrac, taginfo, vorbiscomment, metaflac.
+- use internal node.js library musicmetadata to decode audio tags: no more need for utrac, taginfo, metaflac.
 - get image from audio metadata
+- support mp4 encoding (.m4a files) : you need to get the faad binary executable and set its path in config.js
 
 Upgrade from 0.6 to 0.7
 =======================

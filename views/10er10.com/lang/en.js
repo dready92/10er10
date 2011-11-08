@@ -219,7 +219,7 @@ exports.server = {
 	"html/upload/file.widget.html": {
 		review_button: "Review this song",
 		close_button: "Close",
-		type_error: "File will not be uploaded : it's not an mp3, an ogg or a flac file.",
+		type_error: "File will not be uploaded. Supported audio files are mp3, ogg, flac and m4a.",
 		waiting: "Waiting",
 		cancel_link: "Don't send this song"
 	},

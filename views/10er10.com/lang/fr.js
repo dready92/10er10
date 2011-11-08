@@ -218,7 +218,7 @@ exports.server = {
 	"html/upload/file.widget.html": {
 		review_button: "Valider le morceau",
 		close_button: "Fermer",
-		type_error: "Le fichier ne sera pas transmis au serveur : ce n'est ni un mp3, ni un flac, ni un ogg.",
+		type_error: "Le fichier ne sera pas transmis au serveur. Les types de fichiers supportés sont mp3, flac, ogg et m4a.",
 		waiting: "En attente",
 		cancel_link: "Ne pas envoyer ce morceau"
 	},
