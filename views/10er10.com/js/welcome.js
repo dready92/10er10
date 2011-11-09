@@ -92,9 +92,6 @@ d10.fn.welcome = function  (ui) {
 			if ( i == undefinedAlbum ) {
 				continue;
 			}
-// 			if ( !songsByAlbumMeta[i].images.length ) {
-// 				continue;
-// 			}
 			var songs = songsByAlbum[i], 
 				image = songsByAlbumMeta[i].images.length ? songsByAlbumMeta[i].images[0] : "", 
 				artists = songsByAlbumMeta[i].artists, 
@@ -117,10 +114,6 @@ d10.fn.welcome = function  (ui) {
 						image_url: image ? d10.config.img_root+"/"+image : d10.getAlbumDefaultImage()
 					}
 				)).data("songs",songs);
-// 			if ( !image ) {
-// 				widget.find("img").remove();
-// 				widget.addClass("noImageWidget");
-// 			}
 			widgets.push(
 				widget
 			);
