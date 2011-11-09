@@ -85,7 +85,7 @@ d10.fn.welcome = function  (ui) {
 		}
 		then(songsByAlbum, songsByAlbumMeta);
 	},
-	artistsLimitChars = 180,
+	artistsLimitChars = 140,
 	displayLatest = function(songsByAlbum, songsByAlbumMeta) {
 		var widgets = [];
 		for ( var i in songsByAlbum ) {
