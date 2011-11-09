@@ -351,6 +351,44 @@ d10.fn.my = function (ui) {
 			return ratio;
 		}
 		
+		// should async this one bc on chrome it's async
+		function getImageSize(img, then) {
+			img.css(
+				{
+					"visibility":"none",
+					"position": "absolute",
+					"top": 0,
+					"left": -10000
+				}
+			);
+			$("body").append(img);
+			setTimeout(function() {
+				var w = img.width(), h = img.height();
+				img.detach().css({
+					"visibility":"",
+					"position": "",
+					"top": null,
+					"left": null
+				});
+				return then(w, h);
+			},1000);
+		};
+
+		function getDynamicImageSize(w,h) {
+			if ( w > h ) {
+				h = h / w * d10.config.img_size;
+				w = d10.config.img_size;
+			} else {
+				w = w / h * d10.config.img_size;
+				h = d10.config.img_size;
+			}
+			return { width:w, height:h };
+		};
+		
+		function getImageFromReader(e) {
+			return $("<img />").attr("src",e.target.result);
+		};
+		
 		function handleFiles(files) {
 			debug("handling file upload, nr of files: ",files.length);
 			var jobs = [];
@@ -366,23 +404,9 @@ d10.fn.my = function (ui) {
 					return function() {
 						var reader = new FileReader();
 						reader.onload = function(e) {
-							var img = $("<img />").attr("src",e.target.result).css(
-								{
-									"visibility":"none",
-									"position": "absolute",
-									"top": 0,
-									"left": -10000
-								}
-							);
+							var img = getImageFromReader(e);
 							
-							$("body").append(img);
-							
-							
-							
-							
-							// timeout for chrome to get img width & height properly
-							var doTheRest = function() {
-								var w = img.width(), h = img.height();
+							var doTheRest = function(w,h) {
 // 								debug("image size: ",w,h);						
 								var ratio = getImageRatio(w,h);
 								if ( ratio > 1.5 ) {
@@ -390,15 +414,10 @@ d10.fn.my = function (ui) {
 									img.remove();
 									return ;
 								}
-								if ( w > h ) {
-									h = h / w * d10.config.img_size;
-									w = d10.config.img_size;
-								} else {
-									w = w / h * d10.config.img_size;
-									h = d10.config.img_size;
-								}
-								img.width(w).height(h).css("position","static").appendTo(dropbox.find(".images")).css("visibility","visible");
 								
+								var dyn = getDynamicImageSize(w,h);
+								
+								img.width(dyn.width).height(dyn.height).css("position","static").appendTo(dropbox.find(".images")).css("visibility","visible");
 								d10.rest.song.uploadImage(song_id, file, file.name, file.size, {
 									load: function(err, headers, body) {
 										if ( err || !body || !body.filename ) {
@@ -410,11 +429,11 @@ d10.fn.my = function (ui) {
 										img.remove();
 										dropbox.find(".images").append(
 												d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+body.filename})
-																	);
+										);
 									}
 								});
 							};
-							setTimeout(doTheRest,1000);
+							getImageSize(img,doTheRest);
 						};
 						// Read in the image file as a data URL.
 						reader.readAsDataURL(file);
