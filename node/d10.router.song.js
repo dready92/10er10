@@ -7,7 +7,8 @@ var d10 = require ("./d10"),
 	audioUtils = require("./audioFileUtils"),
 	gu = require("./graphicsUtils"),
 	spawn = require('child_process').spawn,
-	exec = require('child_process').exec;
+	exec = require('child_process').exec,
+	supportedAudioTypes = [ "audio/mpeg", "audio/mp4", "application/ogg", "audio/x-flac" ];
 
 
 exports.api = function(app) {
@@ -180,9 +181,19 @@ exports.api = function(app) {
 			else	{ request.on("end",function() {d10.realrest.err(code,data,ctx);}); };
 		};
 		
+		var safeSuccessResp = function(data, ctx) {
+			if ( errResponse != null ) {
+				d10.log("debug","Strange: got to send success but already sent error...");
+				d10.log("debug","errCode", errResponse.code);
+				d10.log("debug","errData", errResponse.data);
+				return ;
+			}
+			d10.realrest.success(data,ctx);
+		};
+		
 		var bytesCheck = function() {
 			var min = 5000;
-			console.log(job.fileWriter.bytesWritten());
+			d10.log("debug",job.fileWriter.bytesWritten());
 			if ( job.fileWriter.bytesWritten() > min ) {
 				clearInterval(bytesIval);
 				bytesIval = null;
@@ -190,7 +201,10 @@ exports.api = function(app) {
 			}
 		};
 
-		var uploadComplete = false;
+		var uploadComplete = false, // the flag telling if the data uploaded is complete
+			bytesIval = null,	// bytes checker interval
+			errResponse = null  // the error response to send
+			; 
 		
 		var jobid = "aa"+d10.uid(),job = {
 			id: jobid,
@@ -300,7 +314,6 @@ exports.api = function(app) {
 								if ( len && len.length && len.length > 2 ) {
 									len = 60*parseInt(len[1],10) + parseInt(len[2],10);
 								}
-// 								d10.log("oggLength returns : "+len);
 							}
 							then(err,len);
 						});
@@ -345,11 +358,6 @@ exports.api = function(app) {
 						}
 						if ( !this.tasks.fileMeta.response ) { this.tasks.fileMeta.response={}; }
 						var tags = {};
-// 						try {
-// 							tags = JSON.parse(JSON.stringify(this.tasks.fileMeta.response));
-// 						} catch (e) {
-// 							d10.log("debug","parsing failed for ",this.tasks.fileMeta.response);
-// 						}
 						var that=this;
 						
 						if ( this.tasks.fileMeta.response.GENRE ) {
@@ -371,7 +379,6 @@ exports.api = function(app) {
 							if ( that.tasks.fileMeta.response[v] ) { tags[v] = that.tasks.fileMeta.response[v]; }
 							else { tags[v] = null }
 						});
-// 						d10.log("debug",tags);
 						then(null,tags);
 					}
 				},
@@ -392,7 +399,7 @@ exports.api = function(app) {
 						};
 						fs.stat(d10.config.audio.dir+"/"+c,function(err,stat) {
 							if ( err ) {
-								console.log(err);
+								d10.log("debug",err);
 							}
 							if ( err && err.errno != 2 && err.code != "ENOENT" ) { // err.code == ENOENT = no such file on node > 0.5.10
 								then(err);
@@ -407,7 +414,6 @@ exports.api = function(app) {
 							} else {
 								moveFile();
 							}
-// 							then(e,stat);
 						});
 					}
 				},
@@ -483,7 +489,7 @@ exports.api = function(app) {
 
 						if ( this.tasks.fileMeta.response && this.tasks.fileMeta.response.PICTURES && this.tasks.fileMeta.response.PICTURES.length ) {
 							gu.imageFromMeta(this.tasks.fileMeta.response,function(err,resp) {
-								console.log("imageFromMeta response",err,resp);
+								d10.log("debug","imageFromMeta response",err,resp);
 								if ( !err ) {
 									doc.images = [ resp ];
 								}
@@ -595,7 +601,7 @@ exports.api = function(app) {
 				job.spawns.push(job.decoder);
 				job.run("oggEncode");
 			} else if ( resp == "audio/mp4" ) {
-				console.log("It's m4a, will launch decoder later");
+				d10.log("debug","It's m4a, will launch decoder later");
 			} else {
 				job.inputFileBuffer.status = false;
 				job.inputFileBuffer.buffer = [];
@@ -611,7 +617,7 @@ exports.api = function(app) {
 				args.push(d10.config.audio.tmpdir+"/"+job.fileName);
 				job.decoder = spawn(d10.config.cmds.faad, args);
 				job.decoder.stderr.on('data', function (data) {
-					console.log('stderr: ' + data);
+					d10.log("debug",'stderr: ' + data);
 				});
 				job.spawns.push(job.decoder);
 				job.run("oggEncode");
@@ -646,7 +652,7 @@ exports.api = function(app) {
 				return safeErrResp(432,err,request.ctx);
 			}
 			if ( job.tasks.fileType.response != "application/ogg" ) { // if the file is not an ogg we move it
-				console.log("unlink file ",d10.config.audio.tmpdir+"/"+job.fileName);
+				d10.log("debug","unlink file ",d10.config.audio.tmpdir+"/"+job.fileName);
 				fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName,function()  {});
 			}
 			if ( job.tasks.fileMeta.status === null ) {
@@ -657,15 +663,13 @@ exports.api = function(app) {
 		});
 		
 		job.complete("cleanupTags",function(err,resp) {
-			d10.log("debug","cleanupTags finidhed");
 			job.run("createDocument");
 			job.run("applyTagsToFile");
 		});
 		
 		job.complete("createDocument",function(err,resp) {
-			d10.log("debug","db document recorded");
-// 			d10.log("debug",resp);
-			d10.realrest.success(resp,request.ctx);
+			d10.log("debug","db document recorded, sending success");
+			safeSuccessResp(resp,request.ctx);
 		});
 		
 		
@@ -683,7 +687,7 @@ exports.api = function(app) {
 						d10.log("debug","GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG");
 						
 						job.complete("sha1Check",function(err,resp) {
-							d10.log("debug","sha1check is complete, ket's go recording the song !");
+							d10.log("debug","sha1check is complete, let's go recording the song !");
 							if ( !err ){
 								job.run("moveFile");
 							}
@@ -711,11 +715,7 @@ exports.api = function(app) {
 				onAllComplete();
 			}
 		});
-			
-			
-		var bytesIval = null,	// bytes checker interval
-			errResponse = null  // the error response to send
-			; 
+
 		request.on("error",function(){
 			d10.log("debug","request ERROR !");
 			d10.log("debug",arguments);
@@ -785,13 +785,12 @@ exports.api = function(app) {
 
 				job.fileWriter.on("end", function() {
 					if ( parseInt(request.query.filesize) != job.fileWriter.bytesWritten() ) {
-						return d10.realrest.err(421, request.query.filesize+" != "+n,request.ctx);
+						return safeErrResp(421, request.query.filesize+" != "+n,request.ctx);
 					}
 					job.bufferJoin = 20;
 					
 					if ( job.tasks.fileType.status === false &&
-						 job.tasks.fileType.response != "audio/mpeg" && 
-						 job.tasks.fileType.response != "application/ogg"  ) {
+						 supportedAudioTypes.indexOf(job.tasks.fileType.response) < 0  ) {
 							return ;
 					}
 					job.run("sha1File");
