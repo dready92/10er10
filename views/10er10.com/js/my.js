@@ -389,6 +389,25 @@ d10.fn.my = function (ui) {
 			return $("<img />").attr("src",e.target.result);
 		};
 		
+		function onImageRead (e) {
+			var canvas = $("<canvas />")
+				.attr("width",d10.config.img_size+"px")
+				.attr("height",d10.config.img_size+"px")
+				.css({width: d10.config.img_size, height: d10.config.img_size, border: "1px solid #7F7F7F"});
+			var api = canvas.loadImage(e, 
+						{
+							onReady: function() {
+								debug("ready ! ");
+								dropbox.find(".images").append(canvas);
+							},
+							onSize: function(w,h) {
+								debug("got onSize",w,h);
+								return true;
+							}
+						}
+					);
+		};
+		
 		function handleFiles(files) {
 			debug("handling file upload, nr of files: ",files.length);
 			var jobs = [];
@@ -404,6 +423,7 @@ d10.fn.my = function (ui) {
 					return function() {
 						var reader = new FileReader();
 						reader.onload = function(e) {
+							/*
 							var img = getImageFromReader(e);
 							
 							var doTheRest = function(w,h) {
@@ -434,6 +454,8 @@ d10.fn.my = function (ui) {
 								});
 							};
 							getImageSize(img,doTheRest);
+				*/
+							onImageRead(e);
 						};
 						// Read in the image file as a data URL.
 						reader.readAsDataURL(file);

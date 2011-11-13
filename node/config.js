@@ -78,6 +78,7 @@ exports.javascript = {
 		"jquery.ovlay.js",
 		"jquery.includes.js",
 		"jquery.resizer.js",
+		"jquery.image.js",
 		"mustache.js",
 		"underscore-min.js",
 		"backbone.js",
