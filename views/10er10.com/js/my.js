@@ -350,44 +350,6 @@ d10.fn.my = function (ui) {
 			debug("image ratio : ",ratio);
 			return ratio;
 		}
-		
-		// should async this one bc on chrome it's async
-		function getImageSize(img, then) {
-			img.css(
-				{
-					"visibility":"none",
-					"position": "absolute",
-					"top": 0,
-					"left": -10000
-				}
-			);
-			$("body").append(img);
-			setTimeout(function() {
-				var w = img.width(), h = img.height();
-				img.detach().css({
-					"visibility":"",
-					"position": "",
-					"top": null,
-					"left": null
-				});
-				return then(w, h);
-			},1000);
-		};
-
-		function getDynamicImageSize(w,h) {
-			if ( w > h ) {
-				h = h / w * d10.config.img_size;
-				w = d10.config.img_size;
-			} else {
-				w = w / h * d10.config.img_size;
-				h = d10.config.img_size;
-			}
-			return { width:w, height:h };
-		};
-		
-		function getImageFromReader(e) {
-			return $("<img />").attr("src",e.target.result);
-		};
 
 		var sendImageToServer = function(file, api, canvas, cb) {
 			d10.rest.song.uploadImage(song_id, file, file.name, file.size, {
