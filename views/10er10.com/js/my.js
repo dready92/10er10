@@ -395,6 +395,7 @@ d10.fn.my = function (ui) {
 					if ( err || !body || !body.filename ) {
 						debug("image upload failed",err, body);
 						d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
+						canvas.remove();
 						cb(false);
 						return ;
 					}
@@ -416,48 +417,36 @@ d10.fn.my = function (ui) {
 				}
 			});
 		};
-
-		
-		function onImageRead (file, e, then) {
-			var canvas = $("<canvas />")
-				.attr("width",d10.config.img_size+"px")
-				.attr("height",d10.config.img_size+"px")
-				.css({width: d10.config.img_size, height: d10.config.img_size, border: "1px solid #7F7F7F"});
-			var api = canvas.loadImage(e, 
-				{
-					onReady: function() {
-						debug("ready ! ");
-						dropbox.find(".images").append(canvas);
-						then(null, function(cb) {
-							sendImageToServer(file,api, canvas,cb);
-// 							cb();
-						});
-					},
-					onSize: function(w,h) {
-						debug("got onSize",w,h);
-						var ratio = getImageRatio(w,h);
-						if ( ratio > 1.5 ) {
-							d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
-							canvas.remove();
-							then(true);
-							return false;
-						}
-						return true;
-					}
-				}
-			);
-
-		};
 		
 		function readImage (file) {
 			var reader = new FileReader();
 			reader.onload = function(e) {
-				onImageRead(file, e, function(err,closure) {
-					if ( !err ) {
-						jobs.queue.push(closure);
-						jobs.run();
+				var canvas = $("<canvas />")
+					.attr("width",d10.config.img_size+"px")
+					.attr("height",d10.config.img_size+"px")
+					.css({width: d10.config.img_size, height: d10.config.img_size, border: "1px solid #7F7F7F"});
+				var api = canvas.loadImage(e, 
+					{
+						onReady: function() {
+							debug("ready ! ");
+							dropbox.find(".images").append(canvas);
+							jobs.queue.push(function(cb) {
+								sendImageToServer(file, api, canvas, cb);
+							});
+							jobs.run();
+						},
+						onSize: function(w,h) {
+							debug("got onSize",w,h);
+							var ratio = getImageRatio(w,h);
+							if ( ratio > 1.5 ) {
+								d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
+								canvas.remove();
+								return false;
+							}
+							return true;
+						}
 					}
-				});
+				);
 			};
 			reader.readAsDataURL(file);
 		};
@@ -469,7 +458,7 @@ d10.fn.my = function (ui) {
 				if ( !this.queue.length ) {
 					return ;
 				}
-				if ( this.running > 2 ) {
+				if ( this.running  ) {
 					return ;
 				}
 				
@@ -486,7 +475,6 @@ d10.fn.my = function (ui) {
 		
 		function handleFiles(files) {
 			debug("handling file upload, nr of files: ",files.length);
-			var jobs = [];
 			for (var i = 0; i < files.length; i++) { 
 				debug("reading ",i);
 				var file = files[i];
@@ -494,58 +482,6 @@ d10.fn.my = function (ui) {
 					continue;
 				}
 				readImage (file);
-				// Closure to capture the file information.
-				/*
-				jobs.push( (function(file) { 
-					return function() {
-						var reader = new FileReader();
-						reader.onload = function(e) {
-							/*
-							var img = getImageFromReader(e);
-							
-							var doTheRest = function(w,h) {
-// 								debug("image size: ",w,h);						
-								var ratio = getImageRatio(w,h);
-								if ( ratio > 1.5 ) {
-									d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
-									img.remove();
-									return ;
-								}
-								
-								var dyn = getDynamicImageSize(w,h);
-								
-								img.width(dyn.width).height(dyn.height).css("position","static").appendTo(dropbox.find(".images")).css("visibility","visible");
-								d10.rest.song.uploadImage(song_id, file, file.name, file.size, {
-									load: function(err, headers, body) {
-										if ( err || !body || !body.filename ) {
-											debug("image upload failed",err, body);
-											d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
-											return ;
-										}
-										d10.osd.send("info",d10.mustacheView("my.review.success.filetransfert",{filename: file.name}));
-										img.remove();
-										dropbox.find(".images").append(
-												d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+body.filename})
-										);
-									}
-								});
-							};
-							getImageSize(img,doTheRest);
-				*//*
-							onImageRead(file, e);
-						};
-						// Read in the image file as a data URL.
-						reader.readAsDataURL(file);
-						if ( jobs.length ) {
-// 							debug("launching next job, currently job length is",jobs.length);
-							setTimeout(jobs.pop(),1200);
-						}
-					};
-				})(file) );*/
-			}
-			debug("jobs length",jobs.length);
-			if ( jobs.length ) {
-				jobs.pop()();
 			}
 		}
 	};
