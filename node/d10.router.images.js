@@ -184,4 +184,54 @@ exports.api = function(app) {
 			});
 		};
 	});
+	
+	
+	
+	var processImageUpload = function(request, then) {
+		var fileName = d10.uid() + "." + request.query.filename.split(".").pop();
+		files.writeStream(request, d10.config.images.tmpdir+"/"+fileName, function(err) {
+			if ( err ) {
+				return then({code:500, message: "filesystem error (file write failed)"});
+			}
+			fs.stat(d10.config.images.tmpdir+"/"+fileName,function(err,stat) {
+				if ( err ) {
+					return then({code:500, message: "filesystem error"});
+				}
+				if ( stat.size != request.query.filesize ) {
+					return then({code:500, message: "filesystem error (filesize does not match)"});
+				}
+
+				files.sha1_file(d10.config.images.tmpdir+"/"+fileName, function(err,sha1) {
+					if ( err ) {
+						return then({code:500, message: "filesystem error (sha1sum failed)"});
+						return d10.realrest.err(500,"filesystem error (sha1sum failed)",request.ctx);
+					}
+					sha1 = sha1.split(" ",2).shift();
+					d10.couch.d10.view("images/sha1",{key: sha1}, function(err,view) {
+						if ( err ) {
+							return then({code:423, message: err});
+							return d10.realrest.err(423,err,request.ctx);
+						}
+						if ( view.rows.length ) {
+							return then(null, {filename: view.rows[0].value, sha1: sha1, isNew: false});
+							recordDoc(doc,view.rows[0].value, sha1, recordDocCallback);
+						} else {
+							gu.resizeImage(
+								d10.config.images.tmpdir+"/"+fileName,
+								d10.config.images.dir+"/"+fileName,
+								function(err) {
+									if ( err ) {
+										return then({code:500, message: err});
+										return d10.realrest.err(500,err,request.ctx);
+									}
+									return then(null, {filename: fileName, sha1: sha1, isNew: true});
+									recordDoc(doc,fileName, sha1, recordDocCallback);
+								}
+							);
+						}
+					});
+				});
+			});
+		});
+	};
 };
