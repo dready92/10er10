@@ -6,7 +6,6 @@ var d10 = require("./d10"),
 			gu = require("./graphicsUtils");
 
 			
-			
 exports.api = function(app) {
 	
 	app.delete("/api/songImage/:id/:filename",function(request,response) {
@@ -74,10 +73,14 @@ exports.api = function(app) {
 			return d10.realrest.err(427,"filename and filesize arguments required",request.ctx);
 		}
 		var fileName = d10.uid() + "." + request.query.filename.split(".").pop();
-		var writer = fs.createWriteStream( d10.config.images.tmpdir+"/"+fileName );
-		var doc, onDoc = null ;
-		
-		var recordDoc = function(doc, fileName, sha1) {
+		var recordDocCallback = function(err,resp) {
+			if ( err ) {
+				return d10.realrest.err(err.code, err.message, request.ctx);
+			}
+			return d10.realrest.success(resp,request.ctx);
+		};
+
+		var recordDoc = function(doc, fileName, sha1, then) {
 			var toSet = null;
 			if ( !doc.images ) {
 				toSet = [ {filename: fileName, sha1: sha1} ];
@@ -89,84 +92,96 @@ exports.api = function(app) {
 					}
 				});
 				if ( alreadyIn ) {
-					return d10.realrest.success({filename: alreadyIn, sha1: sha1}, request.ctx);
+					return then(null,{filename: alreadyIn, sha1: sha1});
 				} else {
 					toSet = [{filename: fileName, sha1: sha1}];
 				}
 			}
 			// re-get doc to have the good _rev
 			d10.couch.d10.getDoc(doc._id,function(err,lastVerDoc) {
-				if ( err ) {return d10.realrest.err(423,err,request.ctx);}
+				if ( err ) {
+					return then({code: 423, message: err});
+				}
 				doc._rev = lastVerDoc._rev;
 // 						console.log("doc.images: ",lastVerDoc.images);
 				doc.images = lastVerDoc.images && lastVerDoc.images.length ? lastVerDoc.images.concat(toSet) : toSet;
 // 						console.log("doc.images 2: ",doc.images);
 				d10.couch.d10.storeDoc(doc, function(err,resp) {
-					if ( err ) {return d10.realrest.err(423,err,request.ctx);}
-					return d10.realrest.success({filename: fileName, sha1: sha1}, request.ctx);
+					if ( err ) {
+						return then({code: 423, message: err});
+					}
+					return then(null,{filename: fileName, sha1: sha1});
 				});
 			});
 		};
-		
-		d10.couch.d10.getDoc(request.params.id,function(err,resp) {
-			if ( err ) {
-				doc = false;
-				return d10.realrest.err(500,"filesystem error",request.ctx);
-			}
-			doc = resp;
-			if ( onDoc ) {
-				onDoc(doc);
-			}
-		});
-		
-		writer.on("close",function() {
-			fs.stat(d10.config.images.tmpdir+"/"+fileName,function(err,stat) {
-				if ( doc === false ) {
-					return d10.realrest.err(404,"File not Found",request.ctx);
-				}
-				if ( err ) {
-					return d10.realrest.err(500,"filesystem error",request.ctx);
-				}
-				if ( stat.size != request.query.filesize ) {
-					return d10.realrest.err(500,"filesystem error (filesize does not match)",request.ctx);
-				}
-				
-				onDoc = function(doc) {
-					files.sha1_file(d10.config.images.tmpdir+"/"+fileName, function(err,sha1) {
-						if ( err ) {
-							d10.realrest.err(500,"filesystem error (sha1sum failed)",request.ctx);
-							return ;
-						}
-						sha1 = sha1.split(" ",2).shift();
-						d10.couch.d10.view("images/sha1",{key: sha1}, function(err,view) {
-							if ( err ) {return d10.realrest.err(423,err,request.ctx);}
-// 							console.log("view images/sha1, for ",sha1);
-// 							console.log(view);
-							
-							if ( view.rows.length ) {
-// 								console.log("image already in db : ", sha1);
-// 								console.log(view);
-								recordDoc(doc,view.rows[0].value, sha1);
-							} else {
-// 								console.log("image is not already in db",view);
 
-								gu.resizeImage(
-									d10.config.images.tmpdir+"/"+fileName,
-									d10.config.images.dir+"/"+fileName,
-									function(err) {
-										if ( err ) {
-											return d10.realrest.err(500,err,request.ctx);
-										}
-										recordDoc(doc,fileName, sha1);
-									}
-								);
-							}
-						});
-					});
-				};
-				if ( doc ) { onDoc(doc); }
+		var jobs = {}
+		jobs.writeFile = function(then) {
+			files.writeStream(request, d10.config.images.tmpdir+"/"+fileName, function(err) {
+				if ( err ) {
+					return then({code:500, message: "filesystem error (file write failed)"});
+				}
+				fs.stat(d10.config.images.tmpdir+"/"+fileName,function(err,stat) {
+					if ( err ) {
+						return then({code:500, message: "filesystem error"});
+					}
+					if ( stat.size != request.query.filesize ) {
+						return then({code:500, message: "filesystem error (filesize does not match)"});
+					}
+					then();
+				});
 			});
-		});
-		request.pipe(writer);
+		};
+		jobs.getDoc = function(then) {
+			d10.couch.d10.getDoc(request.params.id,function(err,resp) {
+				if ( err ) {
+					return then({code:500, message: "database error (document not found)"});
+				}
+				then(null,resp);
+			});
+		};
+		
+		when(
+			jobs,
+			function(errs,responses) {
+				if ( errs ) {
+					for ( var i in errs ) {
+						console.log("returning image upload error due to ",i, errs[i]);
+						return d10.realrest.err(errs[i].code, errs[i].message, request.ctx);
+					}
+				}
+				onDoc( responses.getDoc );
+				
+			}
+		);
+		
+		var onDoc = function(doc) {
+			if ( doc.user != request.ctx.user._id ) {
+				return d10.realrest.err(403,"You're not allowed to update this document",request.ctx);
+			}
+			files.sha1_file(d10.config.images.tmpdir+"/"+fileName, function(err,sha1) {
+				if ( err ) {
+					return d10.realrest.err(500,"filesystem error (sha1sum failed)",request.ctx);
+				}
+				sha1 = sha1.split(" ",2).shift();
+				d10.couch.d10.view("images/sha1",{key: sha1}, function(err,view) {
+					if ( err ) {return d10.realrest.err(423,err,request.ctx);}
+					if ( view.rows.length ) {
+						recordDoc(doc,view.rows[0].value, sha1, recordDocCallback);
+					} else {
+						gu.resizeImage(
+							d10.config.images.tmpdir+"/"+fileName,
+							d10.config.images.dir+"/"+fileName,
+							function(err) {
+								if ( err ) {
+									return d10.realrest.err(500,err,request.ctx);
+								}
+								recordDoc(doc,fileName, sha1, recordDocCallback);
+							}
+						);
+					}
+				});
+			});
+		};
 	});
 };

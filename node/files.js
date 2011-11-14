@@ -228,3 +228,9 @@ exports.fileCache = function(options) {
 };
 
 
+exports.writeStream = function(stream, filename, then) {
+	var writer = fs.createWriteStream( filename );
+	writer.on("close",then);
+	writer.on("error",then);
+	stream.pipe(writer);
+};
