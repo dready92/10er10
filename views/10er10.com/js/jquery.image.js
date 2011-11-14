@@ -1,5 +1,15 @@
 (function($)  {
 	
+	
+	var waitImage = new Image();
+	waitImage.src = '/css/64x64/apps/kalarm.png';
+	
+	var uploadImage = new Image();
+	uploadImage.src = '/css/64x64/actions/arrow-up.png';
+	
+	var okImage = new Image();
+	okImage.src = '/css/64x64/actions/dialog-ok.png';
+	
 	function getImageFromReader(e) {
 		return $("<img />").attr("src",e.target.result);
 	};
@@ -24,7 +34,7 @@
 				"left": null
 			});
 			return then(w, h);
-		},1000);
+		},200);
 	};
 	
 	function getDynamicImageSize(w,h, sideSize) {
@@ -51,14 +61,19 @@
 			onSize: function() { return true;}
 		};		
 		$.extend(settings,options);
-		var update = function(pc) {
-			debug(xStart,yStart,newSize.width, newSize.height);
+		var update = function(pc, image) {
+			image = image || waitImage;
+			if ( pc == 100 ) {
+				image = okImage;
+			}
+// 			debug(xStart,yStart,newSize.width, newSize.height);
 			ctx.clearRect(0,0,sideSize,sideSize);
 			ctx.drawImage(img.get(0),xStart,yStart,newSize.width, newSize.height);
 			ctx.fillStyle = "rgba(200,200,200,0.3)";
 			var h = Math.floor(sideSize / 100 * (100-pc));
 			var hStart = sideSize - h;
 			ctx.fillRect  (0,   0, sideSize, h);
+			ctx.drawImage(image,32,32);
 		};
 		getImageSize(img, function(w,h) {
 			if( settings.onSize(w,h) !== true ) {
@@ -68,7 +83,7 @@
 			debug(newSize);
 			xStart = Math.floor((sideSize - newSize.width) / 2);
 			yStart = Math.floor((sideSize - newSize.height) / 2);
-			update(0);
+			update(0, waitImage);
 			settings.onReady.call(that,api);
 		});
 		var api = {

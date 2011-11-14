@@ -388,24 +388,100 @@ d10.fn.my = function (ui) {
 		function getImageFromReader(e) {
 			return $("<img />").attr("src",e.target.result);
 		};
+
+		var sendImageToServer = function(file, api, canvas, cb) {
+			d10.rest.song.uploadImage(song_id, file, file.name, file.size, {
+				load: function(err, headers, body) {
+					if ( err || !body || !body.filename ) {
+						debug("image upload failed",err, body);
+						d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
+						cb(false);
+						return ;
+					}
+					d10.osd.send("info",d10.mustacheView("my.review.success.filetransfert",{filename: file.name}));
+					canvas.remove();
+					dropbox.find(".images").append(
+							d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+body.filename})
+					);
+					cb();
+				},
+				progress: function(e) { 
+					if (e.lengthComputable) {
+						var percentage = Math.round((e.loaded * 100) / e.total);
+						api.loadProgress(percentage);
+					}  
+				},
+				end: function(e) {  
+					api.loadProgress(100);
+				}
+			});
+		};
+
 		
-		function onImageRead (e) {
+		function onImageRead (file, e, then) {
 			var canvas = $("<canvas />")
 				.attr("width",d10.config.img_size+"px")
 				.attr("height",d10.config.img_size+"px")
 				.css({width: d10.config.img_size, height: d10.config.img_size, border: "1px solid #7F7F7F"});
 			var api = canvas.loadImage(e, 
-						{
-							onReady: function() {
-								debug("ready ! ");
-								dropbox.find(".images").append(canvas);
-							},
-							onSize: function(w,h) {
-								debug("got onSize",w,h);
-								return true;
-							}
+				{
+					onReady: function() {
+						debug("ready ! ");
+						dropbox.find(".images").append(canvas);
+						then(null, function(cb) {
+							sendImageToServer(file,api, canvas,cb);
+// 							cb();
+						});
+					},
+					onSize: function(w,h) {
+						debug("got onSize",w,h);
+						var ratio = getImageRatio(w,h);
+						if ( ratio > 1.5 ) {
+							d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
+							canvas.remove();
+							then(true);
+							return false;
 						}
-					);
+						return true;
+					}
+				}
+			);
+
+		};
+		
+		function readImage (file) {
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				onImageRead(file, e, function(err,closure) {
+					if ( !err ) {
+						jobs.queue.push(closure);
+						jobs.run();
+					}
+				});
+			};
+			reader.readAsDataURL(file);
+		};
+		
+		var jobs = {
+			running: 0,
+			queue: [],
+			run: function() {
+				if ( !this.queue.length ) {
+					return ;
+				}
+				if ( this.running > 2 ) {
+					return ;
+				}
+				
+				var next = this.queue.shift(), that = this;
+				this.running += 1 ;
+				next(function() {
+					that.running -= 1;
+					that.run();
+				});
+				
+				
+			}
 		};
 		
 		function handleFiles(files) {
@@ -417,8 +493,9 @@ d10.fn.my = function (ui) {
 				if ( !isImage(file) ) {
 					continue;
 				}
-
+				readImage (file);
 				// Closure to capture the file information.
+				/*
 				jobs.push( (function(file) { 
 					return function() {
 						var reader = new FileReader();
@@ -454,8 +531,8 @@ d10.fn.my = function (ui) {
 								});
 							};
 							getImageSize(img,doTheRest);
-				*/
-							onImageRead(e);
+				*//*
+							onImageRead(file, e);
 						};
 						// Read in the image file as a data URL.
 						reader.readAsDataURL(file);
@@ -464,7 +541,7 @@ d10.fn.my = function (ui) {
 							setTimeout(jobs.pop(),1200);
 						}
 					};
-				})(file) );
+				})(file) );*/
 			}
 			debug("jobs length",jobs.length);
 			if ( jobs.length ) {

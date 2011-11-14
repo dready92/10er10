@@ -917,9 +917,9 @@ article div.refreshList {
 	cursor: pointer;
 }
 
-#my div.uploadDropBox .imageReview img {
+/*#my div.uploadDropBox .imageReview img {
 	vertical-align: middle;
-}
+}*/
 
 #my div.uploadDropBox .imageReview:hover .remove { 
 	display: block;
@@ -933,6 +933,11 @@ article div.refreshList {
 	margin-bottom: 10px;
 	color: #3CA0D0;
 }
+
+#my div.uploadDropBox canvas {
+	display: inline-block;
+}
+
 /* #my div.uploadDropBox:hover { border: 2px solid rgba(200,200,200,1); } */
 
 /* playlist */
