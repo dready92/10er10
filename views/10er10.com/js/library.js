@@ -19,7 +19,7 @@ if (! "fn" in d10 ) {
 
 		ui.delegate(".albumWidget .albumName","click",function() {
 			d10.router.navigateTo(["library","albums",$(this).closest(".albumWidget").attr("data-name")]);
-		}).delegate(".albumWidget img","click",function() {
+		}).delegate(".albumWidget > .head > img","click",function() {
 			d10.router.navigateTo(["library","albums",$(this).closest(".albumWidget").attr("data-name")]);
 		})
 		.delegate(".albumWidget .oneArtist","click",function() {
