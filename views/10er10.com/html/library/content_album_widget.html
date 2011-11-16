@@ -1,6 +1,6 @@
 <div class="albumWidget" data-name="{{album}}">
 	<div class="head">
-		<img src="{{image_url}}"/>
+		<img {{#image_class}}class="dropbox"{{/image_class}} src="{{image_url}}"/>
 		<div class="albumInfos">
 			<div class="albumName"><span class="name">{{album}}</span> <span class="otherInfos">{{duration}} minutes, {{songsNb}} songs</span></div>
 			<div class="albumArtists">{{#artists}}<span class="oneArtist" data-name="{{.}}">{{.}}</span> {{/artists}}</div>

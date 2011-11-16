@@ -313,30 +313,26 @@ d10.fn.my = function (ui) {
 
 		function dragenter(e) {
 			dropbox.addClass("hover");
-			e.stopPropagation();  
-			e.preventDefault();  
+			e.stopPropagation();
+			e.preventDefault();
 		}  
 			
-		function dragover(e) {  
-			e.stopPropagation();  
-			e.preventDefault();  
+		function dragover(e) {
+			e.stopPropagation();
+			e.preventDefault();
 		}  
 
 		function dragleave (e) {
 			dropbox.removeClass("hover");
 		}
 
-		function drop(e) {  
-			e.stopPropagation();  
-			e.preventDefault();  
+		function drop(e) {
+			e.stopPropagation();
+			e.preventDefault();
 			dropbox.removeClass("hover");
-			var dt = e.dataTransfer;  
+			var dt = e.dataTransfer;
 			var files = dt.files;
 			handleFiles(files);
-		}
-		
-		function isImage(file) {
-			return file.type.match(/^image/);
 		}
 		
 		function getImageRatio (width,height) {
@@ -440,7 +436,7 @@ d10.fn.my = function (ui) {
 			for (var i = 0; i < files.length; i++) { 
 				debug("reading ",i);
 				var file = files[i];
-				if ( !isImage(file) ) {
+				if ( !d10.isImage(file) ) {
 					continue;
 				}
 				readImage (file);

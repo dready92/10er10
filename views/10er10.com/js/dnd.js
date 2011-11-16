@@ -240,6 +240,11 @@ window.d10.getAlbumDefaultImage = function() {
 	return d10.config.img_default[randomnumber];
 };
 
+
+window.d10.isImage = function (file) {
+	return file.type.match(/^image/);
+}
+
 var jobWorker = function(url,onresponse) {
 	var worker = new Worker(url);
 	var callbacks = {};
@@ -787,7 +792,13 @@ window.d10.events = new window.d10.fn.eventEmitter();
 		uploadImage: function(song_id, file, filename, filesize, options) {
 			var endpoint = "song.uploadImage";
 			var xhr = new XMLHttpRequest();
-			var url = site_url+"/api/songImage/"+song_id+"?"+$.d10param({filesize: file.size, filename: file.name});
+			var url ;
+			if ( $.isArray(song_id) ) {
+				url = site_url+"/api/songImage?"+$.d10param({filesize: file.size, filename: file.name, "ids[]": song_id});
+				debug(url);
+			} else {
+				url = site_url+"/api/songImage/"+song_id+"?"+$.d10param({filesize: file.size, filename: file.name});
+			}
 			xhr.upload.onprogress = function(event) {
 				if ( options.progress ) options.progress.call(this,event);
 				emitter.trigger("whenRestUploadProgress",{endpoint: endpoint, event: event});

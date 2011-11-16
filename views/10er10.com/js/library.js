@@ -1,8 +1,6 @@
 (function(d10,$) {
 
-if (! "fn" in d10 ) {
-	d10.fn = {};
-}
+if (! "fn" in d10 ) { d10.fn = {}; }
 	
 	d10.fn.library = function (ui) {
 
@@ -180,7 +178,7 @@ if (! "fn" in d10 ) {
 		var albumResultsParser = function(rows) { //[ [ {key:.., doc: song}, ...], ... ]
 			var html=null ;
 			rows.forEach(function(songs) {
-				var artists = {}, genres = {}, images = {}, image = null, duration = 0, songsHtml = "", tpl = {duration: 0, songsNb: songs.length, artists: [], genres: []};
+				var artists = {}, genres = {}, images = {}, image = null, duration = 0, songsHtml = "", tpl = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: []};
 				songs.forEach(function(row) {
 						tpl.album = row.doc.album;
 						artists[row.doc.artist] = 1;
@@ -209,6 +207,7 @@ if (! "fn" in d10 ) {
 					image = d10.config.img_root+"/"+image ;
 				} else {
 					image = d10.getAlbumDefaultImage();
+					tpl.image_class.push("dropbox");
 				}
 				tpl.image_url = image;
 				tpl.songs = songsHtml;
@@ -223,6 +222,43 @@ if (! "fn" in d10 ) {
 				html = "";
 			}
 			return html;
+		};
+		
+		
+		var albumImageUpload = function (image, file) {
+			debug("Start of setting album image",image,file);
+			var ids = image.closest(".albumWidget").find(".list .song").map(function(k,v) {
+// 				console.dir(this);
+				return $(this).attr("name");
+			}).get();
+			debug("album ids: ",ids);
+			
+			d10.rest.song.uploadImage(ids, file, file.name, file.size, {
+				load: function(err, headers, body) {
+					if ( err || !body || !body.filename ) {
+						debug("image upload failed",err, body);
+						d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
+// 						canvas.remove();
+// 						cb(false);
+						return ;
+					}
+					d10.osd.send("info",d10.mustacheView("my.review.success.filetransfert",{filename: file.name}));
+// 					canvas.remove();
+// 					dropbox.find(".images").append(
+// 							d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+body.filename})
+// 					);
+// 					cb();
+				},
+				progress: function(e) { 
+					if (e.lengthComputable) {
+						var percentage = Math.round((e.loaded * 100) / e.total);
+// 						api.loadProgress(percentage);
+					}  
+				},
+				end: function(e) {  
+// 					api.loadProgress(100);
+				}
+			});
 		};
 		
 		var displayGenresListener = false;
@@ -499,6 +535,32 @@ if (! "fn" in d10 ) {
 					}
 				});
 				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger("blur"); d10.router.navigateTo(["library",topic]); });
+				
+				
+				catdiv.delegate(".dropbox", "dragenter",function (e) {
+					$(this).addClass("hover");
+					e.stopPropagation();
+					e.preventDefault();
+				})
+				.delegate(".dropbox","dragover",function (e) {
+					e.stopPropagation();
+					e.preventDefault();
+				})
+				.delegate(".dropbox","dragleave",function (e) {
+					$(this).removeClass("hover");
+				})
+				.delegate(".dropbox","drop",function (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					var that=$(this);
+					that.removeClass("hover");
+					var files = e.originalEvent.dataTransfer.files;
+					debug("files",files);
+					if ( !files.length  ) { return ; }
+					var file = files[0];
+					if ( !d10.isImage(file) ) { return ; }
+					albumImageUpload(that, file);
+				});
 				
 			} else if ( topic == 'titles' ) {
 				catdiv.append( d10.mustacheView('library.control.title') );

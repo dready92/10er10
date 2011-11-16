@@ -467,10 +467,15 @@ article.songlist div.controls button{
 
 #library .albumWidget .head img {
 	float: left;
-	border: 1px solid #dfdfdf;
+	border: 1px solid #454545;
 	margin: 1px;
 	cursor: pointer;
 }
+
+#library .albumWidget .head img.hover {
+	border: 1px solid #BF9730;
+}
+
 #library .albumWidget .albumInfos { margin-left: 133px; }
 #library .albumWidget .albumName { padding-bottom: 3px; cursor: pointer; }
 #library .albumWidget .albumName .name { font-size: 1.2em; color: #086FA1; }

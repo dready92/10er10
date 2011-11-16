@@ -185,7 +185,109 @@ exports.api = function(app) {
 		};
 	});
 	
-	
+	app.post("/api/songImage",function(request,response) {
+		console.log(request.url,"START of process");
+		if ( !request.query.filename || !request.query.filename.length 
+			|| !request.query.filesize || !request.query.filesize.length || !request.query.ids || !Array.isArray(request.query.ids) || !request.query.ids.length ) {
+			return d10.realrest.err(427,"filename, filesize and ids arguments required",request.ctx);
+		}
+		
+		when(
+			{
+				image: function(cb) {
+					processImageUpload(request,cb);
+				},
+				docs: function(cb) {
+					d10.couch.d10.getAllDocs({keys: request.query.ids, include_docs: true}, function(err,resp) {
+						if ( err ) { 
+							console.log("Image upload: error in CouchDB docs retrieval");
+							return cb({code: 423, message: err}); 
+						}
+						var docs = [];
+						resp.rows.forEach(function(v) {
+							if ( v.doc.user == request.ctx.user._id ) { docs.push(v.doc); }
+						});
+						if ( ! docs.length ) { 
+							console.log("Image upload: no doc to update");
+							return cb({code: 403, message: "You're not allowed to edit those documents"}); 
+						}
+						return cb(null, docs);
+					});
+				}
+			},
+			function(errs,responses) {
+				console.log("image response: ",responses.image);
+				if ( errs ) {
+					for ( var  i in errs ) {
+						console.log("Got an error ",i, errs[i]);
+					}
+					
+					if ( errs.docs && ! errs.image && responses.image.isNew ) {
+						// if documents won't be updated we should remove the image from the filesystem
+						fs.unlink( d10.config.images.dir+"/"+responses.image.filename, function() {} );
+					}
+					for ( var  i in errs ) {
+						return d10.realrest.err(errs[i].code, errs[i].message, request.ctx);
+					}
+				}
+				
+				// still got to update docs
+				var toSet = {filename: responses.image.filename, sha1: responses.image.sha1};
+				var jobs = {};
+				responses.docs.forEach(function(doc) {
+					jobs[doc._id] = 
+						(function(doc) {
+							return function(cb) {
+								d10.couch.d10.getDoc(doc._id,function(err,lastVerDoc) {
+									if  ( !lastVerDoc.images ) {
+										lastVerDoc.images = [ toSet ];
+									} else {
+										for ( var i = 0, len = lastVerDoc.images.length; i<len; i++ ) {
+											if ( lastVerDoc.images[i].sha1 == toSet.sha1 ) {
+												return cb(null, lastVerDoc);
+											}
+										}
+										lastVerDoc.images = lastVerDoc.images.concat(toSet);
+									}
+									
+									
+									d10.couch.d10.storeDoc(lastVerDoc, function(err,resp) {
+										if ( err ) {
+											return cb({code: 423, message: err});
+										}
+										return cb(null,lastVerDoc);
+									});
+									
+// 									return cb(null,lastVerDoc);
+								});
+							}
+						})(doc);
+				});
+				
+				when ( jobs, function (es,rs) {
+					if ( !d10.count(rs) ) {
+						d10.realrest.err(500, "No doc was updated", request.ctx);
+						if ( responses.image.isNew ) {
+							fs.unlink( d10.config.images.dir+"/"+responses.image.filename, function() {} );
+						}
+						return ;
+					}
+					console.log(rs);
+					responses.image.docs = [];
+					for ( var i in rs ) {
+						responses.image.docs.push(rs[i]);
+					}
+					console.log("Response",responses.image);
+					d10.realrest.success(responses.image, request.ctx);
+				});
+				
+			}
+		);
+		
+		
+			
+
+	});
 	
 	var processImageUpload = function(request, then) {
 		var fileName = d10.uid() + "." + request.query.filename.split(".").pop();
@@ -213,6 +315,7 @@ exports.api = function(app) {
 							return d10.realrest.err(423,err,request.ctx);
 						}
 						if ( view.rows.length ) {
+							console.log("sha1 view: ",view);
 							return then(null, {filename: view.rows[0].value, sha1: sha1, isNew: false});
 							recordDoc(doc,view.rows[0].value, sha1, recordDocCallback);
 						} else {
