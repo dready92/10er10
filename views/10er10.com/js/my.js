@@ -313,43 +313,28 @@ d10.fn.my = function (ui) {
 
 		function dragenter(e) {
 			dropbox.addClass("hover");
-			e.stopPropagation();  
-			e.preventDefault();  
+			e.stopPropagation();
+			e.preventDefault();
 		}  
 			
-		function dragover(e) {  
-			e.stopPropagation();  
-			e.preventDefault();  
+		function dragover(e) {
+			e.stopPropagation();
+			e.preventDefault();
 		}  
 
 		function dragleave (e) {
 			dropbox.removeClass("hover");
 		}
 
-		function drop(e) {  
-			e.stopPropagation();  
-			e.preventDefault();  
+		function drop(e) {
+			e.stopPropagation();
+			e.preventDefault();
 			dropbox.removeClass("hover");
-			var dt = e.dataTransfer;  
+			var dt = e.dataTransfer;
 			var files = dt.files;
 			handleFiles(files);
 		}
 		
-		function isImage(file) {
-			return file.type.match(/^image/);
-		}
-		
-		function getImageRatio (width,height) {
-			if ( width == 0 || height == 0 ) { return 0; }
-			var ratio;
-			if ( width > height ) {
-				ratio = width / height;
-			} else {
-				ratio = height / width;
-			}
-			debug("image ratio : ",ratio);
-			return ratio;
-		}
 
 		var sendImageToServer = function(file, api, canvas, cb) {
 			d10.rest.song.uploadImage(song_id, file, file.name, file.size, {
@@ -399,7 +384,7 @@ d10.fn.my = function (ui) {
 						},
 						onSize: function(w,h) {
 							debug("got onSize",w,h);
-							var ratio = getImageRatio(w,h);
+							var ratio = d10.getImageRatio(w,h);
 							if ( ratio > 1.5 ) {
 								d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
 								canvas.remove();
@@ -440,7 +425,7 @@ d10.fn.my = function (ui) {
 			for (var i = 0; i < files.length; i++) { 
 				debug("reading ",i);
 				var file = files[i];
-				if ( !isImage(file) ) {
+				if ( !d10.isImage(file) ) {
 					continue;
 				}
 				readImage (file);
