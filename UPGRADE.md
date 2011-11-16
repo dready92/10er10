@@ -1,6 +1,7 @@
 Upgrade from 0.7 to 0.8
 =======================
 
+- install the faad command-line (use your distribution packages. For example: **apt-get install faad** on ubuntu)
 - install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
 - re-run the installer script (don't worry, it won't eat your dog) : go to **node/install**. Then:
 
@@ -24,6 +25,8 @@ To upgrade your PROD databases, run
 - use internal node.js library musicmetadata to decode audio tags: no more need for utrac, taginfo, metaflac.
 - get image from audio metadata
 - support mp4 encoding (.m4a files) : you need to get the faad binary executable and set its path in config.js
+- image upload now got upload feedback (using HTML5 canvas)
+- could drag'n'drop an image in the library / albums list to set an image for an entire album
 
 Upgrade from 0.6 to 0.7
 =======================
