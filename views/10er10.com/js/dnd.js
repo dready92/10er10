@@ -243,7 +243,20 @@ window.d10.getAlbumDefaultImage = function() {
 
 window.d10.isImage = function (file) {
 	return file.type.match(/^image/);
-}
+};
+
+window.d10.getImageRatio = function (width,height) {
+	if ( width == 0 || height == 0 ) { return 0; }
+	var ratio;
+	if ( width > height ) {
+		ratio = width / height;
+	} else {
+		ratio = height / width;
+	}
+	debug("image ratio : ",ratio);
+	return ratio;
+};
+
 
 var jobWorker = function(url,onresponse) {
 	var worker = new Worker(url);

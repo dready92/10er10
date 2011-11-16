@@ -225,25 +225,23 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		};
 		
 		
-		var albumImageUpload = function (image, file) {
+		var albumImageUpload = function (image, file, api, canvas) {
 			debug("Start of setting album image",image,file);
-			var ids = image.closest(".albumWidget").find(".list .song").map(function(k,v) {
-// 				console.dir(this);
-				return $(this).attr("name");
-			}).get();
-			debug("album ids: ",ids);
-			
+			var ids = canvas.closest(".albumWidget").find(".list .song").map(function(k,v) { return $(this).attr("name"); }).get();
+
 			d10.rest.song.uploadImage(ids, file, file.name, file.size, {
 				load: function(err, headers, body) {
 					if ( err || !body || !body.filename ) {
 						debug("image upload failed",err, body);
 						d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
-// 						canvas.remove();
+						canvas.after(image).remove();
 // 						cb(false);
 						return ;
 					}
 					d10.osd.send("info",d10.mustacheView("my.review.success.filetransfert",{filename: file.name}));
-// 					canvas.remove();
+					var newImage = $("<img />").attr("src",d10.config.img_root+"/"+body.filename);
+					canvas.after(newImage).remove();
+					
 // 					dropbox.find(".images").append(
 // 							d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+body.filename})
 // 					);
@@ -252,13 +250,49 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				progress: function(e) { 
 					if (e.lengthComputable) {
 						var percentage = Math.round((e.loaded * 100) / e.total);
-// 						api.loadProgress(percentage);
+						api.loadProgress(percentage);
 					}  
 				},
 				end: function(e) {  
-// 					api.loadProgress(100);
+					api.loadProgress(100);
 				}
 			});
+		};
+		
+		var albumImageRead = function(image, file) {
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var canvas = $("<canvas />")
+					.attr("width",d10.config.img_size+"px")
+					.attr("height",d10.config.img_size+"px")
+					.css({width: d10.config.img_size, height: d10.config.img_size, border: "1px solid #7F7F7F"});
+				var api = canvas.loadImage(e, 
+					{
+						onReady: function() {
+							debug("ready ! ");
+							image.after(canvas).remove();
+							albumImageUpload(image, file, api, canvas);
+// 							dropbox.find(".images").append(canvas);
+							
+// 							jobs.queue.push(function(cb) {
+// 								sendImageToServer(file, api, canvas, cb);
+// 							});
+// 							jobs.run();
+						},
+						onSize: function(w,h) {
+							debug("got onSize",w,h);
+							var ratio = d10.getImageRatio(w,h);
+							if ( ratio > 1.5 ) {
+								d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
+								canvas.remove();
+								return false;
+							}
+							return true;
+						}
+					}
+				);
+			};
+			reader.readAsDataURL(file);
 		};
 		
 		var displayGenresListener = false;
@@ -559,7 +593,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 					if ( !files.length  ) { return ; }
 					var file = files[0];
 					if ( !d10.isImage(file) ) { return ; }
-					albumImageUpload(that, file);
+					albumImageRead(that, file);
 				});
 				
 			} else if ( topic == 'titles' ) {

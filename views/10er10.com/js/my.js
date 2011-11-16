@@ -335,17 +335,6 @@ d10.fn.my = function (ui) {
 			handleFiles(files);
 		}
 		
-		function getImageRatio (width,height) {
-			if ( width == 0 || height == 0 ) { return 0; }
-			var ratio;
-			if ( width > height ) {
-				ratio = width / height;
-			} else {
-				ratio = height / width;
-			}
-			debug("image ratio : ",ratio);
-			return ratio;
-		}
 
 		var sendImageToServer = function(file, api, canvas, cb) {
 			d10.rest.song.uploadImage(song_id, file, file.name, file.size, {
@@ -395,7 +384,7 @@ d10.fn.my = function (ui) {
 						},
 						onSize: function(w,h) {
 							debug("got onSize",w,h);
-							var ratio = getImageRatio(w,h);
+							var ratio = d10.getImageRatio(w,h);
 							if ( ratio > 1.5 ) {
 								d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
 								canvas.remove();
