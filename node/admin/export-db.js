@@ -109,8 +109,10 @@ var exportDb = function(db,then) {
 				var design = [];
 				resp.rows.forEach(function(v) {
 					var doc = v.doc;
-					delete doc._rev;
-					design.push(doc);
+					if ( doc._id == "_design/user" || ! doc._id.match(/^_design\/us/) ) {
+						delete doc._rev;
+						design.push(doc);
+					}
 				});
 				fs.writeFile(dirname+"/"+db+"-design.json",JSON.stringify(design),then);
 			}

@@ -113,6 +113,9 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			if ( !categorydiv.length ) {
 				if ( topic == "genres" && category == "<all>" ) {
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.control.genre")+"</div>");
+				} else if ( topic == "albums" && category == "<all>" ) {
+					debug("setting special tamplate");
+					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\">"+d10.mustacheView("loading")+d10.mustacheView("library.content.album.all")+"</div>");
 				} else if ( topic == "genres" ) {
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.genre")+"</div>");
 					categorydiv.find("article h2 > span:first-child").text(category);
@@ -137,17 +140,23 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				allArtists(categorydiv);
 			} else if ( topic == "albums" && category == "<all>" ) {
 				debug("special category case", topic, category);
-				allAlbums(categorydiv);
+				allAlbums(topicdiv,categorydiv);
 				
 			} else if ( topic == "genres" && category == "<all>" ) {
 				displayGenres(categorydiv);
 			} else {
+				if ( topic == "albums" ) {
+					topicdiv.find(".albumSearch").show();
+				}
+
 				// create the infiniteScroll
 				var section = categorydiv.find("section");
 				if ( !section.data("infiniteScroll") ) {
 					createInfiniteScroll(categorydiv, topic, category);
 				}
 			}
+			
+			
 			//
 			// show current topic category if not already visible
 			//
@@ -179,7 +188,22 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			d10.localcache.unset("artists.allartists");
 		};
 
-		var allAlbums = function(categorydiv) {
+		var allAlbums = function(topicdiv,categorydiv) {
+			topicdiv.find(".albumSearch").hide();
+			d10.rest.album.firstLetter({
+				load: function(err,resp) {
+					if ( err ) {
+						return ;
+					}
+					debug(".toc  ? ",categorydiv.find(".toc"));
+					debug("content ? ",d10.mustacheView("library.content.album.firstLetter",{letter: resp}));
+					categorydiv.find(".toc").html (
+						d10.mustacheView("library.content.album.firstLetter",{letter:resp})
+											 );
+					
+				}
+			});
+			
 			var restBase = d10.libraryScope.current == "full" ? d10.rest.song.list : d10.rest.user.song.list;
 			var endPoint = restBase.albums;
 			var cursor = new d10.fn.couchMapMergedCursor(endPoint,{},"album");

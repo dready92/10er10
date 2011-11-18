@@ -897,9 +897,10 @@ exports.api = function(app) {
 	});
 	
 	var _albumsFirstLetter = function(viewName, request,response) {
-		var query = {include_docs: true, group: true, group_level: 1};
+		var query = {group: true, group_level: 1};
 		d10.couch.d10.view(viewName,query,function(err,resp) {
 			if( err ) {
+				console.log(err);
 				return d10.realrest.err(423, request.params.sort, request.ctx);
 			}
 			d10.realrest.success(resp.rows,request.ctx);

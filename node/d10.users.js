@@ -1,6 +1,7 @@
 var d10 = require("./d10"), when = require("./when"), hash = require("./hash");
 var d10views = [
 	"album/artists",
+	"album/firstLetter",
 	"album/name",
 	"album/search",
 	"artist/albums",
