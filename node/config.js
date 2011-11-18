@@ -306,6 +306,7 @@ exports.templates.clientList = {
 	'library.content.genre': 'html/library/content_genre.html',
     'library.content.none':'html/library/content_none.html',
 	'library.content.album.widget':'html/library/content_album_widget.html',
+	'library.content.album.firstLetter':'html/library/content_album_firstLetter.html',
 	'library.content.artist.related':'html/library/content_artist_related.html',
 	'library.content.extended.3part':'html/library/content_extended_3parts.html',
 	'library.content.extended.2part':'html/library/content_extended_2parts.html',
