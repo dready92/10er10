@@ -1043,6 +1043,12 @@ window.d10.events = new window.d10.fn.eventEmitter();
 					options.data = {start: start};
 				}
 				restQuery("user.album.list","GET",site_url+"/api/own/album",options);
+			},
+			/*
+			* @return [ {key: "A", value: 23}, {key: "G", value: 34}, ...]
+			*/
+			firstLetter: function(options) {
+				restQuery("user.album.firstLetter","GET",site_url+"/api/own/album/firstLetter",options);
 			}
 		},
 		genre: {
@@ -1147,6 +1153,13 @@ window.d10.events = new window.d10.fn.eventEmitter();
 		 */
 		artists: function(album, options) {
 			restQuery("album.artists","GET",site_url+"/api/list/albums/artists/"+ encodeURIComponent(album),options);
+		},
+
+		/*
+		 * @return [ {key: "A", value: 23}, {key: "G", value: 34}, ...]
+		 */
+		firstLetter: function(options) {
+			restQuery("album.firstLetter","GET",site_url+"/api/album/firstLetter",options);
 		}
 
 	};

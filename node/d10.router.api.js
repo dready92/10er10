@@ -889,7 +889,22 @@ exports.api = function(app) {
 		
 	});
 	
+	app.get("/api/own/album/firstLetter",function(request,response) {
+		_albumsFirstLetter(request.ctx.user._id+"/album_firstLetter",request,response);
+	});
+	app.get("/api/album/firstLetter",function(request,response) {
+		_albumsFirstLetter("album/firstLetter",request,response);
+	});
 	
+	var _albumsFirstLetter = function(viewName, request,response) {
+		var query = {include_docs: true, group: true, group_level: 1};
+		d10.couch.d10.view(viewName,query,function(err,resp) {
+			if( err ) {
+				return d10.realrest.err(423, request.params.sort, request.ctx);
+			}
+			d10.realrest.success(resp.rows,request.ctx);
+		});
+	};
 	
 }; // exports.api
 
