@@ -115,11 +115,9 @@ Look at exports.cmds.
 - exports.cmds.lame : the path to the lame executable
 - exports.cmds.oggenc : the path to the oggenc executable
 - exports.cmds.ogginfo : the path to the ogginfo executable
-- exports.cmds.utrac : the path to the utrac executable
-- exports.cmds.taginfo : the path to the taginfo executable
 - exports.cmds.vorbiscomment : the path to the vorbiscomment executable
-- exports.cmds.metaflac : the path to the metaflac executable
 - exports.cmds.flac : the path to the flac executable
+- exports.cmds.faad : the path to the faad executable
 
 Still here ? Let's go for the fun part.
  
