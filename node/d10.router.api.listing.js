@@ -140,9 +140,11 @@ exports.api = function(app) {
 			viewPart = "name";
 			query.reduce = false;
 		}
-		if ( request.query.startkey_docid && request.query["startkey"] ) {
-			query.startkey = JSON.parse(request.query["startkey"]);
-			query.startkey_docid = request.query.startkey_docid;
+		if ( request.query.startkey ) {
+			query.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+				query.startkey_docid = request.query.startkey_docid;
+			}
 		}
 		
 		d10.couch.d10.view(view+viewPart,query,function(err,resp) {
@@ -161,9 +163,11 @@ exports.api = function(app) {
 	});
 	var _ts_creationName = function (view, request, response) {
 		var query = {include_docs: true, reduce: false, descending: true, limit: d10.config.rpp+1};
-		if ( request.query.startkey_docid && request.query["startkey"] ) {
-			query.startkey = JSON.parse(request.query["startkey"]);
-			query.startkey_docid = request.query.startkey_docid;
+		if ( request.query.startkey ) {
+			query.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+				query.startkey_docid = request.query.startkey_docid;
+			}
 		}
 		d10.couch.d10.view(view,query,function(err,resp,meta) {
 			if ( err ) {
@@ -175,9 +179,11 @@ exports.api = function(app) {
 	
 	app.get("/api/list/hits",function(request,response) {
 		var query = {reduce: false, descending: true, limit: d10.config.rpp+1};
-		if ( request.query.startkey_docid && request.query["startkey"] ) {
-			query.startkey = JSON.parse(request.query["startkey"]);
-			query.startkey_docid = request.query.startkey_docid
+		if ( request.query.startkey ) {
+			query.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+				query.startkey_docid = request.query.startkey_docid;
+			}
 		}
 		d10.couch.d10wi.view("hits/name",query,function(err,resp) {
 			if ( err ) {
@@ -213,9 +219,11 @@ exports.api = function(app) {
 			return d10.realrest.err(428, request.query.genre, request.ctx);
 		}
 		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1 ,endkey: [request.query.genre, {} ]};
-		if ( request.query.startkey_docid && request.query["startkey"] ) {
-			query.startkey = JSON.parse(request.query["startkey"]);
-			query.startkey_docid = request.query.startkey_docid ;
+		if ( request.query.startkey ) {
+			query.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+				query.startkey_docid = request.query.startkey_docid;
+			}
 		} else {
 			query.startkey =  [request.query.genre];
 		}
@@ -240,9 +248,11 @@ exports.api = function(app) {
 			query.endkey = [request.query.title,[]];
 		}
 		
-		if ( request.query.startkey_docid && request.query["startkey"] ) {
-			query.startkey = JSON.parse(request.query["startkey"]);
-			query.startkey_docid = request.query.startkey_docid;
+		if ( request.query.startkey ) {
+			query.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+				query.startkey_docid = request.query.startkey_docid;
+			}
 		}
 		
 		d10.couch.d10.view(view,query,function(err,resp) {
@@ -265,10 +275,11 @@ exports.api = function(app) {
 			query.startkey = [request.query.album];
 			query.endkey = [request.query.album,[]];
 		}
-		
-		if ( request.query.startkey_docid && request.query["startkey"] ) {
-			query.startkey = JSON.parse(request.query["startkey"]);
-			query.startkey_docid = request.query.startkey_docid;
+		if ( request.query.startkey ) {
+			query.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+				query.startkey_docid = request.query.startkey_docid;
+			}
 		}
 		
 		d10.couch.d10.view(view,query,function(err,resp) {
@@ -281,9 +292,11 @@ exports.api = function(app) {
 	
 	app.get("/api/list/s_user",function(request,response) {
 		var query = {include_docs: true, startkey: [request.ctx.user._id], endkey: [request.ctx.user._id,[]], limit: d10.config.rpp + 1};
-		if ( request.query.startkey_docid && request.query["startkey"] ) {
-			query.startkey = JSON.parse(request.query["startkey"]);
-			query.startkey_docid = request.query.startkey_docid;
+		if ( request.query.startkey ) {
+			query.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+				query.startkey_docid = request.query.startkey_docid;
+			}
 		}
 		
 		d10.couch.d10.view("s_user/name",query,function(err,resp) {
@@ -298,10 +311,11 @@ exports.api = function(app) {
 	
 	app.get("/api/list/likes",function(request,response) {
 		var query = {endkey: [request.ctx.user._id,[]], limit: d10.config.rpp + 1};
-		
-		if ( request.query.startkey_docid && request.query["startkey"] ) {
-			query.startkey = JSON.parse(request.query["startkey"]);
-			query.startkey_docid = request.query.startkey_docid;
+		if ( request.query.startkey ) {
+			query.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+				query.startkey_docid = request.query.startkey_docid;
+			}
 		}
 		
 		d10.couch.d10wi.view("s_user_likes/name",query,function(err,resp) {
