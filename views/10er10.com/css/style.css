@@ -805,6 +805,8 @@ article div.refreshList {
 #library .albumMini img{
 	-webkit-transform: scale(0.8);
 	-webkit-transform-origin: top left;
+	-moz-transform: scale(0.8);
+	-moz-transform-origin: top left;
 	vertical-align: middle;
 }
 
