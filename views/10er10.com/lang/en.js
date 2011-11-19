@@ -173,6 +173,11 @@ exports.server = {
 		show_songs: "Show album songs",
 		hide_songs: "Hide album songs"
 	},
+	"html/library/content_album_all_popover.html": {
+		songs: "song(s)",
+		artists: "Artists",
+		genres: "Genres"
+	},
 	"html/library/control_genre.html": {
 		loading: "Loading..."
 	},
@@ -185,7 +190,8 @@ exports.server = {
 	"html/library/control_album.html": {
 		album_placeholder: "Album name...",
 		loading: "Loading...",
-		no_result: "no album found"
+		no_result: "no album found",
+		all_albums: "All albums by cover"
 	},
 	"html/library/control_title.html": {
 		title_placeholder: "Song title...",

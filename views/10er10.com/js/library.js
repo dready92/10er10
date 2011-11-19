@@ -116,6 +116,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				} else if ( topic == "albums" && category == "<all>" ) {
 					debug("setting special tamplate");
 					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\">"+d10.mustacheView("loading")+d10.mustacheView("library.content.album.all")+"</div>");
+					bindAllAlbums(topicdiv,categorydiv);
 				} else if ( topic == "genres" ) {
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.genre")+"</div>");
 					categorydiv.find("article h2 > span:first-child").text(category);
@@ -140,7 +141,8 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				allArtists(categorydiv);
 			} else if ( topic == "albums" && category == "<all>" ) {
 				debug("special category case", topic, category);
-				allAlbums(topicdiv,categorydiv);
+// 				allAlbums(topicdiv,categorydiv);
+				topicdiv.find(".albumSearch").hide();
 				
 			} else if ( topic == "genres" && category == "<all>" ) {
 				displayGenres(categorydiv);
@@ -188,8 +190,53 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			d10.localcache.unset("artists.allartists");
 		};
 
+		var bindAllAlbums = function(topicdiv, categorydiv) {
+// 			categorydiv.addClass("relative");
+			categorydiv.delegate(".albumMini img","mouseenter",function() {
+				var container = $(this).closest(".albumMini");
+				$(this).data("popupTimeout", setTimeout(function() {
+					var tpl = container.data("albumDetails");
+					debug(tpl);
+					var widget = $( d10.mustacheView("library.content.album.all.popover",tpl) )
+					.css({
+						position: "absolute",
+						top: 0,
+						left: 0,
+						visibility: "hidden"
+					}).delegate("a","click",function() {
+						$(this).closest(".popover").remove();
+					});
+					;
+					$("body").append(widget);
+					srcpos = container.offset();
+					srcsize = { width: container.outerWidth(), height: container.outerHeight() };
+					widgetsize = { width: widget.outerWidth(), height: widget.outerHeight() };
+					widgetOuter = Math.round( (widgetsize.height - widget.height()) / 2);
+					var leftoffset = Math.round((widgetsize.width - srcsize.width) / 2);
+					debug("setting left to ",srcpos.left - leftoffset);
+					var left = srcpos.left - leftoffset;
+					if ( left < 0 ) { left = 0 ; }
+					widget.css({
+						top: srcpos.top - widgetOuter,
+						left: left,
+						visibility: "visible"
+						
+					}).mouseleave(function() {$(this).remove();}).addClass("on");
+					
+					
+				},1000));
+			})
+			.delegate(".albumMini img","mouseleave",function() {
+				var tid = $(this).data("popupTimeout");
+				if(tid) {
+					clearTimeout(tid);
+				}
+			})
+				;
+			allAlbums(topicdiv,categorydiv);
+		};
+		
 		var allAlbums = function(topicdiv,categorydiv) {
-			topicdiv.find(".albumSearch").hide();
 			d10.rest.album.firstLetter({
 				load: function(err,resp) {
 					if ( err ) {
@@ -197,7 +244,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 					}
 					debug(".toc  ? ",categorydiv.find(".toc"));
 					debug("content ? ",d10.mustacheView("library.content.album.firstLetter",{letter: resp}));
-					categorydiv.find(".toc").html (
+					categorydiv.find(".toc").hide().html (
 						d10.mustacheView("library.content.album.firstLetter",{letter:resp})
 											 );
 					
@@ -217,7 +264,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				}
 				$.each(resp,function(k,songs) {
 					var tpl = singleAlbumParser(songs);
-					var html = "<div class=\"albumMini\" style=\"width: 128px; padding: 5px; display: inline-block\"><img src=\""+tpl.image_url+"\"></div>";
+					var html = $( d10.mustacheView("library.content.album.all.mini",tpl) ).data("albumDetails",tpl);
 					categorydiv.append(html);
 				});
 				
@@ -603,6 +650,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			} else if ( topic == 'albums' ) {
 				catdiv.append( d10.mustacheView('library.control.album') );
 				var widget = $('input[name=album]',catdiv);
+				catdiv.find("span[name=all]").click(function(){ widget.val('').trigger('blur');  d10.router.navigateTo(["library","albums","<all>"]); });
 				var overlay = widget.val(widget.attr('defaultvalue'))
 				.permanentOvlay(d10.libraryScope.current == "full" ? d10.rest.album.list : d10.rest.user.album.list, $(".overlay",catdiv),
 						{

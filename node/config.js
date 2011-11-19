@@ -307,6 +307,8 @@ exports.templates.clientList = {
     'library.content.none':'html/library/content_none.html',
 	'library.content.album.widget':'html/library/content_album_widget.html',
 	'library.content.album.all':'html/library/content_album_all.html',
+	'library.content.album.all.mini':'html/library/content_album_all_mini.html',
+	'library.content.album.all.popover':'html/library/content_album_all_popover.html',
 	'library.content.album.firstLetter':'html/library/content_album_firstLetter.html',
 	'library.content.artist.related':'html/library/content_artist_related.html',
 	'library.content.extended.3part':'html/library/content_extended_3parts.html',

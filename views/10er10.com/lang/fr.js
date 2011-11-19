@@ -172,6 +172,11 @@ exports.server = {
 		show_songs: "Afficher les morceaux de cet album",
 		hide_songs: "Cacher les morceaux"
 	},
+	"html/library/content_album_all_popover.html": {
+		songs: "morceau(x)",
+		artists: "Artistes",
+		genres: "Genres"
+	},
 	"html/library/control_genre.html": {
 		loading: "Chargement en cours..."
 	},
@@ -184,7 +189,8 @@ exports.server = {
 	"html/library/control_album.html": {
 		album_placeholder: "Album name...",
 		loading: "chargement...",
-		no_result: "Aucun album trouvé"
+		no_result: "Aucun album trouvé",
+		all_albums: "Tous les albums, par jaquette"
 	},
 	"html/library/control_title.html": {
 		title_placeholder: "Song title...",
