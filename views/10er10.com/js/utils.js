@@ -12,11 +12,13 @@ var visibleBaby = function () {
 	$(document).trigger("bootstrap:playlist");
 	$("#side").css("display","");
 	
-	var startHistory = Backbone.history.start();
-	debug("------starting history",startHistory);
-	if ( !startHistory ) {
-		d10.router.navigateTo(["welcome"]);
-	}
+// 	var startHistory = Backbone.history.start();
+// 	debug("------starting history",startHistory);
+// 	if ( !startHistory ) {
+// 		d10.router.navigateTo(["welcome"]);
+// 	}
+	
+	d10.router.startRouting(["welcome"]);
 	
 	$.each(d10.playlist.modules,function(k,mod) { mod.enable(); });
 	
@@ -58,7 +60,7 @@ var launchMeBaby = function() {
 	});
 
 	if ( $("html").hasClass("csstransitions") ) {
-		d10.fn.router.switchMainContainer = function(from,to,tab,name) {
+		d10.router.switchMainContainer = function(from,to,tab,name) {
 			if ( from ) from.css("display","none").removeClass("active");
 			if ( !to.hasClass("active") ) {
 				to.show().addClass("active");
@@ -66,11 +68,11 @@ var launchMeBaby = function() {
 			}
 		};
 	} else {
-		d10.fn.router.switchMainContainer = d10.fn.router.switchContainer
+		d10.router.switchMainContainer = d10.router.switchContainer
 	}
 
-	var router = Backbone.Router.extend.call(Backbone.Router, d10.fn.router);
-	d10.router = new router();
+// 	var router = Backbone.Router.extend.call(Backbone.Router, d10.fn.router);
+// 	d10.router = new router();
 	$(document).trigger("bootstrap:router");
 	//
 	// preload la vue "playlists"
