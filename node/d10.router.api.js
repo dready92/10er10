@@ -262,11 +262,21 @@ exports.api = function(app) {
 			
 		};
 		
+		var updateSessionTimestamp = function() {
+			request.ctx.session.ts_last_usage = new Date().getTime();
+			d10.couch.auth.storeDoc(request.ctx.session, function(err) {
+				if ( err ) {
+					d10.log("debug","Session timestamp updated, error: ",err);
+				}
+			});
+		};
+		
 		bodyDecoder()(request, response,function() {
 			d10.log("debug",request.body,"after decode");
 			updateAliveDoc();
 			parsePlayerInfos();
 			d10.realrest.success( [], request.ctx );
+			updateSessionTimestamp();
 		});
 	
 	});
