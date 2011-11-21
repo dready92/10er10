@@ -617,7 +617,6 @@ d10.fn.my = function (ui) {
 
 })( window.d10 ? window.d10 : {}  , jQuery) ;
 
-
 $(document).one("bootstrap:router",function() {
 
 var 
@@ -645,8 +644,11 @@ var
 		currentActive: null
 	};
 	d10.router.route("my", "my", myRouteHandler);
-	d10.router.route("my/:topic", "my", myRouteHandler);
-	d10.router.route("my/:topic/:id", "my", myRouteHandler);
+	d10.router.route("my/likes", "my", function() {myRouteHandler.call(this,"likes");} );
+	d10.router.route("my/songs", "my", function() {myRouteHandler.call(this,"songs");} );
+	d10.router.route("my/invites", "my", function() {myRouteHandler.call(this,"invites");} );
+	d10.router.route("my/review", "my", function() {myRouteHandler.call(this,"review");} );
+	d10.router.route("my/review/:id", "my", function(id) {myRouteHandler.call(this,"review",id);} );
 	d10.router._containers.my.tab.delegate("[action]","click",function() {
 		var elem = $(this), action = elem.attr("action");
 		if ( ! elem.hasClass("active") ) { d10.router.navigate("my/"+action,true); }

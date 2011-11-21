@@ -12,12 +12,6 @@ var visibleBaby = function () {
 	$(document).trigger("bootstrap:playlist");
 	$("#side").css("display","");
 	
-// 	var startHistory = Backbone.history.start();
-// 	debug("------starting history",startHistory);
-// 	if ( !startHistory ) {
-// 		d10.router.navigateTo(["welcome"]);
-// 	}
-	
 	d10.router.startRouting(["welcome"]);
 	
 	$.each(d10.playlist.modules,function(k,mod) { mod.enable(); });
@@ -71,9 +65,8 @@ var launchMeBaby = function() {
 		d10.router.switchMainContainer = d10.router.switchContainer
 	}
 
-// 	var router = Backbone.Router.extend.call(Backbone.Router, d10.fn.router);
-// 	d10.router = new router();
 	$(document).trigger("bootstrap:router");
+
 	//
 	// preload la vue "playlists"
 	//

@@ -4,7 +4,7 @@
 			isRegExp = function(o) {
 				return o && o.constructor.toString().indexOf('RegExp()') != -1 || false;
 			},
-			lastPath = null
+			lastRoute = {path: null, segments: null}
 		;
 	// Cached regular expressions for matching named param parts and splatted
 	// parts of route strings.
@@ -37,8 +37,7 @@
 			return route.exec(fragment).slice(1);
 		},
 		startRouting: function(startingPath) {
-			var hash = window.location.hash;
-			debug("hash: ",hash);
+			var hash = this._getHash();
 			var path = this._parseHash(hash);
 			var selectedRoute = this._getRoute(path);
 			if ( !selectedRoute ) {
@@ -54,6 +53,9 @@
 			$(window).bind('hashchange', router.checkUrl);
 			return selectedRoute ? path : false;
 		},
+		_getHash: function() {
+			return window.location.href.replace(/^[^#]+/,"");
+		},
 		_parseHash: function(hash) {
 			hash = hash.replace(/^#/,"");
 			return hash;
@@ -64,28 +66,25 @@
 		_launchRoute: function(resp) {
 			resp.route.callback.apply(this, resp.match.slice(1));
 			this.trigger("route:"+resp.route.name);
-			lastPath = resp.path;
+			this.trigger("router",resp.match);
+			lastRoute = {path: resp.path, segments: resp.match};
 		},
 		checkUrl: function() {
-			var hash = window.location.hash;
-			debug("hash: ",hash);
+			var hash = router._getHash();
 			var path = router._parseHash(hash);
-			if ( lastPath == path ) {
+			if ( lastRoute.path == path ) {
 				return ;
 			}
 			var selectedRoute = router._getRoute(path);
 			if ( selectedRoute ) {
 				router._launchRoute(selectedRoute);
 			}
-			
 		},
 		_getRoute: function(path) {
 			var test;
 			for ( var i = 0, len = routes.length; i<len; i++ ) {
 				test = path.match(routes[i].route)
-				debug("checking aginst",routes[i].route, path, test);
 				if ( test ) {
-					debug("route match : ",test);
 					return {match: test, route:routes[i], path: path};
 				}
 			}
@@ -98,6 +97,9 @@
 			}
 			segments = $.map(segments,function(v) { return encodeURIComponent(v); });
 			return segments.join("/");
+		},
+		getLastRoute: function() {
+			return lastRoute;
 		}
 	};
 	
@@ -116,7 +118,7 @@
 		_activate: function(tab, name, switchCallback) {
 			switchCallback = switchCallback || this.switchContainer;
 			if ( !this._containers[tab] ) {
-				debug("router._activate: ",tab,"unknown");
+// 				debug("router._activate: ",tab,"unknown");
 				return this;
 			}
 			var currentActiveName = this.getActive(tab), currentActive = null, futureActive = this._containers[tab].select(name);
@@ -137,10 +139,7 @@
 			var currentActive = this._containers[tab].tab.find(".active"), current = null;
 			if ( currentActive.length ) {
 				current = currentActive.attr("action");
-				if ( current == name ) {
-					debug("Tab name ",name,"is already active");
-					return ;
-				}
+				if ( current == name ) { return ; }
 			}
 			currentActive.removeClass("active");
 			this._containers[tab].tab.find("[action="+name+"]").addClass("active");
@@ -148,15 +147,6 @@
 		},
 		navigateTo: function(segments) {
 			return this.navigate(this.normalizeSegments(segments));
-			/*
-			segments = segments || [];
-			if ( typeof segments == "string" ) {
-				return this.navigate(segments,true);
-			}
-			segments = $.map(segments,function(v) { return encodeURIComponent(v); });
-			var back = this.navigate(segments.join("/"),true);
-			return back;
-			*/
 		},
 		getActive: function(tab) {
 			var active = this._containers[tab].tab.find(".active");
@@ -166,6 +156,41 @@
 			return null;
 		},
 	});
+	/*
+	
+	d10.fn.tabSwitcher = function ( tabWidget, baseSegments, options ) {
+		var settings = { 
+			getTab: function(widget, segment) {return widget.find("[action="+segment+"]");},
+			getSelectedTab: function(widget) {return widget.find(".active");},
+			on: function(widget) {return widget.addClass("active");},
+			off: function(widget) {return widget.removeClass("active");}
+		},
+		matchSegments = function(segments) {
+			if ( !segments.length || segments.length <= baseSegments.length ) { return false; }
+			if ( !baseSegments.length ) { return segments[0]; }
+			for ( var i in baseSegments ) {
+				if ( baseSegments[i] != segments[i] ) {
+					return false;
+				}
+			}
+			return segments[i+1];
+		}
+		;
+		options = options || {};
+		$.extend(settings,options);
+		d10.router.bind("router",function(segments) {
+			var sel = matchSegments(segments);
+			if( !sel ) { return ; }
+			var tab = settings.getTab(tabWidget, sel);
+			if ( !tab.length ) { return ; }
+			var activeTab = settings.getSelectedTab(tabWidget);
+			if ( activeTab.length ) { settings.off(activeTab) ; }
+			settings.on(tab);
+		});
+	};
+	
+	*/
+	
 	
 	
 	

@@ -208,8 +208,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			.slideDown('fast').find('input[type=text]').val('').focus();
 			return false;
 		});
-
-
+		
 		var plmRouteHandler = function(id) {
 			if ( id && this._containers["plm"].currentActive != id ) { d10.my.plmanager.display(id); }
 			this._activate("main","my",this.switchMainContainer)._activate("my","plm");
@@ -506,5 +505,9 @@ d10.fn.plm = function (mydiv,mypldiv) {
 }
 
 
+
+$(document).one("bootstrap:router",function() {
+
+});
 
 })(jQuery);
