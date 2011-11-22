@@ -4,17 +4,56 @@
 			isRegExp = function(o) {
 				return o && o.constructor.toString().indexOf('RegExp()') != -1 || false;
 			},
-			lastRoute = {path: null, segments: null}
+			lastRoute = {path: null, segments: null},
+			routeToRegExp = function(route){
+				route = route.replace(escapeRegExp, "\\$&")
+							.replace(namedParam, "([^\/]*)")
+							.replace(splatParam, "(.*?)");
+				return new RegExp('^' + route + '$');
+			},
+			getHash = function() {
+				return window.location.href.replace(/^[^#]+/,"");
+			},
+			parseHash = function(hash) {
+				hash = hash.replace(/^#/,"");
+				return hash;
+			},
+			launchRoute = function(resp) {
+				resp.route.callback.apply(router, resp.match.slice(1));
+				emitter.trigger("route:"+resp.route.name);
+				emitter.trigger("router",resp.match);
+				lastRoute = {path: resp.path, segments: resp.match};
+			},
+			getRoute = function(path) {
+				var test;
+				for ( var i = 0, len = routes.length; i<len; i++ ) {
+					test = path.match(routes[i].route)
+					if ( test ) {
+						return {match: test, route:routes[i], path: path};
+					}
+				}
+				return false;
+			},
+			normalizeSegments = function(segments) {
+				segments = segments || [], normalized =  [];
+				if ( typeof segments == "string" ) {
+					return segments;
+				}
+				for ( var i in segments ) {
+					normalized.push(encodeURIComponent(segments[i]));
+				}
+				return normalized.join("/");
+			},
+			emitter = new d10.fn.eventEmitter()
 		;
 	// Cached regular expressions for matching named param parts and splatted
 	// parts of route strings.
 	var namedParam    = /:([\w\d]+)/g;
 	var splatParam    = /\*([\w\d]+)/g;
 	var escapeRegExp  = /[-[\]{}()+?.,\\^$|#\s]/g;
-	var emitter = new d10.fn.eventEmitter();
 	var router = d10.router = {
 		route: function(route, name, callback) {
-			if ( ! isRegExp(route) ) route = this._routeToRegExp(route);
+			if ( ! isRegExp(route) ) route = routeToRegExp(route);
 			routes.push(
 				{
 					route: route,
@@ -23,80 +62,36 @@
 				}
 			);
 		},
-		// Convert a route string into a regular expression, suitable for matching
-		// against the current location hash.
-		_routeToRegExp : function(route) {
-			route = route.replace(escapeRegExp, "\\$&")
-						.replace(namedParam, "([^\/]*)")
-						.replace(splatParam, "(.*?)");
-			return new RegExp('^' + route + '$');
-		},
-		// Given a route, and a URL fragment that it matches, return the array of
-		// extracted parameters.
-		_extractParameters : function(route, fragment) {
-			return route.exec(fragment).slice(1);
-		},
 		startRouting: function(startingPath) {
-			var hash = this._getHash();
-			var path = this._parseHash(hash);
-			var selectedRoute = this._getRoute(path);
+			var hash = getHash();
+			var path = parseHash(hash);
+			var selectedRoute = getRoute(path);
 			if ( !selectedRoute ) {
-				path = this.normalizeSegments(startingPath);
-				selectedRoute = this._getRoute(path);
+				path = normalizeSegments(startingPath);
+				selectedRoute = getRoute(path);
 				if ( selectedRoute ) {
 					window.location.hash = "#"+path;
 				}
 			}
 			if ( selectedRoute ) {
-				this._launchRoute(selectedRoute);
+				launchRoute(selectedRoute);
 			}
 			$(window).bind('hashchange', router.checkUrl);
 			return selectedRoute ? path : false;
 		},
-		_getHash: function() {
-			return window.location.href.replace(/^[^#]+/,"");
-		},
-		_parseHash: function(hash) {
-			hash = hash.replace(/^#/,"");
-			return hash;
-		},
 		navigate: function(where) {
 			window.location.hash = "#"+where;
 		},
-		_launchRoute: function(resp) {
-			resp.route.callback.apply(this, resp.match.slice(1));
-			this.trigger("route:"+resp.route.name);
-			this.trigger("router",resp.match);
-			lastRoute = {path: resp.path, segments: resp.match};
-		},
 		checkUrl: function() {
-			var hash = router._getHash();
-			var path = router._parseHash(hash);
+			var hash = getHash();
+			var path = parseHash(hash);
 			if ( lastRoute.path == path ) {
 				return ;
 			}
-			var selectedRoute = router._getRoute(path);
+			var selectedRoute = getRoute(path);
 			if ( selectedRoute ) {
-				router._launchRoute(selectedRoute);
+				launchRoute(selectedRoute);
 			}
-		},
-		_getRoute: function(path) {
-			var test;
-			for ( var i = 0, len = routes.length; i<len; i++ ) {
-				test = path.match(routes[i].route)
-				if ( test ) {
-					return {match: test, route:routes[i], path: path};
-				}
-			}
-			return false;
-		},
-		normalizeSegments: function(segments) {
-			segments = segments || [];
-			if ( typeof segments == "string" ) {
-				return segments;
-			}
-			segments = $.map(segments,function(v) { return encodeURIComponent(v); });
-			return segments.join("/");
 		},
 		getLastRoute: function() {
 			return lastRoute;
@@ -118,7 +113,6 @@
 		_activate: function(tab, name, switchCallback) {
 			switchCallback = switchCallback || this.switchContainer;
 			if ( !this._containers[tab] ) {
-// 				debug("router._activate: ",tab,"unknown");
 				return this;
 			}
 			var currentActiveName = this.getActive(tab), currentActive = null, futureActive = this._containers[tab].select(name);
@@ -146,7 +140,7 @@
 			this.trigger("tab:"+tab+"/"+name);
 		},
 		navigateTo: function(segments) {
-			return this.navigate(this.normalizeSegments(segments));
+			return this.navigate(normalizeSegments(segments));
 		},
 		getActive: function(tab) {
 			var active = this._containers[tab].tab.find(".active");
