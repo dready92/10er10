@@ -281,7 +281,9 @@ exports.api = function(app) {
 				query.startkey_docid = request.query.startkey_docid;
 			}
 		}
-		
+		if ( request.query.endkey ) {
+			query.endkey = JSON.parse(request.query.endkey);
+		}
 		d10.couch.d10.view(view,query,function(err,resp) {
 			if ( err ) {
 				return d10.realrest.err(423, err, request.ctx);

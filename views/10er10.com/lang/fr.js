@@ -172,6 +172,10 @@ exports.server = {
 		show_songs: "Afficher les morceaux de cet album",
 		hide_songs: "Cacher les morceaux"
 	},
+	"html/library/content_album_all.html": {
+		view_by_letter: "Afficher les albums commençant par la lettre:",
+		view_all: "Afficher tous les albums"
+	},
 	"html/library/content_album_all_popover.html": {
 		songs: "morceau(x)",
 		artists: "Artistes",

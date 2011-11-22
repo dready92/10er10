@@ -173,6 +173,10 @@ exports.server = {
 		show_songs: "Show album songs",
 		hide_songs: "Hide album songs"
 	},
+	"html/library/content_album_all.html": {
+		view_by_letter: "Display albums beginning by the letter:",
+		view_all: "Display all albums"
+	},
 	"html/library/content_album_all_popover.html": {
 		songs: "song(s)",
 		artists: "Artists",

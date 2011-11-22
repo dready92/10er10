@@ -232,40 +232,94 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 					clearTimeout(tid);
 				}
 			})
-				;
+			.delegate(".letter","click", function() {
+				var letter = $(this);
+				if ( letter.hasClass("active") ) {
+					return;
+				}
+				letter.siblings().removeClass("active");
+				letter.addClass("active");
+				categorydiv.find(".tocAll").slideDown();
+				allAlbumsCurrentLetter = letter.text();
+				allAlbums(topicdiv, categorydiv, allAlbumsCurrentLetter);
+			})
+			.delegate(".tocAll","click", function() {
+				var me = $(this);
+				me.closest("menu").find(".letter.active").removeClass("active");
+				allAlbumsCurrentLetter = null;
+				allAlbums(topicdiv,categorydiv);
+				me.slideUp();
+			})
+			;
+			/*
+			d10.events.bind("whenLibraryScopeChange", function() {
+				for ( var i in allAlbumsContents ) {
+					debug("removing widget ",i);
+					allAlbumsContents[i].remove();
+				}
+				allAlbumsContents = {};
+				allAlbums(topicdiv, categorydiv, allAlbumsCurrentLetter );
+			});
+			*/
 			allAlbums(topicdiv,categorydiv);
 		};
 		
-		var allAlbums = function(topicdiv,categorydiv) {
-			d10.rest.album.firstLetter({
-				load: function(err,resp) {
-					if ( err ) {
-						return ;
+		var allAlbumsCurrentLetter = null;
+		
+		var allAlbumsContents = {};
+		
+		var allAlbums = function(topicdiv,categorydiv, letter) {
+			if ( !categorydiv.data("toc-loaded") ) {
+				d10.rest.album.firstLetter({
+					load: function(err,resp) {
+						if ( err ) {
+							return ;
+						}
+						debug(".toc  ? ",categorydiv.find(".toc"));
+						debug("content ? ",d10.mustacheView("library.content.album.firstLetter",{letter: resp}));
+						categorydiv.find(".toc").html (
+							d10.mustacheView("library.content.album.firstLetter",{letter:resp})
+												);
 					}
-					debug(".toc  ? ",categorydiv.find(".toc"));
-					debug("content ? ",d10.mustacheView("library.content.album.firstLetter",{letter: resp}));
-					categorydiv.find(".toc").hide().html (
-						d10.mustacheView("library.content.album.firstLetter",{letter:resp})
-											 );
-					
-				}
-			});
+				});
+				categorydiv.data("toc-loaded",true);
+			}
+			categorydiv.find(".pleaseWait").hide();
 			
-			var restBase = d10.libraryScope.current == "full" ? d10.rest.song.list : d10.rest.user.song.list;
+			var contentDivName = letter ? "_"+letter : "_";
+			
+			var contentDiv;
+			if ( contentDivName in allAlbumsContents ) {
+				contentDiv = allAlbumsContents[contentDivName];
+			}
+			if ( !contentDiv ) {
+				contentDiv = $("<div />").addClass("albumCoversContent");
+				loadContentDiv(contentDiv, letter);
+				allAlbumsContents[contentDivName] = contentDiv;
+			}
+			categorydiv.children(".albumCoversContent").detach();
+			categorydiv.append(contentDiv);
+// 			contentDiv.show();
+		};
+
+		var loadContentDiv = function( contentDiv, letter) {
+// 			var restBase = d10.libraryScope.current == "full" ? d10.rest.song.list : d10.rest.user.song.list;
+			var restBase = d10.rest.song.list;
 			var endPoint = restBase.albums;
-			var cursor = new d10.fn.couchMapMergedCursor(endPoint,{},"album");
+			var options = {};
+			if ( letter ) { 
+				options.startkey = JSON.stringify([letter]);
+				options.endkey = JSON.stringify([d10.nextLetter(letter)]);
+			}
+			var cursor = new d10.fn.couchMapMergedCursor(endPoint,options,"album");
 			var rows = null;
-			var firstBack = true;
 			var fetchAll = function(err,resp) {
 				if ( err ) { return ; }
 				debug(err,resp);
-				if ( firstBack ) {
-					categorydiv.find(".pleaseWait").hide();
-				}
 				$.each(resp,function(k,songs) {
 					var tpl = singleAlbumParser(songs);
 					var html = $( d10.mustacheView("library.content.album.all.mini",tpl) ).data("albumDetails",tpl);
-					categorydiv.append(html);
+					contentDiv.append(html);
 				});
 				
 				
@@ -273,6 +327,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			};
 			if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
 		};
+		
 		
 		var singleAlbumParser = function(songs) {
 			var tpl = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: ""}, artists = {}, genres = {}, duration = 0, images = {};

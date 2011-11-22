@@ -377,6 +377,13 @@ window.d10.dump = function () {
 	back.player = d10.player.dump();
 	return back;
 }
+
+window.d10.nextLetter = function(l) {
+	var charCode = l.charCodeAt(0);
+	charCode++;
+	return String.fromCharCode( (l.charCodeAt(0)+1) );
+	
+};
 	
 window.d10.count = function(obj) {
 	var count = 0;
@@ -844,8 +851,14 @@ window.d10.events = new window.d10.fn.eventEmitter();
 			},
 			albums: function(query, options) {
 				options.data = {};
-				if ( query.startkey && query.startkey_docid ) {
-					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				if ( query.startkey  ) {
+					options.data.startkey = query.startkey;
+					if ( query.startkey_docid ) {
+						options.data.startkey_docid = query.startkey_docid;
+					}
+				}
+				if ( query.endkey  ) {
+					options.data.endkey = query.endkey;
 				}
 				if( query.album ) {
 					options.data.album = query.album;

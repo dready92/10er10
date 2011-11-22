@@ -814,6 +814,50 @@ article div.refreshList {
 	box-shadow: 0 0 4px rgba(150,150,150,0.6);
 }
 
+#library .albumsLanding menu {
+	padding: 10px 0;
+}
+#library .albumsLanding .tocLabel {
+	text-align: center;
+	font-size: 1.1em;
+}
+
+#library .albumsLanding .tocAll {
+	text-align: right;
+}
+
+#library .albumsLanding .toc {
+	text-align: center;
+	color: #BF9730;
+	font-size: 1.1em;
+	padding: 10px 0;
+}
+
+#library .albumsLanding .letter {
+	padding: 0 2px;
+	cursor: pointer;
+	border: 1px solid transparent;
+	display: inline-block;
+	-webkit-transition: -webkit-transform 0.2s;
+	-moz-transition: -moz-transform 0.2s;
+}
+
+#library .albumsLanding .letter:hover {
+	border: 1px solid rgba(150,150,150,0.5);
+	background: -webkit-linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
+	background: -moz-linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
+	-webkit-transform: scale(1.5);
+	-moz-transform: scale(1.5);
+	
+}
+
+#library .albumsLanding .letter.active {
+/* 	border: 1px solid rgba(150,150,150,0.5); */
+	background: -webkit-linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
+	background: -moz-linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
+		box-shadow: 0 0 1px rgba(0,0,0,1);
+}
+
 .popover {
 	position: absolute;
 	background-color: #232323;
@@ -829,19 +873,18 @@ article div.refreshList {
 	overflow: auto;
 	background: -webkit-linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
 	background: -moz-linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
-	box-shadow: 2px 2px 40px rgba(0,0,0,1);
-
-	
+	box-shadow: 0 0 40px rgba(0,0,0,1);
 }
+
 
 .popover.on {
 	-webkit-transform: scale(1);
 	-moz-transform: scale(1);
 	opacity: 1;
 	-webkit-transform-origin: center;
-	-webkit-transition: -webkit-transform 0.15s ease-in, opacity 0.2s ease-in;
+	-webkit-transition: -webkit-transform 0.2s ease-in, opacity 0.15s ease-in 0.05s;
 	-moz-transform-origin: center;
-	-moz-transition: -webkit-transform 0.15s ease-in, opacity 0.2s ease-in;
+	-moz-transition: -webkit-transform 0.2s ease-in, opacity 0.15s ease-in 0.05s;
 }
 
 .popover li, .popover ul { display: inline; }
