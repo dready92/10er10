@@ -71,8 +71,8 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		});
 		
 			
-		var init_topic = function (topic,category) {
-			debug("library.display start",topic,category);
+		var init_topic = function (topic,category, param) {
+// 			debug("library.display start",topic,category, param);
 			if ( typeof category == "undefined" ) {
 				category = "";
 			}
@@ -105,7 +105,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			// get id
 			//
 			var id = get_id(topic,topicdiv,category);
-			debug("ID: ",id);
+// 			debug("ID: ",id);
 			//
 			// get topic category container
 			//
@@ -114,9 +114,9 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				if ( topic == "genres" && category == "<all>" ) {
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.control.genre")+"</div>");
 				} else if ( topic == "albums" && category == "<all>" ) {
-					debug("setting special tamplate");
+// 					debug("setting special tamplate");
 					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\">"+d10.mustacheView("loading")+d10.mustacheView("library.content.album.all")+"</div>");
-					bindAllAlbums(topicdiv,categorydiv);
+					bindAllAlbums(topicdiv,categorydiv,param);
 				} else if ( topic == "genres" ) {
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.genre")+"</div>");
 					categorydiv.find("article h2 > span:first-child").text(category);
@@ -132,16 +132,16 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				}
 				topicdiv.append(categorydiv);
 			} else {
-				debug("already got category div", id, topicdiv.data('activeCategory'));
+// 				debug("already got category div", id, topicdiv.data('activeCategory'));
 			}
 			
 			// special pages
 			if ( topic == "artists" && category == "<all>" ) {
-				debug("special category case");
+// 				debug("special category case");
 				allArtists(categorydiv);
 			} else if ( topic == "albums" && category == "<all>" ) {
-				debug("special category case", topic, category);
-// 				allAlbums(topicdiv,categorydiv);
+// 				debug("special category case", topic, category);
+				allAlbums(topicdiv,categorydiv,param);
 				topicdiv.find(".albumSearch").hide();
 				
 			} else if ( topic == "genres" && category == "<all>" ) {
@@ -190,13 +190,13 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			d10.localcache.unset("artists.allartists");
 		};
 
-		var bindAllAlbums = function(topicdiv, categorydiv) {
+		var bindAllAlbums = function(topicdiv, categorydiv,letter) {
 // 			categorydiv.addClass("relative");
 			categorydiv.delegate(".albumMini img","mouseenter",function() {
 				var container = $(this).closest(".albumMini");
 				$(this).data("popupTimeout", setTimeout(function() {
 					var tpl = container.data("albumDetails");
-					debug(tpl);
+// 					debug(tpl);
 					var widget = $( d10.mustacheView("library.content.album.all.popover",tpl) )
 					.css({
 						position: "absolute",
@@ -213,7 +213,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 					widgetsize = { width: widget.outerWidth(), height: widget.outerHeight() };
 					widgetOuter = Math.round( (widgetsize.height - widget.height()) / 2);
 					var leftoffset = Math.round((widgetsize.width - srcsize.width) / 2);
-					debug("setting left to ",srcpos.left - leftoffset);
+// 					debug("setting left to ",srcpos.left - leftoffset);
 					var left = srcpos.left - leftoffset;
 					if ( left < 0 ) { left = 0 ; }
 					widget.css({
@@ -237,74 +237,115 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				if ( letter.hasClass("active") ) {
 					return;
 				}
+				d10.router.navigateTo( [ "library","albums","<all>",letter.attr("name") ] );
+				/*
 				letter.siblings().removeClass("active");
 				letter.addClass("active");
 				categorydiv.find(".tocAll").slideDown();
 				allAlbumsCurrentLetter = letter.text();
 				allAlbums(topicdiv, categorydiv, allAlbumsCurrentLetter);
+				*/
 			})
 			.delegate(".tocAll","click", function() {
-				var me = $(this);
+				d10.router.navigateTo( [ "library","albums","<all>" ] );
+// 				var me = $(this);
+				/*
 				me.closest("menu").find(".letter.active").removeClass("active");
 				allAlbumsCurrentLetter = null;
 				allAlbums(topicdiv,categorydiv);
 				me.slideUp();
+				*/
 			})
 			;
-			/*
+			
 			d10.events.bind("whenLibraryScopeChange", function() {
 				for ( var i in allAlbumsContents ) {
-					debug("removing widget ",i);
+// 					debug("removing widget ",i);
 					allAlbumsContents[i].remove();
 				}
 				allAlbumsContents = {};
-				allAlbums(topicdiv, categorydiv, allAlbumsCurrentLetter );
+				categorydiv.removeData("toc-loaded").find(".toc").empty();
+				categorydiv.find(".tocAll").hide();
+// 				allAlbumsCurrentLetter = null;
+				allAlbums(topicdiv, categorydiv);
 			});
-			*/
-			allAlbums(topicdiv,categorydiv);
+// 			allAlbums(topicdiv,categorydiv,letter);
 		};
 		
-		var allAlbumsCurrentLetter = null;
+// 		var allAlbumsCurrentLetter = null;
 		
 		var allAlbumsContents = {};
 		
 		var allAlbums = function(topicdiv,categorydiv, letter) {
+			
+// 			debug("allAlbums start: ",letter);
+			
 			if ( !categorydiv.data("toc-loaded") ) {
-				d10.rest.album.firstLetter({
+				var restBase = d10.libraryScope.current == "full" ? d10.rest.album : d10.rest.user.album;
+				restBase.firstLetter({
 					load: function(err,resp) {
 						if ( err ) {
 							return ;
 						}
-						debug(".toc  ? ",categorydiv.find(".toc"));
-						debug("content ? ",d10.mustacheView("library.content.album.firstLetter",{letter: resp}));
+// 						debug(".toc  ? ",categorydiv.find(".toc"));
+// 						debug("content ? ",d10.mustacheView("library.content.album.firstLetter",{letter: resp}));
 						categorydiv.find(".toc").html (
 							d10.mustacheView("library.content.album.firstLetter",{letter:resp})
-												);
+						);
+						categorydiv.data("toc-loaded",true);
+						categorydiv.find(".pleaseWait").hide();
+						getAllAlbumsContents (topicdiv, categorydiv, letter);
 					}
 				});
-				categorydiv.data("toc-loaded",true);
+				return ;
 			}
-			categorydiv.find(".pleaseWait").hide();
+			getAllAlbumsContents (topicdiv, categorydiv, letter);
+		};
+
+		var getAllAlbumsContents = function(topicdiv, categorydiv, letter) {
+// 			debug("getAllAlbumsContents start: ",letter);
 			
+			//set navigation items correctly
+			var tocAll = categorydiv.find(".tocAll");
+			if ( letter ) {
+				var letterSpan = categorydiv.find(".toc .letter[name="+letter+"]");
+				if ( !letterSpan.hasClass("active") ) {
+					letterSpan.siblings().removeClass("active");
+					letterSpan.addClass("active");
+					if ( tocAll.css("display") != "block" )  {
+						tocAll.slideDown();
+					}
+				}
+			} else {
+				if ( tocAll.css("display") == "block" ) {
+					categorydiv.find(".toc .letter.active").removeClass("active");
+					tocAll.slideUp();
+				}
+			}
+// 			debug("getAllAlbumsContents: end of navigation");
+
 			var contentDivName = letter ? "_"+letter : "_";
+			var isHere = categorydiv.children(".albumCoversContent[name="+contentDivName+"]").length;
+			if ( isHere ) {
+				return ;
+			}
 			
 			var contentDiv;
 			if ( contentDivName in allAlbumsContents ) {
 				contentDiv = allAlbumsContents[contentDivName];
 			}
 			if ( !contentDiv ) {
-				contentDiv = $("<div />").addClass("albumCoversContent");
+				contentDiv = $("<div />").addClass("albumCoversContent").attr("name",contentDivName);
 				loadContentDiv(contentDiv, letter);
 				allAlbumsContents[contentDivName] = contentDiv;
 			}
 			categorydiv.children(".albumCoversContent").detach();
 			categorydiv.append(contentDiv);
-// 			contentDiv.show();
 		};
-
+		
 		var loadContentDiv = function( contentDiv, letter) {
-// 			var restBase = d10.libraryScope.current == "full" ? d10.rest.song.list : d10.rest.user.song.list;
-			var restBase = d10.rest.song.list;
+			var restBase = d10.libraryScope.current == "full" ? d10.rest.song.list : d10.rest.user.song.list;
+// 			var restBase = d10.rest.song.list;
 			var endPoint = restBase.albums;
 			var options = {};
 			if ( letter ) { 
@@ -315,7 +356,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			var rows = null;
 			var fetchAll = function(err,resp) {
 				if ( err ) { return ; }
-				debug(err,resp);
+// 				debug(err,resp);
 				$.each(resp,function(k,songs) {
 					var tpl = singleAlbumParser(songs);
 					var html = $( d10.mustacheView("library.content.album.all.mini",tpl) ).data("albumDetails",tpl);
@@ -374,7 +415,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				}
 			});
 			if ( !html ) {
-				debug("no html for ",rows.length, rows);
+// 				debug("no html for ",rows.length, rows);
 				html = "";
 			}
 			return html;
@@ -382,13 +423,13 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		
 		
 		var albumImageUpload = function (image, file, api, canvas) {
-			debug("Start of setting album image",image,file);
+// 			debug("Start of setting album image",image,file);
 			var ids = canvas.closest(".albumWidget").find(".list .song").map(function(k,v) { return $(this).attr("name"); }).get();
 
 			d10.rest.song.uploadImage(ids, file, file.name, file.size, {
 				load: function(err, headers, body) {
 					if ( err || !body || !body.filename ) {
-						debug("image upload failed",err, body);
+// 						debug("image upload failed",err, body);
 						d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
 						canvas.after(image).remove();
 // 						cb(false);
@@ -425,7 +466,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				var api = canvas.loadImage(e, 
 					{
 						onReady: function() {
-							debug("ready ! ");
+// 							debug("ready ! ");
 							image.after(canvas).remove();
 							albumImageUpload(image, file, api, canvas);
 // 							dropbox.find(".images").append(canvas);
@@ -436,7 +477,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 // 							jobs.run();
 						},
 						onSize: function(w,h) {
-							debug("got onSize",w,h);
+// 							debug("got onSize",w,h);
 							var ratio = d10.getImageRatio(w,h);
 							if ( ratio > 1.5 ) {
 								d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
@@ -601,7 +642,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				onQuery: function() {
 					loadTimeout = setTimeout(function() {
 						loadTimeout = null;
-						debug("Loading...");
+// 						debug("Loading...");
 						innerLoading.css("top", section.height() - 32).removeClass("hidden");
 					},500);
 				},
@@ -655,7 +696,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		};
 
 		var displayAllArtists = function (container, data) {
-			debug("displayAllArtists",container,data);
+// 			debug("displayAllArtists",container,data);
 // 			data = data.data;
 			var letter = '';
 			var letter_container = null;
@@ -746,7 +787,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 					var that=$(this);
 					that.removeClass("hover");
 					var files = e.originalEvent.dataTransfer.files;
-					debug("files",files);
+// 					debug("files",files);
 					if ( !files.length  ) { return ; }
 					var file = files[0];
 					if ( !d10.isImage(file) ) { return ; }
@@ -1127,7 +1168,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 $(document).one("bootstrap:router",function() {
 // 	debug("bootstrapping router");
 	var library = d10.library = d10.fn.library($('#library')),
-	libraryRouteHandler = function(topic,category) {
+	libraryRouteHandler = function(topic,category, param) {
 		if ( !topic ) {
 			if ( this._containers["library"].currentActive ) {
 				this._activate("main","library",this.switchMainContainer);
@@ -1136,7 +1177,7 @@ $(document).one("bootstrap:router",function() {
 				topic = "genres";
 			}
 		}
-		library.display( decodeURIComponent(topic), category ? decodeURIComponent(category) : null );
+		library.display( decodeURIComponent(topic), category ? decodeURIComponent(category) : null, param ? decodeURIComponent(param) : null );
 		this._activate("main","library",this.switchMainContainer)._activate("library",topic);
 	};
 	d10.router._containers["library"] = 
@@ -1151,6 +1192,7 @@ $(document).one("bootstrap:router",function() {
 	d10.router.route("library","library",libraryRouteHandler);
 	d10.router.route("library/:topic","library",libraryRouteHandler);
 	d10.router.route("library/:topic/:category","library",libraryRouteHandler);
+	d10.router.route("library/:topic/:category/:parameter","library",libraryRouteHandler);
 // 	d10.router.route("library/albumsList","library", libraryAlbumListHandler);
 	
 	d10.router._containers.library.tab.delegate("[action]","click",function() {

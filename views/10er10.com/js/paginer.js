@@ -36,7 +36,7 @@
 					var currentFieldValue ;
 					if ( buffer.length ) {
 						currentFieldValue = buffer[0].doc[mergeField];
-					} else {
+					} else if ( resp.length ) {
 						currentFieldValue = resp[0].doc[mergeField];
 					}
 					for (var i in resp ) {
