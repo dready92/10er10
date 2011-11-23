@@ -108,6 +108,7 @@ exports.javascript = {
 		"plm.js",
 		"my.js",
 		"upload.js",
+		"libraryAlbums.js",
 		"library.js",
 		"welcome.js",
 		"results.js",

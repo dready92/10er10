@@ -70,9 +70,11 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			widget.ovlay({"onClose": function() {this.getOverlay().remove()}, "closeOnMouseOut": true });
 		});
 		
-			
+		
+		var libraryAlbums = d10.fn.libraryAlbums(singleAlbumParser);
+		
 		var init_topic = function (topic,category, param) {
-// 			debug("library.display start",topic,category, param);
+			debug("library.display start",topic,category, param);
 			if ( typeof category == "undefined" ) {
 				category = "";
 			}
@@ -105,24 +107,25 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			// get id
 			//
 			var id = get_id(topic,topicdiv,category);
-// 			debug("ID: ",id);
+			debug("ID: ",id);
 			//
 			// get topic category container
 			//
-			var categorydiv=$('div[name="'+id+'"]',topicdiv);
+			var categorydiv=topicdiv.children('div[name="'+id+'"]');
 			if ( !categorydiv.length ) {
 				if ( topic == "genres" && category == "<all>" ) {
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.control.genre")+"</div>");
 				} else if ( topic == "albums" && category == "<all>" ) {
 // 					debug("setting special tamplate");
 					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\">"+d10.mustacheView("loading")+d10.mustacheView("library.content.album.all")+"</div>");
-					bindAllAlbums(topicdiv,categorydiv,param);
+					libraryAlbums.onContainerCreation(topicdiv,categorydiv,param);
 				} else if ( topic == "genres" ) {
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.genre")+"</div>");
 					categorydiv.find("article h2 > span:first-child").text(category);
 					categorydiv.find("article h2 > .link").click(function() { d10.router.navigateTo(["library","genres"]); });
 					bindControls(categorydiv, topic, category);
 				} else {
+					debug("create category for",id);
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.simple")+"</div>");
 					bindControls(categorydiv, topic, category);
 					if ( topic == "albums" && !category ) {
@@ -141,7 +144,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				allArtists(categorydiv);
 			} else if ( topic == "albums" && category == "<all>" ) {
 // 				debug("special category case", topic, category);
-				allAlbums(topicdiv,categorydiv,param);
+				libraryAlbums.onRoute(topicdiv,categorydiv,param);
 				topicdiv.find(".albumSearch").hide();
 				
 			} else if ( topic == "genres" && category == "<all>" ) {
@@ -189,188 +192,8 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			d10.localcache.unset("genres.index");
 			d10.localcache.unset("artists.allartists");
 		};
-
-		var bindAllAlbums = function(topicdiv, categorydiv,letter) {
-// 			categorydiv.addClass("relative");
-			categorydiv.delegate(".albumMini img","mouseenter",function() {
-				var container = $(this).closest(".albumMini");
-				$(this).data("popupTimeout", setTimeout(function() {
-					var tpl = container.data("albumDetails");
-// 					debug(tpl);
-					var widget = $( d10.mustacheView("library.content.album.all.popover",tpl) )
-					.css({
-						position: "absolute",
-						top: 0,
-						left: 0,
-						visibility: "hidden"
-					}).delegate("a","click",function() {
-						$(this).closest(".popover").remove();
-					});
-					;
-					$("body").append(widget);
-					srcpos = container.offset();
-					srcsize = { width: container.outerWidth(), height: container.outerHeight() };
-					widgetsize = { width: widget.outerWidth(), height: widget.outerHeight() };
-					widgetOuter = Math.round( (widgetsize.height - widget.height()) / 2);
-					var leftoffset = Math.round((widgetsize.width - srcsize.width) / 2);
-// 					debug("setting left to ",srcpos.left - leftoffset);
-					var left = srcpos.left - leftoffset;
-					if ( left < 0 ) { left = 0 ; }
-					widget.css({
-						top: srcpos.top - widgetOuter,
-						left: left,
-						visibility: "visible"
-						
-					}).mouseleave(function() {$(this).remove();}).addClass("on");
-					
-					
-				},1000));
-			})
-			.delegate(".albumMini img","mouseleave",function() {
-				var tid = $(this).data("popupTimeout");
-				if(tid) {
-					clearTimeout(tid);
-				}
-			})
-			.delegate(".letter","click", function() {
-				var letter = $(this);
-				if ( letter.hasClass("active") ) {
-					return;
-				}
-				d10.router.navigateTo( [ "library","albums","<all>",letter.attr("name") ] );
-				/*
-				letter.siblings().removeClass("active");
-				letter.addClass("active");
-				categorydiv.find(".tocAll").slideDown();
-				allAlbumsCurrentLetter = letter.text();
-				allAlbums(topicdiv, categorydiv, allAlbumsCurrentLetter);
-				*/
-			})
-			.delegate(".tocAll","click", function() {
-				d10.router.navigateTo( [ "library","albums","<all>" ] );
-// 				var me = $(this);
-				/*
-				me.closest("menu").find(".letter.active").removeClass("active");
-				allAlbumsCurrentLetter = null;
-				allAlbums(topicdiv,categorydiv);
-				me.slideUp();
-				*/
-			})
-			;
-			
-			d10.events.bind("whenLibraryScopeChange", function() {
-				for ( var i in allAlbumsContents ) {
-// 					debug("removing widget ",i);
-					allAlbumsContents[i].remove();
-				}
-				allAlbumsContents = {};
-				categorydiv.removeData("toc-loaded").find(".toc").empty();
-				categorydiv.find(".tocAll").hide();
-// 				allAlbumsCurrentLetter = null;
-				allAlbums(topicdiv, categorydiv);
-			});
-// 			allAlbums(topicdiv,categorydiv,letter);
-		};
 		
-// 		var allAlbumsCurrentLetter = null;
-		
-		var allAlbumsContents = {};
-		
-		var allAlbums = function(topicdiv,categorydiv, letter) {
-			
-// 			debug("allAlbums start: ",letter);
-			
-			if ( !categorydiv.data("toc-loaded") ) {
-				var restBase = d10.libraryScope.current == "full" ? d10.rest.album : d10.rest.user.album;
-				restBase.firstLetter({
-					load: function(err,resp) {
-						if ( err ) {
-							return ;
-						}
-// 						debug(".toc  ? ",categorydiv.find(".toc"));
-// 						debug("content ? ",d10.mustacheView("library.content.album.firstLetter",{letter: resp}));
-						categorydiv.find(".toc").html (
-							d10.mustacheView("library.content.album.firstLetter",{letter:resp})
-						);
-						categorydiv.data("toc-loaded",true);
-						categorydiv.find(".pleaseWait").hide();
-						getAllAlbumsContents (topicdiv, categorydiv, letter);
-					}
-				});
-				return ;
-			}
-			getAllAlbumsContents (topicdiv, categorydiv, letter);
-		};
-
-		var getAllAlbumsContents = function(topicdiv, categorydiv, letter) {
-// 			debug("getAllAlbumsContents start: ",letter);
-			
-			//set navigation items correctly
-			var tocAll = categorydiv.find(".tocAll");
-			if ( letter ) {
-				var letterSpan = categorydiv.find(".toc .letter[name="+letter+"]");
-				if ( !letterSpan.hasClass("active") ) {
-					letterSpan.siblings().removeClass("active");
-					letterSpan.addClass("active");
-					if ( tocAll.css("display") != "block" )  {
-						tocAll.slideDown();
-					}
-				}
-			} else {
-				if ( tocAll.css("display") == "block" ) {
-					categorydiv.find(".toc .letter.active").removeClass("active");
-					tocAll.slideUp();
-				}
-			}
-// 			debug("getAllAlbumsContents: end of navigation");
-
-			var contentDivName = letter ? "_"+letter : "_";
-			var isHere = categorydiv.children(".albumCoversContent[name="+contentDivName+"]").length;
-			if ( isHere ) {
-				return ;
-			}
-			
-			var contentDiv;
-			if ( contentDivName in allAlbumsContents ) {
-				contentDiv = allAlbumsContents[contentDivName];
-			}
-			if ( !contentDiv ) {
-				contentDiv = $("<div />").addClass("albumCoversContent").attr("name",contentDivName);
-				loadContentDiv(contentDiv, letter);
-				allAlbumsContents[contentDivName] = contentDiv;
-			}
-			categorydiv.children(".albumCoversContent").detach();
-			categorydiv.append(contentDiv);
-		};
-		
-		var loadContentDiv = function( contentDiv, letter) {
-			var restBase = d10.libraryScope.current == "full" ? d10.rest.song.list : d10.rest.user.song.list;
-// 			var restBase = d10.rest.song.list;
-			var endPoint = restBase.albums;
-			var options = {};
-			if ( letter ) { 
-				options.startkey = JSON.stringify([letter]);
-				options.endkey = JSON.stringify([d10.nextLetter(letter)]);
-			}
-			var cursor = new d10.fn.couchMapMergedCursor(endPoint,options,"album");
-			var rows = null;
-			var fetchAll = function(err,resp) {
-				if ( err ) { return ; }
-// 				debug(err,resp);
-				$.each(resp,function(k,songs) {
-					var tpl = singleAlbumParser(songs);
-					var html = $( d10.mustacheView("library.content.album.all.mini",tpl) ).data("albumDetails",tpl);
-					contentDiv.append(html);
-				});
-				
-				
-				if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
-			};
-			if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
-		};
-		
-		
-		var singleAlbumParser = function(songs) {
+		function singleAlbumParser(songs) {
 			var tpl = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: ""}, artists = {}, genres = {}, duration = 0, images = {};
 			songs.forEach(function(row) {
 				tpl.album = row.doc.album;
