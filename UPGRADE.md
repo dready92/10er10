@@ -1,3 +1,25 @@
+Upgrade from 0.8 to 0.9
+=======================
+
+- install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
+- re-run the installer script (don't worry, it won't eat your dog) : go to **node/install**. Then:
+
+To upgrade your DEV databases, run
+
+    node install.js
+
+To upgrade your PROD databases, run
+
+    node install.js -p
+
+- restart the node 10er10 server
+
+**What changed ?**
+
+- removed backbone.js ( so groups like Ac/dc should work back )
+- added display of albums by covers
+
+
 Upgrade from 0.7 to 0.8
 =======================
 
