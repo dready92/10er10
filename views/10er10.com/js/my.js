@@ -1,15 +1,15 @@
-(function(d10,$) {
+define(["js/user","js/d10.rest","js/d10.templates", "js/dnd", "js/playlist.new", "js/paginer", "js/d10.router", "js/d10.utils", "js/osd", "js/d10.imageUtils"],
+	   function(user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils) {
 
-d10.fn = d10.fn || {};
-d10.fn.my = function (ui) {
-	var plmanager = new d10.fn.plm(ui,ui.find('div[name=plm]'));
+function myCtrl (ui) {
+// 	var plmanager = new d10.fn.plm(ui,ui.find('div[name=plm]'));
 	
 	$(document).one("user.infos",function() {
-		if ( !d10.user.get_invites_count() ) { $("ul li[action=invites]",ui).hide(); }
+		if ( !user.get_invites_count() ) { $("ul li[action=invites]",ui).hide(); }
 	});
 
-	ui.delegate("div.song",'dragstart', d10.dnd.onDragDefault)
-	.delegate("div.song","dragend",d10.dnd.removeDragItem)
+	ui.delegate("div.song",'dragstart', dnd.onDragDefault)
+	.delegate("div.song","dragend", dnd.removeDragItem)
 	.delegate("div.song","click",function(e) {
 		var target = $(e.target);
 		if ( target.closest(".add").length == 0 && target.closest(".artist").length == 0 && target.closest(".album").length == 0 )
@@ -17,14 +17,14 @@ d10.fn.my = function (ui) {
 	})
 	.delegate("div.song","dblclick",function(e) {
 		if ( $("span.review",this).length ) { return false; }
-		d10.playlist.append($(this).clone());
+		playlist.append($(this).clone());
 	});
 	
 	
 	var display = function(label, sublabel) {
 		sublabel = sublabel ? [ sublabel ] : [];
 		routeAction(label, sublabel);
-	}
+	};
 	
   var routeAction = function (label, segments) {
       debug("routeAction starts",label,segments);
@@ -33,7 +33,7 @@ d10.fn.my = function (ui) {
         topicdiv=$('<div name="'+label+'"></div>');
         ui.append(topicdiv);
         if ( label == "likes" || label == "songs" ) {
-          topicdiv.append(d10.mustacheView("loading"));
+          topicdiv.append(tpl.mustacheView("loading"));
         }
       }
       if ( label == 'review' ) {
@@ -76,7 +76,7 @@ d10.fn.my = function (ui) {
 	var bindControls = function(endpoint, topicdiv, section, list, parseResults) {
 		
 		topicdiv.find(".pushAll").click(function() {
-			d10.playlist.append(topicdiv.find(".song").clone().removeClass("selected"));
+			playlist.append(topicdiv.find(".song").clone().removeClass("selected"));
 		});
 		topicdiv.find(".selectVisible").click(function() {
 			selectVisible(topicdiv);
@@ -94,7 +94,7 @@ d10.fn.my = function (ui) {
 	var createInfiniteScroll = function(endpoint, topicdiv, section, list, parseResults) {
 		var loadTimeout = null, 
 			innerLoading = topicdiv.find(".innerLoading"),
-			cursor = new d10.fn.couchMapCursor(endpoint);
+			cursor = new restHelpers.couchMapCursor(endpoint);
 		
 		var callbacks = {
 			onFirstContent: function(length) {
@@ -156,12 +156,12 @@ d10.fn.my = function (ui) {
 	var init_topic_likes = function(topicdiv,args) {
 		var section = topicdiv.find("section");
 		if ( !section.length ) {
-			topicdiv.append(d10.mustacheView("library.content.simple"));
+			topicdiv.append(tpl.mustacheView("library.content.simple"));
 			section = topicdiv.find("section");
 			var list = section.find(".list");
-			var endpoint = d10.rest.user.likes;
+			var endpoint = rest.user.likes;
 			list.delegate("div.song .edit, div.song .review","click", function() {
-				d10.router.navigateTo(["my","review",$(this).closest('.song').attr('name')]);
+				router.navigateTo(["my","review",$(this).closest('.song').attr('name')]);
 				return false;
 			});
 			bindControls (endpoint, topicdiv, section, list);
@@ -172,22 +172,22 @@ d10.fn.my = function (ui) {
 	var init_topic_songs = function(topicdiv,args) {
 		var section = topicdiv.find("section");
 		if ( !section.length ) {
-			topicdiv.append(d10.mustacheView("library.content.simple"));
+			topicdiv.append(tpl.mustacheView("library.content.simple"));
 			section = topicdiv.find("section");
 			var list = section.find(".list");
 // 			var url = "/api/list/s_user";
-			var endpoint = d10.rest.user.songs;
+			var endpoint = rest.user.songs;
 			var parseResults = function(rows) {
 				var html = "";
-				rows.forEach(function(v) { html += d10.song_template(v.doc); });
+				rows.forEach(function(v) { html += tpl.song_template(v.doc); });
 				html = $(html);
 				html.each(function() {
 					if ( $(this).attr('data-reviewed') == "true" ) {
-						$(this).append(d10.mustacheView('my.song_template_trailer'));
+						$(this).append(tpl.mustacheView('my.song_template_trailer'));
 					} else {
-						$(this).append(d10.mustacheView('my.song_template_review_trailer'));
+						$(this).append(tpl.mustacheView('my.song_template_review_trailer'));
 						$("span.add",this)
-							.after( d10.mustacheView('my.song_template_review_header') )
+							.after( tpl.mustacheView('my.song_template_review_header') )
 							.remove();
 					}
 				});
@@ -195,7 +195,7 @@ d10.fn.my = function (ui) {
 				return html;
 			};
 			list.delegate("div.song .edit, div.song .review","click", function() {
-				d10.router.navigateTo(["my","review",$(this).closest('.song').attr('name')]);
+				router.navigateTo(["my","review",$(this).closest('.song').attr('name')]);
 // 				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
 				return false;
 			});
@@ -211,7 +211,7 @@ d10.fn.my = function (ui) {
 	
 	
   var sendInvite = function(topicdiv,email) {
-    d10.rest.user.invites.send(email, {
+    rest.user.invites.send(email, {
       load: function (err, data) {
 		if ( err ) {
 				$("article.my",topicdiv).hide();
@@ -227,16 +227,16 @@ d10.fn.my = function (ui) {
   
   var init_topic_invites = function(topicdiv,args) {
 	  
-	d10.rest.user.invites.count({
+	rest.user.invites.count({
 		load: function(err,count) {
 			if ( err ) return ;
 			if ( count ) {
-				topicdiv.html(d10.mustacheView("my.invites.invites",{count: count, ttl: d10.config.invites.ttl}) );
+				topicdiv.html(tpl.mustacheView("my.invites.invites",{count: count, ttl: d10.config.invites.ttl}) );
 				var button = $("button",topicdiv);
 				var invalidLabel = $("span[name=invalidEmail]",topicdiv);
 				$("input[name=email]",topicdiv).keyup(function() {
 			//           debug("email reg testing ",$(this).val());
-					if ( d10.isValidEmailAddress($(this).val()) ) {
+					if ( toolbox.isValidEmailAddress($(this).val()) ) {
 						if ( invalidLabel.is(":visible") ) invalidLabel.hide(); 
 						if ( button.not(":visible") )      button.fadeIn();
 					} else {
@@ -247,7 +247,7 @@ d10.fn.my = function (ui) {
 				button.click(function() { sendInvite(topicdiv, $("input[name=email]",topicdiv).val() ) });
 
 			} else {
-				topicdiv.html(d10.mustacheView("my.invites.invites.none",{count: count, ttl: d10.config.invites.ttl}) );
+				topicdiv.html(tpl.mustacheView("my.invites.invites.none",{count: count, ttl: d10.config.invites.ttl}) );
 			}
 		}
 	});
@@ -258,27 +258,27 @@ d10.fn.my = function (ui) {
 
 	var init_topic_review = function (topicdiv, arg ) {
 		
-		d10.rest.user.review.list({
+		rest.user.review.list({
 			load: function(err,songs) {
 				if ( err  ) {
 					// mainerror_json_client("textStatus", 'review', null);
 					return ;
 				}
 				if ( songs.length ) {
-					topicdiv.empty().append(d10.mustacheView("review.list", {rows: songs}));
+					topicdiv.empty().append(tpl.mustacheView("review.list", {rows: songs}));
 					$('ul > li',topicdiv).click(function() {
 			// 			window.location.hash = "#/my/review/"+$(this).attr('arg');
-						d10.router.navigateTo(["my","review",$(this).attr("arg")]);
+						router.navigateTo(["my","review",$(this).attr("arg")]);
 					});
 				} else {
-					topicdiv.empty().append(d10.mustacheView("review.list.none", {}));
+					topicdiv.empty().append(tpl.mustacheView("review.list.none", {}));
 				}
 			}
 		});
 	}
 
   var postSongReview = function (topicdiv, success, complete ) {
-	d10.rest.user.review.post(
+	rest.user.review.post(
 		$('input[name=_id]',topicdiv).val(),
 		$('form',topicdiv).serialize(),
 		{
@@ -294,7 +294,7 @@ d10.fn.my = function (ui) {
 						$("button[name=review]",topicdiv).show();
 						$("button[name=reviewNext]",topicdiv).show();
 					} else {
-						d10.osd.send("info","Unable to record song...");
+						osd.send("info","Unable to record song...");
 					}
 				} else {
 					success.call();
@@ -337,19 +337,19 @@ d10.fn.my = function (ui) {
 		
 
 		var sendImageToServer = function(file, api, canvas, cb) {
-			d10.rest.song.uploadImage(song_id, file, file.name, file.size, {
+			rest.song.uploadImage(song_id, file, file.name, file.size, {
 				load: function(err, headers, body) {
 					if ( err || !body || !body.filename ) {
 						debug("image upload failed",err, body);
-						d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
+						osd.send("error",tpl.mustacheView("my.review.error.filetransfert"));
 						canvas.remove();
 						cb(false);
 						return ;
 					}
-					d10.osd.send("info",d10.mustacheView("my.review.success.filetransfert",{filename: file.name}));
+					osd.send("info",tpl.mustacheView("my.review.success.filetransfert",{filename: file.name}));
 					canvas.remove();
 					dropbox.find(".images").append(
-							d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+body.filename})
+							tpl.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+body.filename})
 					);
 					cb();
 				},
@@ -384,9 +384,9 @@ d10.fn.my = function (ui) {
 						},
 						onSize: function(w,h) {
 							debug("got onSize",w,h);
-							var ratio = d10.getImageRatio(w,h);
+							var ratio = imageUtils.getImageRatio(w,h);
 							if ( ratio > 1.5 ) {
-								d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
+								osd.send("error",file.name+": "+tpl.mustacheView("my.review.error.imagesize"));
 								canvas.remove();
 								return false;
 							}
@@ -425,7 +425,7 @@ d10.fn.my = function (ui) {
 			for (var i = 0; i < files.length; i++) { 
 				debug("reading ",i);
 				var file = files[i];
-				if ( !d10.isImage(file) ) {
+				if ( !imageUtils.isImage(file) ) {
 					continue;
 				}
 				readImage (file);
@@ -441,9 +441,9 @@ d10.fn.my = function (ui) {
 				return ;
 			}
 			
-			d10.rest.song.removeImage(song_id, filename, {
+			rest.song.removeImage(song_id, filename, {
 				load: function(err,data) {
-					if ( err ) {d10.osd.send("error",err+" "+resp);}
+					if ( err ) {osd.send("error",err+" "+resp);}
 					else {img.closest("div.imageReview").remove();}
 				}
 			});
@@ -453,18 +453,18 @@ d10.fn.my = function (ui) {
 	
 	var deleteSong = function(id, then ) {
 		debug("deleteSongURL: ",site_url+"/api/deleteSong/"+id);
-		d10.rest.song.remove(id, {
+		rest.song.remove(id, {
 			load: then
 		});
 	};
 	
 	var init_topic_songreview = function (topicdiv, song_id ) {
-		topicdiv.html(d10.mustacheView("loading"));
-		d10.rest.song.get(song_id, {
+		topicdiv.html(tpl.mustacheView("loading"));
+		rest.song.get(song_id, {
 			load: function(err,doc) {
 				debug("init_topic_songreview: ",doc);
 				if ( err ) {
-					topicdiv.html( d10.mustacheView("review.song.error",{id: song_id})  );
+					topicdiv.html( tpl.mustacheView("review.song.error",{id: song_id})  );
 					return ;
 				}
 				var images = doc.images ? doc.images : [];
@@ -472,22 +472,21 @@ d10.fn.my = function (ui) {
 				doc.download_link = "audio/download/"+doc._id;
 				$.each(images, function(k,v) {
 					doc.images.push(
-						d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+v.filename})
+						tpl.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+v.filename})
 							);
 				});
-				topicdiv.html( d10.mustacheView("review.song",doc)  );
+				topicdiv.html( tpl.mustacheView("review.song",doc)  );
 				init_songreview_imagesbox (topicdiv,song_id);
 				init_reviewImage_remove (topicdiv,song_id);
 				$("button[name=my]",topicdiv).click(function() { 
-					d10.router.navigateTo(["my","review"]);
+					router.navigateTo(["my","review"]);
 				});
 				$('button[name=upload]',topicdiv).click(function() { 
-		// 			d10.globalMenu.route("/upload");
-					d10.router.navigateTo(["upload"]);
+					router.navigateTo(["upload"]);
 				});
 
 				$('input[name=album]',topicdiv).permanentOvlay(
-					d10.rest.album.list,
+					rest.album.list,
 					$('input[name=album]',topicdiv).parent().find(".overlay"),
 					{
 						"autocss": true,
@@ -497,7 +496,7 @@ d10.fn.my = function (ui) {
 				);
 				
 				$('input[name=artist]',topicdiv).permanentOvlay(
-					d10.rest.artist.list,
+					rest.artist.list,
 					$('input[name=artist]',topicdiv).parent().find(".overlay"),
 					{
 						"autocss": true,
@@ -507,7 +506,7 @@ d10.fn.my = function (ui) {
 				);
 				
 				$('input[name=genre]',topicdiv).permanentOvlay(
-					d10.rest.genre.list,
+					rest.genre.list,
 					$('input[name=genre]',topicdiv).parent().find(".overlay"),
 					{
 						"autocss": true,
@@ -570,7 +569,7 @@ d10.fn.my = function (ui) {
 				});
 
 				
-				d10.rest.user.review.list({
+				rest.user.review.list({
 					load: function(err,rows) {
 						if ( err )	return ;
 						for ( var index in rows ) {
@@ -608,19 +607,14 @@ d10.fn.my = function (ui) {
 	}
   
 	return {
-		display: display,
-		plmanager: plmanager
+		display: display
 	};
 	  
   
 };
 
-})( window.d10 ? window.d10 : {}  , jQuery) ;
-
-$(document).one("bootstrap:router",function() {
-
 var 
-	my = d10.my = new d10.fn.my($("#my")),
+	my = = new myCtrl($("#my")),
 	myRouteHandler = function(topic,id) { 
 		if ( !topic ) {
 			if ( this._containers["my"].currentActive ) {
@@ -635,7 +629,7 @@ var
 		this._activate("main","my",this.switchMainContainer); 
 		if ( topic ) { this._activate("my",topic); }
 	};
-	d10.router._containers["my"] = 
+	router._containers["my"] = 
 	{
 		tab: $("#my > nav > ul"), 
 		container: $("#my"), 
@@ -643,15 +637,16 @@ var
 		lastActive: null,
 		currentActive: null
 	};
-	d10.router.route("my", "my", myRouteHandler);
-	d10.router.route("my/likes", "my", function() {myRouteHandler.call(this,"likes");} );
-	d10.router.route("my/songs", "my", function() {myRouteHandler.call(this,"songs");} );
-	d10.router.route("my/invites", "my", function() {myRouteHandler.call(this,"invites");} );
-	d10.router.route("my/review", "my", function() {myRouteHandler.call(this,"review");} );
-	d10.router.route("my/review/:id", "my", function(id) {myRouteHandler.call(this,"review",id);} );
-	d10.router._containers.my.tab.delegate("[action]","click",function() {
+	router.route("my", "my", myRouteHandler);
+	router.route("my/likes", "my", function() {myRouteHandler.call(this,"likes");} );
+	router.route("my/songs", "my", function() {myRouteHandler.call(this,"songs");} );
+	router.route("my/invites", "my", function() {myRouteHandler.call(this,"invites");} );
+	router.route("my/review", "my", function() {myRouteHandler.call(this,"review");} );
+	router.route("my/review/:id", "my", function(id) {myRouteHandler.call(this,"review",id);} );
+	router._containers.my.tab.delegate("[action]","click",function() {
 		var elem = $(this), action = elem.attr("action");
-		if ( ! elem.hasClass("active") ) { d10.router.navigate("my/"+action,true); }
+		if ( ! elem.hasClass("active") ) { router.navigate("my/"+action,true); }
 	});
+
 
 });

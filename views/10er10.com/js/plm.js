@@ -1,6 +1,6 @@
-(function($){
+define(["js/d10.templates", "js/d10.rest", "js/dnd","js/playlist.new", "js/user", "js/d10.router"],function(tpl, rest, dnd, playlist, user, router) {
 
-d10.fn.plm = function (mydiv,mypldiv) {
+function playlistManager (mydiv,mypldiv) {
 	var that = this;
 	var plmUpdateTimeout = null;
 
@@ -23,7 +23,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			index = $('.list',pldiv).children().length;
 		}
 		var songtpl = null;
-		if ( song._id ) { songtpl = $(d10.song_template(song)); } 
+		if ( song._id ) { songtpl = $(tpl.song_template(song)); } 
 		else { songtpl = song; }
 
 		var nextOne = $('.list',pldiv).children().eq(index);
@@ -46,11 +46,11 @@ d10.fn.plm = function (mydiv,mypldiv) {
 	
 	*/
 	var _createRPLDisplay = function (content_container, id ) {
-		var pldiv = $( d10.mustacheView('my.plm.rpl') )
+		var pldiv = $( tpl.mustacheView('my.plm.rpl') )
 			.hide()
 		.attr('name',id);
 
-		d10.dnd.dropTarget (pldiv,$('.list',pldiv),{
+		dnd.dropTarget (pldiv,$('.list',pldiv),{
 			"moveDrop": function(source,target,infos) {
 				if ( infos.wantedNode ) { infos.wantedNode.after(source); } 
 				else { $('.list',pldiv).prepend(source); }
@@ -79,38 +79,26 @@ d10.fn.plm = function (mydiv,mypldiv) {
 
 		pldiv.find('.list')
 		.delegate("div.song span.remove","click",function(e) {
-		$(this).closest('.song').fadeOut('fast',function() {
-			$(this).remove();
-			if ( $('.song',pldiv).length == 0 ) {
-			$('.empty',pldiv).toggleClass("hidden",false);
-			$(".list",pldiv).toggleClass("hidden",true);
-			}
-			that.update_playlist(pldiv.attr("name"));
+			$(this).closest('.song').fadeOut('fast',function() {
+				$(this).remove();
+				if ( $('.song',pldiv).length == 0 ) {
+				$('.empty',pldiv).toggleClass("hidden",false);
+				$(".list",pldiv).toggleClass("hidden",true);
+				}
+				that.update_playlist(pldiv.attr("name"));
+			});
 		});
-		})
-	/*
-		.delegate("div.song","click",function(e) {
-			if ( $(e.target).closest(".add").length == 0 )
-				$(this).toggleClass("selected");
-		})
-		.delegate("div.song","dblclick",function(e) {
-			debug("plm dblclick");
-			d10.playlist.append(
-			$(this).clone()
-			);
-		});
-	*/
 		pldiv.find('.controls button[name=rename]').click(function() {
-		pldiv.find('.controls').hide();
-		pldiv.find('.rename').slideDown();
-		pldiv.find('.rename input[name=name]').val(
-			$('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).text()
-		).get(0).focus();
+			pldiv.find('.controls').hide();
+			pldiv.find('.rename').slideDown();
+			pldiv.find('.rename input[name=name]').val(
+				$('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).text()
+			).get(0).focus();
 		});
 		pldiv.find(".rename input[name=name]").keypress(function(e) {
-		if ( e.keyCode == 13 ) {
-			pldiv.find(".rename button[name=rename]").click();
-		}
+			if ( e.keyCode == 13 ) {
+				pldiv.find(".rename button[name=rename]").click();
+			}
 		});
 		pldiv.find('.rename button[name=rename]').click(function () {
 			rplRenameRequestHandler(pldiv,pldiv.find('.rename input[name=name]').val());
@@ -148,15 +136,15 @@ d10.fn.plm = function (mydiv,mypldiv) {
 				songs: pldiv.children(".list").children(".song").map(function() {      return $(this).attr('name');    }   ).get()
 			};
 
-			d10.playlist.empty();
-			d10.playlist.append(pldiv.children(".list").children(".song").clone());		
-			d10.playlist.loadDriver("rpl",{},{rpldoc: rpldoc},function(err,resp) {
+			playlist.empty();
+			playlist.append(pldiv.children(".list").children(".song").clone());		
+			playlist.loadDriver("rpl",{},{rpldoc: rpldoc},function(err,resp) {
 				if ( err )	{
 					debug("playlistModuleRpl:loadDriver error",err);
 					return ;
 				}
 				debug("plm setting driver",this);
-				d10.playlist.setDriver(this);
+				playlist.setDriver(this);
 			});
 			/*
 		d10.playlist.loadFromPlm(
@@ -178,7 +166,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 		}
 		
 		mypldiv.data('loaded',true);
-		mypldiv.append(d10.mustacheView('my.plm'));
+		mypldiv.append(tpl.mustacheView('my.plm'));
 		
 		// event binding
 		$('section.plm-list-container .plm-new-form button[name=create]',mypldiv).click(function() {
@@ -195,7 +183,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			return false;
 		});
 		// user playlists
-		var playlists = d10.user.get_playlists();
+		var playlists = user.get_playlists();
 		for ( var index in  playlists ) {
 			$('.plm-list',mypldiv).append(
 				'<div class="plm-list-item" name="'+playlists[index]._id+'" action="'+playlists[index]._id+'">'+playlists[index].name+'</div>'
@@ -209,25 +197,6 @@ d10.fn.plm = function (mydiv,mypldiv) {
 			return false;
 		});
 		
-		var plmRouteHandler = function(id) {
-			if ( id && this._containers["plm"].currentActive != id ) { d10.my.plmanager.display(id); }
-			this._activate("main","my",this.switchMainContainer)._activate("my","plm");
-			if ( id && this._containers["plm"].currentActive != id ) { this._activate("plm",id); }
-		};
-		d10.router._containers["plm"] = 
-		{
-			tab: $("#my .plm .plm-list-container .plm-list"),
-			container: $("#my .plm-content-container"),
-			select: function(name) {return this.container.children("div[name="+name+"]"); },
-			lastActive: null,
-			currentActive: null
-		};
-		d10.router.route("my/plm", "plm", plmRouteHandler);
-		d10.router.route("my/plm/:id", "plm", plmRouteHandler);
-		d10.router._containers.plm.tab.delegate("[action]","click",function() {
-			var elem = $(this), action = elem.attr("action");
-			if ( ! elem.hasClass("active") ) { d10.router.navigateTo(["my","plm",action]); }
-		});
 	};
 
 	this.plm_playlist_display = function (id) {
@@ -253,7 +222,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 					var songs = '';
 					for ( var index in response.songs ) {
 						if ( response.songs[index] ) {
-							songs+= d10.song_template(response.songs[index]);
+							songs+= tpl.song_template(response.songs[index]);
 						}
 					}
 					_appendSong ($(songs), pldiv) ;
@@ -268,7 +237,7 @@ d10.fn.plm = function (mydiv,mypldiv) {
 						$('.controls',pldiv).show();
 					}
 				};
-				d10.rest.rpl.get(id,{
+				rest.rpl.get(id,{
 					load: onPlaylistResponse
 				});
 
@@ -502,12 +471,29 @@ d10.fn.plm = function (mydiv,mypldiv) {
 		});
 	};
 
-}
+};
 
+	var ui = $("#my"), plm = new playlistManager(ui,ui.find('div[name=plm]'));
 
+	var plmRouteHandler = function(id) {
+		if ( id && this._containers["plm"].currentActive != id ) { plm.display(id); }
+		this._activate("main","my",this.switchMainContainer)._activate("my","plm");
+		if ( id && this._containers["plm"].currentActive != id ) { this._activate("plm",id); }
+	};
+	router._containers["plm"] = 
+	{
+		tab: $("#my .plm .plm-list-container .plm-list"),
+		container: $("#my .plm-content-container"),
+		select: function(name) {return this.container.children("div[name="+name+"]"); },
+		lastActive: null,
+		currentActive: null
+	};
+	router.route("my/plm", "plm", plmRouteHandler);
+	router.route("my/plm/:id", "plm", plmRouteHandler);
+	router._containers.plm.tab.delegate("[action]","click",function() {
+		var elem = $(this), action = elem.attr("action");
+		if ( ! elem.hasClass("active") ) { router.navigateTo(["my","plm",action]); }
+	});
 
-$(document).one("bootstrap:router",function() {
-
+	return plm;
 });
-
-})(jQuery);

@@ -1,7 +1,8 @@
-(function($){
+define(["js/d10.templates"], function(tpl) {
 	
-	d10.fn.couchMapMergedCursor = function(endpoint,queryData, mergeField) {
-		var innerCursor = new d10.fn.couchMapCursor(endpoint, queryData);
+	
+	var couchMapMergedCursor = function(endpoint,queryData, mergeField) {
+		var innerCursor = new couchMapCursor(endpoint, queryData);
 		var buffer = [];
 		var merged = [];
 		var rpp = d10.config.rpp;
@@ -79,7 +80,7 @@
 		this.getNext = getResults;
 	};
 	
-	d10.fn.couchMapCursor = function(endpoint, queryData) {
+	var couchMapCursor = function(endpoint, queryData) {
 		var originalData = queryData || {};
 		var actualData = $.extend({},queryData);
 		actualData.limit = rpp;
@@ -112,7 +113,7 @@
 		this.getNext = getResults;
 	};
 	
-	d10.fn.emulatedCursor = function(data) {
+	var emulatedCursor = function(data) {
 		var rpp = d10.config.rpp;
 		
 		this.getNext = function(cb) {
@@ -144,7 +145,7 @@
 			onQuery: function() {},
 			parseResults: function(rows) {
 				var html="";
-				rows.forEach(function(v) { html+=d10.song_template(v.doc); });
+				rows.forEach(function(v) { html+=tpl.song_template(v.doc); });
 				return html;
 			}
 		};
@@ -205,4 +206,11 @@
 // scrollTop: nb of px hidden from the top
 // widget.outerHeight: the visible window
 
-})(jQuery);
+	return {
+		couchMapMergedCursor: couchMapMergedCursor,
+		couchMapCursor: couchMapCursor,
+		emulatedCursor: emulatedCursor
+	};
+
+	
+});

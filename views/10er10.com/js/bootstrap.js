@@ -1,6 +1,7 @@
 
-define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache", "js/d10.templates", "js/d10.router", "js/playlist.new", "js/d10.jobWorker","js/bgtask","js/welcome"],
-	   function(bghttp, When, rest, user, localcache, tpl, router, playlist, jobs, bgtask, welcomeCtlr) {
+define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache", "js/d10.templates", "js/d10.router", 
+	   "js/playlist.new", "js/d10.jobWorker","js/bgtask","js/welcome","js/upload"],
+	   function(bghttp, When, rest, user, localcache, tpl, router, playlist, jobs, bgtask, welcomeCtlr, uploadCtlr) {
 	var visibleBaby = function () {
 		"use strict";
 		
