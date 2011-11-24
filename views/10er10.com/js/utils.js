@@ -1,7 +1,7 @@
 (function($){
 
 var visibleBaby = function () {
-	
+	"use strict";
 	
 	var pos = $("#search > div").eq(0).position();
 	var height = $("#search > div").eq(0).height();
@@ -46,6 +46,7 @@ var visibleBaby = function () {
 	
 	
 var launchMeBaby = function() {
+	"use strict";
 	// language selector
 	$("footer .langChooser select").bind("change",function() {
 // 			debug("langchooser changed");
@@ -85,7 +86,7 @@ var launchMeBaby = function() {
 
 	
 var step2 = function () {
-	
+	"use strict";
 	//
 	// initialisation des workers ajax
 	//
