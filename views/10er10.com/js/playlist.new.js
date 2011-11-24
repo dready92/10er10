@@ -1,4 +1,5 @@
-(function($){
+define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/playlistDriverDefault", "js/d10.templates"], 
+	   function(foo, user, rest, dnd, router, defaultDriver, tpl) {
 	
 	/*
 	 * playlist
@@ -61,7 +62,7 @@
 	 * 
 	 */
 	
-	d10.fn.playlistProto = function(ui, options) {
+	function playlist (ui, options) {
 		
 		var settings= $.extend({
 			currentClass: "current"
@@ -73,6 +74,20 @@
 		
 		// the timeout id for operation of recording current playlist driver state to the database
 		var driverRecordTimeout = null;
+		
+		
+		/*
+		events binding :
+
+		1/ audio [all events] bound to proxyHandler
+		2/ proxyHandler calling CURRENT driver's handleEvent
+		3/ current driver calling this.trigger to feedback to the playlist 
+		*/
+
+		var eventProxy = function() {
+// 			debug("proxyHandler: ",d10.playlist.currentDriverName() , this,arguments);
+			driver.handleEvent.apply(this,arguments);
+		};
 		
 		var container = this.container = function() {
 			return ui;
@@ -199,7 +214,7 @@
 			} else {
 				ui.find(".emptyPlaylist").hide();
 			}
-			debug("playlist: sending listModified to driver", d10.playlist.currentDriverName());
+// 			debug("playlist: sending listModified to driver", d10.playlist.currentDriverName());
 			driver.listModified(data);
 			$(document).trigger('playlistUpdate', data );
 			recordPlaylistDriver();
@@ -265,7 +280,7 @@
 						clearTimeout(volumeUpdateTimeout);
 					}
 					volumeUpdateTimeout = setTimeout(function() {
-						d10.rest.user.storeVolume($('body').data('volume'), {});
+						rest.user.storeVolume($('body').data('volume'), {});
 						volumeUpdateTimeout = null;
 					},10000);
 				}
@@ -274,8 +289,8 @@
 			}
 			return $('body').data('volume');
 		};
-		if ( d10.user.get_preferences().volume ) {
-			volume(d10.user.get_preferences().volume,true);
+		if ( user.get_preferences().volume ) {
+			volume(user.get_preferences().volume,true);
 		} else {
 			volume(0.5,true);
 		}
@@ -294,24 +309,24 @@
 					"type": "genre",
 					"count": count
 				},
-				"load": function (err,songs) {
+				load: function (err,songs) {
 					if ( err ) { return;
 					};
 					var items = "";
 					for ( var index in songs ) {
-						items+= d10.song_template( songs[index] );
+						items+= tpl.song_template( songs[index] );
 					}
 					if ( items.length ) {
 						append($(items));
 					}
 				}
 			};
-			for ( var index in d10.user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
+			for ( var index in user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
 			if ( genres && genres.length )  opts.data["name[]"] = genres;
 			if ( d10.libraryScope.current == "full" ) {
-				d10.rest.song.random(opts);
+				rest.song.random(opts);
 			} else {
-				d10.rest.user.song.random(opts);
+				rest.user.song.random(opts);
 			}
 		};
 		
@@ -333,13 +348,19 @@
 			recordPlaylistDriver();
 		};
 		
+		var availableDrivers = {default: defaultDriver};
+		var registerDriver = this.registerDriver = function(name, obj) {
+			availableDrivers[name] = obj;
+		};
+		
+		
 		var drivers = {};
 		var loadDriver = this.loadDriver = function(name, driverOptions, loadingOptions, cb) {
 			if ( !name || !name.length ) {
 				debug("playlist:loadDriver name not clean:",name);
 				return false;
 			}
-			if ( !name in d10.playlistDrivers ) {
+			if ( !name in availableDrivers ) {
 				debug("playlist:loadDriver driver not found:",name);
 				return false;
 			}
@@ -353,7 +374,7 @@
 			}
 			options = options || {};
 			debug("playlist:loadDriver creating: ",name);
-			drivers[name] = new d10.playlistDrivers[name](driverOptions);
+			drivers[name] = new availableDrivers[name](this, eventProxy, driverOptions);
 			
 			drivers[name].bind("currentSongChanged",function(e,data) {
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
@@ -408,7 +429,7 @@
 		var handlePlusClick = function() {
 			
 			var node = $(this).closest(".song");
-			var elem = $(d10.mustacheView("hoverbox.playlist.container", {id: node.attr("name")}));
+			var elem = $(tpl.mustacheView("hoverbox.playlist.container", {id: node.attr("name")}));
 			if ( node.prevAll().not(".current").length == 0 ) {
 				elem.find(".removeAllPrev").remove();
 			} else {
@@ -427,17 +448,13 @@
 			}
 			
 			$("div.fromArtist",elem).click(function() {
-// 				var h = "#/library/artists/"+encodeURIComponent( node.find("span.artist").text() );
-				d10.router.navigateTo(["library","artists",node.find("span.artist").text()]);
-// 				window.location.hash = h;
+				router.navigateTo(["library","artists",node.find("span.artist").text()]);
 				elem.ovlay().close();
 			});
 			
 			if ( node.find("span.album").text().length ) {
-// 				elem.append('<div class="clickable fromAlbum">Morceaux de cet album...</div>');
 				$("div.fromAlbum",elem).click(function() {
-					d10.router.navigateTo(["library","albums",node.find("span.album").text()]);
-// 					window.location.hash = "#/library/albums/"+encodeURIComponent( node.find("span.album").text() );
+					router.navigateTo(["library","albums",node.find("span.album").text()]);
 					elem.ovlay().close();
 				});
 			} else {
@@ -446,19 +463,12 @@
 			
 			if ( !node.attr("data-owner") ) {
 				elem.find(".edit").remove();
-// 				elem.find("hr").last().remove();
 			} else {
 				elem.find(".edit").click(function() {
-					d10.router.navigateTo(["my","review",node.attr("name")]);
-// 					window.location.hash = "#/my/review/"+encodeURIComponent( node.attr("name") );
+					router.navigateTo(["my","review",node.attr("name")]);
 					elem.ovlay().close();
 				});
 			}
-			
-// 			elem.find(".download").click(function() {
-// 				elem.append("<a href=\""+site_url+"/audio/download/"+node.attr("name")+"\" class=\"clickable\">Télécharger</a>");
-// 			});
-			
 			
 			elem.css({visibility:'hidden',top:0,left:0}).appendTo($("body"));
 			var height = elem.outerHeight(false);
@@ -484,11 +494,7 @@
 			}
 		};
 		
-// 		setDriver(d);
-		
-		
-// 		debug("ui",ui,"list",list);
-		d10.dnd.dropTarget (ui,list,{
+		dnd.dropTarget (ui,list,{
 			"moveDrop": function (source,target, infos) {
 				if ( infos.wantedNode ) {  
 					infos.wantedNode.after(source);
@@ -520,11 +526,10 @@
 				dt.setData('text/plain','playlist');
 				dt.setDragImage( $('#songitem img')[0], 0, 0);
 				$(this).css('opacity',0.5);
-				d10.dnd.setDragItem(list.find('.song.selected'));
+				dnd.setDragItem(list.find('.song.selected'));
 			}
 		)
-		// 			d10.dnd.onDragDefault)
-		.delegate("div.song","dragend",d10.dnd.removeDragItem)
+		.delegate("div.song","dragend",dnd.removeDragItem)
 		.delegate("div.song",'click', function (e) {
 			$(this).toggleClass("selected");
 		})
@@ -571,9 +576,9 @@
 		
 		
 		this.bootstrap = function() {
-			var infos = d10.user.get_preferences().playlist || {};
-			if ( infos.type && d10.playlistDrivers[infos.type] ) {
-				loadDriver(infos.type,{},infos,function(err,songs) {
+			var infos = user.get_preferences().playlist || {};
+			if ( infos.type && infos.type in availableDrivers ) {
+				this.loadDriver(infos.type,{},infos,function(err,songs) {
 					setDriver(this);
 					$("#playlistLoader").slideUp("fast");
 					list.show();
@@ -584,7 +589,7 @@
 					}
 				});
 			} else {
-				loadDriver("default",{},infos,function(err,songs) {
+				this.loadDriver("default",{},infos,function(err,songs) {
 					$("#playlistLoader").slideUp("fast");
 					list.show();
 					if ( songs && songs.length ) {
@@ -598,8 +603,10 @@
 			}
 			
 		};
-		
-		
 	};
 	
-})(jQuery);
+
+	var pl = new playlist( $("aside") , {} );
+
+	return pl;
+});

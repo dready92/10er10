@@ -1,4 +1,4 @@
-(function($){ 
+define(function() {
 	var jobWorker = function(url,onresponse) {
 		var worker = new Worker(url);
 		var callbacks = {};
@@ -46,69 +46,69 @@
 	};
 
 	var jobs = function(url, count) {
-	var workers = [];
-	var dedicatedData = [];
-	var i = 0;
-	for ( i=1;i<=count;i++) {
-		workers.push(
-		new jobWorker (url,function() {})
-		);
-		dedicatedData.push({"queue": []});
-	}
-	
-	this.push = function (job, data, options) {
-		debug("push new job",job,data,options);
-		if ( dedicated[job] ) {
-		return sendDedicated(job,data,options);
+		var workers = [];
+		var dedicatedData = [];
+		var i = 0;
+		for ( i=1;i<=count;i++) {
+			workers.push(
+			new jobWorker (url,function() {})
+			);
+			dedicatedData.push({"queue": []});
 		}
-		for ( i=0; i<count;i++ ) {
-		if ( workers[i].running == false ) {
-			workers[i].sendJob(job,data,options);
-			return true;
-		}
-		}
-	//     debug("JOBS: no worker available, job dropped ! ",job,data,options);
-		return false;
-	};
 	
-	var dedicated = {
-		"player": count-1,
-		"enablePing": count-1
-	};
-	var dedicatedInterval = null;
-	
-	var sendDedicated = function(job,data,options) {
-		var index = dedicated[job];
-		dedicatedData[index].queue.push({"job":job,"data":data,"options":options});
-		dedicatedIteration();
-	};
-
-	var queueTimeout = null;
-	var dedicatedIteration = function () {
-		if ( queueTimeout ) return ;
+		this.push = function (job, data, options) {
+			debug("push new job",job,data,options);
+			if ( dedicated[job] ) {
+			return sendDedicated(job,data,options);
+			}
+			for ( i=0; i<count;i++ ) {
+			if ( workers[i].running == false ) {
+				workers[i].sendJob(job,data,options);
+				return true;
+			}
+			}
+		//     debug("JOBS: no worker available, job dropped ! ",job,data,options);
+			return false;
+		};
 		
-		var iterate = function () {
-			debug("dedicated worker iteration starts");
-			var skipped = 0;
-			for ( var index in dedicatedData ) {
-				if ( !workers[index].running ) {
-					if ( dedicatedData[index].queue.length ) {
-						var a = dedicatedData[index].queue.pop();
-						workers[index].sendJob(a.job,a.data,a.options);
+		var dedicated = {
+			"player": count-1,
+			"enablePing": count-1
+		};
+		var dedicatedInterval = null;
+		
+		var sendDedicated = function(job,data,options) {
+			var index = dedicated[job];
+			dedicatedData[index].queue.push({"job":job,"data":data,"options":options});
+			dedicatedIteration();
+		};
+
+		var queueTimeout = null;
+		var dedicatedIteration = function () {
+			if ( queueTimeout ) return ;
+			
+			var iterate = function () {
+				debug("dedicated worker iteration starts");
+				var skipped = 0;
+				for ( var index in dedicatedData ) {
+					if ( !workers[index].running ) {
+						if ( dedicatedData[index].queue.length ) {
+							var a = dedicatedData[index].queue.pop();
+							workers[index].sendJob(a.job,a.data,a.options);
+						}
 					}
 				}
-			}
-			for ( var index in dedicatedData ) {
-				if ( dedicatedData[index].queue.length ) {
-					queueTimeout = setTimeout(iterate,1000);
-					return;
+				for ( var index in dedicatedData ) {
+					if ( dedicatedData[index].queue.length ) {
+						queueTimeout = setTimeout(iterate,1000);
+						return;
+					}
 				}
-			}
-			queueTimeout = null;
+				queueTimeout = null;
+			};
+			queueTimeout = setTimeout(iterate,1000);
 		};
-		queueTimeout = setTimeout(iterate,1000);
 	};
-	};
-
-	window.d10.fn.jobs = jobs;
-})(jQuery);
+	var theJobs = new jobs(base_url+"js/jobworker.js",4,function(job,data) {debug("job response: ",job,data);});
+	return theJobs;
+});

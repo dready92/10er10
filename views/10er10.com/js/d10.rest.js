@@ -1,7 +1,5 @@
- 
+define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 
-
-(function($){
 	var useFileReader = false;
 	if ( typeof FileReader != "undefined" ) {
 		var fr = new FileReader();
@@ -34,13 +32,12 @@
 			if ( options.contentType ) {
 				query.contentType = options.contentType;
 			}
-			d10.bghttp.request(query);
+			bghttp.request(query);
 			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
 	};
 	
-	d10.rest = {};
-	var emitter = d10.events;
-	d10.rest.song = {
+	var rest = {};
+	rest.song = {
 		upload: function (file, filename, filesize, options, callback) {
 			var endpoint = "song.upload";
 			if ( !callback ) {
@@ -270,12 +267,12 @@
 		}
 	};
 	
-	d10.rest.templates = function(options) {
+	rest.templates = function(options) {
 		restQuery("templates","GET",site_url+"/api/htmlElements",options);
 	};
 	
 
-	d10.rest.user = {
+	rest.user = {
 		infos: function(options) {
 			restQuery("user.infos","GET",site_url+"/api/userinfos",options);
 		},
@@ -453,7 +450,7 @@
  		
 	};
 	
-	d10.rest.server = {
+	rest.server = {
 		length: function(options) {
 			restQuery("server.length","GET",site_url+"/api/length",options);
 		},
@@ -463,7 +460,7 @@
 	};
 
 	
-	d10.rest.album = {
+	rest.album = {
 		/*
 		 * @param start starting string of the album name
 		 * 
@@ -497,7 +494,7 @@
 
 	};
 	
-	d10.rest.artist = {
+	rest.artist = {
 		/*
 		 * @param start starting string of the artist name
 		 * 
@@ -550,7 +547,7 @@
 		}
 	};
 	
-	d10.rest.genre = {
+	rest.genre = {
 		/*
 		 * @param start starting string of the genre name
 		 * 
@@ -592,7 +589,7 @@
 		}
 	};	
 	
-	d10.rest.rpl = {
+	rest.rpl = {
 		/*
 		 * 
 		 * @return {_id: "pl....", ...}
@@ -651,7 +648,7 @@
 		}
 	};
 	
-	d10.rest.search = {
+	rest.search = {
 		all: function(query, options) {
 			options.data = { start: query };
 			restQuery("search.all","GET",site_url+"/api/search",options);
@@ -661,5 +658,5 @@
 			restQuery("search.details","POST",site_url+"/api/details",options);
 		}
 	};
-	
-})(jQuery);
+	return rest;
+});

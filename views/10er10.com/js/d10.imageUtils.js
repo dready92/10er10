@@ -1,15 +1,12 @@
-(function($){ 
-	window.d10.getAlbumDefaultImage = function() {
+define({
+	getAlbumDefaultImage: function() {
 		var randomnumber=Math.floor(Math.random()*d10.config.img_default.length);
 		return d10.config.img_default[randomnumber];
-	};
-
-
-	window.d10.isImage = function (file) {
+	},
+	isImage: function (file) {
 		return file.type.match(/^image/);
-	};
-
-	window.d10.getImageRatio = function (width,height) {
+	},
+	getImageRatio: function (width,height) {
 		if ( width == 0 || height == 0 ) { return 0; }
 		var ratio;
 		if ( width > height ) {
@@ -19,5 +16,5 @@
 		}
 		debug("image ratio : ",ratio);
 		return ratio;
-	};
-})(jQuery);
+	}
+});

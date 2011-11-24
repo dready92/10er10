@@ -1,4 +1,4 @@
-(function($){
+define(function() {
 
 var storagebase = {
   getTemplate: function (key) {
@@ -17,7 +17,6 @@ var storagebase = {
   },
 
   getJSON: function (key) {
-    
     var value = this.get(key);
     if ( value === null || value == undefined ) return value;
 		var val = JSON.parse(value);
@@ -101,7 +100,7 @@ function localcache ( ) {
   };
 
 }
-
+/*
 function sessioncache ( ) {
 	$.extend(this,storagebase);
   this.set = function (key,val) {
@@ -135,9 +134,9 @@ function sessioncache ( ) {
   };
   
 }
+*/
+	return new localcache();
+// 	d10.localcache.unsetTemplates();
+// d10.sessioncache = sessioncache = new sessioncache();
 
-d10.localcache = localcache = new localcache();
-d10.localcache.unsetTemplates();
-d10.sessioncache = sessioncache = new sessioncache();
-
-})(jQuery);
+});

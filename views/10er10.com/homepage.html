@@ -192,27 +192,24 @@
 site_url="";
 base_url="{{base_url}}";
 window.d10 = {};
-window.d10 = {
+window.d10.config = {
 	debug: {{dbg}}, 
 	debug_options: {}, 
-	fn:{}, 
-	config: {
-		audio_root: "{{audio_root}}", 
-		img_root: "{{img_root}}",
-		img_size: "{{img_size}}",
-		img_default: "{{img_default}}",
-		rpp: {{rpp}},
-		invites: {
-			ttl: {{invites_ttl}}
-		}
+	audio_root: "{{audio_root}}", 
+	img_root: "{{img_root}}",
+	img_size: "{{img_size}}",
+	img_default: "{{img_default}}",
+	rpp: {{rpp}},
+	invites: {
+		ttl: {{invites_ttl}}
 	}
 };
 window.d10.config.img_default = window.d10.config.img_default.split(",");
 {{#debugAudio}}
-d10.debug_options.audio = true;
+d10.config.debug_options.audio = true;
 {{/debugAudio}}
 {{#debugNet}}
-d10.debug_options.network = true;
+d10.config.debug_options.network = true;
 {{/debugNet}} 
 
 
@@ -228,6 +225,12 @@ debug("site_url : ",site_url);
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <!--<script src="/js/jquery.js"></script>-->
 {{#scripts}}<script src="/js/{{.}}"></script>  {{/scripts}}
+
+<script>
+require(["js/bootstrap"],function() {
+	debug("bootstrapped");
+});
+</script>
 
 </body> 
 </html>

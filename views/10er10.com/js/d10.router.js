@@ -1,4 +1,4 @@
-(function($, d10) {
+define(["js/d10.eventEmitter"],function(eventEmitter) {
 	
 	var 	routes = [],
 			isRegExp = function(o) {
@@ -44,14 +44,14 @@
 				}
 				return normalized.join("/");
 			},
-			emitter = new d10.fn.eventEmitter()
+			emitter = new eventEmitter()
 		;
 	// Cached regular expressions for matching named param parts and splatted
 	// parts of route strings.
 	var namedParam    = /:([\w\d]+)/g;
 	var splatParam    = /\*([\w\d]+)/g;
 	var escapeRegExp  = /[-[\]{}()+?.,\\^$|#\s]/g;
-	var router = d10.router = {
+	var router = {
 		route: function(route, name, callback) {
 			if ( ! isRegExp(route) ) route = routeToRegExp(route);
 			routes.push(
@@ -185,7 +185,7 @@
 	
 	*/
 	
+	return router;
 	
 	
-	
-})(jQuery, d10);
+});

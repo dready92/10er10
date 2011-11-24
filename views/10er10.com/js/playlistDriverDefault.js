@@ -1,4 +1,4 @@
-(function($){
+define(["js/d10.rest","js/d10.eventEmitter","js/track","js/d10.templates"],function(rest, eventEmitterDef, track, tpl) {
 
 /*
 
@@ -10,10 +10,10 @@ events binding :
 
 */
 
-var proxyHandler = function() {
+// var proxyHandler = function() {
 // 	debug("proxyHandler: ",d10.playlist.currentDriverName() , this,arguments);
-	d10.playlist.driver().handleEvent.apply(this,arguments);
-};
+// 	d10.playlist.driver().handleEvent.apply(this,arguments);
+// };
 
 var allEvents = [
 "onloadstart",
@@ -42,8 +42,8 @@ var allEvents = [
 ];
 
 
-d10.playlistDrivers = d10.playlistDrivers || {};
-d10.playlistDrivers.default = function(options) {
+// d10.playlistDrivers = d10.playlistDrivers || {};
+function playlistDriverDefault (playlist, proxyHandler, options) {
 	options = options || {};
 	var settings = $.extend({
 		fade: (function() {
@@ -51,7 +51,7 @@ d10.playlistDrivers.default = function(options) {
 					return function() { return body.data("audioFade") }
 		})(),
 		prefectchMinStartupTime: 9,
-		title: d10.mustacheView("playlist.anonymous.name")
+		title: tpl.mustacheView("playlist.anonymous.name")
 	},options);
 // 	var playlist = d10.playlist;
 	var current = null; // current playing track
@@ -113,21 +113,21 @@ d10.playlistDrivers.default = function(options) {
                                 //                                      $(document).trigger('audioEnded', {'id': this.id }  );
                                 if ( !current || ! current.audio || this !== current.audio ) {  return false; }
 //                                 trigger("songEnded",{});
-                                var nextWidget = d10.playlist.next();
+                                var nextWidget = playlist.next();
                                 if ( nextWidget.length ) {
-                                        play(d10.playlist.getTrackParameters(nextWidget));
+                                        play(playlist.getTrackParameters(nextWidget));
                                 } else {
                                         current = null;
                                         next = null;
                                         currentLoadProgressEnded = false;
                                         trigger("ended",{});
-                                        debug("playlistDriverDefault:onended playlist: ",d10.playlist);
+                                        debug("playlistDriverDefault:onended playlist: ",playlist);
                                 }
                         }
                 };
 	
 	
-	var eventEmitter = d10.fn.eventEmitter();
+	var eventEmitter = new eventEmitterDef();
 	var bind = this.bind = eventEmitter.bind;
 	var trigger = this.trigger = eventEmitter.trigger;
 	var unbind = this.unbind = eventEmitter.unbind;
@@ -143,8 +143,8 @@ d10.playlistDrivers.default = function(options) {
 	};
 
 	var getNextId = function() {
-		var widget = d10.playlist.next();
-		if ( widget.length )	return d10.playlist.songId(widget);
+		var widget = playlist.next();
+		if ( widget.length )	return playlist.songId(widget);
 		return false;
 	};
 	
@@ -154,8 +154,6 @@ d10.playlistDrivers.default = function(options) {
 			options[e] = proxyHandler;
 		});
 		return new track(id, url,duration , options);
-// 		return d10.createDriverTrack(id,url,duration,options);
-		
 	};
 
 	var optimistPrefetch = function() {
@@ -165,14 +163,13 @@ d10.playlistDrivers.default = function(options) {
 			return;
 		}
 		debug("playlistDriverDefault:optimistPrefetch");
-		var nextWidget = d10.playlist.next();
+		var nextWidget = playlist.next();
 		if ( nextWidget.length ) {
-			var infos = d10.playlist.getTrackParameters(nextWidget);
+			var infos = playlist.getTrackParameters(nextWidget);
 			if ( cache[infos[0]] )	return ;
 			cache[infos[0]] = createTrack.apply(this,infos);
 			next = cache[infos[0]];
 			debug("starting prefetch of "+infos[0]+" at "+current.audio.currentTime+" s");
-// 			createAudio(nextone);
 		}
 	}
 	
@@ -249,12 +246,12 @@ d10.playlistDrivers.default = function(options) {
 				current.audio.currentTime=0;
 			} catch (e) {
 				removeFromCache(current.id);
-				var widget = d10.playlist.songWidget(current.id);
+				var widget = playlist.songWidget(current.id);
 				current = null;
 				currentLoadProgressEnded = false;
 				next = null;
 				if( widget.length ) {
-					return play.apply(this, d10.playlist.getTrackParameters(widget));
+					return play.apply(this, playlist.getTrackParameters(widget));
 				}
 				return false;
 			}
@@ -270,8 +267,6 @@ d10.playlistDrivers.default = function(options) {
 				cache[i].audio.pause();
 			}
 		}
-	// 			current_id = audio.track.audio.id;
-	// 			$(document).trigger('player.currentSongChanged',eventData);
 		trigger("currentSongChanged",{current: current});
 		return true;
 	};
@@ -347,7 +342,7 @@ d10.playlistDrivers.default = function(options) {
 				current = track;
 			}
 		}
-		d10.playlist.title(settings.title);
+		playlist.title(settings.title);
 	};
 
 	var disable = this.disable = function() {
@@ -356,7 +351,7 @@ d10.playlistDrivers.default = function(options) {
 
 	this.listModified = function(e) {
 		
-		if ( d10.playlist.allIds().length == 0 ) {
+		if ( playlist.allIds().length == 0 ) {
 			cacheEmpty(true);
 			return ;
 		}
@@ -367,7 +362,7 @@ d10.playlistDrivers.default = function(options) {
 				next = null;
 				return ;
 			}
-			var uid = d10.playlist.songId(nextWidget);
+			var uid = playlist.songId(nextWidget);
 			if ( next == null || uid != next.id ) {
 				next = cache[uid] ? cache[uid] : null;
 			}
@@ -375,23 +370,23 @@ d10.playlistDrivers.default = function(options) {
 		
 		debug("playlistDriverDefault list modified event: ",e);
 		// check widget of current track
-		var widget = d10.playlist.current();
+		var widget = playlist.current();
 		if ( !widget.length ) {
 			pause();
 			current = null;
 			next = null;
 			return ;
 		}
-		var uid = d10.playlist.songId(widget);
+		var uid = playlist.songId(widget);
 		if ( current ) {
 			if ( uid != current.id ) {
 				pause();
 				current = null;
-				play.apply(this,d10.playlist.getTrackParameters(widget));
+				play.apply(this, playlist.getTrackParameters(widget));
 			}
 		} else {
 			pause();
-			play.apply(this,d10.playlist.getTrackParameters(widget));
+			play.apply(this, playlist.getTrackParameters(widget));
 		}
 		checkNext();
 	};
@@ -414,13 +409,13 @@ d10.playlistDrivers.default = function(options) {
 	};
 	
 	var record = this.record = function() {
-		d10.rest.user.playerList.default.store(d10.playlist.allIds(),{});
+		rest.user.playerList.default.store(playlist.allIds(),{});
 	};
 	
 	this.load = function(options,cb) {
 // 		var infos = d10.user.get_preferences().playlist;
 		debug("playlistDriverDefault load: ",options);
-		d10.playlist.title(settings.title);
+		playlist.title(settings.title);
 		if ( !options ) {
 			return cb.call(this);
 		}
@@ -429,7 +424,7 @@ d10.playlistDrivers.default = function(options) {
 		}
 // 		debug("posting...");
 		var self = this;
-		d10.rest.song.get(options.list, {
+		rest.song.get(options.list, {
 			load: function(err,resp) {
 				if ( err ) {
 					debug("load error: ",err,resp);
@@ -438,7 +433,7 @@ d10.playlistDrivers.default = function(options) {
 					var html = "";
 					$.each(resp,function(i,song) {
 						if ( song ) {
-							html+=d10.song_template(song);
+							html+=tpl.song_template(song);
 						}
 					});
 					if ( html.length ) {
@@ -453,4 +448,6 @@ d10.playlistDrivers.default = function(options) {
 	
 };
 
-})(jQuery);
+return playlistDriverDefault;
+
+});

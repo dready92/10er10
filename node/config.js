@@ -81,10 +81,10 @@ exports.javascript = {
 		"jquery.image.js",
 		"jquery.d10param.js",
 		"require.js",
-		"mustache.js",
+		"mustache.js"
 // 		"underscore-min.js",
 // 		"backbone.js",
-		"dnd.js",
+/*		"dnd.js",
 		"d10.templates.js",
 		"d10.libraryScope.js",
 		"d10.imageUtils.js",
@@ -127,7 +127,7 @@ exports.javascript = {
 		"user.js",
 		"osd.js",
 		"localcache.js",
-		"bgtask.js"
+		"bgtask.js"*/
 	]
 };
 

@@ -1,7 +1,7 @@
-(function($){
-	window.d10.when = function (elems, then) {
+define(["js/d10.utils"],function(toolbox) {
+	return function (elems, then) {
 		var responses = {}, errors = {},
-			count = window.d10.count,
+			count = toolbox.count,
 			elemsCount = count(elems),
 			checkEOT = function() {
 				var errCount = count(errors), respCount = count(responses);
@@ -39,4 +39,7 @@
 			}
 		};
 	};
-})(jQuery);
+// 	debug("returning ",when);
+// 	return when;
+	
+});
