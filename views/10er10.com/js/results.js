@@ -122,15 +122,16 @@ var results = function (search,mainUi) {
 		})
 		;
 		
-		mainUi.find("div.searchBackground img.next").click(function() {
+		var turnChrono = function() {
 			var rCenter = 	ui.find("div.rCenter"),
 				  rSum1 = ui.find("div.rSum1"),
 				  rSum2 = ui.find("div.rSum2");
 			rCenter.addClass("rSum2").removeClass("rCenter");
 			rSum2.addClass("rSum1").removeClass("rSum2");
 			rSum1.addClass("rCenter").removeClass("rSum1");
-			
-		});
+		};
+		
+		mainUi.find("div.searchBackground img.next").click(turnChrono);
 		mainUi.find("div.searchBackground img.previous").click(function() {
 			var rCenter = 	ui.find("div.rCenter"),
 				rSum1 = ui.find("div.rSum1"),
@@ -142,6 +143,12 @@ var results = function (search,mainUi) {
 		});
 		search.bind("keyup",function() {
 			router.navigateTo(["results",$(this).val()]);
+		})
+		.bind("keydown",function(e) {
+			if ( e.keyCode == 9 ) {	// Tab
+				e.preventDefault();
+				turnChrono();
+			}
 		});
 
 	};
