@@ -1,13 +1,14 @@
-(function($,d10) {
+define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router", 
+	   "js/d10.events", "js/d10.libraryScope", "js/d10.rest", "js/d10.utils", "js/paginer"],
+	   function(dataParsers, tpl, router, events, libraryScope, rest, toolbox, restHelpers) {
 	"use strict";
+	debug(rest);
 	var bindAllAlbums = function(topicdiv, categorydiv,letter) {
 // 			categorydiv.addClass("relative");
 		categorydiv.delegate(".albumMini img","mouseenter",function() {
 			var container = $(this).closest(".albumMini");
 			$(this).data("popupTimeout", setTimeout(function() {
-				var tpl = container.data("albumDetails");
-// 					debug(tpl);
-				var widget = $( d10.mustacheView("library.content.album.all.popover",tpl) )
+				var widget = $( tpl.mustacheView("library.content.album.all.popover", container.data("albumDetails") ) )
 				.css({
 					position: "absolute",
 					top: 0,
@@ -46,13 +47,13 @@
 			if ( letter.hasClass("active") ) {
 				return;
 			}
-			d10.router.navigateTo( [ "library","albums","<all>",letter.attr("name") ] );
+			router.navigateTo( [ "library","albums","<all>",letter.attr("name") ] );
 		})
 		.delegate(".tocAll","click", function() {
-			d10.router.navigateTo( [ "library","albums","<all>" ] );
+			router.navigateTo( [ "library","albums","<all>" ] );
 		});
 		
-		d10.events.bind("whenLibraryScopeChange", function() {
+		events.bind("whenLibraryScopeChange", function() {
 			for ( var i in allAlbumsContents ) {
 				allAlbumsContents[i].remove();
 			}
@@ -63,20 +64,19 @@
 		});
 	};
 
-	var singleAlbumParser;
 	var allAlbumsContents = {};
 	
 	var allAlbums = function(topicdiv,categorydiv, letter) {
-		
+		debug("allAlbums: ",topicdiv, categorydiv, letter);
 		if ( !categorydiv.data("toc-loaded") ) {
-			var restBase = d10.libraryScope.current == "full" ? d10.rest.album : d10.rest.user.album;
+			var restBase = libraryScope.current == "full" ? rest.album : rest.user.album;
 			restBase.firstLetter({
 				load: function(err,resp) {
 					if ( err ) {
 						return ;
 					}
 					categorydiv.find(".toc").html (
-						d10.mustacheView("library.content.album.firstLetter",{letter:resp})
+						tpl.mustacheView("library.content.album.firstLetter",{letter:resp})
 					);
 					categorydiv.data("toc-loaded",true);
 					categorydiv.find(".pleaseWait").hide();
@@ -89,6 +89,7 @@
 	};
 
 	var getAllAlbumsContents = function(topicdiv, categorydiv, letter) {
+		debug("getAllAlbumsContents: ",topicdiv, categorydiv, letter);
 		var tocAll = categorydiv.find(".tocAll");
 		if ( letter ) {
 			var letterSpan = categorydiv.find(".toc .letter[name="+letter+"]");
@@ -134,21 +135,21 @@
 	};
 	
 	var loadContentDiv = function( contentDiv, letter) {
-		var restBase = d10.libraryScope.current == "full" ? d10.rest.song.list : d10.rest.user.song.list;
-// 			var restBase = d10.rest.song.list;
+		var restBase = libraryScope.current == "full" ? rest.song.list : rest.user.song.list;
 		var endPoint = restBase.albums;
 		var options = {};
 		if ( letter ) { 
 			options.startkey = JSON.stringify([letter]);
-			options.endkey = JSON.stringify([d10.nextLetter(letter)]);
+			options.endkey = JSON.stringify([toolbox.nextLetter(letter)]);
 		}
-		var cursor = new d10.fn.couchMapMergedCursor(endPoint,options,"album");
+		debug("options",options);
+		var cursor = new restHelpers.couchMapMergedCursor(endPoint,options,"album");
 		var rows = null;
 		var fetchAll = function(err,resp) {
 			if ( err ) { return ; }
 			$.each(resp,function(k,songs) {
-				var tpl = singleAlbumParser(songs);
-				var html = $( d10.mustacheView("library.content.album.all.mini",tpl) ).data("albumDetails",tpl);
+				var albumData = dataParsers.singleAlbumParser(songs);
+				var html = $( tpl.mustacheView("library.content.album.all.mini",albumData) ).data("albumDetails",albumData);
 				contentDiv.append(html);
 			});
 			
@@ -160,11 +161,10 @@
 	
 	
 	
-	d10.fn.libraryAlbums = function(sap) {
-		singleAlbumParser = sap;
-		return {
-			onContainerCreation: bindAllAlbums,
-			onRoute: allAlbums
-		};
+	
+	return {
+		onContainerCreation: bindAllAlbums,
+		onRoute: allAlbums
 	};
-})(jQuery,d10);
+
+});

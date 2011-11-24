@@ -1,10 +1,11 @@
-(function($){
+define(["js/playlistDriverDefault","js/playlist.new", "js/d10.rest", "js/d10.templates"], 
+	   function(playlistDriverDefault, playlist, rest, tpl) {
 
 
 
-d10.playlistDrivers = d10.playlistDrivers || {};
-d10.playlistDrivers.rpl = function(options) {
-	d10.playlistDrivers.default.call(this,options);
+
+function playlistDriverRpl (options) {
+	playlistDriverDefault.call(this,options);
 	var doc = null;
 	var getDoc = function() {
 		return doc;
@@ -21,7 +22,7 @@ d10.playlistDrivers.rpl = function(options) {
 	};
 	
 	this.listModified = function(e) {
-		d10.playlist.loadDriver ("default",{}, {}, function() {d10.playlist.setDriver(this);} );
+		playlist.loadDriver ("default",{}, {}, function() {playlist.setDriver(this);} );
 		debug("playlistDriverRpl:listModified setting default driver");
 		
 	};
@@ -30,12 +31,12 @@ d10.playlistDrivers.rpl = function(options) {
 		if ( !getDoc() || !getDoc()._id ) {
 			return ;
 		}
-		d10.rest.user.playerList.rpl.store(getDoc()._id,function() {});
+		rest.user.playerList.rpl.store(getDoc()._id,function() {});
 	};
 	
 	this.enable = function() {
 		if ( doc && doc.name ) {
-			d10.playlist.title(doc.name);
+			playlist.title(doc.name);
 		} else {
 			debug("GRAVE: doc ou doc.name n'existe pas",doc);
 		}
@@ -49,13 +50,13 @@ d10.playlistDrivers.rpl = function(options) {
 	* options.rpldoc : the rpl document (assume playlist songs are already in place)
 	*/
 	this.load = function(options,cb) {
-		debug("playlistModuleRpl:load options:",options);
+		debug("playlistDriverRpl:load options:",options);
 		if ( options.rpldoc ) {
 			doc = options.rpldoc;
 			cb.call(this);
 		} else if (options.rpl ) {
 			var self = this;
-			d10.rest.rpl.get(options.rpl,{
+			rest.rpl.get(options.rpl,{
 				load: function(err,resp) {
 					if ( err ) {
 						return cb.call(self,resp);
@@ -64,7 +65,7 @@ d10.playlistDrivers.rpl = function(options) {
 					var html = "";
 					$.each(resp.songs,function(k,v) {
 						if (  v ) {
-							html+=d10.song_template(v);
+							html+=tpl.song_template(v);
 						}
 					});
 					if ( html.length )	html = $(html);
@@ -104,6 +105,6 @@ d10.playlistDrivers.rpl = function(options) {
 	};
 	
 };
-
-
-})(jQuery);
+playlist.registerDriver("rpl",playlistDriverRpl);
+return playlistDriverRpl;
+});

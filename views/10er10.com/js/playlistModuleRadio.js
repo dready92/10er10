@@ -1,4 +1,5 @@
-$(document).one("bootstrap:playlist",function() {
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/d10.templates", "js/user", "js/d10.libraryScope", "js/d10.rest"], 
+	   function(foo, playlistModule, playlist, tpl, user, libraryScope, rest) {
 
 var module = null;
 var createModule= function (ui) {
@@ -15,28 +16,28 @@ var createModule= function (ui) {
 		
 		var opts = {
 			data: {
-				"not[]": d10.playlist.allIds(),
+				"not[]": playlist.allIds(),
 				"really_not[]": [],
 				"type": "genre",
 				"count": count
 			},
 			load: function (err, response) {
-				if ( !err && response.length && ui.find(".autofill").hasClass("enabled") && d10.playlist.driver().writable() ) {
+				if ( !err && response.length && ui.find(".autofill").hasClass("enabled") && playlist.driver().writable() ) {
 					var items = '';
 					for ( var index in response ) {
-						items+= d10.song_template( response[index] );
+						items+= tpl.song_template( response[index] );
 					}
-					d10.playlist.append($(items));
+					playlist.append($(items));
 				}
 			}
 		};
-		for ( var index in d10.user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
+		for ( var index in user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
 		if ( genres && genres.length )  opts.data["name[]"] = genres;
 				
-		if ( d10.libraryScope.current == "full" ) {
-			d10.rest.song.random(opts);
+		if ( libraryScope.current == "full" ) {
+			rest.song.random(opts);
 		} else {
-			d10.rest.user.song.random(opts);
+			rest.user.song.random(opts);
 		}
 	};
 
@@ -46,14 +47,14 @@ var createModule= function (ui) {
 		appendRandomSongs(count, genres);
 	};
 
-	var module = new d10.fn.playlistModule("radio", {
+	var module = new playlistModule("radio", {
 		"playlist:currentSongChanged": function(e) {
 			if ( delayTimeout ) {
 				clearTimeout(delayTimeout);
 			}
 			delayTimeout = setTimeout(function() {
 				delayTimeout = null;
-				if ( ui.find(".autofill").hasClass("enabled") && d10.playlist.current().nextAll().length < 3 ) {
+				if ( ui.find(".autofill").hasClass("enabled") && playlist.current().nextAll().length < 3 ) {
 					debug("radio2");
 					appendSongs(settings.count);
 				}
@@ -112,8 +113,8 @@ settings = $.extend(
 ,{});
 
 var mod = createModule($("#side"));
-d10.playlist.modules[mod.name] = mod;
-	
+playlist.modules[mod.name] = mod;
+return mod;	
 	
 	
 });

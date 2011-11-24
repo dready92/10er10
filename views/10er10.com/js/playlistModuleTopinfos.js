@@ -1,4 +1,4 @@
-$(document).one("bootstrap:playlist",function() {
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
 	var widget= $("header div.playing");
 
 	var updatePlayingHeader = function (song) {
@@ -27,15 +27,15 @@ $(document).one("bootstrap:playlist",function() {
 		}
 	  };
 
-	var module = new d10.fn.playlistModule("topinfos",{
+	var module = new playlistModule("topinfos",{
 			"playlist:currentSongChanged": function() {
-				updatePlayingHeader(d10.playlist.current());
+				updatePlayingHeader(playlist.current());
 			},
 			"playlist:ended": function() {
 				updatePlayingHeader();
 			}
 		},{});
 
-	d10.playlist.modules[module.name] = module;
-
+	playlist.modules[module.name] = module;
+	return module;
 });

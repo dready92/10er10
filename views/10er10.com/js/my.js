@@ -1,5 +1,6 @@
-define(["js/user","js/d10.rest","js/d10.templates", "js/dnd", "js/playlist.new", "js/paginer", "js/d10.router", "js/d10.utils", "js/osd", "js/d10.imageUtils"],
-	   function(user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils) {
+define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/dnd", "js/playlist.new", "js/paginer", 
+	   "js/d10.router", "js/d10.utils", "js/osd", "js/d10.imageUtils"],
+	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils) {
 
 function myCtrl (ui) {
 // 	var plmanager = new d10.fn.plm(ui,ui.find('div[name=plm]'));
@@ -614,7 +615,7 @@ function myCtrl (ui) {
 };
 
 var 
-	my = = new myCtrl($("#my")),
+	my = new myCtrl($("#my")),
 	myRouteHandler = function(topic,id) { 
 		if ( !topic ) {
 			if ( this._containers["my"].currentActive ) {

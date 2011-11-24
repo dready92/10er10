@@ -1,10 +1,10 @@
-(function($){ 
-	window.d10.libraryScope = {
+define(["js/d10.events"], function(events) {
+	return {
 		current: "full",
 		toggle: function() {
 			var event = this.current == "full" ? "user" : "full";
 			this.current = event;
-			d10.events.trigger("whenLibraryScopeChange", {scope: event});
+			events.trigger("whenLibraryScopeChange", {scope: event});
 		}
 	};
-})(jQuery);
+});

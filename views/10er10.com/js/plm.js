@@ -1,4 +1,5 @@
-define(["js/d10.templates", "js/d10.rest", "js/dnd","js/playlist.new", "js/user", "js/d10.router"],function(tpl, rest, dnd, playlist, user, router) {
+define(["js/domReady","js/d10.templates", "js/d10.rest", "js/dnd","js/playlist.new", "js/user", "js/d10.router","js/my"],
+	   function(foo, tpl, rest, dnd, playlist, user, router) {
 
 function playlistManager (mydiv,mypldiv) {
 	var that = this;
@@ -196,7 +197,7 @@ function playlistManager (mydiv,mypldiv) {
 			.slideDown('fast').find('input[type=text]').val('').focus();
 			return false;
 		});
-		
+		whenPlmInit();
 	};
 
 	this.plm_playlist_display = function (id) {
@@ -474,26 +475,27 @@ function playlistManager (mydiv,mypldiv) {
 };
 
 	var ui = $("#my"), plm = new playlistManager(ui,ui.find('div[name=plm]'));
-
-	var plmRouteHandler = function(id) {
-		if ( id && this._containers["plm"].currentActive != id ) { plm.display(id); }
-		this._activate("main","my",this.switchMainContainer)._activate("my","plm");
-		if ( id && this._containers["plm"].currentActive != id ) { this._activate("plm",id); }
+	var whenPlmInit = function() {
+		var plmRouteHandler = function(id) {
+			debug("plmRouteHandler");
+			if ( id && this._containers["plm"].currentActive != id ) { plm.display(id); }
+			this._activate("main","my",this.switchMainContainer)._activate("my","plm");
+			if ( id && this._containers["plm"].currentActive != id ) { this._activate("plm",id); }
+		};
+		router._containers["plm"] = 
+		{
+			tab: $("#my .plm .plm-list-container .plm-list"),
+			container: $("#my .plm-content-container"),
+			select: function(name) {return this.container.children("div[name="+name+"]"); },
+			lastActive: null,
+			currentActive: null
+		};
+		router.route("my/plm", "plm", plmRouteHandler);
+		router.route("my/plm/:id", "plm", plmRouteHandler);
+		$("#my div[name=plm]").delegate(".plm-list-container .plm-list [action]","click",function() {
+			var elem = $(this), action = elem.attr("action");
+			if ( ! elem.hasClass("active") ) { router.navigateTo(["my","plm",action]); }
+		});
 	};
-	router._containers["plm"] = 
-	{
-		tab: $("#my .plm .plm-list-container .plm-list"),
-		container: $("#my .plm-content-container"),
-		select: function(name) {return this.container.children("div[name="+name+"]"); },
-		lastActive: null,
-		currentActive: null
-	};
-	router.route("my/plm", "plm", plmRouteHandler);
-	router.route("my/plm/:id", "plm", plmRouteHandler);
-	router._containers.plm.tab.delegate("[action]","click",function() {
-		var elem = $(this), action = elem.attr("action");
-		if ( ! elem.hasClass("active") ) { router.navigateTo(["my","plm",action]); }
-	});
-
 	return plm;
 });

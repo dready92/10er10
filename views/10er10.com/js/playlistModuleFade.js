@@ -1,7 +1,7 @@
-$(document).one("bootstrap:playlist",function() {
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
 
 
-	var module = new d10.fn.playlistModule("fade",{},{});
+	var module = new playlistModule("fade",{},{});
 	
 	var ui = $("#controls div.audioFade");
 	ui.find("input").val( $("body").data("audioFade") );
@@ -19,6 +19,8 @@ $(document).one("bootstrap:playlist",function() {
 		ui.find("span.fadeValue").html( fade );
 	});
 	
+	playlist.modules[module.name] = module;
+	return module;
 });
 
 

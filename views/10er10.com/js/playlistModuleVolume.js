@@ -1,7 +1,7 @@
-$(document).one("bootstrap:playlist",function() {
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
 
 
-	var module = new d10.fn.playlistModule("volume",{
+	var module = new playlistModule("volume",{
 			"playlist:volumeChanged": function() {
 				debug("volume playlist event");
 				bar.adjustBar($('body').data('volume'));
@@ -39,7 +39,7 @@ $(document).one("bootstrap:playlist",function() {
 				volume = 1;
 			else if ( volume < 0 )
 				volume = 0;
-			d10.playlist.volume(volume);
+			playlist.volume(volume);
 		});
 	
 	
@@ -49,8 +49,9 @@ $(document).one("bootstrap:playlist",function() {
 	var ui = $("#controls div[name=volume]");
 	var bar = new volumebar(ui,1);
 	bar.adjustBar($('body').data('volume') ? $('body').data('volume') : 0.5);
-	d10.playlist.modules[module.name] = module;
+	playlist.modules[module.name] = module;
 
+	return module;
 	
 });
 

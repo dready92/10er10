@@ -1,10 +1,7 @@
-(function(d10,$) {
-
-	if ( ! "fn" in d10 ) {
-		d10.fn = {};
-	}	
+define(["js/domReady", "js/d10.rest", "js/d10.router", "js/d10.templates", "js/dnd", "js/playlist.new", "js/paginer", "js/d10.events", "js/d10.libraryScope"],
+	   function(foo, rest, router, tpl, dnd, playlist, restHelpers, events, libraryScope) {
 	
-d10.fn.results = function (search,mainUi) {
+var results = function (search,mainUi) {
 	var ui = null;
 	var lastRoute = null;
 	var animated = false,
@@ -27,7 +24,7 @@ d10.fn.results = function (search,mainUi) {
 			startAnim();
 		}
 	},
-	restEndPoint = d10.rest.search.all,
+	restEndPoint = rest.search.all,
 	pagers = [],
 	uiReset = function() {
 		$("div.rBox.songs div.list",ui).empty();
@@ -91,7 +88,7 @@ d10.fn.results = function (search,mainUi) {
 			if ( item.data("songs") ) {
 				var html = "";
 				$.each(item.data("songs"),function(key,val) {
-					html+=d10.song_template(val);
+					html+=tpl.song_template(val);
 				});
 				item.find("div.details div.list").html(html);
 			}
@@ -101,16 +98,16 @@ d10.fn.results = function (search,mainUi) {
 			e.stopPropagation();
 			var item = $(this).closest(".rItem"), box = item.closest(".rBox");
 			if ( box.hasClass("artists") ) {
-				d10.router.navigateTo(["library","artists",unescape(item.attr("name"))]);
+				router.navigateTo(["library","artists",unescape(item.attr("name"))]);
 			} else {
-				d10.router.navigateTo(["library","albums",unescape(item.attr("name"))]);
+				router.navigateTo(["library","albums",unescape(item.attr("name"))]);
 			}
 		});
 		
-		ui.delegate("div.song","dragstart", d10.dnd.onDragDefault)
-		.delegate("div.song","dragend",d10.dnd.removeDragItem)
+		ui.delegate("div.song","dragstart", dnd.onDragDefault)
+		.delegate("div.song","dragend",dnd.removeDragItem)
 		.delegate("div.song","dblclick",function(e) {
-			d10.playlist.append($(this).clone());
+			playlist.append($(this).clone());
 		})
 		.delegate("div.song","click",function(e) {
 			var target = $(e.target);
@@ -118,10 +115,10 @@ d10.fn.results = function (search,mainUi) {
 				$(this).toggleClass("selected");
 		})
 		.delegate("button[name=load]","click",function() {
-			d10.playlist.append($(this).closest(".rItem").find("div.song").clone());
+			playlist.append($(this).closest(".rItem").find("div.song").clone());
 		})
 		.delegate("button[name=loadNow]","click",function() {
-			return d10.playlist.appendToCurrent($(this).closest(".rItem").find("div.song").clone());
+			return playlist.appendToCurrent($(this).closest(".rItem").find("div.song").clone());
 		})
 		;
 		
@@ -144,7 +141,7 @@ d10.fn.results = function (search,mainUi) {
 																  
 		});
 		search.bind("keyup",function() {
-			d10.router.navigateTo(["results",$(this).val()]);
+			router.navigateTo(["results",$(this).val()]);
 		});
 
 	};
@@ -236,12 +233,12 @@ d10.fn.results = function (search,mainUi) {
 		var html = '';
 		uiReset();
 		
-		var titleCursor = new d10.fn.emulatedCursor(data.title);
+		var titleCursor = new restHelpers.emulatedCursor(data.title);
 		pagers.push(
 			ui.find("div.rBox.songs div.items").d10scroll(titleCursor, ui.find("div.rBox.songs div.list"), {pxMin: 100})
 		);
 		
-		var albumCursor = new d10.fn.emulatedCursor(data.album);
+		var albumCursor = new restHelpers.emulatedCursor(data.album);
 		pagers.push(
 			ui.find("div.rBox.albums div.items").d10scroll(albumCursor, ui.find("div.rBox.albums div.items"), 
 				{
@@ -249,7 +246,7 @@ d10.fn.results = function (search,mainUi) {
 					parseResults: function(rows) {
 						var html = "";
 						for ( var index in rows ) {
-							html+= d10.mustacheView ( "results.album", {"name": rows[index].doc.album, "ename": escape(rows[index].doc.album) } ) ;
+							html+= tpl.mustacheView ( "results.album", {"name": rows[index].doc.album, "ename": escape(rows[index].doc.album) } ) ;
 						}
 						return html;
 					},
@@ -259,7 +256,7 @@ d10.fn.results = function (search,mainUi) {
 							details.albums.push( rows[index].doc.album );
 						}
 						(function(token,widget) {
-							d10.rest.search.details(details, {
+							rest.search.details(details, {
 								load: function(err,resp) {
 // 										displayDetailsResponse.call(this,err,resp,token);
 									if ( token != lastRoute ) {
@@ -280,7 +277,7 @@ d10.fn.results = function (search,mainUi) {
 				})
 		);
 		
-		var artistCursor = new d10.fn.emulatedCursor(data.artist);
+		var artistCursor = new restHelpers.emulatedCursor(data.artist);
 		pagers.push(
 			ui.find("div.rBox.artists div.items").d10scroll(artistCursor, ui.find("div.rBox.artists div.items"), 
 				{
@@ -288,7 +285,7 @@ d10.fn.results = function (search,mainUi) {
 					parseResults: function(rows) {
 						var html = "";
 						for ( var index in rows ) {
-							html+= d10.mustacheView ( "results.artist", {"name": rows[index].value.json.value, "ename": escape(rows[index].value.json.value) } ) ;
+							html+= tpl.mustacheView ( "results.artist", {"name": rows[index].value.json.value, "ename": escape(rows[index].value.json.value) } ) ;
 						}
 						return html;
 					},
@@ -298,7 +295,7 @@ d10.fn.results = function (search,mainUi) {
 							details.artists.push( rows[index].value.json.value );
 						}
 						(function(token,widget) {
-							d10.rest.search.details(details, {
+							rest.search.details(details, {
 								load: function(err,resp) {
 // 										displayDetailsResponse.call(this,err,resp,token);
 									if ( token != lastRoute ) {
@@ -331,7 +328,7 @@ d10.fn.results = function (search,mainUi) {
 			if ( search.val().length ) {
 				debug("2 #results:"+ "/"+encodeURIComponent(search.val())) ;
 				setTimeout(function() {
-					d10.router.navigateTo(["results",search.val()]);
+					router.navigateTo(["results",search.val()]);
 				},5);
 				return ;
 			}
@@ -371,14 +368,14 @@ d10.fn.results = function (search,mainUi) {
 		
 	};
 	
-	d10.events.bind("whenLibraryScopeChange",function() {
+	events.bind("whenLibraryScopeChange",function() {
 		uiReset();
 		query = lastRoute;
 		lastRoute = "";
-		if ( d10.libraryScope.current == "full" ) {
-			restEndPoint = d10.rest.search.all;
+		if ( libraryScope.current == "full" ) {
+			restEndPoint = rest.search.all;
 		} else {
-			restEndPoint = d10.rest.user.search.all;
+			restEndPoint = rest.user.search.all;
 		}
 		display(query);
 	});
@@ -389,15 +386,16 @@ d10.fn.results = function (search,mainUi) {
 	
 };
 
-})(window.d10, jQuery);
-		
-$(document).one("bootstrap:router",function() {
-	var results = d10.results = d10.fn.results($("#search input"),$("#results"));
+	var controller = new results($("#search input"),$("#results"));
 	var resultsRouteHandler = function(search) {
-		results.display(decodeURIComponent(search ? search : ""));
+		controller.display(decodeURIComponent(search ? search : ""));
 		this._activate("main","results",this.switchMainContainer);
 		$("#search input").get(0).focus();
 	};
-	d10.router.route("results","results",resultsRouteHandler);
-	d10.router.route("results/:search","results",resultsRouteHandler);
+	router.route("results","results",resultsRouteHandler);
+	router.route("results/:search","results",resultsRouteHandler);
+
+
+	return controller;
+	
 });

@@ -1,7 +1,7 @@
-(function($){
+define(["js/d10.eventsBinder"],function(eventsBinder) {
 
-	var playlistModule = d10.fn.playlistModule = function(name, bindings, hooks) {
-		d10.fn.eventsBinder.call(this);
+	return function playlistModule (name, bindings, hooks) {
+		eventsBinder.call(this);
 		this._playlistModule = {bindings: bindings ? bindings : {}, hooks: hooks ? hooks : {} };
 		this.addBindings(bindings);
 		this.name = name;
@@ -30,5 +30,5 @@
 		};
 
 	};
-})(jQuery);
+});
 

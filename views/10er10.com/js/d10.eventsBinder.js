@@ -1,6 +1,5 @@
- 
-(function($){
-	var eventsBinder = d10.fn.eventsBinder = function() {
+define(function() {
+	return function eventsBinder() {
 		this.enabled = false; 
 		this._events = {}; 
 		
@@ -30,7 +29,5 @@
 			}
 			this.enabled = false;
 		};
-		
-		
 	};
-})(jQuery);
+});

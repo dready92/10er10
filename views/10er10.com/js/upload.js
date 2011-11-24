@@ -1,4 +1,4 @@
-define(["js/d10.templates", "js/d10.router", "js/d10.rest"], function(tpl, router, rest) {
+define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest"], function(foo, tpl, router, rest) {
 
 	function uploadCtrl (ui) {
 		var that = this;

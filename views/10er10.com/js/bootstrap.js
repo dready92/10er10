@@ -1,20 +1,28 @@
 
 define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache", "js/d10.templates", "js/d10.router", 
-	   "js/playlist.new", "js/d10.jobWorker","js/bgtask","js/welcome","js/upload"],
-	   function(bghttp, When, rest, user, localcache, tpl, router, playlist, jobs, bgtask, welcomeCtlr, uploadCtlr) {
+	   "js/playlist.new", "js/d10.jobWorker","js/bgtask", "js/plm"],
+	   function(bghttp, When, rest, user, localcache, tpl, router, playlist, jobs, bgtask, plmCtlr) {
 	var visibleBaby = function () {
 		"use strict";
+
+		
 		
 		var pos = $("#search > div").eq(0).position();
 		var height = $("#search > div").eq(0).height();
 		$("#search > div").eq(1).css({"top": pos.top + height, "left": pos.left,"min-width": $("#search input").width() });
 		
-		
-		playlist.bootstrap();
-		$(document).trigger("bootstrap:playlist");
+		require(["js/playlistDriverRpl"], function() {
+			playlist.bootstrap();
+			$(document).trigger("bootstrap:playlist");
+		});
 		$("#side").css("display","");
 		
-		router.startRouting(["welcome"]);
+		
+		require(["js/welcome","js/upload", "js/my", "js/plm", "js/library", "js/results"], 
+				function() {
+					router.startRouting(["welcome"]);
+				}
+			   );
 		
 		$.each(playlist.modules,function(k,mod) { mod.enable(); });
 		
@@ -71,7 +79,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		//
 		// preload la vue "playlists"
 		//
-		//d10.my.plmanager.init_topic_plm (); //TODO
+		plmCtlr.init_topic_plm ();
 		
 		router._containers.main.tab.delegate("[action]","click",function() {
 			var elem = $(this), action = elem.attr("action");

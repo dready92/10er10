@@ -1,16 +1,16 @@
-$(document).one("bootstrap:playlist",function() {
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
 var createInstance = function(container) {
 // 	debug(binder);
-	var module = new d10.fn.playlistModule("time",
+	var module = new playlistModule("time",
 		{
 			"playlist:currentSongChanged": function() {
 				//var s = d10.playlist.current();
-				var secs = d10.playlist.driver().current().duration;
+				var secs = playlist.driver().current().duration;
 				bar.setMax( secs );
 				var total_secs = parseInt(secs);
 				var d = new Date(1970,1,1,0,0,total_secs);
 				total.html(d.getMinutes()+':'+d.getSeconds());
-				bar.setNetloadBar(d10.playlist.driver().currentLoadProgress());
+				bar.setNetloadBar(playlist.driver().currentLoadProgress());
 			},
 			"playlist:ended": function() {
 				bar.setBar(0);
@@ -25,7 +25,7 @@ var createInstance = function(container) {
 				
 			},
 			"playlist:currentLoadProgress": function(e) {
-				bar.setNetloadBar(d10.playlist.driver().currentLoadProgress());
+				bar.setNetloadBar(playlist.driver().currentLoadProgress());
 			}
 		},
 		{}
@@ -61,7 +61,7 @@ var createInstance = function(container) {
 			if ( !module.isEnabled() )	return ;
 			var offset = ui.offset();
 			var pix = e.pageX-offset.left;
-			d10.playlist.seek(Math.floor(pix/punit));
+			playlist.seek(Math.floor(pix/punit));
 			debug(pix+' = '+pix/punit+' secs');
 		});
 
@@ -101,7 +101,7 @@ var createInstance = function(container) {
 
 var mod = createInstance($("#controls"));
 
-d10.playlist.modules[mod.name] = mod;
-
+playlist.modules[mod.name] = mod;
+return mod;
 
 });

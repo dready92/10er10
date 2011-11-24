@@ -1,9 +1,9 @@
-$(document).one("bootstrap:playlist",function() {
+define(["js/playlist.new", "js/d10.playlistModule", "js/user", "js/d10.rest"],function(playlist, playlistModule, user, rest) {
 	
 	
 var createModule = function(ui) {	
 
-	var module = new d10.fn.playlistModule("controls",{
+	var module = new playlistModule("controls",{
 		"playlist:currentSongChanged": function() {
 			play.hide();
 			pause.show();
@@ -18,8 +18,8 @@ var createModule = function(ui) {
 		// test if user likes this song
 		starUp.removeClass('littletrans');
 		starDown.removeClass('littletrans');
-		var id = d10.playlist.current().attr('name');
-		var upref = d10.user.get_preferences();
+		var id = playlist.current().attr('name');
+		var upref = user.get_preferences();
 		if ( upref ) {
 			if ( typeof(upref.likes) == 'undefined' || !upref.likes[id] ) {
 					starUp.addClass('littletrans');
@@ -31,18 +31,18 @@ var createModule = function(ui) {
 	};
 
 	var handleStarring = function ( type, id ) {
-		d10.rest.song.starring.set(id, type, {
+		rest.song.starring.set(id, type, {
 			load: function(err,resp) {
 				if ( !err ) {
 					starringUpdated(resp.id, resp.star);
-					d10.user.refresh_infos();
+					user.refresh_infos();
 				}
 			}
 		});
 	};
 
 	var starringUpdated = function (id,star) {
-			var current_id = d10.playlist.current().attr('name');
+			var current_id = playlist.current().attr('name');
 			if ( current_id != id ) return ;
 			starUp.removeClass('littletrans');
 			starDown.removeClass('littletrans');
@@ -68,13 +68,13 @@ var createModule = function(ui) {
 	play.bind("click",function() {
 // 		debug("click on play",binder.enabled);
 		if ( !module.isEnabled() )	return ;
-		var widget = d10.playlist.current(),
-			track = d10.playlist.driver().current();
+		var widget = playlist.current(),
+			track = playlist.driver().current();
 		if ( widget.length ) {
 			if ( !track ) {
-				d10.playlist.driver().play( d10.playlist.getTrackParameters( widget ));
+				playlist.driver().play( playlist.getTrackParameters( widget ));
 			} else {
-				var ok = d10.playlist.resume();
+				var ok = playlist.resume();
 				if ( ok ) {
 					play.hide();
 					pause.show();
@@ -82,17 +82,17 @@ var createModule = function(ui) {
 				}
 			}
 		} else {
-			debug("playlist all",d10.playlist.all());
-			var first = d10.playlist.all().eq(0);
+// 			debug("playlist all",playlist.all());
+			var first = playlist.all().eq(0);
 			if ( first.length ) {
-				d10.playlist.driver().play( d10.playlist.getTrackParameters(first) );
+				playlist.driver().play( playlist.getTrackParameters(first) );
 			}
 		}
 	});
 
 	pause.bind("click",function() {
 		if ( !module.isEnabled() )	return ;
-		var ok = d10.playlist.pause();
+		var ok = playlist.pause();
 		if ( ok ) {
 			pause.hide();
 			play.show();
@@ -102,36 +102,37 @@ var createModule = function(ui) {
 	next.bind("click",function() {
 		if ( !module.isEnabled() )	return ;
 		debug("calling next");
-		var widget = d10.playlist.current().next();
-		debug("next: playlist: ",d10.playlist.current(),", next = ",widget);
+		var widget = playlist.current().next();
+		debug("next: playlist: ", playlist.current(),", next = ",widget);
 		if ( widget.length ) {
-			d10.playlist.driver().play( d10.playlist.getTrackParameters(widget) );
+			playlist.driver().play( playlist.getTrackParameters(widget) );
 		}
 	});
 
 	prev.bind("click",function() {
 		if ( !module.isEnabled() )	return ;
-		var widget = d10.playlist.current().prev();
+		var widget = playlist.current().prev();
 		if ( widget.length ) {
-				d10.playlist.driver().play( d10.playlist.getTrackParameters(widget) );
+				playlist.driver().play( playlist.getTrackParameters(widget) );
 		}
 	});
 	starUp.click(function() {
 		if ( !module.isEnabled() )	return ;
-		var test = d10.playlist.current().attr('name');
+		var test = playlist.current().attr('name');
 		if ( test ) handleStarring('likes',test);
 	});
 	starDown.click(function() {
 		if ( !module.isEnabled() )	return ;
-		var test = d10.playlist.current().attr('name');
+		var test = playlist.current().attr('name');
 		if ( test ) handleStarring('dislikes',test);
 	});
 	return module;
 };
 
 
-var mod = createModule($("#controls"));
+	var mod = createModule($("#controls"));
 
-d10.playlist.modules[mod.name] = mod;
-
+	playlist.modules[mod.name] = mod;
+	
+	return mod;
 });

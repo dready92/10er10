@@ -1,13 +1,15 @@
-(function(d10,$) {
-
-if (! "fn" in d10 ) { d10.fn = {}; }
+define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.events", "js/d10.libraryScope", 
+	   "js/d10.templates", "js/d10.dataParsers", "js/libraryAlbums", "js/localcache", "js/d10.rest", 
+	   "js/osd", "js/d10.imageUtils", "js/user", "js/d10.when", "js/d10.utils", "js/paginer"],
+	   function(foo, dnd, playlist, router, events, libraryScope, tpl, dataParsers, libraryAlbums, 
+				localcache, rest, osd, imageUtils, user, When, toolbox, restHelpers) {
 	
-	d10.fn.library = function (ui) {
+	function library (ui) {
 
-		ui.delegate("div.song",'dragstart', d10.dnd.onDragDefault)
-			.delegate("div.song",'dragend',d10.dnd.removeDragItem)
+		ui.delegate("div.song",'dragstart', dnd.onDragDefault)
+			.delegate("div.song",'dragend', dnd.removeDragItem)
 			.delegate("div.song","dblclick",function(e) {
-				d10.playlist.append($(this).clone());
+				playlist.append($(this).clone());
 			})
 			.delegate("div.song","click",function(e) {
 				var target = $(e.target);
@@ -16,15 +18,15 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		});
 
 		ui.delegate(".albumWidget .albumName","click",function() {
-			d10.router.navigateTo(["library","albums",$(this).closest(".albumWidget").attr("data-name")]);
+			router.navigateTo(["library","albums",$(this).closest(".albumWidget").attr("data-name")]);
 		}).delegate(".albumWidget > .head > img","click",function() {
-			d10.router.navigateTo(["library","albums",$(this).closest(".albumWidget").attr("data-name")]);
+			router.navigateTo(["library","albums",$(this).closest(".albumWidget").attr("data-name")]);
 		})
 		.delegate(".albumWidget .oneArtist","click",function() {
-			d10.router.navigateTo(["library","artists",$(this).attr("data-name")]);
+			router.navigateTo(["library","artists",$(this).attr("data-name")]);
 		})
 		.delegate(".albumWidget .oneGenre","click",function() {
-			d10.router.navigateTo(["library","genres",$(this).attr("data-name")]);
+			router.navigateTo(["library","genres",$(this).attr("data-name")]);
 		})
 		.delegate(".albumWidget .showSongs","click",function() {
 			var widget = $(this).closest(".albumWidget");
@@ -40,12 +42,12 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		})
 		;
 			
-		d10.events.bind("whenLibraryScopeChange", function() {
+		events.bind("whenLibraryScopeChange", function() {
 			var hitsTab = ui.children("nav").find("li[action=hits]");
 			if ( hitsTab.hasClass("active") ) {
-				d10.router.navigateTo(["library","genres"]);
+				router.navigateTo(["library","genres"]);
 			}
-			if ( d10.libraryScope.current == "full" ) {
+			if ( libraryScope.current == "full" ) {
 				hitsTab.fadeIn();
 			} else {
 				hitsTab.fadeOut();
@@ -55,9 +57,9 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		ui.children("nav").find(".libraryMenuButton").click(function() {
 			var button = $(this), offset = button.offset(), height = button.height();
 // 			debug(button.offset());
-			var label = ( d10.libraryScope.current == "full" ) ? d10.mustacheView("library.scope.toggle.user",{}) : d10.mustacheView("library.scope.toggle.full",{}) ;
+			var label = ( libraryScope.current == "full" ) ? tpl.mustacheView("library.scope.toggle.user",{}) : tpl.mustacheView("library.scope.toggle.full",{}) ;
 			var widget = $(
-				d10.mustacheView("hoverbox.library.scope", {toggle_scope: label})
+				tpl.mustacheView("hoverbox.library.scope", {toggle_scope: label})
 				).hide();
 			$("body").append(widget);
 			offset.left = offset.left - widget.width();
@@ -65,13 +67,13 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			widget.offset(offset);
 			widget.find(".toggleScope").click(function() {
 				widget.ovlay().close();
-				d10.libraryScope.toggle();
+				libraryScope.toggle();
 			});
 			widget.ovlay({"onClose": function() {this.getOverlay().remove()}, "closeOnMouseOut": true });
 		});
 		
 		
-		var libraryAlbums = d10.fn.libraryAlbums(singleAlbumParser);
+// 		var libraryAlbums = d10.fn.libraryAlbums(dataParsers.singleAlbumParser);
 		
 		var init_topic = function (topic,category, param) {
 			debug("library.display start",topic,category, param);
@@ -114,19 +116,19 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			var categorydiv=topicdiv.children('div[name="'+id+'"]');
 			if ( !categorydiv.length ) {
 				if ( topic == "genres" && category == "<all>" ) {
-					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.control.genre")+"</div>");
+					categorydiv=$('<div name="'+id+'" class="topic_category">'+tpl.mustacheView("loading")+tpl.mustacheView("library.control.genre")+"</div>");
 				} else if ( topic == "albums" && category == "<all>" ) {
 // 					debug("setting special tamplate");
-					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\">"+d10.mustacheView("loading")+d10.mustacheView("library.content.album.all")+"</div>");
+					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\">"+tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all")+"</div>");
 					libraryAlbums.onContainerCreation(topicdiv,categorydiv,param);
 				} else if ( topic == "genres" ) {
-					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.genre")+"</div>");
+					categorydiv=$('<div name="'+id+'" class="topic_category">'+tpl.mustacheView("loading")+tpl.mustacheView("library.content.genre")+"</div>");
 					categorydiv.find("article h2 > span:first-child").text(category);
-					categorydiv.find("article h2 > .link").click(function() { d10.router.navigateTo(["library","genres"]); });
+					categorydiv.find("article h2 > .link").click(function() { router.navigateTo(["library","genres"]); });
 					bindControls(categorydiv, topic, category);
 				} else {
 					debug("create category for",id);
-					categorydiv=$('<div name="'+id+'" class="topic_category">'+d10.mustacheView("loading")+d10.mustacheView("library.content.simple")+"</div>");
+					categorydiv=$('<div name="'+id+'" class="topic_category">'+tpl.mustacheView("loading")+tpl.mustacheView("library.content.simple")+"</div>");
 					bindControls(categorydiv, topic, category);
 					if ( topic == "albums" && !category ) {
 						categorydiv.find(".selectVisible").hide();
@@ -189,52 +191,20 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		};
 
 		var resetCache = function() {
-			d10.localcache.unset("genres.index");
-			d10.localcache.unset("artists.allartists");
+			localcache.unset("genres.index");
+			localcache.unset("artists.allartists");
 		};
 		
-		function singleAlbumParser(songs) {
-			var tpl = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: ""}, artists = {}, genres = {}, duration = 0, images = {};
-			songs.forEach(function(row) {
-				tpl.album = row.doc.album;
-				artists[row.doc.artist] = 1;
-				if ( row.doc.genre ) {
-					genres[row.doc.genre] = 1;
-				}
-				duration+=row.doc.duration;
-				if ( row.doc.images ) {
-					row.doc.images.forEach(function(i) {
-						if ( images[i.filename] ) {
-							images[i.filename]++;
-						} else {
-							images[i.filename]=1;
-						}
-					});
-				}
-				tpl.songs+=d10.song_template(row.doc);
-			});
-			for ( var k in artists ) { tpl.artists.push(k); }
-			for ( var k in genres ) { tpl.genres.push(k); }
-			var d = new Date(1970,1,1,0,0,duration);
-			tpl.duration = d.getMinutes()+':'+d.getSeconds();
-			tpl.image_url = d10.keyOfHighestValue(images);
-			if ( tpl.image_url ) { 
-				tpl.image_url = d10.config.img_root+"/"+tpl.image_url ;
-			} else {
-				tpl.image_url = d10.getAlbumDefaultImage();
-				tpl.image_class.push("dropbox");
-			}
-			return tpl;
-		};
+		
 		
 		var albumResultsParser = function(rows) { //[ [ {key:.., doc: song}, ...], ... ]
 			var html=null ;
 			rows.forEach(function(songs) {
-				var tpl = singleAlbumParser(songs);
+				var albumData = dataParsers.singleAlbumParser(songs);
 				if ( !html ) {
-					html=$(d10.mustacheView("library.content.album.widget",tpl));
+					html=$(tpl.mustacheView("library.content.album.widget",albumData));
 				} else {
-					html = html.add($(d10.mustacheView("library.content.album.widget",tpl)));
+					html = html.add($(tpl.mustacheView("library.content.album.widget",albumData)));
 				}
 			});
 			if ( !html ) {
@@ -249,16 +219,16 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 // 			debug("Start of setting album image",image,file);
 			var ids = canvas.closest(".albumWidget").find(".list .song").map(function(k,v) { return $(this).attr("name"); }).get();
 
-			d10.rest.song.uploadImage(ids, file, file.name, file.size, {
+			drest.song.uploadImage(ids, file, file.name, file.size, {
 				load: function(err, headers, body) {
 					if ( err || !body || !body.filename ) {
 // 						debug("image upload failed",err, body);
-						d10.osd.send("error",d10.mustacheView("my.review.error.filetransfert"));
+						osd.send("error",tpl.mustacheView("my.review.error.filetransfert"));
 						canvas.after(image).remove();
 // 						cb(false);
 						return ;
 					}
-					d10.osd.send("info",d10.mustacheView("my.review.success.filetransfert",{filename: file.name}));
+					osd.send("info",tpl.mustacheView("my.review.success.filetransfert",{filename: file.name}));
 					var newImage = $("<img />").attr("src",d10.config.img_root+"/"+body.filename);
 					canvas.after(newImage).remove();
 					
@@ -301,9 +271,9 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 						},
 						onSize: function(w,h) {
 // 							debug("got onSize",w,h);
-							var ratio = d10.getImageRatio(w,h);
+							var ratio = imageUtils.getImageRatio(w,h);
 							if ( ratio > 1.5 ) {
-								d10.osd.send("error",file.name+": "+d10.mustacheView("my.review.error.imagesize"));
+								osd.send("error",file.name+": "+tpl.mustacheView("my.review.error.imagesize"));
 								canvas.remove();
 								return false;
 							}
@@ -317,43 +287,43 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		
 		var displayGenresListener = false;
 		var displayGenres = function(categorydiv) {
-			var cacheNotExpired = d10.localcache.getJSON("genres.index");
+			var cacheNotExpired = localcache.getJSON("genres.index");
 			if ( cacheNotExpired ) { 
 			}
-			var restEndPoint = d10.libraryScope.current == "full" ? d10.rest.genre.resume : d10.rest.user.genre.resume;
+			var restEndPoint = libraryScope.current == "full" ? rest.genre.resume : rest.user.genre.resume;
 			restEndPoint({
 				load: function(err, data) {
 					if ( err ) {
 						return ;
 					}
-					d10.localcache.setJSON("genres.index", {"f":"b"},true);
+					localcache.setJSON("genres.index", {"f":"b"},true);
 					var content = "";
 					$.each(data,function(k,v) { //{"key":["Dub"],"value":{"count":50,"artists":["Velvet Shadows","Tommy McCook & The Aggrovators","Thomsons All Stars"]}}
 						var artists = "";
 						$.each(v.value.artists,function(foo,artist) {
-							artists+=d10.mustacheView("library.listing.genre.line", {"artist": artist})
+							artists+=tpl.mustacheView("library.listing.genre.line", {"artist": artist})
 						});
-						content+=d10.mustacheView("library.listing.genre", {"genre": v.key[0],"count": v.value.count},  {"artists": artists});
+						content+=tpl.mustacheView("library.listing.genre", {"genre": v.key[0],"count": v.value.count},  {"artists": artists});
 					});
 					categorydiv.find("div.genresLanding").html(content);
 					categorydiv.find("div.pleaseWait").hide();
 					categorydiv.find("div.genresLanding")
 					.show()
 					.delegate("span.artistName","click",function() {
-						d10.router.navigateTo(["library","artists",$(this).text()]);
+						router.navigateTo(["library","artists",$(this).text()]);
 					})
 					.delegate("div.genre > span","click",function() {
-						d10.router.navigateTo(["library","genres",$(this).text()]);
+						router.navigateTo(["library","genres",$(this).text()]);
 					})
 					.delegate("span.all","click",function() {
 						var genre = $(this).closest("div.genre").children("span").text();
-						d10.router.navigateTo(["library","genres",genre]);
+						router.navigateTo(["library","genres",genre]);
 					});
 				}
 			});
 			if ( !displayGenresListener ) {
 				displayGenresListener = true;
-				d10.events.bind("whenLibraryScopeChange", function() {
+				events.bind("whenLibraryScopeChange", function() {
 					resetCache();
 					displayGenres(categorydiv);
 				});
@@ -385,7 +355,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		
 		var bindControls = function(categorydiv, topic, category) {
 			categorydiv.find(".pushAll").click(function() {
-				d10.playlist.append(categorydiv.find(".song").clone().removeClass("selected"));
+				playlist.append(categorydiv.find(".song").clone().removeClass("selected"));
 			});
 			categorydiv.find(".selectVisible").click(function() {
 				selectVisible(categorydiv);
@@ -405,14 +375,14 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			categorydiv.find(".refresh").click(function() {
 				refresh();
 			});
-			d10.events.bind("whenLibraryScopeChange",function() {
+			events.bind("whenLibraryScopeChange",function() {
 				refresh();
 			});
 		};
 		
 		var createInfiniteScroll = function(categorydiv, topic, category) {
 			var section = categorydiv.find("section");
-			var restBase = (topic == "hits" || d10.libraryScope.current == "full") ? d10.rest.song.list : d10.rest.user.song.list;
+			var restBase = (topic == "hits" || libraryScope.current == "full") ? rest.song.list : rest.user.song.list;
 			var data = {}, endpoint = restBase[topic];
 			if ( topic == "genres" ) {
 				data.genre = category;
@@ -457,8 +427,8 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 						}
 					);
 					
-					if ( d10.fn.library.extendedInfos[topic] ) {
-						d10.fn.library.extendedInfos[topic](category,categorydiv);
+					if ( extendedInfos[topic] ) {
+						extendedInfos[topic](category,categorydiv);
 					}
 					
 				},
@@ -479,10 +449,10 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			};
 
 			if ( topic == "albums" && !category ) {
-				cursor = new d10.fn.couchMapMergedCursor(restBase.albums,{},"album");
+				cursor = new restHelpers.couchMapMergedCursor(restBase.albums,{},"album");
 				isOpts.parseResults = albumResultsParser;
 			} else {
-				cursor = new d10.fn.couchMapCursor(endpoint, data);
+				cursor = new restHelpers.couchMapCursor(endpoint, data);
 			}
 
 			section.data("infiniteScroll",
@@ -494,10 +464,10 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 		
 		var allArtistsListener = false;
 		var allArtists = function (container) {
-			var cacheNotExpired = d10.localcache.getJSON("artists.allartists");
-			var restEndPoint = d10.libraryScope.current == "full" ? d10.rest.artist.allByName : d10.rest.user.artist.allByName;
+			var cacheNotExpired = localcache.getJSON("artists.allartists");
+			var restEndPoint = libraryScope.current == "full" ? rest.artist.allByName : rest.user.artist.allByName;
 			if ( cacheNotExpired ) { return ; }
-			d10.localcache.setJSON("artists.allartists", {"f":"b"},true);
+			localcache.setJSON("artists.allartists", {"f":"b"},true);
 			container.empty();
 			
 			restEndPoint({
@@ -510,7 +480,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			
 			if ( !allArtistsListener ) {
 				allArtistsListener = true;
-				d10.events.bind("whenLibraryScopeChange",function() {
+				events.bind("whenLibraryScopeChange",function() {
 					resetCache();
 					allArtists(container);
 				});
@@ -530,66 +500,66 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				if ( current_letter != letter ) {
 					if ( letter_container ) container.append(letter_container);
 					letter = current_letter;
-					letter_container = $( d10.mustacheView("library.listing.artist", {"letter": letter}) );
+					letter_container = $( tpl.mustacheView("library.listing.artist", {"letter": letter}) );
 				}
-				$(">div",letter_container).append( d10.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs}) );
+				$(">div",letter_container).append( tpl.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs}) );
 			}
 			if ( letter_container ) { container.append( letter_container ); }
 
 			$("span.link",container).click(function() {
-				d10.router.navigateTo(["library","artists",$(this).text()]);
+				router.navigateTo(["library","artists",$(this).text()]);
 			});
 		};
 
 		var init_controls = function (topic,catdiv) {
 			if ( topic == 'artists' ) {
-				catdiv.append( d10.mustacheView('library.control.artist') );
+				catdiv.append( tpl.mustacheView('library.control.artist') );
 				var widget = $("input[name=artist]",catdiv);
-				$("span[name=all]",catdiv).click(function(){ widget.val('').trigger('blur');  d10.router.navigateTo(["library","artists","<all>"]); });
-				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger('blur'); d10.router.navigateTo(["library",topic]); });
+				$("span[name=all]",catdiv).click(function(){ widget.val('').trigger('blur');  router.navigateTo(["library","artists","<all>"]); });
+				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger('blur'); router.navigateTo(["library",topic]); });
 				var overlay = widget.val(widget.attr('defaultvalue'))
-				.permanentOvlay( d10.libraryScope.current == "full" ? d10.rest.artist.list : d10.rest.user.artist.list , $(".overlay",catdiv),{
+				.permanentOvlay( libraryScope.current == "full" ? rest.artist.list : rest.user.artist.list , $(".overlay",catdiv),{
 					"autocss": true,
 					"minlength" : 1 ,
 					"select": function (data, json) {
-						d10.router.navigateTo(["library",topic,json]);
+						router.navigateTo(["library",topic,json]);
 						return json;
 					},
 					"beforeLoad": function() {
 						this.getOverlay().width(widget.width());
 					},
 				});
-				d10.events.bind("whenLibraryScopeChange",function() {
-					if ( d10.libraryScope.current == "full" ) {
-						overlay.setUrl(d10.rest.artist.list);
+				events.bind("whenLibraryScopeChange",function() {
+					if ( libraryScope.current == "full" ) {
+						overlay.setUrl(rest.artist.list);
 					} else {
-						overlay.setUrl(d10.rest.user.artist.list);
+						overlay.setUrl(rest.user.artist.list);
 					}
 				});
 			} else if ( topic == 'albums' ) {
-				catdiv.append( d10.mustacheView('library.control.album') );
+				catdiv.append( tpl.mustacheView('library.control.album') );
 				var widget = $('input[name=album]',catdiv);
-				catdiv.find("span[name=all]").click(function(){ widget.val('').trigger('blur');  d10.router.navigateTo(["library","albums","<all>"]); });
+				catdiv.find("span[name=all]").click(function(){ widget.val('').trigger('blur');  router.navigateTo(["library","albums","<all>"]); });
 				var overlay = widget.val(widget.attr('defaultvalue'))
-				.permanentOvlay(d10.libraryScope.current == "full" ? d10.rest.album.list : d10.rest.user.album.list, $(".overlay",catdiv),
+				.permanentOvlay(libraryScope.current == "full" ? rest.album.list : rest.user.album.list, $(".overlay",catdiv),
 						{
 							"varname": "start", 
 							"minlength" : 1 ,
 							"autocss": true,
 							"select": function (data, json) {
-								d10.router.navigateTo(["library",topic,data]);
+								router.navigateTo(["library",topic,data]);
 								return data;
 							}
 						}
 				);
-				d10.events.bind("whenLibraryScopeChange",function() {
-					if ( d10.libraryScope.current == "full" ) {
-						overlay.setUrl(d10.rest.album.list);
+				events.bind("whenLibraryScopeChange",function() {
+					if ( libraryScope.current == "full" ) {
+						overlay.setUrl(rest.album.list);
 					} else {
-						overlay.setUrl(d10.rest.user.album.list);
+						overlay.setUrl(rest.user.album.list);
 					}
 				});
-				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger("blur"); d10.router.navigateTo(["library",topic]); });
+				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger("blur"); router.navigateTo(["library",topic]); });
 				
 				
 				catdiv.delegate(".dropbox", "dragenter",function (e) {
@@ -613,33 +583,33 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 // 					debug("files",files);
 					if ( !files.length  ) { return ; }
 					var file = files[0];
-					if ( !d10.isImage(file) ) { return ; }
+					if ( !imageUtils.isImage(file) ) { return ; }
 					albumImageRead(that, file);
 				});
 				
 			} else if ( topic == 'titles' ) {
-				catdiv.append( d10.mustacheView('library.control.title') );
+				catdiv.append( tpl.mustacheView('library.control.title') );
 				var widget = $('input[name=title]',catdiv);
 				var overlay = widget.val(widget.attr('defaultvalue'))
-				.permanentOvlay( d10.libraryScope.current == "full" ? d10.rest.song.listByTitle : d10.rest.user.song.listByTitle, $(".overlay",catdiv), 
+				.permanentOvlay( libraryScope.current == "full" ? rest.song.listByTitle : rest.user.song.listByTitle, $(".overlay",catdiv), 
 					{
 						"autocss": true,
 						"varname": 'start', 
 						"minlength" : 1 ,
 						"select": function (data, json) {
-							d10.router.navigateTo(["library",topic,data]);
+							router.navigateTo(["library",topic,data]);
 							return data;
 						}
 					}
 				);
-				d10.events.bind("whenLibraryScopeChange",function() {
-					if ( d10.libraryScope.current == "full" ) {
-						overlay.setUrl(d10.rest.song.listByTitle);
+				events.bind("whenLibraryScopeChange",function() {
+					if ( libraryScope.current == "full" ) {
+						overlay.setUrl(rest.song.listByTitle);
 					} else {
-						overlay.setUrl(d10.rest.user.song.listByTitle);
+						overlay.setUrl(rest.user.song.listByTitle);
 					}
 				});
-				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger("blur"); d10.router.navigateTo(["library",topic]); });
+				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger("blur"); router.navigateTo(["library",topic]); });
 			}
 			return catdiv;
 		}
@@ -723,7 +693,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			infos.hide();
 			return ;
 		}
-		var template = $(d10.mustacheView("library.content.extended."+infosParts+"part", infosTemplateData)).hide();
+		var template = $(tpl.mustacheView("library.content.extended."+infosParts+"part", infosTemplateData)).hide();
 
 		infosParts = 0;
 		for ( var i in responses ) {
@@ -734,7 +704,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			}
 		}
 		template.delegate("li","click",function() {
-			d10.router.navigateTo($(this).attr("data-name"));
+			router.navigateTo($(this).attr("data-name"));
 		});
 
 		infos.append(template);
@@ -749,13 +719,13 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 	};
 	
 	
-	d10.fn.library.extendedInfos = {
+	var extendedInfos = {
 		genres: function(genre, topicdiv) {
 			var hide = topicdiv.find("span.hide");
 			var show = topicdiv.find("span.show");
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			if ( d10.user.get_preferences().hiddenExtendedInfos ) {
+			if ( user.get_preferences().hiddenExtendedInfos ) {
 				hide.hide();
 				show.show();
 				infos.hide();
@@ -766,12 +736,12 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				topicdiv.find(".extendedInfosContainer").slideDown("fast");
 			}
 
-			d10.when({
+			When({
 				artists: function(then) {
-					d10.rest.genre.artists(genre, {
+					rest.genre.artists(genre, {
 						load: function(err, data) {
 							if ( err )	return then(err);
-							var back = {title:d10.mustacheView("library.extendedInfos.genre.artists"), data: []};
+							var back = {title:tpl.mustacheView("library.extendedInfos.genre.artists"), data: []};
 							for ( var i in data ) {
 								back.data.push($("<li />").html(data[i].key[1])
 													.attr("data-name","library/artists/"+encodeURIComponent( data[i].key[1])));
@@ -781,10 +751,10 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 					});
 				},
 				albums: function(then) {
-					d10.rest.genre.albums(genre, {
+					rest.genre.albums(genre, {
 						load: function(err, data) {
 							if ( err ) { return then(err); }
-							var back = {title: d10.mustacheView("library.extendedInfos.genre.albums"), data: []};
+							var back = {title: tpl.mustacheView("library.extendedInfos.genre.albums"), data: []};
 							for ( var i in data ) {
 								back.data.push($("<li />").html(data[i].key[1]+" ("+data[i].value+" songs)")
 													.attr("data-name","library/albums/"+encodeURIComponent(data[i].key[1])));
@@ -802,14 +772,14 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				hide.slideUp("fast",function() {
 					show.slideDown("fast");
 				});
-				d10.user.set_preference("hiddenExtendedInfos",true);
+				user.set_preference("hiddenExtendedInfos",true);
 			});
 			show.click(function() {
 				infos.slideDown("fast");
 				show.slideUp("fast",function() {
 					hide.slideDown("fast");
 				});
-				d10.user.set_preference("hiddenExtendedInfos",false);
+				user.set_preference("hiddenExtendedInfos",false);
 			});
 		},
 		artists: function(artist,topicdiv) {
@@ -822,7 +792,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			var hide = topicdiv.find(".hide");
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			if ( d10.user.get_preferences().hiddenExtendedInfos ) {
+			if ( user.get_preferences().hiddenExtendedInfos ) {
 				hide.hide();
 				show.show();
 				infos.hide();
@@ -835,13 +805,13 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			topicdiv.find(".showHideExtended").removeClass("hidden");
 
 			
-			d10.when({
+			When({
 				artists: function(then) {
-					d10.rest.artist.related(artist,{
+					rest.artist.related(artist,{
 						load: function(err, data) {
 							if ( err ) { return then(err); }
 							var back = [], sorted = [], source;
-							if ( d10.count(data.artistsRelated) ) {
+							if ( toolbox.count(data.artistsRelated) ) {
 								source = data.artistsRelated;
 							} else {
 								source = data.artists;
@@ -865,12 +835,12 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 									.attr("data-name","library/artists/"+ encodeURIComponent(sorted[i].artist)) );
 							}
 
-							then(null,{title: d10.mustacheView("library.extendedInfos.artist.artists"), data: back});
+							then(null,{title: tpl.mustacheView("library.extendedInfos.artist.artists"), data: back});
 						}
 					});
 				},
 				albums: function(then) {
-					d10.rest.artist.albums(artist,{
+					rest.artist.albums(artist,{
 						load: function(err, data) {
 							if ( err ) { return then(err);}
 							var back = [];
@@ -878,7 +848,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 								back.push( $("<li />").html(data[i].key[1])
 													.attr("data-name","library/albums/"+ encodeURIComponent(data[i].key[1])) );
 							}
-							then(null,{title: d10.mustacheView("library.extendedInfos.artist.albums"), data: back});
+							then(null,{title: tpl.mustacheView("library.extendedInfos.artist.albums"), data: back});
 						},
 						error: function(err) {
 							then(err);
@@ -886,7 +856,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 					});
 				},
 				genres: function(then) {
-					d10.rest.artist.genres(artist,{
+					rest.artist.genres(artist,{
 						load: function(err,data) {
 							if (err) { return then(err); }
 							var back = [];
@@ -894,7 +864,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 								back.push( $("<li />").html(data[i].key[1])
 													.attr("data-name","library/genres/"+ encodeURIComponent(data[i].key[1])) );
 							}
-							then(null,{title: d10.mustacheView("library.extendedInfos.artist.genres"), data: back});
+							then(null,{title: tpl.mustacheView("library.extendedInfos.artist.genres"), data: back});
 						}
 					});
 				}
@@ -907,14 +877,14 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				hide.slideUp("fast",function() {
 					show.slideDown("fast");
 				});
-				d10.user.set_preference("hiddenExtendedInfos",true);
+				user.set_preference("hiddenExtendedInfos",true);
 			});
 			show.click(function() {
 				infos.slideDown("fast");
 				show.slideUp("fast",function() {
 					hide.slideDown("fast");
 				});
-				d10.user.set_preference("hiddenExtendedInfos",false);
+				user.set_preference("hiddenExtendedInfos",false);
 			});
 		},
 		albums: function(album,topicdiv) {
@@ -927,7 +897,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			var hide = topicdiv.find(".hide");
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			if ( d10.user.get_preferences().hiddenExtendedInfos ) {
+			if ( user.get_preferences().hiddenExtendedInfos ) {
 				hide.hide();
 				show.show();
 				infos.hide();
@@ -939,9 +909,9 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 			}
 			topicdiv.find(".showHideExtended").removeClass("hidden");
 			
-			d10.when({
+			When({
 				artists: function(then) {
-					d10.rest.album.artists(album,{
+					rest.album.artists(album,{
 						load: function(err, data) {
 							if ( err ) { return then(err); }
 							var back = [];
@@ -952,7 +922,7 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 							if ( back.length == 1 ) {
 								back = [];
 							}
-							then(null,{title: d10.mustacheView("library.extendedInfos.album.artists"), data: back});
+							then(null,{title: tpl.mustacheView("library.extendedInfos.album.artists"), data: back});
 						}
 					});
 				}
@@ -965,14 +935,14 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 				hide.slideUp("fast",function() {
 					show.slideDown("fast");
 				});
-				d10.user.set_preference("hiddenExtendedInfos",true);
+				user.set_preference("hiddenExtendedInfos",true);
 			});
 			show.click(function() {
 				infos.slideDown("fast");
 				show.slideUp("fast",function() {
 					hide.slideDown("fast");
 				});
-				d10.user.set_preference("hiddenExtendedInfos",false);
+				user.set_preference("hiddenExtendedInfos",false);
 			});
 		}
 	};
@@ -980,18 +950,12 @@ if (! "fn" in d10 ) { d10.fn = {}; }
 
 
 
-
-
-
-
-
-
-})( window.d10 ? window.d10 : {}  , jQuery) ;
-
-$(document).one("bootstrap:router",function() {
-// 	debug("bootstrapping router");
-	var library = d10.library = d10.fn.library($('#library')),
+	debug("library !!!!!!!!!!!!!!!");
+	
+	
+	var lib = new library($('#library')),
 	libraryRouteHandler = function(topic,category, param) {
+		debug("libraryRouteHandler",topic, category, param);
 		if ( !topic ) {
 			if ( this._containers["library"].currentActive ) {
 				this._activate("main","library",this.switchMainContainer);
@@ -1000,10 +964,10 @@ $(document).one("bootstrap:router",function() {
 				topic = "genres";
 			}
 		}
-		library.display( decodeURIComponent(topic), category ? decodeURIComponent(category) : null, param ? decodeURIComponent(param) : null );
+		lib.display( decodeURIComponent(topic), category ? decodeURIComponent(category) : null, param ? decodeURIComponent(param) : null );
 		this._activate("main","library",this.switchMainContainer)._activate("library",topic);
 	};
-	d10.router._containers["library"] = 
+	router._containers["library"] = 
 	{
 		tab: $("#library > nav > ul"), 
 		container: $("#library"), 
@@ -1012,20 +976,23 @@ $(document).one("bootstrap:router",function() {
 		currentActive: null
 	};
 	
-	d10.router.route("library","library",libraryRouteHandler);
-	d10.router.route("library/:topic","library",libraryRouteHandler);
-	d10.router.route("library/:topic/:category","library",libraryRouteHandler);
-	d10.router.route("library/:topic/:category/:parameter","library",libraryRouteHandler);
+	router.route("library","library",libraryRouteHandler);
+	router.route("library/:topic","library",libraryRouteHandler);
+	router.route("library/:topic/:category","library",libraryRouteHandler);
+	router.route("library/:topic/:category/:parameter","library",libraryRouteHandler);
 // 	d10.router.route("library/albumsList","library", libraryAlbumListHandler);
 	
-	d10.router._containers.library.tab.delegate("[action]","click",function() {
-		var elem = $(this), action = elem.attr("action"), currentCategory = library.getCurrentCategory(action);
+	router._containers.library.tab.delegate("[action]","click",function() {
+		var elem = $(this), action = elem.attr("action"), currentCategory = lib.getCurrentCategory(action);
 		
 		if ( ! elem.hasClass("active") ) { 
-			if ( currentCategory ) {d10.router.navigateTo(["library",action,currentCategory]); } 
-			else { d10.router.navigateTo(["library",action]); }
+			if ( currentCategory ) {router.navigateTo(["library",action,currentCategory]); } 
+			else { router.navigateTo(["library",action]); }
 		}
 	});
 
-	
+	return lib;
+
+
+
 });

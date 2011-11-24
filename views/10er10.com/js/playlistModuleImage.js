@@ -1,7 +1,7 @@
-$(document).one("bootstrap:playlist",function() {
-	var module = new d10.fn.playlistModule("image",{
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
+	var module = new playlistModule("image",{
 		"playlist:currentSongChanged": function() {
-			var s = d10.playlist.current();
+			var s = playlist.current();
 			var images = s.attr("data-images");
 			if ( images && images.length ) {
 				var alreadyVisible = $("#side > .audioImage").find("img").length;
@@ -21,7 +21,7 @@ $(document).one("bootstrap:playlist",function() {
 		}
 	},{});
 
-	d10.playlist.modules[module.name] = module;
-
+	playlist.modules[module.name] = module;
+	return module;
 });
 

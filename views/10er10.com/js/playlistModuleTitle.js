@@ -1,7 +1,7 @@
-$(document).one("bootstrap:playlist",function() {
-	var module = new d10.fn.playlistModule("title",{
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
+	var module = new playlistModule("title",{
 		"playlist:currentSongChanged": function() {
-			var s = d10.playlist.current();
+			var s = playlist.current();
 			document.title = s.find(".title").text() + ' - '+ s.find(".artist").text();
 		},
 		"playlist:ended": function() {
@@ -9,7 +9,7 @@ $(document).one("bootstrap:playlist",function() {
 		}
 	},{});
 
-	d10.playlist.modules[module.name] = module;
-
+	playlist.modules[module.name] = module;
+	return module;
 });
 

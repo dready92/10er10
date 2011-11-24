@@ -1,9 +1,9 @@
-$(document).one("bootstrap:playlist",function() {
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
 
 	if ( $("html").hasClass("csstransforms") ) {
-		var module = new d10.fn.playlistModule("highlight",{
+		var module = new playlistModule("highlight",{
 			"playlistUpdate": function() {
-				var ui = d10.playlist.container();
+				var ui = playlist.container();
 				ui.one("transitionend webkitTransitionEnd",function() {
 // 					debug("got transitionend");
 					ui.unbind("transitionend webkitTransitionEnd");
@@ -13,7 +13,8 @@ $(document).one("bootstrap:playlist",function() {
 			}
 		},{});
 
-		d10.playlist.modules[module.name] = module;
+		playlist.modules[module.name] = module;
+		return module;
 	}
 });
 

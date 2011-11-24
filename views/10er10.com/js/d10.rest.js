@@ -416,9 +416,14 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 					restQuery("user.song.list.genres","GET",site_url+"/api/own/list/genres",options);
 				},
 				albums: function(query, options) {
-					options.data = {};
-					if ( query.startkey && query.startkey_docid ) {
-						options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+					if ( query.startkey  ) {
+						options.data.startkey = query.startkey;
+						if ( query.startkey_docid ) {
+							options.data.startkey_docid = query.startkey_docid;
+						}
+					}
+					if ( query.endkey  ) {
+						options.data.endkey = query.endkey;
 					}
 					if( query.album ) {
 						options.data.album = query.album;
