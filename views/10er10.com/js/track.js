@@ -75,7 +75,7 @@ define(["js/d10.utils"], function(toolbox) {
 			"onstalled": function() {
 				debug("STALLED !",audio);
 				state.events.push({
-									"time": d10.time(),
+									"time": toolbox.time(),
 									"event": "stalled",
 									"networkState": audio.networkState,
 									"readyState": audio.readyState
