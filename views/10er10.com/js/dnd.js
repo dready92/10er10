@@ -29,7 +29,7 @@ define(function() {
 			dt.effectAllowed = "copy";
 			dt.setData('text','playlist');
 			dt.setDragImage( $('#songitem img')[0], 0, 0);
-			d10.dnd.setDragItem( song.closest(".list").find(".song.selected") );
+			dnd.setDragItem( song.closest(".list").find(".song.selected") );
 		};
 
 		// options

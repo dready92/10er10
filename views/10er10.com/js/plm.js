@@ -147,12 +147,6 @@ function playlistManager (mydiv,mypldiv) {
 				debug("plm setting driver",this);
 				playlist.setDriver(this);
 			});
-			/*
-		d10.playlist.loadFromPlm(
-			pldiv,
-			$('.plm-list .plm-list-item[name='+pldiv.attr('name')+']',mydiv).html()
-		);
-		*/
 		return false;
 		});
 		content_container.append(pldiv);
@@ -255,13 +249,13 @@ function playlistManager (mydiv,mypldiv) {
 
 	this.create_playlist = function (name,opts) {
 		opts = opts || {};
-		if ( name.length == 0 || d10.user.playlist_exists(name) ) {
+		if ( name.length == 0 || user.playlist_exists(name) ) {
 			$('section.plm-list-container img',mypldiv).remove();
 			$('section.plm-list-container button[name=plm-new]',mypldiv).slideDown('fast');
 			return ;
 		}
 		
-		d10.rest.rpl.create(name, opts.songs ? opts.songs : [], {
+		rest.rpl.create(name, opts.songs ? opts.songs : [], {
 			load: function(err,resp) {
 				if(err) {
 					debug('trigger; rplCreationFailure');
@@ -329,7 +323,7 @@ function playlistManager (mydiv,mypldiv) {
   
 	var _update_playlist = function(name, songs, opts) {
 		opts = opts || {};
-		d10.rest.rpl.update(name,songs,{
+		rest.rpl.update(name,songs,{
 			load: function(err,resp) {
 				if ( err ) {
 					if ( opts.error ) {
@@ -383,7 +377,7 @@ function playlistManager (mydiv,mypldiv) {
 				if ( pldiv.length ) {
 					var html = "";
 					for ( var i in response.data.songs ) {
-						html += d10.song_template(response.data.songs[i]);
+						html += tpl.song_template(response.data.songs[i]);
 					}
 					pldiv.empty();
 					if ( html.length ) {
@@ -402,7 +396,7 @@ function playlistManager (mydiv,mypldiv) {
 	};
 
   var rplDropRequestHandler = function ( pldiv ) {
-	d10.rest.rpl.remove(pldiv.attr('name'), {
+	rest.rpl.remove(pldiv.attr('name'), {
 		load: function(err,resp) {
 			if ( !err ) {
 				$(document).trigger('rplDropSuccess', resp);
@@ -429,7 +423,7 @@ function playlistManager (mydiv,mypldiv) {
    */
 
 	var rplRenameRequestHandler = function ( pldiv, newname ) {
-		d10.rest.rpl.rename(pldiv.attr('name'), newname, {
+		rest.rpl.rename(pldiv.attr('name'), newname, {
 			load: function(err,resp) {
 				if ( err ) {
 					$(document).trigger('rplRenameFailure', err);
@@ -451,7 +445,7 @@ function playlistManager (mydiv,mypldiv) {
 
 	this.append_song = function(song_id,playlist_id,opts) {
 		opts = opts || {};
-		d10.rest.rpl.append(playlist_id,song_id,{
+		rest.rpl.append(playlist_id,song_id,{
 			load: function(err,resp) {
 				if ( err ) {
 					if ( opts.error ) {

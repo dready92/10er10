@@ -141,7 +141,7 @@ FFT.prototype.forward = function(buffer) {
 			fft.removeListeners();
 			fft = null;
 		}
-		fft = new d10.ffSpectrum(audio, canvas);
+		fft = new ffSpectrum(audio, canvas);
 	};
 	
 	

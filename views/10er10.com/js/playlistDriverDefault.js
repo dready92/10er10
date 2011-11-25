@@ -10,11 +10,6 @@ events binding :
 
 */
 
-// var proxyHandler = function() {
-// 	debug("proxyHandler: ",d10.playlist.currentDriverName() , this,arguments);
-// 	d10.playlist.driver().handleEvent.apply(this,arguments);
-// };
-
 var allEvents = [
 "onloadstart",
 "onprogress",
@@ -42,7 +37,6 @@ var allEvents = [
 ];
 
 
-// d10.playlistDrivers = d10.playlistDrivers || {};
 function playlistDriverDefault (playlist, proxyHandler, options) {
 	options = options || {};
 	var settings = $.extend({
@@ -53,7 +47,6 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		prefectchMinStartupTime: 9,
 		title: tpl.mustacheView("playlist.anonymous.name")
 	},options);
-// 	var playlist = d10.playlist;
 	var current = null; // current playing track
 	var next = null; // next track
 	var currentLoadProgressEnded = false;
@@ -413,7 +406,6 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	};
 	
 	this.load = function(options,cb) {
-// 		var infos = d10.user.get_preferences().playlist;
 		debug("playlistDriverDefault load: ",options);
 		playlist.title(settings.title);
 		if ( !options ) {

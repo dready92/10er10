@@ -1,9 +1,8 @@
 define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/dnd", "js/playlist.new", "js/paginer", 
-	   "js/d10.router", "js/d10.utils", "js/osd", "js/d10.imageUtils"],
-	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils) {
+	   "js/d10.router", "js/d10.utils", "js/osd", "js/d10.imageUtils", "js/config"],
+	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils, config) {
 
 function myCtrl (ui) {
-// 	var plmanager = new d10.fn.plm(ui,ui.find('div[name=plm]'));
 	
 	$(document).one("user.infos",function() {
 		if ( !user.get_invites_count() ) { $("ul li[action=invites]",ui).hide(); }
@@ -232,7 +231,7 @@ function myCtrl (ui) {
 		load: function(err,count) {
 			if ( err ) return ;
 			if ( count ) {
-				topicdiv.html(tpl.mustacheView("my.invites.invites",{count: count, ttl: d10.config.invites.ttl}) );
+				topicdiv.html(tpl.mustacheView("my.invites.invites",{count: count, ttl: config.invites.ttl}) );
 				var button = $("button",topicdiv);
 				var invalidLabel = $("span[name=invalidEmail]",topicdiv);
 				$("input[name=email]",topicdiv).keyup(function() {
@@ -248,7 +247,7 @@ function myCtrl (ui) {
 				button.click(function() { sendInvite(topicdiv, $("input[name=email]",topicdiv).val() ) });
 
 			} else {
-				topicdiv.html(tpl.mustacheView("my.invites.invites.none",{count: count, ttl: d10.config.invites.ttl}) );
+				topicdiv.html(tpl.mustacheView("my.invites.invites.none",{count: count, ttl: config.invites.ttl}) );
 			}
 		}
 	});
@@ -350,7 +349,7 @@ function myCtrl (ui) {
 					osd.send("info",tpl.mustacheView("my.review.success.filetransfert",{filename: file.name}));
 					canvas.remove();
 					dropbox.find(".images").append(
-							tpl.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+body.filename})
+							tpl.mustacheView("my.image.widget",{url: config.img_root+"/"+body.filename})
 					);
 					cb();
 				},
@@ -370,9 +369,9 @@ function myCtrl (ui) {
 			var reader = new FileReader();
 			reader.onload = function(e) {
 				var canvas = $("<canvas />")
-					.attr("width",d10.config.img_size+"px")
-					.attr("height",d10.config.img_size+"px")
-					.css({width: d10.config.img_size, height: d10.config.img_size, border: "1px solid #7F7F7F"});
+					.attr("width",config.img_size+"px")
+					.attr("height",config.img_size+"px")
+					.css({width: config.img_size, height: config.img_size, border: "1px solid #7F7F7F"});
 				var api = canvas.loadImage(e, 
 					{
 						onReady: function() {
@@ -473,7 +472,7 @@ function myCtrl (ui) {
 				doc.download_link = "audio/download/"+doc._id;
 				$.each(images, function(k,v) {
 					doc.images.push(
-						tpl.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+v.filename})
+						tpl.mustacheView("my.image.widget",{url: config.img_root+"/"+v.filename})
 							);
 				});
 				topicdiv.html( tpl.mustacheView("review.song",doc)  );

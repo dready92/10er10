@@ -1,5 +1,5 @@
-define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/playlistDriverDefault", "js/d10.templates"], 
-	   function(foo, user, rest, dnd, router, defaultDriver, tpl) {
+define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/playlistDriverDefault", "js/d10.templates", "js/d10.libraryScope", "js/config"], 
+	   function(foo, user, rest, dnd, router, defaultDriver, tpl, libraryScope, config) {
 	
 	/*
 	 * playlist
@@ -85,7 +85,6 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 		*/
 
 		var eventProxy = function() {
-// 			debug("proxyHandler: ",d10.playlist.currentDriverName() , this,arguments);
 			driver.handleEvent.apply(this,arguments);
 		};
 		
@@ -145,8 +144,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 		};
 		
 		var getUrl = this.getUrl = function(song) {
-// 			var url = function (id) { return "/audio/"+id.substr(2,1)+"/"+id+".ogg"; } ;
-			var url = function (id) { return d10.config.audio_root+id.substr(2,1)+"/"+id+".ogg"; } ;
+			var url = function (id) { return config.audio_root+id.substr(2,1)+"/"+id+".ogg"; } ;
 			return {"audio/ogg": url(song.attr('name'))};
 		};
 		var getTrackParameters = this.getTrackParameters = function(song) {
@@ -214,7 +212,6 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 			} else {
 				ui.find(".emptyPlaylist").hide();
 			}
-// 			debug("playlist: sending listModified to driver", d10.playlist.currentDriverName());
 			driver.listModified(data);
 			$(document).trigger('playlistUpdate', data );
 			recordPlaylistDriver();
@@ -323,7 +320,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 			};
 			for ( var index in user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
 			if ( genres && genres.length )  opts.data["name[]"] = genres;
-			if ( d10.libraryScope.current == "full" ) {
+			if ( libraryScope.current == "full" ) {
 				rest.song.random(opts);
 			} else {
 				rest.user.song.random(opts);

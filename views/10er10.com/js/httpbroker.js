@@ -1,4 +1,4 @@
-define( function() {
+define( ["js/config"], function(config) {
 
 
 
@@ -33,12 +33,12 @@ define( function() {
 		try {
 		data = JSON.parse(data);
 		} catch (e) {
-			if ( d10.debug && d10.debug_options.network ) {
+			if ( config.debug && config.debug_options.network ) {
 				debug("BAD BAD : onmessage : unable to decode data",data);
 			}
 		return false;
 		}
-		if ( d10.debug && d10.debug_options.network ) {
+		if ( config.debug && config.debug_options.network ) {
 			debug ("got worker message",data);
 		}
 
@@ -115,7 +115,7 @@ define( function() {
 		} else if ( typeof that[data.request.callback] == 'function' ) {
 		that[data.request.callback](data);
 		} else {
-			if ( d10.debug && d10.debug_options.network ) {
+			if ( config.debug && config.debug_options.network ) {
 				debug("httpworker callback ",data.request.callback,' inconnu');
 			}
 		}
@@ -156,7 +156,7 @@ define( function() {
 		
 		//debug(request);
 		cache[request_id]._startTime  = new Date().getTime();
-		if ( d10.debug && d10.debug_options.network ) {
+		if ( config.debug && config.debug_options.network ) {
 			debug('http manager posting ',options.method,options.url,options);
 		}
 		worker.postMessage( JSON.stringify(request) );
@@ -164,12 +164,6 @@ define( function() {
 
 	this.ignore = function(response) {    return ;  }
 
-	this.rud = function (response) { user.refresh_infos(); }
-	this.loadPlaylist = function (response) {
-		if ( response.data.status == 'success' ) {
-		d10.playlist.loadPlaylist(response.data.data);
-		}
-	}
 	}
 
 
@@ -231,7 +225,7 @@ define( function() {
 			var freeworker = this.getFreeWorker();
 			if ( freeworker ) {
 				requests_count++;
-				if ( d10.debug && d10.debug_options.network ) {
+				if ( config.debug && config.debug_options.network ) {
 					debug("Request ",requests_count);
 				}
 				freeworker.request(cache.pop());

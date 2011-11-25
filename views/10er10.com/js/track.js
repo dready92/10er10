@@ -1,4 +1,4 @@
-define(["js/d10.utils"], function(toolbox) {
+define(["js/d10.utils", "js/config"], function(toolbox, config) {
 
 	/**
 	* <audio> wrapper
@@ -290,7 +290,7 @@ define(["js/d10.utils"], function(toolbox) {
 		};
 	
 		var ael = function(evt) {
-			if ( evt != "ontimeupdate" && d10.config.debug && d10.config.debug_options.audio ) {
+			if ( evt != "ontimeupdate" && config.debug && config.debug_options.audio ) {
 				audio.addEventListener(evt.replace(/^on/,''),function(e) {
 					debug("audio event: ",this.id,e.type,e);
 				},false);

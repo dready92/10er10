@@ -1,11 +1,11 @@
-define(["js/d10.templates"], function(tpl) {
+define(["js/d10.templates", "js/config"], function(tpl, config) {
 	
 	
 	var couchMapMergedCursor = function(endpoint,queryData, mergeField) {
 		var innerCursor = new couchMapCursor(endpoint, queryData);
 		var buffer = [];
 		var merged = [];
-		var rpp = d10.config.rpp;
+		var rpp = config.rpp;
 		var mergedRpp = 10;
 		var onGetResults = function(err,resp,cb) {
 			
@@ -84,7 +84,7 @@ define(["js/d10.templates"], function(tpl) {
 		var originalData = queryData || {};
 		var actualData = $.extend({},queryData);
 		actualData.limit = rpp;
-		var rpp = d10.config.rpp;
+		var rpp = config.rpp;
 		var endOfStream = false;
 		var getResults = function(cb) {
 			endpoint(actualData, {
@@ -114,7 +114,7 @@ define(["js/d10.templates"], function(tpl) {
 	};
 	
 	var emulatedCursor = function(data) {
-		var rpp = d10.config.rpp;
+		var rpp = config.rpp;
 		
 		this.getNext = function(cb) {
 			if ( !data.length ) {

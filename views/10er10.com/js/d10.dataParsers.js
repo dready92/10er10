@@ -1,4 +1,4 @@
-define(["js/d10.templates", "js/d10.utils", "js/d10.imageUtils"], function(tpl, toolbox, imageUtils) {
+define(["js/d10.templates", "js/d10.utils", "js/d10.imageUtils", "js/config"], function(tpl, toolbox, imageUtils,config) {
 	function singleAlbumParser(songs) {
 		var albumData = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: ""}, artists = {}, genres = {}, duration = 0, images = {};
 		songs.forEach(function(row) {
@@ -25,7 +25,7 @@ define(["js/d10.templates", "js/d10.utils", "js/d10.imageUtils"], function(tpl, 
 		albumData.duration = d.getMinutes()+':'+d.getSeconds();
 		albumData.image_url = toolbox.keyOfHighestValue(images);
 		if ( albumData.image_url ) { 
-			albumData.image_url = d10.config.img_root+"/"+albumData.image_url ;
+			albumData.image_url = config.img_root+"/"+albumData.image_url ;
 		} else {
 			albumData.image_url = imageUtils.getAlbumDefaultImage();
 			albumData.image_class.push("dropbox");

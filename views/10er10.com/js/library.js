@@ -1,8 +1,8 @@
 define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.events", "js/d10.libraryScope", 
 	   "js/d10.templates", "js/d10.dataParsers", "js/libraryAlbums", "js/localcache", "js/d10.rest", 
-	   "js/osd", "js/d10.imageUtils", "js/user", "js/d10.when", "js/d10.utils", "js/paginer"],
+	   "js/osd", "js/d10.imageUtils", "js/user", "js/d10.when", "js/d10.utils", "js/paginer", "js/config"],
 	   function(foo, dnd, playlist, router, events, libraryScope, tpl, dataParsers, libraryAlbums, 
-				localcache, rest, osd, imageUtils, user, When, toolbox, restHelpers) {
+				localcache, rest, osd, imageUtils, user, When, toolbox, restHelpers, config) {
 	
 	function library (ui) {
 
@@ -72,8 +72,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			widget.ovlay({"onClose": function() {this.getOverlay().remove()}, "closeOnMouseOut": true });
 		});
 		
-		
-// 		var libraryAlbums = d10.fn.libraryAlbums(dataParsers.singleAlbumParser);
 		
 		var init_topic = function (topic,category, param) {
 			debug("library.display start",topic,category, param);
@@ -229,13 +227,9 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 						return ;
 					}
 					osd.send("info",tpl.mustacheView("my.review.success.filetransfert",{filename: file.name}));
-					var newImage = $("<img />").attr("src",d10.config.img_root+"/"+body.filename);
+					var newImage = $("<img />").attr("src",config.img_root+"/"+body.filename);
 					canvas.after(newImage).remove();
 					
-// 					dropbox.find(".images").append(
-// 							d10.mustacheView("my.image.widget",{url: d10.config.img_root+"/"+body.filename})
-// 					);
-// 					cb();
 				},
 				progress: function(e) { 
 					if (e.lengthComputable) {
@@ -253,9 +247,9 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			var reader = new FileReader();
 			reader.onload = function(e) {
 				var canvas = $("<canvas />")
-					.attr("width",d10.config.img_size+"px")
-					.attr("height",d10.config.img_size+"px")
-					.css({width: d10.config.img_size, height: d10.config.img_size, border: "1px solid #7F7F7F"});
+					.attr("width",config.img_size+"px")
+					.attr("height",config.img_size+"px")
+					.css({width: config.img_size, height: config.img_size, border: "1px solid #7F7F7F"});
 				var api = canvas.loadImage(e, 
 					{
 						onReady: function() {
@@ -980,7 +974,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 	router.route("library/:topic","library",libraryRouteHandler);
 	router.route("library/:topic/:category","library",libraryRouteHandler);
 	router.route("library/:topic/:category/:parameter","library",libraryRouteHandler);
-// 	d10.router.route("library/albumsList","library", libraryAlbumListHandler);
 	
 	router._containers.library.tab.delegate("[action]","click",function() {
 		var elem = $(this), action = elem.attr("action"), currentCategory = lib.getCurrentCategory(action);

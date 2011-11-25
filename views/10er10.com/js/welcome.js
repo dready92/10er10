@@ -1,5 +1,5 @@
-define(["js/domReady","js/d10.router", "js/playlist.new","js/d10.rest","js/d10.templates","js/d10.utils","js/d10.imageUtils"],
-	   function(foo,router,playlist,rest,tpl,toolbox,imageUtils) {
+define(["js/domReady","js/d10.router", "js/playlist.new","js/d10.rest","js/d10.templates","js/d10.utils","js/d10.imageUtils", "js/config"],
+	   function(foo,router,playlist,rest,tpl,toolbox,imageUtils, config) {
 
 	function  welcome (ui) {
 
@@ -17,7 +17,7 @@ define(["js/domReady","js/d10.router", "js/playlist.new","js/d10.rest","js/d10.t
 					if ( !resp.length ) {
 						return ;
 					}
-					if ( resp.length <= d10.config.rpp ) {
+					if ( resp.length <= config.rpp ) {
 						return then(resp);
 					}
 					last = resp.pop();
@@ -108,7 +108,7 @@ define(["js/domReady","js/d10.router", "js/playlist.new","js/d10.rest","js/d10.t
 							songs: songs.length,
 							artists: artistsTokenized,
 							genre: genre ? [ genre ] : [],
-							image_url: image ? d10.config.img_root+"/"+image : imageUtils.getAlbumDefaultImage()
+							image_url: image ? config.img_root+"/"+image : imageUtils.getAlbumDefaultImage()
 						}
 					)).data("songs",songs);
 				widgets.push(

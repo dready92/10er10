@@ -1,4 +1,4 @@
-define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/config"], function(foo, playlistModule, playlist, config) {
 	var module = new playlistModule("image",{
 		"playlist:currentSongChanged": function() {
 			var s = playlist.current();
@@ -7,7 +7,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo,
 				var alreadyVisible = $("#side > .audioImage").find("img").length;
 				var image = images.split(",").shift();
 				$("#side > .audioImage").html(
-					"<img src=\""+d10.config.img_root+"/"+image+"\">"
+					"<img src=\""+config.img_root+"/"+image+"\">"
 				);
 				if ( ! alreadyVisible ) {
 					$("#side > .audioImage").slideDown("fast");

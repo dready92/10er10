@@ -72,33 +72,6 @@ function playlistDriverRpl (options) {
 					cb.call(self,null,html);
 				}
 			});
-			/*
-			d10.bghttp.get(
-				{
-					url: site_url+"/api/plm/"+options.rpl,
-					dataType: "json",
-					success: function(resp) {
-						if ( !resp.status || resp.status == "error" ) {
-							return cb.call(self,resp);
-						}
-						debug(resp);
-						setDoc(resp.data);
-						var html = "";
-						$.each(resp.data.songs,function(k,v) {
-							if (  v ) {
-								html+=d10.song_template(v);
-							}
-						});
-						if ( html.length )	html = $(html);
-						cb.call(self,null,html);
-					},
-					error: function(e) {
-						cb.call(self,e);
-					}
-				}
-			);
-*/
-			
 		} else {
 			return cb.call(this);
 		}

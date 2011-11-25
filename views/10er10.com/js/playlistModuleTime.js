@@ -4,7 +4,6 @@ var createInstance = function(container) {
 	var module = new playlistModule("time",
 		{
 			"playlist:currentSongChanged": function() {
-				//var s = d10.playlist.current();
 				var secs = playlist.driver().current().duration;
 				bar.setMax( secs );
 				var total_secs = parseInt(secs);

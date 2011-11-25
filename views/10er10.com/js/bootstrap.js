@@ -37,7 +37,6 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		//
 		// the monitor
 		//
-// 		d10.jobs = new d10.fn.jobs(base_url+"js/jobworker.js",4,function(job,data) {debug("job response: ",job,data);});
 		jobs.push("enablePing",{"url": site_url+"/api/ping"},{
 			"success": function(data) {debug("enablePingSuccess",data);},
 			"error": function(err,msg) {debug("enablePingError",err,msg);}
@@ -135,7 +134,6 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		loadCount.html(when.complete());
 		loadTotal.html(when.total());
 		
-// 		d10.playlist = new d10.fn.playlistProto( $("aside"),{});
 	//
 	// gestion du bouton + a gauche de chaque morceau
 	//

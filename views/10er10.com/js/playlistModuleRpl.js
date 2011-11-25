@@ -107,7 +107,6 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/user", "js
 	});
 
 	var recordRpl = function (name)  {
-// 		d10.playlist.container().find('.playlisttitle > span').text(name);
 		plmanager.create_playlist(name, {
 				songs: playlist.allIds(),
 				success: function(resp) {

@@ -224,9 +224,33 @@ debug("site_url : ",site_url);
 </script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <!--<script src="/js/jquery.js"></script>-->
-{{#scripts}}<script src="/js/{{.}}"></script>  {{/scripts}}
+{{#scripts}}<script src="/js/{{.}}"></script>{{/scripts}}
 
 <script>
+
+define("js/config",[], function() {
+var cfg = {
+        debug: {{dbg}}, 
+        debug_options: {}, 
+        audio_root: "{{audio_root}}", 
+        img_root: "{{img_root}}",
+        img_size: "{{img_size}}",
+        img_default: "{{img_default}}",
+        rpp: {{rpp}},
+        invites: {
+                ttl: {{invites_ttl}}
+        }
+};
+cfg.img_default = cfg.img_default.split(",");
+{{#debugAudio}}
+cfg.debug_options.audio = true;
+{{/debugAudio}}
+{{#debugNet}}
+cfg.debug_options.network = true;
+{{/debugNet}} 
+return cfg;
+});
+
 require(["js/bootstrap"],function() {
 	debug("bootstrapped");
 });

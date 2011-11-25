@@ -1,7 +1,8 @@
-define({
+define(["js/config"], function(config) {
+	return {
 	getAlbumDefaultImage: function() {
-		var randomnumber=Math.floor(Math.random()*d10.config.img_default.length);
-		return d10.config.img_default[randomnumber];
+		var randomnumber=Math.floor(Math.random()*config.img_default.length);
+		return config.img_default[randomnumber];
 	},
 	isImage: function (file) {
 		return file.type.match(/^image/);
@@ -17,4 +18,5 @@ define({
 		debug("image ratio : ",ratio);
 		return ratio;
 	}
+	};
 });

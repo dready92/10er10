@@ -136,7 +136,5 @@ function sessioncache ( ) {
 }
 */
 	return new localcache();
-// 	d10.localcache.unsetTemplates();
-// d10.sessioncache = sessioncache = new sessioncache();
 
 });

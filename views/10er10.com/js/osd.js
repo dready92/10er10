@@ -1,4 +1,4 @@
-define(function() {
+define(["js/d10.templates"], function(tpl) {
 
 	function osd () {
 		var ui = function () { return $('#osd'); };
@@ -6,20 +6,20 @@ define(function() {
 		var display_length = 4000;
 
 		$(document).bind('rplDropSuccess',function(e,playlist) {
-			send('info', d10.mustacheView("osd.rpl.success.removed",{name: playlist.name}) );
+			send('info', tpl.mustacheView("osd.rpl.success.removed",{name: playlist.name}) );
 		});
 		$(document).bind('rplCreationSuccess',function(e,data) {
 	// 		debug("in osd",data);
-			send('info',d10.mustacheView("osd.rpl.success.created",{name: data.playlist.name}));
+			send('info',tpl.mustacheView("osd.rpl.success.created",{name: data.playlist.name}));
 		});
 		$(document).bind('rplAppendSuccess',function(e,data) {
-			send('info',d10.mustacheView("osd.rpl.success.updated",{name: data.playlist.name}));
+			send('info',tpl.mustacheView("osd.rpl.success.updated",{name: data.playlist.name}));
 		});
 		$(document).bind('rplUpdateSuccess',function(e,data) {
-			send('info',d10.mustacheView("osd.rpl.success.updated",{name: data.playlist.name}));
+			send('info',tpl.mustacheView("osd.rpl.success.updated",{name: data.playlist.name}));
 		});
 		$(document).bind('rplRenameSuccess',function(e,playlist) {
-			send('info',d10.mustacheView("osd.rpl.success.renamed",{name: playlist.name}));
+			send('info',tpl.mustacheView("osd.rpl.success.renamed",{name: playlist.name}));
 		});
 
 

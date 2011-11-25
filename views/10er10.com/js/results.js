@@ -53,27 +53,6 @@ var results = function (search,mainUi) {
 			n.node.addClass(n.class).removeClass(n.oldClass);
 			o.node.addClass(o.class).removeClass(o.oldClass);
 		});
-		/*
-		ui.delegate("button.toggleDetails","click",function() {
-			var item = $(this).closest(".rItem");
-			if ( item.hasClass("parsed") ) {
-				if ( item.hasClass("opened") ) {
-					item.removeClass("opened");
-				} else {
-					item.addClass("opened");
-				}
-				return ;
-			}
-			if ( item.data("songs") ) {
-				var html = "";
-				$.each(item.data("songs"),function(key,val) {
-					html+=d10.song_template(val);
-				});
-				item.find("div.details div.list").html(html);
-			}
-			item.addClass("parsed").addClass("opened").removeData("songs");
-			
-		})*/
 		
 		ui.delegate(".rCenter .head", "click", function() {
 			var item = $(this).closest(".rItem");
