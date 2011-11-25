@@ -150,40 +150,6 @@ define(["js/d10.eventEmitter"],function(eventEmitter) {
 			return null;
 		},
 	});
-	/*
-	
-	d10.fn.tabSwitcher = function ( tabWidget, baseSegments, options ) {
-		var settings = { 
-			getTab: function(widget, segment) {return widget.find("[action="+segment+"]");},
-			getSelectedTab: function(widget) {return widget.find(".active");},
-			on: function(widget) {return widget.addClass("active");},
-			off: function(widget) {return widget.removeClass("active");}
-		},
-		matchSegments = function(segments) {
-			if ( !segments.length || segments.length <= baseSegments.length ) { return false; }
-			if ( !baseSegments.length ) { return segments[0]; }
-			for ( var i in baseSegments ) {
-				if ( baseSegments[i] != segments[i] ) {
-					return false;
-				}
-			}
-			return segments[i+1];
-		}
-		;
-		options = options || {};
-		$.extend(settings,options);
-		d10.router.bind("router",function(segments) {
-			var sel = matchSegments(segments);
-			if( !sel ) { return ; }
-			var tab = settings.getTab(tabWidget, sel);
-			if ( !tab.length ) { return ; }
-			var activeTab = settings.getSelectedTab(tabWidget);
-			if ( activeTab.length ) { settings.off(activeTab) ; }
-			settings.on(tab);
-		});
-	};
-	
-	*/
 	
 	return router;
 	

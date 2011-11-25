@@ -166,9 +166,9 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 				}
 				var playlist = $(this).attr('name');
 				if ( playlist && playlist.length ) {
-					d10.my.plmanager.append_song(id,playlist); //TODO
+					plmCtlr.append_song(id,playlist);
 				} else {
-					d10.playlist.append(song.clone().removeClass("dragging selected")); //TODO
+					playlist.append(song.clone().removeClass("dragging selected"));
 				}
 				$(this).closest('.hoverbox').ovlay().close();
 			});
