@@ -349,7 +349,7 @@ function myCtrl (ui) {
 					osd.send("info",tpl.mustacheView("my.review.success.filetransfert",{filename: file.name}));
 					canvas.remove();
 					dropbox.find(".images").append(
-							tpl.mustacheView("my.image.widget",{url: config.img_root+"/"+body.filename})
+							tpl.mustacheView("my.image.widget",{url: imageUtils.getImageUrl(body.filename)})
 					);
 					cb();
 				},
@@ -472,7 +472,7 @@ function myCtrl (ui) {
 				doc.download_link = "audio/download/"+doc._id;
 				$.each(images, function(k,v) {
 					doc.images.push(
-						tpl.mustacheView("my.image.widget",{url: config.img_root+"/"+v.filename})
+						tpl.mustacheView("my.image.widget",{url: imageUtils.getImageUrl(v.filename)})
 							);
 				});
 				topicdiv.html( tpl.mustacheView("review.song",doc)  );

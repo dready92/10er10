@@ -108,7 +108,7 @@ define(["js/domReady","js/d10.router", "js/playlist.new","js/d10.rest","js/d10.t
 							songs: songs.length,
 							artists: artistsTokenized,
 							genre: genre ? [ genre ] : [],
-							image_url: image ? config.img_root+"/"+image : imageUtils.getAlbumDefaultImage()
+							image_url: image ? imageUtils.getImageUrl(image) : imageUtils.getAlbumDefaultImage()
 						}
 					)).data("songs",songs);
 				widgets.push(

@@ -17,6 +17,9 @@ define(["js/config"], function(config) {
 		}
 		debug("image ratio : ",ratio);
 		return ratio;
+	},
+	getImageUrl: function(name) {
+		return config.img_root+"/"+encodeURIComponent(name);
 	}
 	};
 });
