@@ -53,7 +53,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 			router.navigateTo( [ "library","albums","<all>" ] );
 		});
 		
-		events.bind("whenLibraryScopeChange", function() {
+		events.topic("libraryScopeChange").subscribe(function() {
 			for ( var i in allAlbumsContents ) {
 				allAlbumsContents[i].remove();
 			}

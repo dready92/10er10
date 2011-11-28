@@ -1,4 +1,5 @@
-define(["js/d10.rest","js/d10.eventEmitter","js/track","js/d10.templates"],function(rest, eventEmitterDef, track, tpl) {
+define(["js/d10.rest","js/d10.eventEmitter","js/track","js/d10.templates", "js/d10.events"],
+	   function(rest, eventEmitterDef, track, tpl, pubsub) {
 
 /*
 
@@ -129,11 +130,13 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	/*
 	 * called when this class is the driver , "this" = <audio> element, e = event
 	 */
+	/*
 	var handleEvent = this.handleEvent = function(e) {
 		if ( trackEvents[e.type] ) {
 			trackEvents[e.type].apply(this,arguments);
 		}
 	};
+	*/
 
 	var getNextId = function() {
 		var widget = playlist.next();
@@ -144,7 +147,16 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	var createTrack = function(id,url,duration,options) {
 		options = options || {};
 		$.each(allEvents,function(i,e) {
-			options[e] = proxyHandler;
+			debug("binding track evt on topic ",e);
+			options[e] = pubsub.topic(e).publish;
+			/*
+			(function(e) {
+				options[e] = function() {
+// 					debug("got event ",e,this,arguments);
+					pubsub.topic(e).publish.apply(this,arguments);
+				}
+			})(e);
+		*/
 		});
 		return new track(id, url,duration , options);
 	};
@@ -325,6 +337,8 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		return true;
 	};
 
+	var subscribedEvents = [];
+	
 	var enable = this.enable = function(previousDriver) {
 		if ( previousDriver ) {
 			var track = previousDriver.current();
@@ -336,10 +350,22 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 			}
 		}
 		playlist.title(settings.title);
+		for ( var e in trackEvents ) {
+			(function(e) {
+				var callback = function() { trackEvents[e].apply(this,arguments); },
+				topic = "on"+e;
+				subscribedEvents.push( {topic: topic, callback: callback } );
+				debug("subscribing to topic ",topic);
+				pubsub.topic(topic).subscribe(callback);
+			})(e);
+		}
 	};
 
 	var disable = this.disable = function() {
-		
+		var handle;
+		while ( handle = subscribedEvents.pop() ) {
+			pubsub.topic(handle.topic).unsubscribe(handle.callback);
+		};
 	};
 
 	this.listModified = function(e) {

@@ -139,16 +139,18 @@ var onConfig = function() {
 			d10Server
 		);
 		globalSrv.listen(config.port);
-		/*
-		d10Server.on("error",function() {
-			console.log("SERVER ERROR");
-			console.log(arguments);
-		});
+		
+		
 		d10Server.on("clientError",function() {
 			console.log("CLIENT ERROR");
 			console.log(arguments);
 		});
-
+/*
+		d10Server.on("error",function() {
+			console.log("SERVER ERROR");
+			console.log(arguments);
+		});
+		
 		globalSrv.on("error",function() {
 			console.log("SERVER ERROR");
 			console.log(arguments);

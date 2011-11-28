@@ -61,8 +61,9 @@ exports.api = function(app) {
 					d10.couch.d10.view("user/all_infos",{key: [request.ctx.user._id.replace(/^us/,""), "pl"],include_docs: true},
 						function(err,data,meta) {
 							if ( err ) return cb(err);
+							console.log(data);
 							var back = [];
-							console.log(arguments);
+// 							console.log(arguments);
 							data.rows.forEach(function(v) { back.push(v.doc); });
 							cb(null,back);
 						}

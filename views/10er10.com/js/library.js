@@ -42,12 +42,12 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 		})
 		;
 			
-		events.bind("whenLibraryScopeChange", function() {
+		events.topic("libraryScopeChange").subscribe(function(current) {
 			var hitsTab = ui.children("nav").find("li[action=hits]");
 			if ( hitsTab.hasClass("active") ) {
 				router.navigateTo(["library","genres"]);
 			}
-			if ( libraryScope.current == "full" ) {
+			if ( current == "full" ) {
 				hitsTab.fadeIn();
 			} else {
 				hitsTab.fadeOut();
@@ -317,7 +317,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			});
 			if ( !displayGenresListener ) {
 				displayGenresListener = true;
-				events.bind("whenLibraryScopeChange", function() {
+				events.topic("libraryScopeChange").subscribe(function() {
 					resetCache();
 					displayGenres(categorydiv);
 				});
@@ -369,7 +369,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			categorydiv.find(".refresh").click(function() {
 				refresh();
 			});
-			events.bind("whenLibraryScopeChange",function() {
+			events.topic("libraryScopeChange").subscribe(function() {
 				refresh();
 			});
 		};
@@ -474,7 +474,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			
 			if ( !allArtistsListener ) {
 				allArtistsListener = true;
-				events.bind("whenLibraryScopeChange",function() {
+				events.topic("libraryScopeChange").subscribe(function() {
 					resetCache();
 					allArtists(container);
 				});
@@ -523,8 +523,8 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 						this.getOverlay().width(widget.width());
 					},
 				});
-				events.bind("whenLibraryScopeChange",function() {
-					if ( libraryScope.current == "full" ) {
+				events.topic("libraryScopeChange").subscribe(function(current) {
+					if ( current == "full" ) {
 						overlay.setUrl(rest.artist.list);
 					} else {
 						overlay.setUrl(rest.user.artist.list);
@@ -546,8 +546,8 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 							}
 						}
 				);
-				events.bind("whenLibraryScopeChange",function() {
-					if ( libraryScope.current == "full" ) {
+				events.topic("libraryScopeChange").subscribe(function(current) {
+					if ( current == "full" ) {
 						overlay.setUrl(rest.album.list);
 					} else {
 						overlay.setUrl(rest.user.album.list);
@@ -596,8 +596,8 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 						}
 					}
 				);
-				events.bind("whenLibraryScopeChange",function() {
-					if ( libraryScope.current == "full" ) {
+				events.topic("libraryScopeChange").subscribe(function(current) {
+					if ( current == "full" ) {
 						overlay.setUrl(rest.song.listByTitle);
 					} else {
 						overlay.setUrl(rest.user.song.listByTitle);

@@ -354,11 +354,11 @@ var results = function (search,mainUi) {
 		
 	};
 	
-	events.bind("whenLibraryScopeChange",function() {
+	events.topic("libraryScopeChange").subscribe(function(current) {
 		uiReset();
 		query = lastRoute;
 		lastRoute = "";
-		if ( libraryScope.current == "full" ) {
+		if ( current == "full" ) {
 			restEndPoint = rest.search.all;
 		} else {
 			restEndPoint = rest.user.search.all;

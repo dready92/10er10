@@ -59,17 +59,17 @@ define(["js/d10.utils", "js/config"], function(toolbox, config) {
 		var settings = {
 			"onprogressUpdate": function(){} // fired if the song loading progress event fired and computed length is different
 		};
-			for (var allEventsIndex in allEvents ) {
-				settings[allEvents[allEventsIndex]] = null;
-			};
-			var progressFromBuffered = function() {
-				var back = 0;
-				if (audio.buffered.length > 0) {
-					back = Math.round(100 * audio.buffered.end(audio.buffered.length-1) / audio.duration);
-				}
-				return back;
-			};
-			var progressTimeout = null;
+		for (var allEventsIndex in allEvents ) {
+			settings[allEvents[allEventsIndex]] = null;
+		};
+		var progressFromBuffered = function() {
+			var back = 0;
+			if (audio.buffered.length > 0) {
+				back = Math.round(100 * audio.buffered.end(audio.buffered.length-1) / audio.duration);
+			}
+			return back;
+		};
+		var progressTimeout = null;
 			
 		var privateEvents = {
 			"onstalled": function() {
