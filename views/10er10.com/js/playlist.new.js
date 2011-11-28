@@ -287,11 +287,14 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 			}
 			return $('body').data('volume');
 		};
-		if ( user.get_preferences().volume ) {
-			volume(user.get_preferences().volume,true);
-		} else {
-			volume(0.5,true);
-		}
+		
+		pubsub.topic("user.infos").one(function() {
+			if ( user.get_preferences().volume ) {
+				volume(user.get_preferences().volume,true);
+			} else {
+				volume(0.5,true);
+			}
+		});
 		
 		var seek = this.seek = function(secs) {
 			driver.seek(secs);

@@ -6,7 +6,14 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo,
 				debug("volume playlist event");
 				bar.adjustBar($('body').data('volume'));
 			}},
-			{}
+			{
+				enable: function() {
+					var vol = $("body").data("volume");
+					if ( vol ) {
+						bar.adjustBar(vol);
+					}
+				}
+			}
 	);
 	
 
