@@ -44,7 +44,7 @@ define(["js/domReady","js/d10.router", "js/playlist.new","js/d10.rest","js/d10.t
 		},
 		undefinedAlbum = "__undefined_album__",
 		arrangeLatest = function(latest, then) {
-			debug("arrangeLatest: working with ", latest.length, "songs");
+// 			debug("arrangeLatest: working with ", latest.length, "songs");
 			var songs = $.map(latest,function(v) { return v.doc });
 			var songsByAlbum = {};
 			var songsByAlbumMeta = {};
@@ -77,9 +77,9 @@ define(["js/domReady","js/d10.router", "js/playlist.new","js/d10.rest","js/d10.t
 					}
 				}
 			}
-			for ( var i in songsByAlbum ) {
-				debug(i, songsByAlbum[i], songsByAlbumMeta[i]);
-			}
+// 			for ( var i in songsByAlbum ) {
+// 				debug(i, songsByAlbum[i], songsByAlbumMeta[i]);
+// 			}
 			then(songsByAlbum, songsByAlbumMeta);
 		},
 		artistsLimitChars = 140,

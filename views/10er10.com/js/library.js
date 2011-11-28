@@ -217,7 +217,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 // 			debug("Start of setting album image",image,file);
 			var ids = canvas.closest(".albumWidget").find(".list .song").map(function(k,v) { return $(this).attr("name"); }).get();
 
-			drest.song.uploadImage(ids, file, file.name, file.size, {
+			rest.song.uploadImage(ids, file, file.name, file.size, {
 				load: function(err, headers, body) {
 					if ( err || !body || !body.filename ) {
 // 						debug("image upload failed",err, body);

@@ -2,7 +2,6 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 	   "js/d10.events", "js/d10.libraryScope", "js/d10.rest", "js/d10.utils", "js/paginer"],
 	   function(dataParsers, tpl, router, events, libraryScope, rest, toolbox, restHelpers) {
 	"use strict";
-	debug(rest);
 	var bindAllAlbums = function(topicdiv, categorydiv,letter) {
 // 			categorydiv.addClass("relative");
 		categorydiv.delegate(".albumMini img","mouseenter",function() {

@@ -119,7 +119,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 			// récupération des infos utilisateur
 			//
 			userInfos: function(cb)  {
-				pubsub.topic("user.infos").one(function(infos) {debug("USER infos: ",infos); cb(null,infos);});
+				pubsub.topic("user.infos").one(function(infos) {cb(null,infos);});
 				user.refresh_infos();
 			}
 		},
@@ -127,7 +127,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		);
 		
 		when.onResponse(function() {
-			debug("Complete: ",when.complete(),"on",when.total());
+// 			debug("Complete: ",when.complete(),"on",when.total());
 			loadCount.html(when.complete());
 		});
 		

@@ -33,13 +33,29 @@ function playlistDriverRpl (options) {
 		}
 		rest.user.playerList.rpl.store(getDoc()._id,function() {});
 	};
-	
+	var subscribedEvents = [];
 	this.enable = function() {
 		if ( doc && doc.name ) {
 			playlist.title(doc.name);
 		} else {
 			debug("GRAVE: doc ou doc.name n'existe pas",doc);
 		}
+		for ( var e in this.trackEvents ) {
+			(function(e) {
+				var callback = function() { this.trackEvents[e].apply(this,arguments); },
+				topic = "on"+e;
+				subscribedEvents.push( {topic: topic, callback: callback } );
+				debug("subscribing to topic ",topic);
+				pubsub.topic(topic).subscribe(callback);
+			})(e);
+		}
+	};
+	
+	var disable = this.disable = function() {
+		var handle;
+		while ( handle = subscribedEvents.pop() ) {
+			pubsub.topic(handle.topic).unsubscribe(handle.callback);
+		};
 	};
 	
 	/**

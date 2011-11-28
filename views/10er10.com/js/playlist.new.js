@@ -110,7 +110,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 		}
 		
 		var songWidget = this.songWidget = function(identifier) {
-			debug("playlist:songWidget, id: ",identifier);
+// 			debug("playlist:songWidget, id: ",identifier);
 			var id;
 			if ( typeof identifier == "object" && identifier.id ) id = identifier.id;
 			else	id = identifier;
@@ -194,7 +194,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 			}
 			driverRecordTimeout = setTimeout(function() {
 				if( driver.writable() ) {
-					debug("playlist: calling driver.record()",driver);
+// 					debug("playlist: calling driver.record()",driver);
 					driver.record();
 				}
 				driverRecordTimeout=null;
@@ -270,7 +270,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 		var volume = this.volume = function(vol,fromPrefs) {
 			if ( arguments.length ) {
 				//controls.volumeBar.adjustBar(vol);
-				debug ("playlist : should adjust volume to "+vol);
+// 				debug ("playlist : should adjust volume to "+vol);
 				$('body').data('volume',vol);
 
 				if ( !fromPrefs ) {  
@@ -342,7 +342,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 			if ( oldDriver ) {
 				oldDriver.disable(newDriver);
 			}
-			debug("---------- playlist: setDriver",newDriver);
+// 			debug("---------- playlist: setDriver",newDriver);
 			driver = newDriver;
 			newDriver.enable(oldDriver);
 			//persist driver in database
@@ -380,7 +380,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 			drivers[name].bind("currentSongChanged",function(e,data) {
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 				var widget = songWidget(data.current).addClass(settings.currentClass);
-				debug("playlist document event playlist:currentSongChanged");
+// 				debug("playlist document event playlist:currentSongChanged");
 				pubsub.topic("playlist:currentSongChanged").publish({current: current()});
 				
 				// autoscroll
@@ -395,7 +395,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 				}
 			});
 			drivers[name].bind("ended",function(e, data) {
-				debug("playlist:ended of playlist");
+// 				debug("playlist:ended of playlist");
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 				pubsub.topic("playlist:ended").publish({current: current()});
 			});
