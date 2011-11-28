@@ -23,7 +23,6 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 						response: data
 					});
 				},
-				restMode: true,
 				url: url
 			};
 			if ( options.data ) {

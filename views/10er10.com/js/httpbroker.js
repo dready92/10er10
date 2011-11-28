@@ -46,78 +46,19 @@ define( ["js/config"], function(config) {
 		data.request._stopTime  = new Date().getTime();
 	//     debug(data);
 		
-		//handle restMode style answers
-		if ( data.request.restMode ) {
-			if ( typeof data.request.complete != 'function' ) {
-				delete cache[data.request_id];
-				return ;
-			}
-			if ( !data.request.restSuccessCodes ) {
-				data.request.restSuccessCodes = [200];
-			}
-			if ( data.status == "error" ) { // client returned error
-				data.request.complete.call(data, 999, data.error);
-			} else if ( data.request.restSuccessCodes.indexOf( data.code ) == -1 ) { // server returned error
-				data.request.complete.call(data, data.code, data.data);
-			} else {
-				data.request.complete.call(data, null, data.data);
-			}
+		if ( typeof data.request.complete != 'function' ) {
 			delete cache[data.request_id];
 			return ;
 		}
-		
-		
-		/*
-		* Handle "complete" callback option
-		*/
-		if ( typeof data.request.complete == 'function' ) {
-		if ( data.request.context && typeof data.request.context == 'object' ) {
-			data.request.complete.call(data.request.context,data,data.status);
+		if ( !data.request.restSuccessCodes ) {
+			data.request.restSuccessCodes = [200];
+		}
+		if ( data.status == "error" ) { // client returned error
+			data.request.complete.call(data, 999, data.error);
+		} else if ( data.request.restSuccessCodes.indexOf( data.code ) == -1 ) { // server returned error
+			data.request.complete.call(data, data.code, data.data);
 		} else {
-			data.request.complete(data,data.status);
-		}
-		}
-
-		/*
-		* Handle "success" callback option
-		*/
-		if ( typeof data.request.success == 'function' && data.status == 'success' ) {
-		if ( data.request.context && typeof data.request.context == 'object' ) {
-			data.request.success.call(data.request.context,data.data);
-		} else {
-			data.request.success(data.data);
-		}
-		}
-
-		/*
-		* Handle "error" callback option
-		*/
-		if ( typeof data.request.error == 'function' && data.status != 'success' ) {
-		if ( data.request.context && typeof data.request.context == 'object' ) {
-			data.request.error.call(data.request.context,data,data.error);
-		} else {
-			data.request.error(data, data.error);
-		}
-		}
-
-		if ( typeof data.request.callback == 'function' ) {
-		if ( data.request.context && typeof data.request.context == 'object' ) {
-			data.request.callback.call(data.request.context,data);
-		} else {
-			data.request.callback(data);
-		}
-		}/* else if ( data.request.callback.substr(0,13) == 'triggerEvent:' ) {
-		debug('httpmanager triggering ',data.request.callback.substr(13));
-		//debug(e.data);
-		$(document).trigger(data.request.callback.substr(13),data);
-		} else if ( data.request.callback.substr(0,8) == 'storeAs:' ) {
-		$('body').data(data.request.callback.substr(8),data.data);
-		} else if ( typeof that[data.request.callback] == 'function' ) {
-		that[data.request.callback](data);
-		}*/ else {
-			if ( config.debug && config.debug_options.network ) {
-				debug("httpworker callback ",data.request.callback,' inconnu');
-			}
+			data.request.complete.call(data, null, data.data);
 		}
 		delete cache[data.request_id];
 	}
@@ -140,7 +81,6 @@ define( ["js/config"], function(config) {
 		'url': options.url,
 		'method': options.method,
 		'dataType': options.dataType,
-		'restMode': options.restMode ? true:false,
 		'restSuccessCodes': options.restSuccessCodes ? options.restSuccessCodes:null
 		};
 
