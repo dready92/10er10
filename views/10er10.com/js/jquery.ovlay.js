@@ -157,12 +157,17 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 	})
 	.keydown(function(e) {
 		e.stopPropagation();
-// 		debug("keydown ",e.keyCode);
+		debug("keydown ",e.keyCode);
 		if ( overlayNode.is(":hidden") ) { overlayNode.slideDown("fast"); }
-		if ( $("ul li", overlayNode).length ) {
+		if ( overlayNode.find("ul li").length ) {
+			debug("got length...");
+			var current = $("li.current",overlayNode), node;
 			if ( e.keyCode == 40 ) {
-				var current = $("li.current",overlayNode);
-				var node = current.next();
+				if ( !current.length ) {
+					node = overlayNode.find("ul li").first();
+				} else {
+					node = current.next();
+				}
 				if ( node.length ) {
 					current.removeClass("current");
 					node.addClass("current");
@@ -175,8 +180,11 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 					//                       debug("height: ",settings.overlay.height()," pos ",node.position());
 				}
 			} else if ( e.keyCode == 38 ) {
-				var current = $("li.current",overlayNode);
-				var node = current.prev();
+				if ( !current.length ) {
+					node = overlayNode.find("ul li").last();
+				} else {
+					node = current.prev();
+				}
 				if ( node.length ) {
 					current.removeClass("current");
 					node.addClass("current");
