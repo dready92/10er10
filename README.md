@@ -18,7 +18,10 @@ Don't forget to add the node binary's folder to the path of the Unix user which 
 
 Debian squeeze users, using the nodejs deb package : you should create a symlink from /usr/lib/nodejs to /usr/lib/node for connect to work.
 
-* NPM : install the Node package manager ( http://npmjs.org ). Hint : **curl http://npmjs.org/install.sh | sh**
+* NPM : install the Node package manager ( http://npmjs.org ). As of node.js 0.6.3, NPM is now included: no more need to install it !
+
+
+Hint : **curl http://npmjs.org/install.sh | sh**
 
 Please check that your npm version (using the command **npm -v**) is >= 1.0.0 .
 
