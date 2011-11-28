@@ -1,7 +1,7 @@
 
 define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache", "js/d10.templates", "js/d10.router", 
-	   "js/playlist.new", "js/d10.jobWorker","js/bgtask", "js/plm"],
-	   function(bghttp, When, rest, user, localcache, tpl, router, playlist, jobs, bgtask, plmCtlr) {
+	   "js/playlist.new", "js/d10.jobWorker","js/bgtask", "js/plm", "js/d10.events"],
+	   function(bghttp, When, rest, user, localcache, tpl, router, playlist, jobs, bgtask, plmCtlr, pubsub) {
 	var visibleBaby = function () {
 		"use strict";
 
@@ -13,7 +13,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		
 		require(["js/playlistDriverRpl"], function() {
 			playlist.bootstrap();
-			$(document).trigger("bootstrap:playlist");
+// 			$(document).trigger("bootstrap:playlist");
 		});
 		$("#side").css("display","");
 		
@@ -41,7 +41,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 			"success": function(data) {debug("enablePingSuccess",data);},
 			"error": function(err,msg) {debug("enablePingError",err,msg);}
 		});
-		$(document).bind("audioDump",function(e,data) { jobs.push("player",data,{}); });
+		pubsub.topic("audioDump").subscribe(function(data) { jobs.push("player",data,{}); });
 		
 		
 		//
@@ -73,7 +73,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 			router.switchMainContainer = router.switchContainer;
 		}
 
-		$(document).trigger("bootstrap:router");
+// 		$(document).trigger("bootstrap:router");
 
 		//
 		// preload la vue "playlists"
@@ -119,7 +119,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 			// récupération des infos utilisateur
 			//
 			userInfos: function(cb)  {
-				$(document).one("user.infos",cb);
+				pubsub.topic("user.infos").one(function(infos) {debug("USER infos: ",infos); cb(null,infos);});
 				user.refresh_infos();
 			}
 		},

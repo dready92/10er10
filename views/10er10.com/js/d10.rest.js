@@ -16,7 +16,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 					if ( options.load ) {
 						options.load.apply(this,arguments);
 					}
-					emitter.trigger("whenRestEnd",{
+					emitter.topic("whenRestEnd").publish({
 						endpoint: endpoint,
 						status: this.code,
 						headers: this.headers,
@@ -33,7 +33,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				query.contentType = options.contentType;
 			}
 			bghttp.request(query);
-			emitter.trigger("whenRestBegin",{ endpoint: endpoint });
+			emitter.topic("whenRestBegin").publish({ endpoint: endpoint });
 	};
 	
 	var rest = {};
@@ -48,25 +48,25 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			var url = site_url+"/api/song?"+$.d10param({"filesize": filesize, "filename": filename } );
 			xhr.upload.onprogress = function(event) {
 				if ( options.progress ) options.progress.call(this,event);
-				emitter.trigger("whenRestUploadProgress",{endpoint: endpoint, event: event});
+				emitter.topic("whenRestUploadProgress").publish({endpoint: endpoint, event: event});
 			}
 			if ( options.end ) xhr.upload.onload = options.end;
 			if ( options.readystatechange ) xhr.onreadystatechange = options.readystatechange;
 			xhr.onerror = function(event) {
 // 				debug("got error on upload",arguments);
 				if ( options.error ) options.error.call(this,event);
-				emitter.trigger("whenRestError",{endpoint: endpoint,event: event});
+				emitter.topic("whenRestError").publish({endpoint: endpoint,event: event});
 				xhr= null;
 			};
 			xhr.onabort = function (event) {
 				if ( options.abort ) options.abort.call(this,event);
-				emitter.trigger("whenRestAbort",{endpoint: endpoint,event: event});
+				emitter.topic("whenRestAbort").publish({endpoint: endpoint,event: event});
 				xhr= null;
 			};
 			xhr.onload = function() {
 				if ( options.load ) options.load.call(this, this.status, this.getAllResponseHeaders(), this.responseText);
 				callback(this.status, this.getAllResponseHeaders(), this.responseText);
-				emitter.trigger("whenRestEnd",{
+				emitter.topic("whenRestEnd").publich({
 					endpoint: endpoint,
 					status: this.status,
 					headers: this.getAllResponseHeaders(),
@@ -91,7 +91,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				xhr.send(file);
 				file = null;
 			}
-			emitter.trigger("whenRestBegin",{
+			emitter.topic("whenRestBegin").publish({
 				endpoint: endpoint,
 				filename: filename,
 				filesize: filesize,
@@ -138,19 +138,19 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			}
 			xhr.upload.onprogress = function(event) {
 				if ( options.progress ) options.progress.call(this,event);
-				emitter.trigger("whenRestUploadProgress",{endpoint: endpoint, event: event});
+				emitter.topic("whenRestUploadProgress").publish({endpoint: endpoint, event: event});
 			}
 			if ( options.end ) xhr.upload.onload = options.end;
 			if ( options.readystatechange ) xhr.onreadystatechange = options.readystatechange;
 			xhr.onerror = function(event) {
 // 				debug("got error on upload",arguments);
 				if ( options.error ) options.error.call(this,event);
-				emitter.trigger("whenRestError",{endpoint: endpoint,event: event});
+				emitter.topic("whenRestError").publish({endpoint: endpoint,event: event});
 				xhr= null;
 			};
 			xhr.onabort = function (event) {
 				if ( options.abort ) options.abort.call(this,event);
-				emitter.trigger("whenRestAbort",{endpoint: endpoint,event: event});
+				emitter.topic("whenRestAbort").publish({endpoint: endpoint,event: event});
 				xhr= null;
 			};
 			xhr.onload = function() {
@@ -160,7 +160,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 					catch (e) { data = this.responseText; }
 				}
 				if ( options.load ) options.load.call(this, this.status == 200 ? null: this.status, this.getAllResponseHeaders(), data);
-				emitter.trigger("whenRestEnd",{
+				emitter.topic("whenRestEnd").publish({
 					endpoint: endpoint,
 					status: this.status,
 					headers: this.getAllResponseHeaders(),
@@ -185,7 +185,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				xhr.send(file);
 				file = null;
 			}
-			emitter.trigger("whenRestBegin",{
+			emitter.topic("whenRestBegin").publish({
 				endpoint: endpoint,
 				filename: filename,
 				filesize: filesize,

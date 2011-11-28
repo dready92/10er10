@@ -106,7 +106,7 @@ define( ["js/config"], function(config) {
 		} else {
 			data.request.callback(data);
 		}
-		} else if ( data.request.callback.substr(0,13) == 'triggerEvent:' ) {
+		}/* else if ( data.request.callback.substr(0,13) == 'triggerEvent:' ) {
 		debug('httpmanager triggering ',data.request.callback.substr(13));
 		//debug(e.data);
 		$(document).trigger(data.request.callback.substr(13),data);
@@ -114,7 +114,7 @@ define( ["js/config"], function(config) {
 		$('body').data(data.request.callback.substr(8),data.data);
 		} else if ( typeof that[data.request.callback] == 'function' ) {
 		that[data.request.callback](data);
-		} else {
+		}*/ else {
 			if ( config.debug && config.debug_options.network ) {
 				debug("httpworker callback ",data.request.callback,' inconnu');
 			}

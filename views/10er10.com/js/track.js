@@ -1,4 +1,4 @@
-define(["js/d10.utils", "js/config"], function(toolbox, config) {
+define(["js/d10.utils", "js/config", "js/d10.events"], function(toolbox, config, pubsub) {
 
 	/**
 	* <audio> wrapper
@@ -281,7 +281,7 @@ define(["js/d10.utils", "js/config"], function(toolbox, config) {
 			}
 			var evts = state.events.slice(0);
 			state.events = [];
-			$(document).trigger("audioDump", {
+			pubsub.topic("audioDump").publish({
 								"id": id, 
 								"creation": state.created, 
 								"events": evts,

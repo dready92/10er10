@@ -1,5 +1,5 @@
-define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/user", "js/d10.templates", "js/plm"], 
-	   function(foo, playlistModule, playlist, user, tpl, plmanager) {
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/user", "js/d10.templates", "js/plm", "js/d10.events"], 
+	   function(foo, playlistModule, playlist, user, tpl, plmanager, pubsub) {
 
 	var module = new playlistModule("rpl",{},{});
 	
@@ -164,7 +164,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/user", "js
 
 	//listen changes from plm module to know if we are still in sync
 	
-	$(document).bind("rplDropSuccess",function(e,data) {
+	pubsub.topic("rplDropSuccess").subscribe(function(data) {
 		if ( !module.isEnabled() )	return ;
 		if ( playlist.driver() && playlist.driver().playlistId ) {
 			var id = playlist.driver().playlistId();

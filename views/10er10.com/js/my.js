@@ -1,10 +1,10 @@
 define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/dnd", "js/playlist.new", "js/paginer", 
-	   "js/d10.router", "js/d10.utils", "js/osd", "js/d10.imageUtils", "js/config"],
-	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils, config) {
+	   "js/d10.router", "js/d10.utils", "js/osd", "js/d10.imageUtils", "js/config", "js/d10.events"],
+	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils, config, pubsub) {
 
 function myCtrl (ui) {
 	
-	$(document).one("user.infos",function() {
+	pubsub.topic("user.infos").one(function() {
 		if ( !user.get_invites_count() ) { $("ul li[action=invites]",ui).hide(); }
 	});
 

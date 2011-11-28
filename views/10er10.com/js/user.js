@@ -1,4 +1,4 @@
-define(["js/d10.rest"],function(rest) {
+define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 
 	function user () {
 		var infos = null;
@@ -20,20 +20,20 @@ define(["js/d10.rest"],function(rest) {
 			return pl;
 		};
 
-		$(document).bind('user.infos',function(e,data) { 
+		pubsub.topic('user.infos').subscribe(function(data) { 
 			debug(data);
 			infos = data;
 			infos.playlists = orderPlaylists(infos.playlists);	
 			
 		});
-		$(document).bind('rplAppendSuccess',function(e,data) {
+		pubsub.topic('rplAppendSuccess').subscribe(function(data) {
 			infos.playlists = jQuery.map(infos.playlists, function(n, i){
 		if ( n._id == data.playlist._id )	return data.playlist;
 				else																				return n;
 		});
 		});
 		
-		$(document).bind('rplCreationSuccess',function(e,data) {
+		pubsub.topic('rplCreationSuccess').subscribe(function(data) {
 			var newlist = [] ;
 			var set = false;
 			for ( var index in infos.playlists ) {
@@ -49,7 +49,7 @@ define(["js/d10.rest"],function(rest) {
 			infos.playlists = newlist;
 		});
 
-	$(document).bind('rplRenameSuccess',function(e,playlist) {
+	pubsub.topic('rplRenameSuccess').subscribe(function(playlist) {
 		for ( var index in infos.playlists ) {
 		if ( infos.playlists[index]._id == playlist._id ) {
 			infos.playlists[index].name = playlist.name;
@@ -58,7 +58,7 @@ define(["js/d10.rest"],function(rest) {
 		}
 	});
 
-	$(document).bind('rplDropSuccess',function(e,playlist) {
+	pubsub.topic('rplDropSuccess').subscribe(function(playlist) {
 		var newlist = [] ;
 		for ( var index in infos.playlists ) {
 		if ( infos.playlists[index]._id != playlist._id) {
@@ -74,7 +74,7 @@ define(["js/d10.rest"],function(rest) {
 				{
 					load: function(err,resp) {
 						if (!err) {
-							$(document).trigger("user.infos",resp);
+							pubsub.topic("user.infos").publish(resp);
 						}
 					}
 				}

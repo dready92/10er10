@@ -1,5 +1,6 @@
-define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/playlistDriverDefault", "js/d10.templates", "js/d10.libraryScope", "js/config"], 
-	   function(foo, user, rest, dnd, router, defaultDriver, tpl, libraryScope, config) {
+define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/playlistDriverDefault", "js/d10.templates", 
+	   "js/d10.libraryScope", "js/config", "js/d10.events"], 
+	   function(foo, user, rest, dnd, router, defaultDriver, tpl, libraryScope, config, pubsub) {
 	
 	/*
 	 * playlist
@@ -167,7 +168,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 				back = driver.pause();
 			}
 			if ( back ) {
-				$(document).trigger("playlist:paused",{current: current()});
+				pubsub.topic("playlist:paused").publish({current: current()});
 			}
 			return back;
 		};
@@ -180,7 +181,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 				back = true;
 			else	back = driver.resume();
 			if ( back ) {
-				$(document).trigger("playlist:resumed",{current: current()});
+				pubsub.topic("playlist:resumed").publish({current: current()});
 			}
 			return back;
 		};
@@ -213,7 +214,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 				ui.find(".emptyPlaylist").hide();
 			}
 			driver.listModified(data);
-			$(document).trigger('playlistUpdate', data );
+			pubsub.topic("playlistUpdate").publish( data );
 			recordPlaylistDriver();
 		};
 
@@ -260,7 +261,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 		
 		var empty = this.empty = function() {
 			pause();
-			$(document).trigger("playlist:ended",{current: current()});
+			pubsub.topic("playlist:ended").publish({current: current()});
 			list.empty();
 			sendPlaylistUpdate({ 'action': 'remove' });
 		};
@@ -281,7 +282,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 						volumeUpdateTimeout = null;
 					},10000);
 				}
-				$(document).trigger("playlist:volumeChanged");
+				pubsub.topic("playlist:volumeChanged").publish({volume: vol});
 				return driver ? driver.volume(vol) : true;
 			}
 			return $('body').data('volume');
@@ -377,7 +378,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 				var widget = songWidget(data.current).addClass(settings.currentClass);
 				debug("playlist document event playlist:currentSongChanged");
-				$(document).trigger("playlist:currentSongChanged",{current: current()});
+				pubsub.topic("playlist:currentSongChanged").publish({current: current()});
 				
 				// autoscroll
 				var startPx = list.scrollTop();
@@ -393,13 +394,13 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 			drivers[name].bind("ended",function(e, data) {
 				debug("playlist:ended of playlist");
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
-				$(document).trigger("playlist:ended",{current: current()});
+				pubsub.topic("playlist:ended").publish({current: current()});
 			});
 			drivers[name].bind("currentLoadProgress",function(e, data) {
-				$(document).trigger("playlist:currentLoadProgress",{current: current()});
+				pubsub.topic("playlist:currentLoadProgress").publish({current: current()});
 			});
 			drivers[name].bind("currentTimeUpdate",function(e, data) {
-				$(document).trigger("playlist:currentTimeUpdate",data);
+				pubsub.topic("playlist:currentTimeUpdate").publish(data);
 			});
 
 //			setTimeout(function() {
@@ -498,9 +499,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 				} else {
 					list.prepend(source);
 				}
-				// 				if ( p.isRpl() ) { p.setPlaylistName(p.noname); }
 				sendPlaylistUpdate({ 'action': "move" });
-				// $(document).trigger('playlistUpdate', { 'action': "move" } );
 				return true;
 			},
 			"copyDrop": function(source, target,infos) {

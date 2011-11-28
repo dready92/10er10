@@ -1,4 +1,4 @@
-define(function() {
+define(["js/d10.events"],function(pubsub) {
 	return function eventsBinder() {
 		this.enabled = false; 
 		this._events = {}; 
@@ -18,14 +18,14 @@ define(function() {
 		this.bind = function () {
 			for ( var index in this._events ) {
 				debug("bind",index);
-				$(document).bind(index,this._events[index]);
+				pubsub.topic(index).subscribe(this._events[index]);
 			}
 			this.enabled = true;
 		};
 		
 		this.unbind = function () {
 			for ( var index in this._events ) {
-				$(document).unbind(index,this._events[index]);
+				pubsub.topic(index).unsubscribe(this._events[index]);
 			}
 			this.enabled = false;
 		};

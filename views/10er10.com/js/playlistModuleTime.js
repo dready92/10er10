@@ -17,7 +17,7 @@ var createInstance = function(container) {
 				total.empty();
 				current.empty();
 			},
-			"playlist:currentTimeUpdate": function(foo,e) {
+			"playlist:currentTimeUpdate": function(e) {
 				bar.setBar(e.currentTime);
 				var d = new Date(1970,1,1,0,0,e.currentTime);
 				current.html(d.getMinutes()+':'+d.getSeconds());

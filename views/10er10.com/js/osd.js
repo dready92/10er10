@@ -1,24 +1,24 @@
-define(["js/d10.templates"], function(tpl) {
+define(["js/d10.templates", "js/d10.events"], function(tpl, pubsub) {
 
 	function osd () {
 		var ui = function () { return $('#osd'); };
 		var default_width = 600;
 		var display_length = 4000;
 
-		$(document).bind('rplDropSuccess',function(e,playlist) {
+		pubsub.topic('rplDropSuccess').subscribe(function(playlist) {
 			send('info', tpl.mustacheView("osd.rpl.success.removed",{name: playlist.name}) );
 		});
-		$(document).bind('rplCreationSuccess',function(e,data) {
+		pubsub.topic('rplCreationSuccess').subscribe(function(data) {
 	// 		debug("in osd",data);
 			send('info',tpl.mustacheView("osd.rpl.success.created",{name: data.playlist.name}));
 		});
-		$(document).bind('rplAppendSuccess',function(e,data) {
+		pubsub.topic('rplAppendSuccess').subscribe(function(data) {
 			send('info',tpl.mustacheView("osd.rpl.success.updated",{name: data.playlist.name}));
 		});
-		$(document).bind('rplUpdateSuccess',function(e,data) {
+		pubsub.topic('rplUpdateSuccess').subscribe(function(data) {
 			send('info',tpl.mustacheView("osd.rpl.success.updated",{name: data.playlist.name}));
 		});
-		$(document).bind('rplRenameSuccess',function(e,playlist) {
+		pubsub.topic('rplRenameSuccess').subscribe(function(playlist) {
 			send('info',tpl.mustacheView("osd.rpl.success.renamed",{name: playlist.name}));
 		});
 
