@@ -117,7 +117,11 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			var categorydiv=topicdiv.children('div[name="'+id+'"]');
 			if ( !categorydiv.length ) {
 				if ( topic == "genres" && category == "<all>" ) {
-					categorydiv=$('<div name="'+id+'" class="topic_category">'+tpl.mustacheView("loading")+tpl.mustacheView("library.control.genre")+"</div>");
+// 					categorydiv=$('<div name="'+id+'" class="topic_category">'+tpl.mustacheView("loading")+tpl.mustacheView("library.control.genre")+"</div>");
+					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\" />");
+					require(["js/libraryAllGenres"], function(libraryAllGenres) {
+						libraryAllGenres.onContainerCreation(topicdiv, categorydiv, topic, category, param);
+					});
 				} else if ( topic == "albums" && category == "<all>" ) {
 // 					debug("setting special tamplate");
 					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\">"+tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all")+"</div>");
@@ -167,7 +171,10 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				topicdiv.find(".albumSearch").hide();
 				
 			} else if ( topic == "genres" && category == "<all>" ) {
-				displayGenres(categorydiv);
+// 				displayGenres(categorydiv);
+				require(["js/libraryAllGenres"], function(libraryAllGenres) {
+					libraryAllGenres.onRoute(topicdiv, categorydiv, topic, category, param);
+				});
 			} else {
 				if ( topic == "albums" ) {
 					topicdiv.find(".albumSearch").show();
@@ -218,7 +225,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 		var displayGenresListener = false;
 		var displayGenres = function(categorydiv) {
 			var cacheNotExpired = localcache.getJSON("genres.index");
-			if ( cacheNotExpired ) { 
+			if ( cacheNotExpired ) {
 			}
 			var restEndPoint = libraryScope.current == "full" ? rest.genre.resume : rest.user.genre.resume;
 			restEndPoint({
@@ -260,54 +267,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			}
 		};
 		
-		var allArtistsListener = false;
-		var allArtists = function (container) {
-			var cacheNotExpired = localcache.getJSON("artists.allartists");
-			var restEndPoint = libraryScope.current == "full" ? rest.artist.allByName : rest.user.artist.allByName;
-			if ( cacheNotExpired ) { return ; }
-			localcache.setJSON("artists.allartists", {"f":"b"},true);
-			container.empty();
-			
-			restEndPoint({
-				"load": function(err, data) {
-					if ( !err ) {
-						displayAllArtists(container,data);
-					}
-				}
-			});
-			
-			if ( !allArtistsListener ) {
-				allArtistsListener = true;
-				events.topic("libraryScopeChange").subscribe(function() {
-					resetCache();
-					allArtists(container);
-				});
-			}
-			
-		};
-
-		var displayAllArtists = function (container, data) {
-// 			debug("displayAllArtists",container,data);
-// 			data = data.data;
-			var letter = '';
-			var letter_container = null;
-			for ( var index in data ) {
-				var artist = data[index].key.pop();
-				var songs = data[index].value;
-				var current_letter = artist.substring(0,1);
-				if ( current_letter != letter ) {
-					if ( letter_container ) container.append(letter_container);
-					letter = current_letter;
-					letter_container = $( tpl.mustacheView("library.listing.artist", {"letter": letter}) );
-				}
-				$(">div",letter_container).append( tpl.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs}) );
-			}
-			if ( letter_container ) { container.append( letter_container ); }
-
-			$("span.link",container).click(function() {
-				router.navigateTo(["library","artists",$(this).text()]);
-			});
-		};
 
 		var init_controls = function (topic,catdiv) {
 			if ( topic == 'artists' ) {
