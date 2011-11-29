@@ -1,7 +1,7 @@
 define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.events", "js/d10.libraryScope", 
-	   "js/d10.templates", "js/libraryAlbums", "js/localcache", "js/d10.rest", 
+	   "js/d10.templates", "js/localcache", "js/d10.rest", 
 	   "js/osd", "js/d10.imageUtils", "js/user", "js/d10.when", "js/d10.utils", "js/paginer", "js/config"],
-	   function(foo, dnd, playlist, router, events, libraryScope, tpl, libraryAlbums, 
+	   function(foo, dnd, playlist, router, events, libraryScope, tpl, 
 				localcache, rest, osd, imageUtils, user, When, toolbox, restHelpers, config) {
 	
 
@@ -121,7 +121,14 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				} else if ( topic == "albums" && category == "<all>" ) {
 // 					debug("setting special tamplate");
 					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\">"+tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all")+"</div>");
-					libraryAlbums.onContainerCreation(topicdiv,categorydiv,param);
+					require(["js/libraryAlbums"], function(libraryAlbums) {
+						libraryAlbums.onContainerCreation(topicdiv,categorydiv,param);
+					});
+				} else if ( topic == "artists" && category == "<all>" ) {
+					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\" />");
+					require(["js/libraryAllArtists"], function(libraryAllArtists) {
+						libraryAllArtists.onContainerCreation(topicdiv, categorydiv, topic, category, param);
+					});
 				}/* else if ( topic == "genres" ) {
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+tpl.mustacheView("loading")+tpl.mustacheView("library.content.genre")+"</div>");
 					categorydiv.find("article h2 > span:first-child").text(category);
@@ -148,10 +155,15 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			// special pages
 			if ( topic == "artists" && category == "<all>" ) {
 // 				debug("special category case");
-				allArtists(categorydiv);
+// 				allArtists(categorydiv);
+				require(["js/libraryAllArtists"], function(libraryAllArtists) {
+					libraryAllArtists.onRoute(topicdiv, categorydiv, topic, category, param);
+				});
 			} else if ( topic == "albums" && category == "<all>" ) {
 // 				debug("special category case", topic, category);
-				libraryAlbums.onRoute(topicdiv,categorydiv,param);
+				require(["js/libraryAlbums"], function(libraryAlbums) {
+					libraryAlbums.onRoute(topicdiv,categorydiv,param);
+				});
 				topicdiv.find(".albumSearch").hide();
 				
 			} else if ( topic == "genres" && category == "<all>" ) {
@@ -181,7 +193,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				topicdiv.data('activeCategory',id);
 			}
 
-		} 
+		};
 
 		var getCurrentCategory = function(topic) {
 			var topicdiv = ui.children('div[name='+topic+']');
@@ -202,77 +214,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			localcache.unset("genres.index");
 			localcache.unset("artists.allartists");
 		};
-		
-		var albumImageUpload = function (image, file, api, canvas) {
-// 			debug("Start of setting album image",image,file);
-			var ids = canvas.closest(".albumWidget").find(".list .song").map(function(k,v) { return $(this).attr("name"); }).get();
 
-			rest.song.uploadImage(ids, file, file.name, file.size, {
-				load: function(err, headers, body) {
-					if ( err || !body || !body.filename ) {
-// 						debug("image upload failed",err, body);
-						if ( err == 403 ) {
-							osd.send("error",tpl.mustacheView("my.review.error.forbidden"));
-						} else {
-							osd.send("error",tpl.mustacheView("my.review.error.filetransfert"));
-						}
-						canvas.after(image).remove();
-// 						cb(false);
-						return ;
-					}
-					osd.send("info",tpl.mustacheView("my.review.success.filetransfert",{filename: file.name}));
-					var newImage = $("<img />").attr("src",imageUtils.getImageUrl(body.filename));
-					canvas.after(newImage).remove();
-					
-				},
-				progress: function(e) { 
-					if (e.lengthComputable) {
-						var percentage = Math.round((e.loaded * 100) / e.total);
-						api.loadProgress(percentage);
-					}  
-				},
-				end: function(e) {  
-					api.loadProgress(100);
-				}
-			});
-		};
-		
-		var albumImageRead = function(image, file) {
-			var reader = new FileReader();
-			reader.onload = function(e) {
-				var canvas = $("<canvas />")
-					.attr("width",config.img_size+"px")
-					.attr("height",config.img_size+"px")
-					.css({width: config.img_size, height: config.img_size, border: "1px solid #7F7F7F"});
-				var api = canvas.loadImage(e, 
-					{
-						onReady: function() {
-// 							debug("ready ! ");
-							image.after(canvas).remove();
-							albumImageUpload(image, file, api, canvas);
-// 							dropbox.find(".images").append(canvas);
-							
-// 							jobs.queue.push(function(cb) {
-// 								sendImageToServer(file, api, canvas, cb);
-// 							});
-// 							jobs.run();
-						},
-						onSize: function(w,h) {
-// 							debug("got onSize",w,h);
-							var ratio = imageUtils.getImageRatio(w,h);
-							if ( ratio > 1.5 ) {
-								osd.send("error",file.name+": "+tpl.mustacheView("my.review.error.imagesize"));
-								canvas.remove();
-								return false;
-							}
-							return true;
-						}
-					}
-				);
-			};
-			reader.readAsDataURL(file);
-		};
-		
 		var displayGenresListener = false;
 		var displayGenres = function(categorydiv) {
 			var cacheNotExpired = localcache.getJSON("genres.index");
@@ -416,32 +358,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 					}
 				});
 				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger("blur"); router.navigateTo(["library",topic]); });
-				
-				
-				catdiv.delegate(".dropbox", "dragenter",function (e) {
-					$(this).addClass("hover");
-					e.stopPropagation();
-					e.preventDefault();
-				})
-				.delegate(".dropbox","dragover",function (e) {
-					e.stopPropagation();
-					e.preventDefault();
-				})
-				.delegate(".dropbox","dragleave",function (e) {
-					$(this).removeClass("hover");
-				})
-				.delegate(".dropbox","drop",function (e) {
-					e.stopPropagation();
-					e.preventDefault();
-					var that=$(this);
-					that.removeClass("hover");
-					var files = e.originalEvent.dataTransfer.files;
-// 					debug("files",files);
-					if ( !files.length  ) { return ; }
-					var file = files[0];
-					if ( !imageUtils.isImage(file) ) { return ; }
-					albumImageRead(that, file);
-				});
 				
 			} else if ( topic == 'titles' ) {
 				catdiv.append( tpl.mustacheView('library.control.title') );

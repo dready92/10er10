@@ -1,5 +1,6 @@
-define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10.libraryScope", "js/d10.dataParsers", "js/d10.templates", "js/d10.router"], 
-	   function(playlist, pubsub, rest, restHelpers, libraryScope, dataParsers, tpl, router) {
+define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10.libraryScope", "js/d10.dataParsers", 
+	   "js/d10.templates", "js/d10.router", "js/d10.albumCoverUploader"], 
+	   function(playlist, pubsub, rest, restHelpers, libraryScope, dataParsers, tpl, router, albumCoverUploader) {
 	
 	var albumResultsParser = function(rows) { //[ [ {key:.., doc: song}, ...], ... ]
 		var html=null ;
@@ -161,6 +162,7 @@ define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10
 			if ( topic == "albums" && !category ) {
 				categorydiv.find(".selectVisible").hide();
 				categorydiv.find(".pushAll").hide();
+				albumCoverUploader.setListeners(categorydiv);
 			}
 		}
 		bindControls(categorydiv, topic, category);
