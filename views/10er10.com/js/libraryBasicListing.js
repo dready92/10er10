@@ -40,11 +40,11 @@ define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10
 		var isOpts = 
 		{
 			onFirstContent: function(length) {
-				categorydiv.find(".pleaseWait").remove();
-				categorydiv.find(".songlist").removeClass("hidden");
+				categorydiv.find(".pleaseWait").hide();
+				categorydiv.find("article").show();
 				if ( !length ) {
 					categorydiv.find("article").hide();
-					categorydiv.find(".noResult").removeClass("hidden");
+					categorydiv.find(".noResult").show();
 					return ;
 				}
 				
@@ -132,9 +132,12 @@ define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10
 		});
 		
 		var refresh = function() {
-// 				categorydiv.find(".song").remove();
 			categorydiv.find(".list").empty();
 			categorydiv.find(".extendedInfos").empty();
+			categorydiv.find("article").hide();
+			categorydiv.find(".noResult").hide();
+			categorydiv.find(".pleaseWait").show();
+
 			var is = categorydiv.find("section").data("infiniteScroll");
 			if ( is && "remove" in is ) {
 				is.remove();

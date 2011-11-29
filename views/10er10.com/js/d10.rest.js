@@ -415,6 +415,8 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 					restQuery("user.song.list.genres","GET",site_url+"/api/own/list/genres",options);
 				},
 				albums: function(query, options) {
+					options = options || {};
+					options.data = {};
 					if ( query.startkey  ) {
 						options.data.startkey = query.startkey;
 						if ( query.startkey_docid ) {
