@@ -353,6 +353,7 @@ exports.client = {
 	"landing.letsgo": "Let's go !",
 	"my.review.error.imagesize": "merci de choisir une image a peu pres carré...",
 	"my.review.error.filetransfert": "Impossible d'envoyer l'image au serveur",
+	"my.review.error.forbidden": "Vous n'êtes pas autorisé à mettre à jour les informations sur ces morceaux",
 	"my.review.success.filetransfert": "Image {{filename}} enregistrée",
 	"osd.rpl.success.removed": "Playlist <b>{{name}}</b> effacée.",
 	"osd.rpl.success.created": "Playlist <b>{{name}}</b> créée.",

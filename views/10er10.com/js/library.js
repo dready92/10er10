@@ -1,8 +1,11 @@
 define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.events", "js/d10.libraryScope", 
-	   "js/d10.templates", "js/d10.dataParsers", "js/libraryAlbums", "js/localcache", "js/d10.rest", 
+	   "js/d10.templates", "js/libraryAlbums", "js/localcache", "js/d10.rest", 
 	   "js/osd", "js/d10.imageUtils", "js/user", "js/d10.when", "js/d10.utils", "js/paginer", "js/config"],
-	   function(foo, dnd, playlist, router, events, libraryScope, tpl, dataParsers, libraryAlbums, 
+	   function(foo, dnd, playlist, router, events, libraryScope, tpl, libraryAlbums, 
 				localcache, rest, osd, imageUtils, user, When, toolbox, restHelpers, config) {
+	
+
+	
 	
 	function library (ui) {
 
@@ -119,19 +122,23 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 // 					debug("setting special tamplate");
 					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\">"+tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all")+"</div>");
 					libraryAlbums.onContainerCreation(topicdiv,categorydiv,param);
-				} else if ( topic == "genres" ) {
+				}/* else if ( topic == "genres" ) {
 					categorydiv=$('<div name="'+id+'" class="topic_category">'+tpl.mustacheView("loading")+tpl.mustacheView("library.content.genre")+"</div>");
 					categorydiv.find("article h2 > span:first-child").text(category);
 					categorydiv.find("article h2 > .link").click(function() { router.navigateTo(["library","genres"]); });
 					bindControls(categorydiv, topic, category);
-				} else {
+				}*/ else {
 					debug("create category for",id);
-					categorydiv=$('<div name="'+id+'" class="topic_category">'+tpl.mustacheView("loading")+tpl.mustacheView("library.content.simple")+"</div>");
-					bindControls(categorydiv, topic, category);
-					if ( topic == "albums" && !category ) {
-						categorydiv.find(".selectVisible").hide();
-						categorydiv.find(".pushAll").hide();
-					}
+// 					categorydiv=$('<div name="'+id+'" class="topic_category">'+tpl.mustacheView("loading")+tpl.mustacheView("library.content.simple")+"</div>");
+					categorydiv=$("<div name=\""+id+"\" class=\"topic_category\" />");
+					require(["js/libraryBasicListing"],function(basicListing) {
+						basicListing.onContainerCreation(topicdiv, categorydiv, topic, category, param);
+					});
+// 					bindControls(categorydiv, topic, category);
+// 					if ( topic == "albums" && !category ) {
+// 						categorydiv.find(".selectVisible").hide();
+// 						categorydiv.find(".pushAll").hide();
+// 					}
 				}
 				topicdiv.append(categorydiv);
 			} else {
@@ -154,11 +161,14 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 					topicdiv.find(".albumSearch").show();
 				}
 
+				require(["js/libraryBasicListing"],function(basicListing) {
+					basicListing.onRoute(topicdiv, categorydiv, topic, category, param);
+				});
 				// create the infiniteScroll
-				var section = categorydiv.find("section");
-				if ( !section.data("infiniteScroll") ) {
-					createInfiniteScroll(categorydiv, topic, category);
-				}
+// 				var section = categorydiv.find("section");
+// 				if ( !section.data("infiniteScroll") ) {
+// 					createInfiniteScroll(categorydiv, topic, category);
+// 				}
 			}
 			
 			
@@ -193,26 +203,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			localcache.unset("artists.allartists");
 		};
 		
-		
-		
-		var albumResultsParser = function(rows) { //[ [ {key:.., doc: song}, ...], ... ]
-			var html=null ;
-			rows.forEach(function(songs) {
-				var albumData = dataParsers.singleAlbumParser(songs);
-				if ( !html ) {
-					html=$(tpl.mustacheView("library.content.album.widget",albumData));
-				} else {
-					html = html.add($(tpl.mustacheView("library.content.album.widget",albumData)));
-				}
-			});
-			if ( !html ) {
-// 				debug("no html for ",rows.length, rows);
-				html = "";
-			}
-			return html;
-		};
-		
-		
 		var albumImageUpload = function (image, file, api, canvas) {
 // 			debug("Start of setting album image",image,file);
 			var ids = canvas.closest(".albumWidget").find(".list .song").map(function(k,v) { return $(this).attr("name"); }).get();
@@ -221,7 +211,11 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				load: function(err, headers, body) {
 					if ( err || !body || !body.filename ) {
 // 						debug("image upload failed",err, body);
-						osd.send("error",tpl.mustacheView("my.review.error.filetransfert"));
+						if ( err == 403 ) {
+							osd.send("error",tpl.mustacheView("my.review.error.forbidden"));
+						} else {
+							osd.send("error",tpl.mustacheView("my.review.error.filetransfert"));
+						}
 						canvas.after(image).remove();
 // 						cb(false);
 						return ;
@@ -323,138 +317,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				});
 			}
 		};
-
-		var selectVisible = function(categorydiv) {
-			var list = categorydiv.find(".list"),
-				parent = list.parent(),
-				songs = list.children(),
-				coutHeight = parent.outerHeight(),
-				ctop = parent.position().top;
-
-			songs.removeClass("selected");
-			for ( var i = 0, last = songs.length; i<last; i++ ) {
-				var song = songs.eq(i),
-				postop = song.position().top -ctop,
-				outheight = song.outerHeight(),
-				delta = outheight * 0.1;
-				if ( postop >= -delta ) {
-					if (  (postop + outheight - delta) < coutHeight ) {
-					song.addClass("selected");
-					} else {
-						break;
-					}
-				}
-			}
-		};
-		
-		var bindControls = function(categorydiv, topic, category) {
-			categorydiv.find(".pushAll").click(function() {
-				playlist.append(categorydiv.find(".song").clone().removeClass("selected"));
-			});
-			categorydiv.find(".selectVisible").click(function() {
-				selectVisible(categorydiv);
-			});
-			
-			var refresh = function() {
-// 				categorydiv.find(".song").remove();
-				categorydiv.find(".list").empty();
-				categorydiv.find(".extendedInfos").empty();
-				var is = categorydiv.find("section").data("infiniteScroll");
-				if ( is && "remove" in is ) {
-					is.remove();
-				}
-				createInfiniteScroll(categorydiv, topic, category);
-			};
-			
-			categorydiv.find(".refresh").click(function() {
-				refresh();
-			});
-			events.topic("libraryScopeChange").subscribe(function() {
-				refresh();
-			});
-		};
-		
-		var createInfiniteScroll = function(categorydiv, topic, category) {
-			var section = categorydiv.find("section");
-			var restBase = (topic == "hits" || libraryScope.current == "full") ? rest.song.list : rest.user.song.list;
-			var data = {}, endpoint = restBase[topic];
-			if ( topic == "genres" ) {
-				data.genre = category;
-			} else if ( topic == "albums" ) {
-				data.album = category ? category : "";
-			} else if ( topic == "artists" ) {
-				data.artist = category ? category : "";
-			} else if ( topic == "titles" ) {
-				data.title = category ? category : "";
-			} else if ( topic != "creations" && topic != "hits" ) {
-				return false;
-			}
-			var loadTimeout = null, 
-				innerLoading = categorydiv.find(".innerLoading"), cursor;
-			
-			var isOpts = 
-			{
-				onFirstContent: function(length) {
-					categorydiv.find(".pleaseWait").remove();
-					categorydiv.find(".songlist").removeClass("hidden");
-					if ( !length ) {
-						categorydiv.find("article").hide();
-						categorydiv.find(".noResult").removeClass("hidden");
-						return ;
-					}
-					
-					var list = categorydiv.find(".list");
-					section.next(".grippie").show();
-					section.makeResizable(
-						{
-							vertical: true,
-							minHeight: 100,
-							maxHeight: function() {
-								// always the scrollHeight
-								var sh = list.prop("scrollHeight");
-								if ( sh ) {
-									return sh -10;
-								}
-								return 0;
-							},
-							grippie: $(categorydiv).find(".grippie")
-						}
-					);
-					require(["js/libraryExtendedInfos"], function(extendedInfos) {
-						if ( extendedInfos[topic] ) {
-							extendedInfos[topic](category,categorydiv);
-						}
-					});
-				},
-				onQuery: function() {
-					loadTimeout = setTimeout(function() {
-						loadTimeout = null;
-// 						debug("Loading...");
-						innerLoading.css("top", section.height() - 32).removeClass("hidden");
-					},500);
-				},
-				onContent: function() {
-					if ( loadTimeout ) {
-						clearTimeout(loadTimeout);
-					} else {
-						innerLoading.addClass("hidden");
-					}
-				}
-			};
-
-			if ( topic == "albums" && !category ) {
-				cursor = new restHelpers.couchMapMergedCursor(restBase.albums,{},"album");
-				isOpts.parseResults = albumResultsParser;
-			} else {
-				cursor = new restHelpers.couchMapCursor(endpoint, data);
-			}
-
-			section.data("infiniteScroll",
-				section.d10scroll(cursor,section.find(".list"),isOpts)
-			);
-		};
-		
-		
 		
 		var allArtistsListener = false;
 		var allArtists = function (container) {
@@ -674,7 +536,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 
 
 
-	debug("library !!!!!!!!!!!!!!!");
 	
 	
 	var lib = new library($('#library')),
