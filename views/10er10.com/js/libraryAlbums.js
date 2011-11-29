@@ -2,8 +2,9 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 	   "js/d10.events", "js/d10.libraryScope", "js/d10.rest", "js/d10.utils", "js/paginer"],
 	   function(dataParsers, tpl, router, events, libraryScope, rest, toolbox, restHelpers) {
 	"use strict";
-	var bindAllAlbums = function(topicdiv, categorydiv,letter) {
+	var bindAllAlbums = function(topicdiv, categorydiv, topic, category, letter) {
 // 			categorydiv.addClass("relative");
+		categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all"));
 		categorydiv.delegate(".albumMini img","mouseenter",function() {
 			var container = $(this).closest(".albumMini");
 			$(this).data("popupTimeout", setTimeout(function() {
@@ -65,7 +66,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 
 	var allAlbumsContents = {};
 	
-	var allAlbums = function(topicdiv,categorydiv, letter) {
+	var allAlbums = function(topicdiv,categorydiv, topic, category, letter) {
 		debug("allAlbums: ",topicdiv, categorydiv, letter);
 		if ( !categorydiv.data("toc-loaded") ) {
 			var restBase = libraryScope.current == "full" ? rest.album : rest.user.album;
