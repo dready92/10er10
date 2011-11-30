@@ -28,14 +28,14 @@ exports.id3tags = function(file,cb) {
 	var back = { ALBUM: "", ARTIST: "", TRACKNUMBER: "", TITLE: "", GENRE: "", DATE: "", PICTURES: [] };
 	var cbCalled = false;
 	stream.on("end",function() {
-		console.log("debug id3tags : end of stream ");
+		console.log("["+file+"] debug id3tags : end of stream ");
 		if ( !cbCalled ) {
 			return cb(null,back);
 		}
 	});
 	var parser = new musicmetadata(stream);
 	parser.on('metadata', function(result) {
-		console.log("debug id3tags: ");
+		console.log("["+file+"] debug id3tags: ");
 		for ( var i in result ) {
 			if ( i != "picture" ) {
 				console.log(i,result[i]);
@@ -70,7 +70,7 @@ exports.id3tags = function(file,cb) {
 		return cb(null,back);
 	});
 	parser.on('done', function(err) {
-		console.log("debug id3tags done: ",err);
+		console.log("["+file+"] debug id3tags done: ",err);
 		if (err) {
 			console.log("Got error decoding metadata: ",err);
 			cbCalled = true;
