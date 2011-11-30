@@ -595,7 +595,7 @@ exports.api = function(app) {
 				job.decoder = spawn(d10.config.cmds.lame, d10.config.cmds.lame_opts);
 				job.spawns.push(job.decoder);
 				job.run("oggEncode");
-				job.run("fileMeta");
+// 				job.run("fileMeta");
 			} else if ( resp == "audio/x-flac" ) {
 				job.decoder = spawn(d10.config.cmds.flac, d10.config.cmds.flac_opts);
 				job.spawns.push(job.decoder);
@@ -797,6 +797,7 @@ exports.api = function(app) {
 							return ;
 					}
 					job.run("sha1File");
+					job.run("fileMeta");
 					uploadComplete = true;
 					if ( job.tasks.fileType.status === null ) {
 						job.complete("fileType",function(err,resp) {
