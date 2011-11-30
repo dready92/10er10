@@ -191,4 +191,6 @@ You want to send some friends an email so they can create an account on your 10e
 What else ?
 -----------
 
-Fork, patch, fix bugs, send pull requests !!
+Fork, patch, send pull requests !
+
+Follow 10er10 development : https://plus.google.com/u/0/b/109983204693472020055/

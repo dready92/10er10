@@ -3,7 +3,6 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 	   function(dataParsers, tpl, router, events, libraryScope, rest, toolbox, restHelpers) {
 	"use strict";
 	var bindAllAlbums = function(topicdiv, categorydiv, topic, category, letter) {
-// 			categorydiv.addClass("relative");
 		categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all"));
 		categorydiv.delegate(".albumMini img","mouseenter",function() {
 			var container = $(this).closest(".albumMini");
@@ -34,7 +33,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 				}).mouseleave(function() {$(this).remove();}).addClass("on");
 				
 				
-			},1000));
+			},500));
 		})
 		.delegate(".albumMini img","mouseleave",function() {
 			var tid = $(this).data("popupTimeout");

@@ -19,6 +19,7 @@ To upgrade your PROD databases, run
 - removed backbone.js ( so groups like Ac/dc should work back )
 - added display of albums by covers
 - use amd to load javascript
+- split library code in several amd modules
 
 
 Upgrade from 0.7 to 0.8
