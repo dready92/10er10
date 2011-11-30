@@ -352,10 +352,10 @@ exports.api = function(app) {
 				cleanupTags: {
 					status: null,
 					run: function(then) {
-						if ( this.tasks.fileMeta.err ) {
-							cleanupFileSystem();
-							return ;
-						}
+// 						if ( this.tasks.fileMeta.err ) {
+// 							cleanupFileSystem();
+// 							return ;
+// 						}
 						if ( !this.tasks.fileMeta.response ) { this.tasks.fileMeta.response={}; }
 						var tags = {};
 						var that=this;
@@ -624,12 +624,15 @@ exports.api = function(app) {
 			}
 		});
 		
+		/* File meta data failure should not stop encoding
+		
 		job.complete("fileMeta",function(err,data) {
 			if ( err ) {
 				return safeErrResp(503,err,request.ctx);
 			}
 			
 		});
+		*/
 		
 		job.complete("sha1File",function(err,resp) {
 			if ( err ) {
