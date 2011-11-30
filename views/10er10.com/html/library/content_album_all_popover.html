@@ -1,17 +1,17 @@
 <div class="popover center">
-	<a class="link" href="#library/albums/{{album}}"><img src="{{image_url}}"></a>
+	<a class="link" href="#library/albums/{{e_album}}"><img src="{{image_url}}"></a>
 	<div class="albumTitle">
-		<a class="link" href="#library/albums/{{album}}">{{album}}</a> ({{duration}}), {{songsNb}} ((songs))
+		<a class="link" href="#library/albums/{{e_album}}">{{album}}</a> ({{duration}}), {{songsNb}} ((songs))
 	</div>
 	<div class="left"><span class="label">((artists))</span>
 		<ul >
-			{{#artists}}<li><a class="link" href="#library/artists/{{.}}">{{.}}</a></li>{{/artists}}
+			{{#artists}}<li><a class="link" href="#library/artists/{{encoded}}">{{name}}</a></li>{{/artists}}
 		</ul>
 	</div>
 <hr>
 	<div class="left"><span class="label">((genres))</span>
 		<ul >
-			{{#genres}}<li><a class="link" href="#library/genres/{{.}}">{{.}}</a></li>{{/genres}}
+			{{#genres}}<li><a class="link" href="#library/genres/{{encoded}}">{{name}}</a></li>{{/genres}}
 		</ul>
 	</div>
 </div> 
