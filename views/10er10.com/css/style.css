@@ -1983,11 +1983,10 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	background-color: #232323;
 	border: 2px solid #9A9A9A;
 	-webkit-border-radius: 9px;
-	-webkit-transition-property: background-color, width, height, top, left, border-color, border-width;
-	-webkit-transition-duration: 0.6s;
-	-moz-border-radius: 9px;	
-	-moz-transition-property: background-color, width, height, top, left, border-color, border-width;
-	-moz-transition-duration: 0.6s;
+	-moz-border-radius: 9px;
+	
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 
 }
 
@@ -2000,12 +1999,9 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	background-color: #232323;
 	border: 2px solid #9A9A9A;
 	-webkit-border-radius: 9px;
-	-webkit-transition-property: background-color, width, height, top, left, border-color, border-width;
-	-webkit-transition-duration: 0.6s;
-	-moz-border-radius: 9px;	
-	-moz-transition-property: background-color, width, height, top, left, border-color, border-width;
-	-moz-transition-duration: 0.6s;
-
+	-moz-border-radius: 9px;
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 }
 
 #results div.resultContainer div.rCenter {
@@ -2017,11 +2013,10 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	background-color: #232323;
 	border: none;
 	-webkit-border-radius: 9px;	
-	-webkit-transition-property: background-color, width, height, top, left, border-color, border-width;
-	-webkit-transition-duration: 0.6s;
 	-moz-border-radius: 9px;	
-	-moz-transition-property: background-color, width, height, top, left, border-color, border-width;
-	-moz-transition-duration: 0.6s;
+	
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 }
 
 #results .list {display: table; }
@@ -2041,10 +2036,8 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	height: 150px;
 	background: #121212;
 	overflow: hidden;
-	-webkit-transition-property: background-color, width, height, top, left, border-color, border-width,border-radius;
-	-webkit-transition-duration: 0.6s;
-	-moz-transition-property: background-color, width, height, top, left, border-color, border-width,border-radius;
-	-moz-transition-duration: 0.6s;
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 	-webkit-border-radius: 9px;
 	-moz-border-radius: 9px;
 
@@ -2058,29 +2051,22 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	background: #232323;
 	-webkit-border-radius: 0px;
 	-moz-border-radius: 0px;
-	-webkit-transition-property: background-color, width, height, top, left, border-color, border-width,border-radius;
-	-webkit-transition-duration: 0.6s;
-	-moz-transition-property: background-color, width, height, top, left, border-color, border-width,border-radius;
-	-moz-transition-duration: 0.6s;
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 }
 
 #results div.resultContainer div.rSum1 h1, #results div.resultContainer div.rSum2 h1 {
 	font-size: 1.3em;
 	padding: 7px 1px 6px 6px;
-	-webkit-transition-property: font-size, padding;
-	-webkit-transition-duration: 0.6s;
-	-moz-transition-property: font-size, padding;
-	-moz-transition-duration: 0.6s;
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 }
 
 #results div.resultContainer div.rCenter h1 {
 	padding: 7px 1px 6px 40px;
 	font-size: 1.6em;
-	-webkit-transition-property: font-size, padding;
-	-webkit-transition-duration: 0.6s;
-	-moz-transition-property: font-size, padding;
-	-moz-transition-duration: 0.6s;
-
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 }
 
 #results div.resultContainer div.albums div.rItem,
@@ -2105,7 +2091,8 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	color: rgba(191, 151, 48, 0.8);
 	cursor: pointer;
 }
-#results div.resultContainer div.albums div.rItem div.details,#results div.resultContainer div.artists div.rItem div.details {
+#results div.resultContainer div.albums div.rItem div.details,
+#results div.resultContainer div.artists div.rItem div.details {
 	display: none;
 }
 
@@ -2117,39 +2104,28 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 #results div.resultContainer div.albums div.rItem div.head,
 #results div.resultContainer div.artists div.rItem div.head {
 	padding-top: 0px;
-	-webkit-transition-property: font-size, padding, color;
-	-webkit-transition-duration: 0.6s;
-	-moz-transition-property: font-size, padding, color;
-	-moz-transition-duration: 0.6s;
-
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 }
 
 #results div.resultContainer div.albums div.rItem.opened div.head,
 #results div.resultContainer div.artists div.rItem.opened div.head {
 	padding-top: 5px;
-	-webkit-transition-property: font-size, padding;
-	-webkit-transition-duration: 0.6s;
-	-moz-transition-property: font-size, padding;
-	-moz-transition-duration: 0.6s;
-
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 }
 
 #results div.resultContainer div.albums div.rItem div.head span.name,
 #results div.resultContainer div.artists div.rItem div.head span.name  {
-	-webkit-transition-property: font-size, padding;
-	-webkit-transition-duration: 0.3s;
-	-moz-transition-property: font-size, padding;
-	-moz-transition-duration: 0.3s;
-
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
 }
 
 #results div.albums.rCenter div.rItem.details.opened div.head span.name,
 #results div.artists.rCenter div.rItem.details.opened div.head span.name {
 	font-size: 1.2em;
-	-webkit-transition-property: font-size, padding;
-	-webkit-transition-duration: 0.3s;
-	-moz-transition-property: font-size, padding;
-	-moz-transition-duration: 0.3s;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
 }
 
 #results div.resultContainer div.rCenter div.enlarge {
@@ -2191,10 +2167,8 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	padding-left: 20px;
 	font-size: 0.9em;
 	color: #777;
-	-webkit-transition-property: color;
-	-webkit-transition-duration: 0.6s;
-	-moz-transition-property: color;
-	-moz-transition-duration: 0.6s;
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 }
 
 #results div.resultContainer div.rCenter div.rItem.details div.head:hover,
@@ -2203,10 +2177,8 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 #results div.resultContainer div.rCenter div.rItem.details div.head:hover>span.duration{
 	cursor: pointer;
 	color: #BF9730;
-	-webkit-transition-property: color;
-	-webkit-transition-duration: 0.3s;
-	-moz-transition-property: color;
-	-moz-transition-duration: 0.3s;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
 }
 
 
@@ -2221,19 +2193,15 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 #results div.resultContainer div.rSum2.songs div.song span.title{
 	font-weight: normal;
 	padding: 0;
-	-webkit-transition-property: font-weight, padding;
-	-webkit-transition-duration: 0.6s;
-	-moz-transition-property: font-weight, padding;
-	-moz-transition-duration: 0.6s;
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 }
 
 #results div.resultContainer div.rCenter.songs div.song span.title {
 	padding: 0 0 0 3px;
 	font-weight: bold;
-	-webkit-transition-property: font-size, padding;
-	-webkit-transition-duration: 0.6s;
-	-moz-transition-property: font-size, padding;
-	-moz-transition-duration: 0.6s;
+	-webkit-transition: all 0.6s;
+	-moz-transition: all 0.6s;
 }
 
 #results div.resultContainer div.rCenter.songs div.song span.artist {
