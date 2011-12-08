@@ -420,7 +420,7 @@ exports.api = function(app) {
 				applyTagsToFile: {
 					status: null,
 					run: function(then) {
-						audioUtils.setOggtags(d10.config.audio.dir+"/"+this.oggName,this.tasks.cleanupTags.response,function(err,cb) {
+						audioUtils.setOggtags(d10.config.audio.dir+"/"+this.oggName[2]+"/"+this.oggName,this.tasks.cleanupTags.response,function(err,cb) {
 							then(err,cb);
 						});
 					}
@@ -621,6 +621,9 @@ exports.api = function(app) {
 				});
 				job.spawns.push(job.decoder);
 				job.run("oggEncode");
+			} else if (  job.tasks.fileType.response == "application/ogg" ) { 
+				job.emit("oggAvailable",[]); 
+				
 			}
 		});
 		
@@ -802,10 +805,8 @@ exports.api = function(app) {
 					if ( job.tasks.fileType.status === null ) {
 						job.complete("fileType",function(err,resp) {
 							request.emit("uploadCompleteAndFileTypeAvailable");
-							if (  job.tasks.fileType.response == "application/ogg" ) { job.emit("oggAvailable",[]); }
 						});
 					} else {
-						if ( job.tasks.fileType.response == "application/ogg" ) { job.emit("oggAvailable",[]); }
 						request.emit("uploadCompleteAndFileTypeAvailable");
 					}
 					d10.log("debug","fileWriter end event");
