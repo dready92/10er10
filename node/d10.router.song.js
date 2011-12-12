@@ -143,6 +143,14 @@ exports.api = function(app) {
 							d10.realrest.err(err.statusCode, err.statusMessage, request.ctx);
 							return ;
 						}
+						
+						if ( doc.user != request.ctx.user._id && !request.ctx.user.superman ) {
+							d10.log("debug",request.ctx.user._id,"Not allowed to edit", doc._id);
+							d10.realrest.err(403, "Forbidden", request.ctx);
+							return ;
+							
+						}
+						
 						for ( var i in fields ) {
 							doc[i] = fields[i];
 						}

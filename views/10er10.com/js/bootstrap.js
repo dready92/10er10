@@ -145,7 +145,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 			var playlists = user.get_playlists();
 			var elem = $(tpl.mustacheView('hoverbox.addsong.container',{playlist: playlists, _id: id}));
 			if ( playlists.length ) { $('div[name=playlists]',elem).show(); }
-			if ( song.attr("data-owner") ) {
+			if ( song.attr("data-owner") || user.is_superman() ) {
 				elem.find("[name=edit]").removeClass("hidden");
 			}
 			

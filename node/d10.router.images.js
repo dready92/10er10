@@ -32,7 +32,11 @@ exports.api = function(app) {
 				}
 				
 				var doc = responses.doc;
-				
+				if ( doc.user != request.ctx.user._id && !request.ctx.user.superman ) {
+					d10.log("debug",request.ctx.user._id,"Not allowed to edit", doc._id);
+					d10.realrest.err(403, "Forbidden", request.ctx);
+					return ;
+				}
 				var backOffset = responses.used.indexOf( doc._id);
 				if ( backOffset < 0 ) {
 					// image not in the list of images for this doc
@@ -200,7 +204,7 @@ exports.api = function(app) {
 							console.log("Image upload: error in CouchDB docs retrieval");
 							return cb({code: 423, message: err}); 
 						}
-						if ( doc.user != request.ctx.user._id ) {
+						if ( doc.user != request.ctx.user._id && !request.ctx.user.superman ) {
 							console.log("Image upload: no doc to update");
 							return cb({code: 403, message: "You're not allowed to edit this document"}); 
 						}
@@ -234,7 +238,7 @@ exports.api = function(app) {
 						}
 						var docs = [];
 						resp.rows.forEach(function(v) {
-							if ( v.doc.user == request.ctx.user._id ) { docs.push(v.doc); }
+							if ( v.doc.user == request.ctx.user._id || request.ctx.user.superman ) { docs.push(v.doc); }
 						});
 						if ( ! docs.length ) { 
 							console.log("Image upload: no doc to update");

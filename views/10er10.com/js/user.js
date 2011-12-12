@@ -130,6 +130,11 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 			return infos.user._id;
 		};
 	
+		this.is_superman = function() {
+			if ( infos == null )  return 0;
+			return infos.user.superman;
+		};
+		
 	}
 
 	var u = new user();

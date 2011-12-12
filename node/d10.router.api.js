@@ -864,7 +864,7 @@ exports.api = function(app) {
 			if ( err ) {
 				return d10.realrest.err(423,err,request.ctx);
 			}
-			if ( doc.user != request.ctx.user._id ) {
+			if ( doc.user != request.ctx.user._id && !request.ctx.user.superman ) {
 				return d10.realrest.err(403,"You are not allowed to delete this song",request.ctx);
 			}
 			
