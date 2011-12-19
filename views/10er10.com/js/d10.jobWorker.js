@@ -1,4 +1,4 @@
-define(function() {
+define(["js/config"],function(config) {
 	var jobWorker = function(url,onresponse) {
 		var worker = new Worker(url);
 		var callbacks = {};
@@ -109,6 +109,6 @@ define(function() {
 			queueTimeout = setTimeout(iterate,1000);
 		};
 	};
-	var theJobs = new jobs(base_url+"js/jobworker.js",4,function(job,data) {debug("job response: ",job,data);});
+	var theJobs = new jobs(config.base_url+"js/jobworker.js",4,function(job,data) {debug("job response: ",job,data);});
 	return theJobs;
 });

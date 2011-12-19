@@ -352,7 +352,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				this._activate("main","library",this.switchMainContainer);
 				return ;
 			} else {
-				topic = "genres";
+				topic = config.library.defaultTab;
 			}
 		}
 		lib.display( decodeURIComponent(topic), category ? decodeURIComponent(category) : null, param ? decodeURIComponent(param) : null );

@@ -455,10 +455,7 @@ function myCtrl (ui) {
 	
 	
 	var deleteSong = function(id, then ) {
-		debug("deleteSongURL: ",site_url+"/api/deleteSong/"+id);
-		rest.song.remove(id, {
-			load: then
-		});
+		rest.song.remove(id, {load: then});
 	};
 	
 	var init_topic_songreview = function (topicdiv, song_id ) {

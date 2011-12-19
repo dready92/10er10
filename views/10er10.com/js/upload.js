@@ -137,7 +137,6 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest"], func
 				var file = widget.data('file');
 				var waitText = tpl.mustacheView("upload.song.processing");
 				widget.data("status",1);
-			//       var url = site_url+'/api/song?'+$.d10param({"filesize": file.size, "filename": file.name } );
 				$("span.cancel",widget).hide();
 				$("span.progress",widget).show();
 			

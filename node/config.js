@@ -69,6 +69,10 @@ exports.cmds = {
 }
 
 
+exports.library = {
+	// default tab when click on "library" : "genres","albums","titles","hits" (=popular), "creations" (=last songs uploaded)
+	defaultTab: "genres"
+}
 exports.javascript = {
 	includes : [
 		"modernizr-1.6.min.js",

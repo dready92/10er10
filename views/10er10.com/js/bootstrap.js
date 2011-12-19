@@ -1,7 +1,7 @@
 
 define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache", "js/d10.templates", "js/d10.router", 
-	   "js/playlist.new", "js/d10.jobWorker","js/bgtask", "js/plm", "js/d10.events"],
-	   function(bghttp, When, rest, user, localcache, tpl, router, playlist, jobs, bgtask, plmCtlr, pubsub) {
+	   "js/playlist.new", "js/d10.jobWorker","js/bgtask", "js/plm", "js/d10.events", "js/config"],
+	   function(bghttp, When, rest, user, localcache, tpl, router, playlist, jobs, bgtask, plmCtlr, pubsub, config) {
 	var visibleBaby = function () {
 		"use strict";
 
@@ -37,7 +37,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		//
 		// the monitor
 		//
-		jobs.push("enablePing",{"url": site_url+"/api/ping"},{
+		jobs.push("enablePing",{"url": config.site_url+"/api/ping"},{
 			"success": function(data) {debug("enablePingSuccess",data);},
 			"error": function(err,msg) {debug("enablePingError",err,msg);}
 		});
@@ -97,7 +97,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		//
 		// initialisation des workers ajax
 		//
-		bghttp.init(base_url);
+		bghttp.init(config.base_url);
 
 		var loadCount = $("#initialLoading .count"),
 			loadTotal = $("#initialLoading .total");

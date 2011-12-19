@@ -1,5 +1,4 @@
-define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
-
+define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, config) {
 	var useFileReader = false;
 	if ( typeof FileReader != "undefined" ) {
 		var fr = new FileReader();
@@ -44,7 +43,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				options = null;
 			}
 			var xhr = new XMLHttpRequest();
-			var url = site_url+"/api/song?"+$.d10param({"filesize": filesize, "filename": filename } );
+			var url = config.site_url+"/api/song?"+$.d10param({"filesize": filesize, "filename": filename } );
 			xhr.upload.onprogress = function(event) {
 				if ( options.progress ) options.progress.call(this,event);
 				emitter.topic("whenRestUploadProgress").publish({endpoint: endpoint, event: event});
@@ -98,15 +97,15 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			});
 		},
 		remove: function(song_id, options) {
-			restQuery("song.remove","DELETE",site_url+"/api/song/"+song_id,options);
+			restQuery("song.remove","DELETE",config.site_url+"/api/song/"+song_id,options);
 		},
 		get: function(song_id, options) {
 			if ( $.isArray(song_id) ) {
 				options.data = {ids: song_id};
-				restQuery("song.get","POST",site_url+"/api/songs",options);
+				restQuery("song.get","POST",config.site_url+"/api/songs",options);
 				
 			} else {
-				restQuery("song.get","GET",site_url+"/api/song/"+song_id,options);
+				restQuery("song.get","GET",config.site_url+"/api/song/"+song_id,options);
 			}
 		},
  		/*
@@ -122,7 +121,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			if ( start ) {
 				options.data = {start: start};
 			}
-			restQuery("song.listByTitle","GET",site_url+"/api/title",options);
+			restQuery("song.listByTitle","GET",config.site_url+"/api/title",options);
 		},
  
 		uploadImage: function(song_id, file, filename, filesize, options) {
@@ -130,10 +129,10 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			var xhr = new XMLHttpRequest();
 			var url ;
 			if ( $.isArray(song_id) ) {
-				url = site_url+"/api/songImage?"+$.d10param({filesize: file.size, filename: file.name, "ids[]": song_id});
+				url = config.site_url+"/api/songImage?"+$.d10param({filesize: file.size, filename: file.name, "ids[]": song_id});
 				debug(url);
 			} else {
-				url = site_url+"/api/songImage/"+song_id+"?"+$.d10param({filesize: file.size, filename: file.name});
+				url = config.site_url+"/api/songImage/"+song_id+"?"+$.d10param({filesize: file.size, filename: file.name});
 			}
 			xhr.upload.onprogress = function(event) {
 				if ( options.progress ) options.progress.call(this,event);
@@ -203,7 +202,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			 * @param type String starring type ( "likes","dislikes")
 			 */
 			set: function(id, type, options) {
-				restQuery("song.starring.set","PUT",site_url+"/api/starring/"+type+"/"+id, options);
+				restQuery("song.starring.set","PUT",config.site_url+"/api/starring/"+type+"/"+id, options);
 			}
 		},
 		list: {
@@ -211,13 +210,13 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				if ( query.startkey && query.startkey_docid ) {
 					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 				}
-				restQuery("song.list.hits","GET",site_url+"/api/list/hits",options);
+				restQuery("song.list.hits","GET",config.site_url+"/api/list/hits",options);
 			},
 			creations: function(query, options) {
 				if ( query.startkey && query.startkey_docid ) {
 					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 				}
-				restQuery("song.list.creations","GET",site_url+"/api/list/creations",options);
+				restQuery("song.list.creations","GET",config.site_url+"/api/list/creations",options);
 			},
 			genres: function(query, options) {
 				options.data = {};
@@ -225,7 +224,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 				}
 				options.data.genre = query.genre;
-				restQuery("song.list.genres","GET",site_url+"/api/list/genres",options);
+				restQuery("song.list.genres","GET",config.site_url+"/api/list/genres",options);
 			},
 			albums: function(query, options) {
 				options.data = {};
@@ -241,7 +240,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				if( query.album ) {
 					options.data.album = query.album;
 				}
-				restQuery("song.list.albums","GET",site_url+"/api/list/albums",options);
+				restQuery("song.list.albums","GET",config.site_url+"/api/list/albums",options);
 			},
  			artists: function(query, options) {
 				options.data = {};
@@ -251,7 +250,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				if( query.artist ) {
 					options.data.artist = query.artist;
 				}
-				restQuery("song.list.artists","GET",site_url+"/api/list/artists",options);
+				restQuery("song.list.artists","GET",config.site_url+"/api/list/artists",options);
 			},
  			titles: function(query, options) {
 				options.data = {};
@@ -261,37 +260,37 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				if( query.title ) {
 					options.data.title = query.title;
 				}
-				restQuery("song.list.titles","GET",site_url+"/api/list/titles",options);
+				restQuery("song.list.titles","GET",config.site_url+"/api/list/titles",options);
 			}
 		}
 	};
 	
 	rest.templates = function(options) {
-		restQuery("templates","GET",site_url+"/api/htmlElements",options);
+		restQuery("templates","GET",config.site_url+"/api/htmlElements",options);
 	};
 	
 
 	rest.user = {
 		infos: function(options) {
-			restQuery("user.infos","GET",site_url+"/api/userinfos",options);
+			restQuery("user.infos","GET",config.site_url+"/api/userinfos",options);
 		},
  		setPreference: function(name, value, options) {
 			options.data = {value: value};
-			restQuery("user.setPreference","PUT",site_url+"/api/preference/"+name,options);
+			restQuery("user.setPreference","PUT",config.site_url+"/api/preference/"+name,options);
 		},
 		logout: function(options) {
-			restQuery("user.logout","GET",site_url+"/welcome/goodbye",options);
+			restQuery("user.logout","GET",config.site_url+"/welcome/goodbye",options);
 		},	
 		review: {
 			count: function(options) {
-				restQuery("user.review.count","GET",site_url+"/api/toReview",options);
+				restQuery("user.review.count","GET",config.site_url+"/api/toReview",options);
 			},
 			list: function(options) {
-				restQuery("user.review.list","GET",site_url+"/api/review/list",options);
+				restQuery("user.review.list","GET",config.site_url+"/api/review/list",options);
 			},
 			post: function(id, data,options) {
 				options.data = data;
-				restQuery("user.review.post", "PUT", site_url+"/api/meta/"+id,options);
+				restQuery("user.review.post", "PUT", config.site_url+"/api/meta/"+id,options);
 			}
 		},
 		invites: {
@@ -301,31 +300,31 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			 */
 			send: function(email, options) {
 				options.data = {email: email};
-				restQuery("user.invites.send","POST",site_url+"/api/sendInvite",options);
+				restQuery("user.invites.send","POST",config.site_url+"/api/sendInvite",options);
 			},
 			/*
 			 *
 			 * @return int nr of invites a user can give
 			 */
 			count: function(options) {
-				restQuery("user.invites.cont","GET",site_url+"/api/invites/count",options);
+				restQuery("user.invites.cont","GET",config.site_url+"/api/invites/count",options);
 			}
 		},
 		storeVolume: function(volume, options) {
 			options.data = {volume: volume};
-			restQuery("user.storeVolume","POST",site_url+"/api/volume",options);
+			restQuery("user.storeVolume","POST",config.site_url+"/api/volume",options);
 		},
 		playerList: {
 			default: {
 				store: function(list,options) {
 					options.data = { list: list, type: "default"};
-					restQuery("user.playerList.default.store","PUT",site_url+"/api/current_playlist",options);
+					restQuery("user.playerList.default.store","PUT",config.site_url+"/api/current_playlist",options);
 				}
 			},
 			rpl: {
 				store: function(id, options) {
 					options.data = { rpl: id, type: "rpl"};
-					restQuery("user.playerList.rpl.store","PUT",site_url+"/api/current_playlist",options);
+					restQuery("user.playerList.rpl.store","PUT",config.site_url+"/api/current_playlist",options);
 				}
 			}
 		},
@@ -333,18 +332,18 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			if ( query.startkey && query.startkey_docid ) {
 				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 			}
-			restQuery("user.likes","GET",site_url+"/api/list/likes",options);
+			restQuery("user.likes","GET",config.site_url+"/api/list/likes",options);
 		},
 		songs: function(query, options) {
 			if ( query.startkey && query.startkey_docid ) {
 				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 			}
-			restQuery("user.songs","GET",site_url+"/api/list/s_user",options);
+			restQuery("user.songs","GET",config.site_url+"/api/list/s_user",options);
 		},
 		search: {
 			all: function(query, options) {
 				options.data = { start: query };
-				restQuery("user.search.all","GET",site_url+"/api/own/search",options);
+				restQuery("user.search.all","GET",config.site_url+"/api/own/search",options);
 			}
 		},
 		artist: {
@@ -356,10 +355,10 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				if ( start ) {
 					options.data = {start: start};
 				}
-				restQuery("user.artist.list","GET",site_url+"/api/own/artist",options);
+				restQuery("user.artist.list","GET",config.site_url+"/api/own/artist",options);
 			},
 			allByName: function(options) {
-				restQuery("user.artist.allByName","GET",site_url+"/api/own/artistsListing",options);
+				restQuery("user.artist.allByName","GET",config.site_url+"/api/own/artistsListing",options);
 			}
 		},
 		album: {
@@ -371,18 +370,18 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				if ( start ) {
 					options.data = {start: start};
 				}
-				restQuery("user.album.list","GET",site_url+"/api/own/album",options);
+				restQuery("user.album.list","GET",config.site_url+"/api/own/album",options);
 			},
 			/*
 			* @return [ {key: "A", value: 23}, {key: "G", value: 34}, ...]
 			*/
 			firstLetter: function(options) {
-				restQuery("user.album.firstLetter","GET",site_url+"/api/own/album/firstLetter",options);
+				restQuery("user.album.firstLetter","GET",config.site_url+"/api/own/album/firstLetter",options);
 			}
 		},
 		genre: {
 			resume: function(options) {
-				restQuery("user.genre.resume","GET",site_url+"/api/own/genresResume",options);
+				restQuery("user.genre.resume","GET",config.site_url+"/api/own/genresResume",options);
 			}
 		},
 		song: {
@@ -397,14 +396,14 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				if ( start ) {
 					options.data = {start: start};
 				}
-				restQuery("user.song.listByTitle","GET",site_url+"/api/own/title",options);
+				restQuery("user.song.listByTitle","GET",config.site_url+"/api/own/title",options);
 			},
 			list: {
 				creations: function(query, options) {
 					if ( query.startkey && query.startkey_docid ) {
 						options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 					}
-					restQuery("user.song.list.creations","GET",site_url+"/api/own/list/creations",options);
+					restQuery("user.song.list.creations","GET",config.site_url+"/api/own/list/creations",options);
 				},
 				genres: function(query, options) {
 					options.data = {};
@@ -412,7 +411,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 						options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 					}
 					options.data.genre = query.genre;
-					restQuery("user.song.list.genres","GET",site_url+"/api/own/list/genres",options);
+					restQuery("user.song.list.genres","GET",config.site_url+"/api/own/list/genres",options);
 				},
 				albums: function(query, options) {
 					options = options || {};
@@ -429,7 +428,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 					if( query.album ) {
 						options.data.album = query.album;
 					}
-					restQuery("user.song.list.albums","GET",site_url+"/api/own/list/albums",options);
+					restQuery("user.song.list.albums","GET",config.site_url+"/api/own/list/albums",options);
 				},
 				artists: function(query, options) {
 					options.data = {};
@@ -439,7 +438,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 					if( query.artist ) {
 						options.data.artist = query.artist;
 					}
-					restQuery("user.song.list.artists","GET",site_url+"/api/own/list/artists",options);
+					restQuery("user.song.list.artists","GET",config.site_url+"/api/own/list/artists",options);
 				},
 				titles: function(query, options) {
 					options.data = {};
@@ -449,7 +448,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 					if( query.title ) {
 						options.data.title = query.title;
 					}
-					restQuery("user.song.list.titles","GET",site_url+"/api/own/list/titles",options);
+					restQuery("user.song.list.titles","GET",config.site_url+"/api/own/list/titles",options);
 				}
 			}
 		}
@@ -458,10 +457,10 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 	
 	rest.server = {
 		length: function(options) {
-			restQuery("server.length","GET",site_url+"/api/length",options);
+			restQuery("server.length","GET",config.site_url+"/api/length",options);
 		},
 		load: function(options) {
-			restQuery("server.load","GET",site_url+"/api/serverLoad",options);
+			restQuery("server.load","GET",config.site_url+"/api/serverLoad",options);
 		}
 	};
 
@@ -480,7 +479,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			if ( start ) {
 				options.data = {start: start};
 			}
-			restQuery("album.list","GET",site_url+"/api/album",options);
+			restQuery("album.list","GET",config.site_url+"/api/album",options);
 		},
 		/*
 		 * @param album String album name
@@ -488,14 +487,14 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 		 * @return [ {key: [album, "artist 1"], value: 4}, ...]
 		 */
 		artists: function(album, options) {
-			restQuery("album.artists","GET",site_url+"/api/list/albums/artists/"+ encodeURIComponent(album),options);
+			restQuery("album.artists","GET",config.site_url+"/api/list/albums/artists/"+ encodeURIComponent(album),options);
 		},
 
 		/*
 		 * @return [ {key: "A", value: 23}, {key: "G", value: 34}, ...]
 		 */
 		firstLetter: function(options) {
-			restQuery("album.firstLetter","GET",site_url+"/api/album/firstLetter",options);
+			restQuery("album.firstLetter","GET",config.site_url+"/api/album/firstLetter",options);
 		}
 
 	};
@@ -514,7 +513,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			if ( start ) {
 				options.data = {start: start};
 			}
-			restQuery("artist.list","GET",site_url+"/api/artist",options);
+			restQuery("artist.list","GET",config.site_url+"/api/artist",options);
 		},
  
  		/*
@@ -522,7 +521,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 		 * @return [ {key: ["ACDC"], value: 4} ]
 		 */
 		allByName: function(options) {
-			restQuery("artist.allByName","GET",site_url+"/api/artistsListing",options);
+			restQuery("artist.allByName","GET",config.site_url+"/api/artistsListing",options);
 		},
   
 		/*
@@ -531,7 +530,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 		 * @return { artists: { "artist name": 45, "other name": 5, ... }, artistsRelated: { "other artist name": 5, ...}}
 		 */
 		related: function(artist, options) {
-			restQuery("artist.related","GET",site_url+"/api/relatedArtists/"+ encodeURIComponent(artist),options);
+			restQuery("artist.related","GET",config.site_url+"/api/relatedArtists/"+ encodeURIComponent(artist),options);
 		},
  
 		/*
@@ -540,7 +539,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 		 * @return [ {key: [artist, "album 1"], value: 4}, ...] 
 		 */
 		albums: function(artist, options) {
-			restQuery("artist.albums","GET",site_url+"/api/list/artists/albums/"+ encodeURIComponent(artist),options);
+			restQuery("artist.albums","GET",config.site_url+"/api/list/artists/albums/"+ encodeURIComponent(artist),options);
 		},
  
 		/*
@@ -549,7 +548,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 		 * @return [ {key: [artist, "genre 1"], value: 4}, ...]
 		 */
 		genres: function(artist, options) {
-			restQuery("artist.genres","GET",site_url+"/api/list/artists/genres/"+ encodeURIComponent(artist),options);
+			restQuery("artist.genres","GET",config.site_url+"/api/list/artists/genres/"+ encodeURIComponent(artist),options);
 		}
 	};
 	
@@ -567,7 +566,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 			if ( start ) {
 				options.data = {start: start};
 			}
-			restQuery("genre.list","GET",site_url+"/api/genre",options);
+			restQuery("genre.list","GET",config.site_url+"/api/genre",options);
 		},
 		/*
 		 * 
@@ -575,7 +574,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 		 * @return [ {"key":["Dub"],"value":{"count":50,"artists":["Velvet Shadows","Tommy McCook & The Aggrovators","Thomsons All Stars"]}}, ... ]
 		 */
 		resume: function(options) {
-			restQuery("genre.resume","GET",site_url+"/api/genresResume",options);
+			restQuery("genre.resume","GET",config.site_url+"/api/genresResume",options);
 		},
 		/*
 		 * @param genre String genre the album should belong to
@@ -583,7 +582,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 		 * @return [ {key: [genre, "album1"], value: 4}, ...], 
 		 */
 		albums: function(genre, options) {
-			restQuery("genre.albums","GET",site_url+"/api/list/genres/albums/"+encodeURIComponent(genre),options);
+			restQuery("genre.albums","GET",config.site_url+"/api/list/genres/albums/"+encodeURIComponent(genre),options);
 		},
  		/*
 		 * @param genre String genre the artist should belong to
@@ -591,7 +590,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 		 * @return [ {key: [genre, "artist 1"], value: 4}, ...], 
 		 */
 		artists: function(genre, options) {
-			restQuery("genre.artists","GET",site_url+"/api/list/genres/artists/"+encodeURIComponent(genre),options);
+			restQuery("genre.artists","GET",config.site_url+"/api/list/genres/artists/"+encodeURIComponent(genre),options);
 		}
 	};	
 	
@@ -601,7 +600,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 		 * @return {_id: "pl....", ...}
 		 */
 		get: function(id,options) {
-			restQuery("rpl.get","GET",site_url+"/api/plm/"+id,options);
+			restQuery("rpl.get","GET",config.site_url+"/api/plm/"+id,options);
 		},
 
 		create: function(name, songs, options) {
@@ -609,7 +608,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				name: name,
 				"songs[]": songs ? songs : []
 			};
-			restQuery("rpl.create","PUT",site_url+"/api/plm/create",options);
+			restQuery("rpl.create","PUT",config.site_url+"/api/plm/create",options);
 
 		},
 		/*
@@ -621,14 +620,14 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				playlist: id,
 				"songs[]": songs
 			};
-			restQuery("rpl.update","PUT",site_url+"/api/plm/update",options);
+			restQuery("rpl.update","PUT",config.site_url+"/api/plm/update",options);
 		},
 		/*
 		 * 
 		 * @return {_id: "pl....", ...}
 		 */		
 		remove: function(id, options) {
-			restQuery("rpl.delete","DELETE",site_url+"/api/plm/"+id,options);
+			restQuery("rpl.delete","DELETE",config.site_url+"/api/plm/"+id,options);
 		},
 		/*
 		 * 
@@ -639,7 +638,7 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				name:name
 			};
 // 			options.contentType = "application/x-www-form-urlencoded";
-			restQuery("rpl.rename","PUT",site_url+"/api/plm/rename/"+id,options);
+			restQuery("rpl.rename","PUT",config.site_url+"/api/plm/rename/"+id,options);
 		},
 		/*
 		 * 
@@ -650,18 +649,18 @@ define(["js/httpbroker","js/d10.events"],function(bghttp, emitter) {
 				song:song_id
 			};
 // 			options.contentType = "application/x-www-form-urlencoded";
-			restQuery("rpl.append","PUT",site_url+"/api/plm/append/"+id,options);
+			restQuery("rpl.append","PUT",config.site_url+"/api/plm/append/"+id,options);
 		}
 	};
 	
 	rest.search = {
 		all: function(query, options) {
 			options.data = { start: query };
-			restQuery("search.all","GET",site_url+"/api/search",options);
+			restQuery("search.all","GET",config.site_url+"/api/search",options);
 		},
 		details: function(details, options) {
 			options.data = details;
-			restQuery("search.details","POST",site_url+"/api/details",options);
+			restQuery("search.details","POST",config.site_url+"/api/details",options);
 		}
 	};
 	return rest;

@@ -24,7 +24,8 @@ exports.homepage = function(app) {
 			rpp: d10.config.rpp,
 			genres: genres,
 			langs: [],
-			invites_ttl: d10.config.invites.ttl
+			invites_ttl: d10.config.invites.ttl,
+			libraryDefaultTab: d10.config.library.defaultTab
 		};
 		if ( request.query.o && request.query.o.indexOf("a") >= 0 ) {
 			vars.debugAudio = true;
