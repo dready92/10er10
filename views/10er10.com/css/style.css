@@ -71,8 +71,10 @@ header {
 
 header > div.logo {
 	font-family: Cartoon;
- 	font-size: 24px;
+	font-size: 24px;
 	padding: 3px 0 5px 10px;
+	max-width: 300px;
+	cursor: pointer;
 }
 
 header > div.logo > span {
@@ -129,6 +131,8 @@ header > div.teaser {
 color: #62C361;
 /*   color: #549BBE; */
   text-shadow: 0 0 1px #121212, 0 0 5px #9F9F9F;
+  max-width: 300px;
+  cursor: pointer;
 }
 
 header div.playing {

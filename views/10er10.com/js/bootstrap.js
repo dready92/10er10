@@ -221,6 +221,11 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 			});
 			return false;
 		});
+		
+		$("header .logo, header .teaser").click(function() {
+			router.navigateTo("welcome");
+		});
+		
 
 	}
 
