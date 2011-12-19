@@ -222,14 +222,17 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 			if ( searchinput.attr('defaultvalue') && searchinput.val() == '' )  searchinput.val( searchinput.attr('defaultvalue') );
 		}, 600);
 	})
-	.delegate("li","hover",function() {
-		$("li",overlayNode).removeClass("current");
-		$(this).addClass("current");
-	},function() { $(this).removeClass("current"); })
 	.delegate("li","click",function() {
 		searchinput.get(0).focus();
 		launchResultSelected();
 		
+	})
+	.delegate("li","mouseover",function(e) {
+		var node=$(this);
+		if(!node.hasClass("current")) {
+			overlayNode.find("li").removeClass("current");
+			node.addClass("current");
+		}
 	});
 	;
 
