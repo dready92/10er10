@@ -17,7 +17,10 @@ function myCtrl (ui) {
 	})
 	.delegate("div.song","dblclick",function(e) {
 		if ( $("span.review",this).length ) { return false; }
-		playlist.append($(this).clone());
+		var toAppend = $(this).clone();
+		playlist.appendToCurrent(toAppend);
+		playlist.driver().play( playlist.getTrackParameters(toAppend) );
+// 		playlist.append($(this).clone());
 	});
 	
 	

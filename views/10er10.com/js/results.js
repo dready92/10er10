@@ -86,7 +86,10 @@ var results = function (search,mainUi) {
 		ui.delegate("div.song","dragstart", dnd.onDragDefault)
 		.delegate("div.song","dragend",dnd.removeDragItem)
 		.delegate("div.song","dblclick",function(e) {
-			playlist.append($(this).clone());
+			var toAppend = $(this).clone();
+			playlist.appendToCurrent(toAppend);
+			playlist.driver().play( playlist.getTrackParameters(toAppend) );
+// 			playlist.append($(this).clone());
 		})
 		.delegate("div.song","click",function(e) {
 			var target = $(e.target);
