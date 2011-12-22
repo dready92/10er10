@@ -28,7 +28,7 @@ exports.server = {
 		library_teaser: "Classements par genre, popularité,...",
 		welcome_title: " Bienvenue",
 		welcome_teaser: "Aide, Mode d'emploi",
-		side_review_reminder: "Vous avez <strong></strong> morceaux à valider !",
+		side_review_reminder_resume: "<strong></strong>",
 		side_likes_tooltip: "<p>J'aime ce morceau</p>Ce morceau apparaitra dans<br>\"Mon espace / Les morceaux que j'aime\"",
 		side_tooltip_dislikes: "<p>Je n'aime pas ce morceau</p>Permet de spécifier que ce morceau est mauvais.",
 		side_previous_title: "Morceau précédent",
@@ -372,5 +372,6 @@ exports.client = {
 	"library.extendedInfos.artist.genres": "Genres",
 	"library.extendedInfos.album.artists": "Artistes",
 	"library.scope.toggle.full": "Afficher l'ensemble du catalogue",
-	"library.scope.toggle.user": "Afficher uniquement mes morceaux"
+	"library.scope.toggle.user": "Afficher uniquement mes morceaux",
+	"side.review_reminder": "Vous avez {{count}} morceaux à valider !"
 };

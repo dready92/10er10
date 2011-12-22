@@ -374,6 +374,7 @@ div.tooltip > p {
 }
 
 #container > nav > ul > li {
+	position: relative; /* for review reminder */
 	display: inline-block;
 	padding: 4px 10px 8px 10px;
 	color: #BF9730;
@@ -603,7 +604,7 @@ article.review .form_error {
 
 /* library !!!*/
 #library { position: relative; }
-#library section, #my div[name=songs] section, #my div[name=likes] section {	 height: 300px; overflow: auto;}
+#library section, #my div[name=songs] section, #my div[name=likes] section { height: 450px; overflow: auto;}
 #library article > .innerLoading, #my article > .innerLoading {
 	position: absolute;
 	right: 30px;
@@ -1540,15 +1541,21 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
   background-color:rgb(191,151,48);
   text-align: center;
   margin: 0px auto 10px auto;
-  width: 100px;
   color: #000;
-  border: 4px solid rgb(175,138,44);
+  border: 2px solid rgb(175,138,44);
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   cursor: pointer;
-  padding: 10px;
+  padding: 2px;
+  position: absolute;
+  right: 2px;
+  top: -10px;
+  box-shadow: 0 0 10px rgba(200,0,0,0.6);
 }
 
+#reviewReminder:hover {
+	-webkit-transform: scale(1.5);
+}
 
 #search {	
 	display: inline-block; 

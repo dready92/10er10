@@ -2,6 +2,22 @@
 define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache", "js/d10.templates", "js/d10.router", 
 	   "js/playlist.new", "js/d10.jobWorker","js/bgtask", "js/plm", "js/d10.events", "js/config"],
 	   function(bghttp, When, rest, user, localcache, tpl, router, playlist, jobs, bgtask, plmCtlr, pubsub, config) {
+		   
+		   
+	var onWindowResize = function() {
+		var side = $("#side"),
+			lastNavItem = $("#container >nav li:last-child"),
+			endOfNav = lastNavItem.offset().left + lastNavItem.outerWidth(),
+			windowWidth = $(window).width(),
+			sideWidth = side.outerWidth(),
+			canOverlap = windowWidth - sideWidth - endOfNav - 10;
+		debug("canOverlap ? ",canOverlap);
+		if ( canOverlap >= 0 ) {
+			if ( !side.hasClass("wide") ) { side.addClass("wide"); }
+		} else {
+			if ( side.hasClass("wide") ) { side.removeClass("wide"); }
+		}
+	};
 	var visibleBaby = function () {
 		"use strict";
 
@@ -49,20 +65,8 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		//
 		setTimeout(function() { bgtask.init(); },7000);
 		
-		$(window).resize(function() {
-			var lastNavItem = $("#container >nav li:last-child"),
-				endOfNav = lastNavItem.offset().left + lastNavItem.outerWidth(),
-				windowWidth = $(window).width(),
-				sideWidth = side.outerWidth(),
-				canOverlap = windowWidth - sideWidth - endOfNav - 10;
-			debug("canOverlap ? ",canOverlap);
-			if ( canOverlap >= 0 ) {
-				if ( !side.hasClass("wide") ) { side.addClass("wide"); }
-			} else {
-				if ( side.hasClass("wide") ) { side.removeClass("wide"); }
-			}
-		});
-
+		$(window).resize(onWindowResize);
+		onWindowResize();
 	};
 		
 		

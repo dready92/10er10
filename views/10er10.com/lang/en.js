@@ -28,7 +28,7 @@ exports.server = {
 		library_teaser: "Sorting by genre, popularity...",
 		welcome_title: " Welcome",
 		welcome_teaser: "The welcome screen",
-		side_review_reminder: "You got <strong></strong> song(s) to review !",
+		side_review_reminder_resume: "<strong></strong>",
 		side_likes_tooltip: "<p>I like this song</p>This song will appear in <br>\"Personnal Space / Songs I like\"",
 		side_tooltip_dislikes: "<p>I don't like this song</p>Tells the server you don't like this song.",
 		side_previous_title: "Previous song",
@@ -374,5 +374,6 @@ exports.client = {
 	"library.extendedInfos.artist.genres": "Genres",
 	"library.extendedInfos.album.artists": "Artists",
 	"library.scope.toggle.full": "Show full catalog",
-	"library.scope.toggle.user": "Only show my own songs"
+	"library.scope.toggle.user": "Only show my own songs",
+	"side.review_reminder": "You got {{count}} song(s) to review !"
 };

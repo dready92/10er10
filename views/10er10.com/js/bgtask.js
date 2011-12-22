@@ -1,4 +1,4 @@
-define(["js/d10.rest"],function(rest) {
+define(["js/d10.rest", "js/d10.templates"],function(rest,tpl) {
 
 	var bgtask = function() {
 		var ival = null;
@@ -42,6 +42,7 @@ define(["js/d10.rest"],function(rest) {
 				var rr = $("#reviewReminder");
 				if ( count ) {
 					$("strong",rr).html(count);
+					rr.attr("title",tpl.mustacheView("side.review_reminder",{count: count}));
 					if ( rr.is(":visible") ) {
 					rr.whoobee();
 					} else {
