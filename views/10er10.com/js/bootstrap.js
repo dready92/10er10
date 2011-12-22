@@ -162,9 +162,9 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 					$(this).closest('.hoverbox').ovlay().close();
 					return ;
 				}
-				var playlist = $(this).attr('name');
-				if ( playlist && playlist.length ) {
-					plmCtlr.append_song(id,playlist);
+				var playlistId = $(this).attr('name');
+				if ( playlistId && playlistId.length ) {
+					plmCtlr.append_song(id,playlistId);
 				} else {
 					playlist.append(song.clone().removeClass("dragging selected"));
 				}
