@@ -5,7 +5,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 	var visibleBaby = function () {
 		"use strict";
 
-		
+		var side = $("#side");
 		
 		var pos = $("#search > div").eq(0).position();
 		var height = $("#search > div").eq(0).height();
@@ -15,7 +15,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 			playlist.bootstrap();
 // 			$(document).trigger("bootstrap:playlist");
 		});
-		$("#side").css("display","");
+		side.css("display","");
 		
 		
 		require(["js/welcome","js/upload", "js/my", "js/plm", "js/library", "js/results"], 
@@ -48,6 +48,20 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		// init background tasks
 		//
 		setTimeout(function() { bgtask.init(); },7000);
+		
+		$(window).resize(function() {
+			var lastNavItem = $("#container >nav li:last-child"),
+				endOfNav = lastNavItem.offset().left + lastNavItem.outerWidth(),
+				windowWidth = $(window).width(),
+				sideWidth = side.outerWidth(),
+				canOverlap = windowWidth - sideWidth - endOfNav - 10;
+			debug("canOverlap ? ",canOverlap);
+			if ( canOverlap >= 0 ) {
+				if ( !side.hasClass("wide") ) { side.addClass("wide"); }
+			} else {
+				if ( side.hasClass("wide") ) { side.removeClass("wide"); }
+			}
+		});
 
 	};
 		
