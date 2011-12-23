@@ -41,7 +41,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo,
 			if ( !module.isEnabled() )	return ;
 			var offset = ui.offset();
 			var pix = e.pageX-offset.left;
-			var volume = $.sprintf('%.2f',pix*punit) ;
+			var volume = Math.round(pix*punit*100) / 100 ;
 			if ( volume > 1 )
 				volume = 1;
 			else if ( volume < 0 )
