@@ -11,7 +11,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo,
 		            debug("trying css transform trick");
 		            var buffer = $("<div></div>");
 		            buffer.html($(".title",s)).append(" (").append($(".length",s)).append(")")
-		            .append("<br>").append($(".artist",s)).append(" - ").append($(".album",s))
+		            .append("<br>").append($(".artist",s)).append("<span class=\"separator\">&nbsp;-&nbsp;</span>").append($(".album",s))
 		            widget.addClass("small");
 		            setTimeout(function() {
 		                    widget.html(buffer.html())
@@ -21,7 +21,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo,
 		    }
 
 		widget.html($(".title",s)).append(" (").append($(".length",s)).append(")")
-		  .append("<br>").append($(".artist",s)).append(" - ").append($(".album",s));
+		  .append("<br>").append($(".artist",s)).append("<span class=\"separator\">&nbsp;-&nbsp;</span>").append($(".album",s));
 		if ( widget.not(":visible") ) {
 		  widget.fadeIn("fast");
 		}

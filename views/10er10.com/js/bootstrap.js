@@ -5,7 +5,8 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		   
 		   
 	var onWindowResize = function() {
-		var side = $("#side"),
+		var body = $("body"),
+			side = $("#side"),
 			lastNavItem = $("#container >nav li:last-child"),
 			endOfNav = lastNavItem.offset().left + lastNavItem.outerWidth(),
 			windowWidth = $(window).width(),
@@ -13,9 +14,9 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 			canOverlap = windowWidth - sideWidth - endOfNav - 10;
 		debug("canOverlap ? ",canOverlap);
 		if ( canOverlap >= 0 ) {
-			if ( !side.hasClass("wide") ) { side.addClass("wide"); }
+			if ( !body.hasClass("wide") ) { body.addClass("wide"); }
 		} else {
-			if ( side.hasClass("wide") ) { side.removeClass("wide"); }
+			if ( body.hasClass("wide") ) { body.removeClass("wide"); }
 		}
 	};
 	var visibleBaby = function () {
