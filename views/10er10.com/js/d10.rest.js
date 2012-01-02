@@ -64,7 +64,7 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 			xhr.onload = function() {
 				if ( options.load ) options.load.call(this, this.status, this.getAllResponseHeaders(), this.responseText);
 				callback(this.status, this.getAllResponseHeaders(), this.responseText);
-				emitter.topic("whenRestEnd").publich({
+				emitter.topic("whenRestEnd").publish({
 					endpoint: endpoint,
 					status: this.status,
 					headers: this.getAllResponseHeaders(),

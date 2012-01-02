@@ -51,11 +51,11 @@
 	$.fn.loadImage = function(e, options) {
 		var img = getImageFromReader(e),
 		that = this,
-		sideSize = parseInt(d10.config.img_size,10),
+		sideSize = 128,
 		newSize,
 		xStart,
 		yStart,
-		ctx = this.get(0).getContext("2d");;
+		ctx = this.get(0).getContext("2d");
 		var settings = {
 			onReady: function() {},
 			onSize: function() { return true;}
@@ -75,17 +75,21 @@
 			ctx.fillRect  (0,   0, sideSize, h);
 			ctx.drawImage(image,32,32);
 		};
-		getImageSize(img, function(w,h) {
-			if( settings.onSize(w,h) !== true ) {
-				return ;
-			}
-			newSize = getDynamicImageSize(w,h, sideSize);
-			debug(newSize);
-			xStart = Math.floor((sideSize - newSize.width) / 2);
-			yStart = Math.floor((sideSize - newSize.height) / 2);
-			update(0, waitImage);
-			settings.onReady.call(that,api);
+		require (["js/config"] , function(config) {
+			sideSize = parseInt(config.img_size,10);
+			getImageSize(img, function(w,h) {
+				if( settings.onSize(w,h) !== true ) {
+					return ;
+				}
+				newSize = getDynamicImageSize(w,h, sideSize);
+				debug(newSize);
+				xStart = Math.floor((sideSize - newSize.width) / 2);
+				yStart = Math.floor((sideSize - newSize.height) / 2);
+				update(0, waitImage);
+				settings.onReady.call(that,api);
+			});
 		});
+		
 		var api = {
 			loadProgress: update
 		};
