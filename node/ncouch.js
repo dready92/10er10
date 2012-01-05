@@ -565,6 +565,61 @@ function ncouch (url) {
 			});
 		};
 		
+		wrapper.batchObjectsSize = 100;
+		
+		wrapper.forEach = function(data,cb, then) {
+			data = data || {};
+			if ( !then ) {
+				then = cb;
+				cb = null;
+			}
+// 			rows = [];
+			data.limit = batchObjectsSize + 1;
+			data.include_docs = true;
+			var e = new EventEmitter();
+			var _parseOne = function(rows) {
+				rows.forEach(
+					function(row) {
+						if ( cb ) { cb(row.doc); }
+						e.emit("doc",row.doc);
+					}
+				);
+			};
+			var _forOne = function() {
+				wrapper.getAllDocs(data, function(err,resp) {
+					if ( err ) { if ( then ) { then(err); } e.emit("complete",err); return ;}
+					// check length of response
+					if ( resp.rows.length == (wrapper.batchObjectsSize + 1) ) {
+						var latest = resp.rows.pop();
+						data.startkey       = latest.key;
+						data.startkey_docid = latest.id ;
+						_parseOne(resp.rows);
+						_forOne();
+					} else {
+						//we're at the end of the stream
+						_parseOne(resp.rows);
+						if ( then ) { then(); }
+						e.emit("complete");
+					}
+				});
+			};
+			_forOne();
+			return e;
+		};
+		
+		wrapper.filter = function(data, cb, then) {
+			var back = [];
+			var e = wrapper.forEach(data);
+			e.on("doc",function(doc) {if ( cb(doc) == true ) {back.push(doc);} });
+			e.on("complete",then(back));
+		};
+		
+		wrapper.map = function(data, cb, then) {
+			var back = [];
+			var e = wrapper.forEach(data);
+			e.on("doc",function(doc) {back.push(cb(doc));});
+			e.on("complete",then(back));
+		};
 		
 		return wrapper;
 	};
