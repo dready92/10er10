@@ -108,13 +108,23 @@ var onConfig = function() {
 
 
 	function startServer() {
+		
+		var nodeVersion = process.versions.node.split("."),
+			major = parseInt(nodeVersion[0],10),
+			minor = parseInt(nodeVersion[1],10);
+		
 		var d10Server = connect.createServer(connect.favicon('../views/10er10.com/favicon.ico'));
 		if ( !config.production ) {
 			d10Server.use(connect.logger());
 		}
 
 		if ( config.gzipContentEncoding ) {
-			d10Server.use(require("connect-gzip").gzip({ matchType: /csstext|javascript|json|x-font-ttf/ }));
+			if ( minor > 5 ) { // beginning from node 0.6.0 we use internal gzip encoding
+				console.log("INFO: using node.js native gzip encoder");
+				d10Server.use(require("./native-gzip")({ matchType: /css|text|javascript|json|x-font-ttf/ }));
+			} else {
+				d10Server.use(require("connect-gzip").gzip({ matchType: /css|text|javascript|json|x-font-ttf/ }));
+			}
 		}
 		stack.forEach(function(mw) { d10Server.use(mw); });
 
