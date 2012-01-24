@@ -1,4 +1,4 @@
-define(["js/d10.rest", "js/d10.templates"],function(rest,tpl) {
+define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 
 	var bgtask = function() {
 		var ival = null;
@@ -36,25 +36,29 @@ define(["js/d10.rest", "js/d10.templates"],function(rest,tpl) {
 
 		tasks.unshift(function() {
 			rest.user.review.count({
-			load: function(err, data) {
-				if ( !err  ) {
-				var count = data.count;
-				var rr = $("#reviewReminder");
-				if ( count ) {
-					$("strong",rr).html(count);
-					rr.attr("title",tpl.mustacheView("side.review_reminder",{count: count}));
-					if ( rr.is(":visible") ) {
-					rr.whoobee();
-					} else {
-					rr.slideDown(function() {
-						rr.flipflap();
-					});
+				load: function(err, data) {
+					if ( !err  ) {
+						pubsub.topic("review.count").publish(data);
 					}
-				} else if ( rr.is(":visible") ) {
-					rr.slideUp("fast");
+					/*
+					var count = data.count;
+					var rr = $("#reviewReminder");
+					if ( count ) {
+						$("strong",rr).html(count);
+						rr.attr("title",tpl.mustacheView("side.review_reminder",{count: count}));
+						if ( rr.is(":visible") ) {
+						rr.whoobee();
+						} else {
+						rr.slideDown(function() {
+							rr.flipflap();
+						});
+						}
+					} else if ( rr.is(":visible") ) {
+						rr.slideUp("fast");
+					}
+					}
+					*/
 				}
-				}
-			}
 			});
 		});
 
