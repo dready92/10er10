@@ -14,7 +14,8 @@ var overlay = function(panel, options) {
     "closeOnEsc": true,
     "closeOnMouseOut": false,
     "effect": "fade",
-    "speed": "normal"
+    "speed": "normal",
+	align: {}
   };
 
   var effects = {
@@ -22,6 +23,8 @@ var overlay = function(panel, options) {
     "slide": {"show": "slideDown", "hide": "slideUp"}
   };
 
+  var alignments = ["left","right","top","bottom"];
+  
   $.extend(settings,options);
 
   var panelIsIn = function (target) {
@@ -34,7 +37,59 @@ var overlay = function(panel, options) {
     });
     return panelIn;
   }
+  
+  var elemSize = function(elem) {
+	return {
+	  width: elem.width(),
+	  height: elem.height(),
+	  innerWidth: elem.innerWidth(),
+	  innerHeight: elem.innerHeight(),
+	  outerWidth: elem.outerWidth(),
+	  outerHeight: elem.outerHeight()
+	};
+  };
 
+  var alignTop = function(reference) {
+	var popinSize = elemSize(panel);
+	var rrSize = elemSize(reference);
+	var rrOffset = reference.offset();
+	var rrCenter = rrOffset.left + rrSize.outerWidth / 2;
+	var popinLeft = rrCenter - popinSize.outerWidth / 2 ;
+	var popinTop = rrOffset.top - popinSize.outerHeight;
+	return {left: popinLeft, top: popinTop};
+  };
+
+  var alignBottom = function(reference) {
+	var popinSize = elemSize(panel);
+	var rrSize = elemSize(reference);
+	var rrOffset = reference.offset();
+	var rrCenter = rrOffset.left + rrSize.outerWidth / 2;
+	var popinLeft = rrCenter - popinSize.outerWidth / 2 ;
+	var popinTop = rrOffset.top + rrSize.outerHeight;
+	return {left: popinLeft, top: popinTop};
+  };
+  
+  var alignLeft = function(reference) {
+	var popinSize = elemSize(panel);
+	var rrSize = elemSize(reference);
+	var rrOffset = reference.offset();
+	var rrCenter = rrOffset.top + rrSize.outerHeight / 2;
+	var popinLeft = rrOffset.left - popinSize.outerWidth;
+	var popinTop = rrCenter - popinSize.outerHeight / 2 ;
+	return {left: popinLeft, top: popinTop};
+  };
+  
+  var alignRight = function(reference) {
+	var popinSize = elemSize(panel);
+	var rrSize = elemSize(reference);
+	var rrOffset = reference.offset();
+	var rrCenter = rrOffset.top + rrSize.outerHeight / 2;
+	var popinLeft = rrOffset.left + rrSize.outerWidth;
+	var popinTop = rrCenter - popinSize.outerHeight / 2 ;
+	return {left: popinLeft, top: popinTop};
+  };
+  
+  
   this.getOverlay = function() { return panel; };
   this.close = function() {
     settings.onBeforeClose.call(this);
@@ -52,6 +107,26 @@ var overlay = function(panel, options) {
   }
 
   panel.data("ovlay",this);
+  
+  if ( settings.align.reference && alignments.indexOf(settings.align.position) >= 0 ) {
+	//get panel size
+	panel.css({position: "absolute", left: -10000, visibility: "hidden", display: "block"}).appendTo($("body"));
+	var position ;
+	if ( settings.align.position == "left" ) position = alignLeft(settings.align.reference);
+	else if ( settings.align.position == "right" ) position = alignRight(settings.align.reference);
+	else if ( settings.align.position == "top" ) position = alignTop(settings.align.reference);
+	else position = alignBottom(settings.align.reference);
+	if ( settings.align.leftOffset ) {
+	  position.left += settings.align.leftOffset
+	}
+	if ( settings.align.topOffset ) {
+	  position.top += settings.align.topOffset
+	}
+	panel.css({display: "none", visibility: "visible", top: position.top, left: position.left});
+ 
+  }
+  
+  
   this.open();
 
 
