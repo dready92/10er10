@@ -1,7 +1,7 @@
 (function($){
 
 
-var opened = null;
+var opened = {};
 
 var overlay = function(panel, options) {
   var that = this;
@@ -15,7 +15,8 @@ var overlay = function(panel, options) {
     "closeOnMouseOut": false,
     "effect": "fade",
     "speed": "normal",
-	align: {}
+	align: {},
+	family: "default"
   };
 
   var effects = {
@@ -27,6 +28,8 @@ var overlay = function(panel, options) {
   
   $.extend(settings,options);
 
+  var evtsClass="ovlay"+settings.family;
+  
   var panelIsIn = function (target) {
     var panelIn = false;
     var all = target.parents().andSelf().each(function() {
@@ -97,7 +100,8 @@ var overlay = function(panel, options) {
       settings.onClose.call(that);
       panel.removeData("ovlay");
     });
-    $(document).unbind("click.ovlay keyup.ovlay");
+    $(document).unbind("click."+evtsClass+" keyup."+evtsClass);
+	opened[settings.family] = null;
   }
   this.open = function () {
     settings.onBeforeLoad.call(this);
@@ -134,12 +138,12 @@ var overlay = function(panel, options) {
   setTimeout(function() {
   // click outside handler
     if ( settings.closeOnClick ) {
-      $(document).bind("click.ovlay",function(e) {
+      $(document).bind("click."+evtsClass,function(e) {
         if ( !panelIsIn($(e.target)) ) { that.close(); }
       });
     }
     if ( settings.closeOnEsc ) {
-      $(document).bind("keyup.ovlay",function(e) { if ( e.keyCode == 27 ) {that.close();} });
+      $(document).bind("keyup."+evtsClass,function(e) { if ( e.keyCode == 27 ) {that.close();} });
     }
 
     if ( settings.closeOnMouseOut ) {
@@ -165,10 +169,144 @@ var overlay = function(panel, options) {
 
 $.fn.ovlay = function(options) {
   if ( !options ) { return this.data("ovlay"); }
-  if ( opened ) { opened.close(true); }
-  opened = new overlay(this,options);
+  var family = options.family || "default";
+  debug("family: ",family, opened);
+  if ( opened[family] ) { opened[family].close(true); }
+  opened[family] = new overlay(this,options);
   return this;
 };
+
+
+var fullOverlay = function(panel, options) {
+  var that = this;
+  var settings = {
+    "onBeforeLoad": function() {},
+    "onLoad": function() {},
+    "onBeforeClose": function() {},
+    "onClose": function() {},
+	"onDomInsert": function(overlay) {},
+ 	"onDomRemove": function(overlay, then) {then();},
+    "closeOnClick": true,
+    "closeOnEsc": true,
+    "closeOnMouseOut": false,
+    "effect": "fade",
+    "speed": "normal",
+	align: {},
+	family: "default",
+	cssClass: "fullOverlay"
+  };
+
+  var effects = {
+    "fade": {"show": "fadeIn", "hide": "fadeOut"},
+    "slide": {"show": "slideDown", "hide": "slideUp"}
+  };
+
+  var alignments = ["left","right","top","bottom"];
+  
+  $.extend(settings,options);
+
+  var evtsClass="ovlay"+settings.family;
+  
+  var panelIsIn = function (target) {
+    var panelIn = false;
+    var all = target.parents().andSelf().each(function() {
+      if ( this === panel.get(0) ) {
+        panelIn = true;
+        return false;
+      }
+    });
+    return panelIn;
+  };
+  
+  var w = $(window);
+  var background = $("<div></div>").addClass(settings.cssClass);
+  panel.css({display: "inline-block", "vertical-align": "middle"});
+  background.append(panel).css(
+	{
+	  position: "fixed",
+	  width: w.width(),
+	  height: w.height(),
+	  "line-height": w.height()+"px",
+	  top: 0,
+	  left: 0,
+	  "text-align": "center"
+	}
+  ).appendTo($("body"));
+  settings.onDomInsert(background);
+
+  w.bind("resize."+evtsClass,function() {
+	background.css({width: w.width(),height: w.height(), "line-height": w.height()+"px"});
+  });
+  
+  
+  this.getOverlay = function() { return panel; };
+  this.close = function() {
+	
+	var closeCb = function() {
+	  $(document).unbind("click."+evtsClass+" keyup."+evtsClass);
+	  w.unbind("resize."+evtsClass);
+	  opened[settings.family] = null;
+	  
+	  background.remove();
+	  settings.onClose.call(that);
+	  panel.removeData("ovlay");
+	};
+	
+    settings.onBeforeClose.call(this);
+	settings.onDomRemove(background, closeCb);
+
+  }
+  this.open = function () {
+    settings.onBeforeLoad.call(this);
+    background[effects[settings.effect].show](function() {
+      settings.onLoad.call(that);
+    });
+  }
+
+  panel.data("ovlay",this);
+  
+  this.open();
+
+
+  // delaying event bindings allow to 
+  setTimeout(function() {
+  // click outside handler
+    if ( settings.closeOnClick ) {
+      $(document).bind("click."+evtsClass,function(e) {
+        if ( !panelIsIn($(e.target)) ) { that.close(); }
+      });
+    }
+    if ( settings.closeOnEsc ) {
+      $(document).bind("keyup."+evtsClass,function(e) { if ( e.keyCode == 27 ) {that.close();} });
+    }
+
+    if ( settings.closeOnMouseOut ) {
+      timeoutId = null;
+      panel.mouseleave(function() {
+        timeoutId = setTimeout(function() {
+          that.close();
+          timeoutId = null;
+        },500);
+      }).mouseenter(function() {
+        if ( timeoutId ) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+      });
+    }
+  },20);
+};
+
+
+$.fn.fullOvlay = function(options) {
+    if ( !options ) { return this.data("ovlay"); }
+  var family = options.family || "default";
+  debug("fullOverlay family: ",family, opened);
+  if ( opened[family] ) { opened[family].close(true); }
+  opened[family] = new fullOverlay(this,options);
+  return this;
+};
+
 
 $.fn.permanentOvlay = function (url, overlayNode, options) {
 	var searchinput = this;

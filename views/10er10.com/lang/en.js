@@ -141,6 +141,18 @@ exports.server = {
 	"html/my/image.widget.html": {
 		remove: "Remove this image"
 	},
+	"html/my/reviewHelper_bubble.html": {
+		label: "What's that ?"
+	},
+	"html/my/reviewHelper.html": {
+		title: "Adding new songs",
+		introduction: "You uploaded one or more songs on the server. Excellent ! <br> To be able to listen those songs, you should check that the meta-tags, for example the artist, the title or the genre, are correct.",
+		steps_intro: "To do this:",
+		step1: "Click on the number: the songs waiting for review are displayed",
+		step2: "Click on a song and check its information, fixing them if needed",
+		step3: "Submit the form: you're done. The song is in the catalog and can be played.",
+		button_label: "Ok"
+	},
 	"html/library/content_simple.html": {
 		add_to_playlist: "Add all songs to the player queue",
 		refresh: "Refresh list",

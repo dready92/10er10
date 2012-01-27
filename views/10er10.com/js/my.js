@@ -4,24 +4,13 @@ define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/dnd", "js
 
 function myCtrl (ui) {
 	
-	//this deverve its own file...
 	pubsub.topic("review.count").subscribe(function(data) {
-		var count = data.count;
-		var rr = $("#reviewReminder");
-		if ( count ) {
-			$("strong",rr).html(count);
-			rr.attr("title",tpl.mustacheView("side.review_reminder",{count: count}));
-			if ( rr.is(":visible") ) {
-				rr.whoobee();
-			} else {
-				rr.slideDown(function() {
-					rr.flipflap();
-				});
-			}
-		} else if ( rr.is(":visible") ) {
-			rr.slideUp("fast");
-		}
+	  require(["js/my.reviewHelper"],function(helper) {
+		helper(data);
+	  });
 	});
+	
+
 	
 	
 	pubsub.topic("user.infos").one(function() {

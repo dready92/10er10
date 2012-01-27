@@ -827,8 +827,6 @@ article div.refreshList {
 
 
 #library div[name=genres] div.genre > span {
-	color: #086FA1;
-	font-weight: bold;
 	font-size: 1.1em;
 	cursor: pointer;
 	padding-left: 10px;
@@ -2296,5 +2294,93 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	display: none;
 }
 
+.yellowOverlay {
+  height: 2em;
+  width: 160px;
+  background: -webkit-linear-gradient(bottom, #121212,#454545);
+  background: -moz-linear-gradient(bottom, #121212,#454545);
+  border: 2px solid rgb(191, 151, 48);
+  text-align: center;
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgb(191, 151, 48);
+}
 
+.yellowOverlay:after {
+       content: " ";
+       height:0;
+       width:0;
+       bottom: -21px;
+       left: 70px;
+       border: 10px solid transparent;
+       border-top-color: rgb(191, 151, 48);
+       position:absolute;
+}
+
+.yellowOverlay > div.link
+{
+  padding-top: 0.4em;
+  text-shadow: 0 0 1px #EFEFEF;
+/*    color: #232323;  */
+}
+
+.yellowOverlay >div.close,.reviewHelper >div.close{
+  position: absolute;
+  width: 1.2em;
+  height: 1.2em;
+  border-radius: 1.2em;
+  right: -7px;
+  top: -7px;
+  font-size: 0.8em;
+  font-weight: bold;
+  background: rgb(191, 151, 48);
+  color: rgba(35,35,35,1);
+  box-shadow: 0 0 10px rgb(191, 151, 48);
+  cursor: pointer;
+  text-align: center;
+}
+
+.yellowOverlay >div.close:hover,.reviewHelper >div.close:hover{
+  color: rgba(35,35,35,0.5);
+}
+
+.reviewHelper {
+  width: 400px;
+  height: 400px;
+  background: -webkit-linear-gradient(bottom, #121212,#454545);
+  background: -moz-linear-gradient(bottom, #121212,#454545);
+  position: relative;
+  border: 2px solid rgb(191, 151, 48);
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgb(191, 151, 48);
+  padding: 10px;
+  line-height: 1.2em;
+  text-align: left;
+}
+
+.fullOverlay {
+  background: rgba(18, 18, 18, 0.8);
+  z-index: 100;
+  -webkit-transform: scale(0);
+  -webkit-transition: -webkit-transform 0.3s ease-out;
+  -moz-transform: scale(0);
+  -moz-transition: -moz-transform 0.3s ease-out;
+}
+
+.fullOverlay.on {
+  background: rgba(18, 18, 18, 0.8);
+  z-index: 100;
+  -webkit-transform: scale(1);
+  -webkit-transition: -webkit-transform 0.3s ease-in;
+  -moz-transform: scale(1);
+  -moz-transition: -moz-transform 0.3s ease-in;
+}
+
+.blueTitle {
+  color: #086FA1;
+  font-weight: bold;
+}
+
+.listInside {
+  list-style-position:inside;
+}
 /* http://colorschemedesigner.com/#3s31Tw0w0w0w0 */

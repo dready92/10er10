@@ -141,6 +141,18 @@ exports.server = {
 	"html/my/image.widget.html": {
 		remove: "Enlever cette image"
 	},
+	"html/my/reviewHelper_bubble.html": {
+		label: "Qu'est ce que c'est ?"
+	},
+	"html/my/reviewHelper.html": {
+		title: "Ajout de nouveaux morceaux",
+		introduction: "Vous avez uploadé un ou plusieurs morceaux sur le serveur. Excellent ! <br> Avant de pouvoir les écouter, vous devez vérifier que les informations récupérées sur ce(s) morceau(x), par exemple le title, l'artiste ou le genre, sont correct.",
+		steps_intro: "Pour cela:",
+		step1: "Cliquer sur le numéro : vous arrivez sur la liste des morceaux que vous devez vérifier",
+		step2: "Vérifier le morceau, en corrigeant s'il le faut les informations",
+		step3: "Validez : c'est bon ! Le morceau est rajouté dans le catalogue et peut être écouté.",
+		button_label: "Ok"
+	},
 	"html/library/content_simple.html": {
 		add_to_playlist: "Tout ajouter à la lecture en cours",
 		refresh: "Rafraichir la liste",
