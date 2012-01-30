@@ -96,6 +96,7 @@ exports.homepage = function(app) {
 		}
 // 		console.log("session ?", request.ctx.session);
 // 		console.log("user ?", request.ctx.user);
+		request.ctx.headers["Content-Type"] = "text/html";
 		response.writeHead(200, request.ctx.headers );
 		
 		if ( request.ctx.session && "_id" in request.ctx.session && request.ctx.user ) {

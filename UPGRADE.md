@@ -19,6 +19,7 @@ To upgrade your PROD databases, run
 - double-click on a song now adds the song to the playlist and starts playing the song
 - top left 10er10 logo is clickable
 - exports.library.defaultTab in config.js to select the default display when click on Catalog
+- use native gzip module when running with node >= 0.6.0 (no need for connect-gzip module then)
 
 Upgrade from 0.8 to 0.9
 =======================
