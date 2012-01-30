@@ -2294,18 +2294,16 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	display: none;
 }
 
+
 .yellowOverlay {
-  height: 2em;
-  width: 160px;
   background: -webkit-linear-gradient(bottom, #121212,#454545);
   background: -moz-linear-gradient(bottom, #121212,#454545);
   border: 2px solid rgb(191, 151, 48);
-  text-align: center;
   border-radius: 3px;
   box-shadow: 0 0 10px rgb(191, 151, 48);
 }
 
-.yellowOverlay:after {
+.yellowOverlay.bottomArrow:after {
        content: " ";
        height:0;
        width:0;
@@ -2316,14 +2314,25 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
        position:absolute;
 }
 
-.yellowOverlay > div.link
+.yellowOverlay.leftArrow:after {
+       content: " ";
+       height:0;
+       width:0;
+       bottom: -21px;
+       left: 70px;
+       border: 10px solid transparent;
+       border-right-color: rgb(191, 151, 48);
+       position:absolute;
+}
+
+.reviewHelperOverlay > div.link
 {
   padding-top: 0.4em;
   text-shadow: 0 0 1px #EFEFEF;
 /*    color: #232323;  */
 }
 
-.yellowOverlay >div.close,.reviewHelper >div.close{
+.yellowOverlay > div.close{
   position: absolute;
   width: 1.2em;
   height: 1.2em;
@@ -2339,19 +2348,25 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
   text-align: center;
 }
 
-.yellowOverlay >div.close:hover,.reviewHelper >div.close:hover{
+.yellowOverlay >div.close:hover{
   color: rgba(35,35,35,0.5);
+}
+
+.reviewHelperOverlay {
+  height: 2em;
+  width: 160px;
+  text-align: center;
+}
+
+.songMenuOverlay {
+  height: 300px;
+  width: 600px;
 }
 
 .reviewHelper {
   width: 400px;
   height: 400px;
-  background: -webkit-linear-gradient(bottom, #121212,#454545);
-  background: -moz-linear-gradient(bottom, #121212,#454545);
   position: relative;
-  border: 2px solid rgb(191, 151, 48);
-  border-radius: 3px;
-  box-shadow: 0 0 10px rgb(191, 151, 48);
   padding: 10px;
   line-height: 1.2em;
   text-align: left;

@@ -20,6 +20,7 @@ To upgrade your PROD databases, run
 - top left 10er10 logo is clickable
 - exports.library.defaultTab in config.js to select the default display when click on Catalog
 - use native gzip module when running with node >= 0.6.0 (no need for connect-gzip module then)
+- helper to explain the review number that appears next to "Personnal Space"
 
 Upgrade from 0.8 to 0.9
 =======================
