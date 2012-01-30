@@ -1,7 +1,7 @@
 (function($){
 
 
-var opened = null;
+var opened = {};
 
 var overlay = function(panel, options) {
   var that = this;
@@ -14,7 +14,9 @@ var overlay = function(panel, options) {
     "closeOnEsc": true,
     "closeOnMouseOut": false,
     "effect": "fade",
-    "speed": "normal"
+    "speed": "normal",
+	align: {},
+	family: "default"
   };
 
   var effects = {
@@ -22,8 +24,12 @@ var overlay = function(panel, options) {
     "slide": {"show": "slideDown", "hide": "slideUp"}
   };
 
+  var alignments = ["left","right","top","bottom"];
+  
   $.extend(settings,options);
 
+  var evtsClass="ovlay"+settings.family;
+  
   var panelIsIn = function (target) {
     var panelIn = false;
     var all = target.parents().andSelf().each(function() {
@@ -34,7 +40,59 @@ var overlay = function(panel, options) {
     });
     return panelIn;
   }
+  
+  var elemSize = function(elem) {
+	return {
+	  width: elem.width(),
+	  height: elem.height(),
+	  innerWidth: elem.innerWidth(),
+	  innerHeight: elem.innerHeight(),
+	  outerWidth: elem.outerWidth(),
+	  outerHeight: elem.outerHeight()
+	};
+  };
 
+  var alignTop = function(reference) {
+	var popinSize = elemSize(panel);
+	var rrSize = elemSize(reference);
+	var rrOffset = reference.offset();
+	var rrCenter = rrOffset.left + rrSize.outerWidth / 2;
+	var popinLeft = rrCenter - popinSize.outerWidth / 2 ;
+	var popinTop = rrOffset.top - popinSize.outerHeight;
+	return {left: popinLeft, top: popinTop};
+  };
+
+  var alignBottom = function(reference) {
+	var popinSize = elemSize(panel);
+	var rrSize = elemSize(reference);
+	var rrOffset = reference.offset();
+	var rrCenter = rrOffset.left + rrSize.outerWidth / 2;
+	var popinLeft = rrCenter - popinSize.outerWidth / 2 ;
+	var popinTop = rrOffset.top + rrSize.outerHeight;
+	return {left: popinLeft, top: popinTop};
+  };
+  
+  var alignLeft = function(reference) {
+	var popinSize = elemSize(panel);
+	var rrSize = elemSize(reference);
+	var rrOffset = reference.offset();
+	var rrCenter = rrOffset.top + rrSize.outerHeight / 2;
+	var popinLeft = rrOffset.left - popinSize.outerWidth;
+	var popinTop = rrCenter - popinSize.outerHeight / 2 ;
+	return {left: popinLeft, top: popinTop};
+  };
+  
+  var alignRight = function(reference) {
+	var popinSize = elemSize(panel);
+	var rrSize = elemSize(reference);
+	var rrOffset = reference.offset();
+	var rrCenter = rrOffset.top + rrSize.outerHeight / 2;
+	var popinLeft = rrOffset.left + rrSize.outerWidth;
+	var popinTop = rrCenter - popinSize.outerHeight / 2 ;
+	return {left: popinLeft, top: popinTop};
+  };
+  
+  
   this.getOverlay = function() { return panel; };
   this.close = function() {
     settings.onBeforeClose.call(this);
@@ -42,7 +100,8 @@ var overlay = function(panel, options) {
       settings.onClose.call(that);
       panel.removeData("ovlay");
     });
-    $(document).unbind("click.ovlay keyup.ovlay");
+    $(document).unbind("click."+evtsClass+" keyup."+evtsClass);
+	opened[settings.family] = null;
   }
   this.open = function () {
     settings.onBeforeLoad.call(this);
@@ -52,6 +111,26 @@ var overlay = function(panel, options) {
   }
 
   panel.data("ovlay",this);
+  
+  if ( settings.align.reference && alignments.indexOf(settings.align.position) >= 0 ) {
+	//get panel size
+	panel.css({position: "absolute", left: -10000, visibility: "hidden", display: "block"}).appendTo($("body"));
+	var position ;
+	if ( settings.align.position == "left" ) position = alignLeft(settings.align.reference);
+	else if ( settings.align.position == "right" ) position = alignRight(settings.align.reference);
+	else if ( settings.align.position == "top" ) position = alignTop(settings.align.reference);
+	else position = alignBottom(settings.align.reference);
+	if ( settings.align.leftOffset ) {
+	  position.left += settings.align.leftOffset
+	}
+	if ( settings.align.topOffset ) {
+	  position.top += settings.align.topOffset
+	}
+	panel.css({display: "none", visibility: "visible", top: position.top, left: position.left});
+ 
+  }
+  
+  
   this.open();
 
 
@@ -59,12 +138,12 @@ var overlay = function(panel, options) {
   setTimeout(function() {
   // click outside handler
     if ( settings.closeOnClick ) {
-      $(document).bind("click.ovlay",function(e) {
+      $(document).bind("click."+evtsClass,function(e) {
         if ( !panelIsIn($(e.target)) ) { that.close(); }
       });
     }
     if ( settings.closeOnEsc ) {
-      $(document).bind("keyup.ovlay",function(e) { if ( e.keyCode == 27 ) {that.close();} });
+      $(document).bind("keyup."+evtsClass,function(e) { if ( e.keyCode == 27 ) {that.close();} });
     }
 
     if ( settings.closeOnMouseOut ) {
@@ -90,10 +169,144 @@ var overlay = function(panel, options) {
 
 $.fn.ovlay = function(options) {
   if ( !options ) { return this.data("ovlay"); }
-  if ( opened ) { opened.close(true); }
-  opened = new overlay(this,options);
+  var family = options.family || "default";
+  debug("family: ",family, opened);
+  if ( opened[family] ) { opened[family].close(true); }
+  opened[family] = new overlay(this,options);
   return this;
 };
+
+
+var fullOverlay = function(panel, options) {
+  var that = this;
+  var settings = {
+    "onBeforeLoad": function() {},
+    "onLoad": function() {},
+    "onBeforeClose": function() {},
+    "onClose": function() {},
+	"onDomInsert": function(overlay) {},
+ 	"onDomRemove": function(overlay, then) {then();},
+    "closeOnClick": true,
+    "closeOnEsc": true,
+    "closeOnMouseOut": false,
+    "effect": "fade",
+    "speed": "normal",
+	align: {},
+	family: "default",
+	cssClass: "fullOverlay"
+  };
+
+  var effects = {
+    "fade": {"show": "fadeIn", "hide": "fadeOut"},
+    "slide": {"show": "slideDown", "hide": "slideUp"}
+  };
+
+  var alignments = ["left","right","top","bottom"];
+  
+  $.extend(settings,options);
+
+  var evtsClass="ovlay"+settings.family;
+  
+  var panelIsIn = function (target) {
+    var panelIn = false;
+    var all = target.parents().andSelf().each(function() {
+      if ( this === panel.get(0) ) {
+        panelIn = true;
+        return false;
+      }
+    });
+    return panelIn;
+  };
+  
+  var w = $(window);
+  var background = $("<div></div>").addClass(settings.cssClass);
+  panel.css({display: "inline-block", "vertical-align": "middle"});
+  background.append(panel).css(
+	{
+	  position: "fixed",
+	  width: w.width(),
+	  height: w.height(),
+	  "line-height": w.height()+"px",
+	  top: 0,
+	  left: 0,
+	  "text-align": "center"
+	}
+  ).appendTo($("body"));
+  settings.onDomInsert(background);
+
+  w.bind("resize."+evtsClass,function() {
+	background.css({width: w.width(),height: w.height(), "line-height": w.height()+"px"});
+  });
+  
+  
+  this.getOverlay = function() { return panel; };
+  this.close = function() {
+	
+	var closeCb = function() {
+	  $(document).unbind("click."+evtsClass+" keyup."+evtsClass);
+	  w.unbind("resize."+evtsClass);
+	  opened[settings.family] = null;
+	  
+	  background.remove();
+	  settings.onClose.call(that);
+	  panel.removeData("ovlay");
+	};
+	
+    settings.onBeforeClose.call(this);
+	settings.onDomRemove(background, closeCb);
+
+  }
+  this.open = function () {
+    settings.onBeforeLoad.call(this);
+    background[effects[settings.effect].show](function() {
+      settings.onLoad.call(that);
+    });
+  }
+
+  panel.data("ovlay",this);
+  
+  this.open();
+
+
+  // delaying event bindings allow to 
+  setTimeout(function() {
+  // click outside handler
+    if ( settings.closeOnClick ) {
+      $(document).bind("click."+evtsClass,function(e) {
+        if ( !panelIsIn($(e.target)) ) { that.close(); }
+      });
+    }
+    if ( settings.closeOnEsc ) {
+      $(document).bind("keyup."+evtsClass,function(e) { if ( e.keyCode == 27 ) {that.close();} });
+    }
+
+    if ( settings.closeOnMouseOut ) {
+      timeoutId = null;
+      panel.mouseleave(function() {
+        timeoutId = setTimeout(function() {
+          that.close();
+          timeoutId = null;
+        },500);
+      }).mouseenter(function() {
+        if ( timeoutId ) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+      });
+    }
+  },20);
+};
+
+
+$.fn.fullOvlay = function(options) {
+    if ( !options ) { return this.data("ovlay"); }
+  var family = options.family || "default";
+  debug("fullOverlay family: ",family, opened);
+  if ( opened[family] ) { opened[family].close(true); }
+  opened[family] = new fullOverlay(this,options);
+  return this;
+};
+
 
 $.fn.permanentOvlay = function (url, overlayNode, options) {
 	var searchinput = this;

@@ -320,6 +320,8 @@ exports.templates.clientList = {
 	'my.image.widget':'html/my/image.widget.html',
 	'my.invites.invites': 'html/my/invites.html',
 	'my.invites.invites.none': 'html/my/invites_none.html',
+	'my.reviewHelper.bubble': 'html/my/reviewHelper_bubble.html',
+	'my.reviewHelper': 'html/my/reviewHelper.html',
 	'library.content.simple': 'html/library/content_simple.html',
 	'library.content.genre': 'html/library/content_genre.html',
     'library.content.none':'html/library/content_none.html',

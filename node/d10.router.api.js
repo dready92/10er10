@@ -399,14 +399,14 @@ exports.api = function(app) {
 		};
 		bodyDecoder()(request, response,function() {
 			var prefValue = (request.body && "value" in request.body) ? request.body.value : null;
-			if ( request.params.name == "hiddenExtendedInfos" ) {
+			if ( request.params.name == "hiddenExtendedInfos" || request.params.name == "hiddenReviewHelper" ) {
 				updateUserPreferences(
 					request, 
 					function(doc) {
 						if ( prefValue && prefValue == "true" ) {
-							doc.hiddenExtendedInfos = true;
+							doc[request.params.name] = true;
 						} else {
-							delete doc.hiddenExtendedInfos;
+							delete doc[request.params.name];
 						}
 					},
 					defaultCallback
