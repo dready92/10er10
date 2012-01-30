@@ -93,9 +93,16 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 		
 		this.set_preference = function(name, value) {
 			if ( name == "hiddenExtendedInfos" ) {
-				
 				value = value ? "true" : "false";
 				rest.user.setPreference("hiddenExtendedInfos",value, {
+					load: function(err,resp) {
+						if ( err ) return ;
+						$.proxy(this.refresh_infos,this);
+					}
+				});
+			} else if ( name == "hiddenReviewHelper" ) {
+				value = value ? "true" : "false";
+				rest.user.setPreference("hiddenReviewHelper",value, {
 					load: function(err,resp) {
 						if ( err ) return ;
 						$.proxy(this.refresh_infos,this);

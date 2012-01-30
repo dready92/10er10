@@ -1,5 +1,5 @@
 "use strict";
-define(["js/d10.templates"], function(tpl) {
+define(["js/d10.templates", "js/user"], function(tpl, user) {
   
   	var showReviewHelper = function (reference) {
 	  var reviewHelper = $(tpl.mustacheView("my.reviewHelper.bubble"));
@@ -18,6 +18,7 @@ define(["js/d10.templates"], function(tpl) {
 	  
 	  reviewHelper.find(".close").click(function() {
 		reviewHelper.ovlay().close();
+		user.set_preference("hiddenReviewHelper", true);
 	  });
 	  reviewHelper.find(".link").click(function() {
 		if ( reviewHelperBody.is(":visible") ) {
@@ -53,9 +54,9 @@ define(["js/d10.templates"], function(tpl) {
 			} else {
 				rr.slideDown(function() {
 					rr.flipflap();
-					setTimeout(function() {
-					  showReviewHelper(rr);
-					},500);
+					if ( !user.get_preferences() || !user.get_preferences().hiddenReviewHelper ) {
+					  setTimeout(function() { showReviewHelper(rr); }, 500);
+					}
 				});
 			}
 		} else if ( rr.is(":visible") ) {
