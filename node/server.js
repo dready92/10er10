@@ -119,12 +119,12 @@ var onConfig = function() {
 		}
 
 		if ( config.gzipContentEncoding ) {
-// 			if ( minor > 5 ) { // beginning from node 0.6.0 we use internal gzip encoding
-// 				console.log("INFO: using node.js native gzip encoder");
-// 				d10Server.use(require("./native-gzip")({ matchType: /css|text|javascript|json|x-font-ttf/ }));
-// 			} else {
+ 			if ( minor > 5 ) { // beginning from node 0.6.0 we use internal gzip encoding
+ 				console.log("INFO: using node.js native gzip encoder");
+ 				d10Server.use(require("./native-gzip")({ matchType: /css|text|javascript|json|x-font-ttf/ }));
+ 			} else {
 				d10Server.use(require("connect-gzip").gzip({ matchType: /css|text|javascript|json|x-font-ttf/ }));
-// 			}
+ 			}
 		}
 		stack.forEach(function(mw) { d10Server.use(mw); });
 
