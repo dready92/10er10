@@ -346,6 +346,7 @@ exports.templates.clientList = {
 	'hoverbox.playlist.container': 'html/hoverbox/playlist.container.html',
 	'hoverbox.playlist.rpl.container': 'html/hoverbox/playlist.rpl.container.html',
 	'hoverbox.library.scope': 'html/hoverbox/library.scope.html',
+	'hoverbox.main.songpopin': 'html/hoverbox/main.songpopin.html',
     'upload.file.widget':'html/upload/file.widget.html',
     'loading':'html/pleaseWait.html',
     'refresh':'html/refresh.html',
