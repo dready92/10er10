@@ -96,18 +96,31 @@ var overlay = function(panel, options) {
   this.getOverlay = function() { return panel; };
   this.close = function() {
     settings.onBeforeClose.call(this);
-    panel[effects[settings.effect].hide](function() {
-      settings.onClose.call(that);
-      panel.removeData("ovlay");
-    });
+	
+	if ( settings.effect ) {
+	  panel[effects[settings.effect].hide](function() {
+		settings.onClose.call(that);
+		panel.removeData("ovlay");
+	  });
+	} else {
+	  settings.onClose.call(that);
+	  panel.removeData("ovlay");
+	}
+	
+	
     $(document).unbind("click."+evtsClass+" keyup."+evtsClass);
 	opened[settings.family] = null;
   }
   this.open = function () {
     settings.onBeforeLoad.call(this);
-    panel.css({"position": "absolute"})[effects[settings.effect].show](function() {
-      settings.onLoad.call(that);
-    });
+	if ( settings.effect ) {
+	  panel.css({"position": "absolute"})[effects[settings.effect].show](function() {
+		settings.onLoad.call(that);
+	  });
+	} else {
+	  panel.css({"position": "absolute"});
+	  settings.onLoad.call(that);
+	}
   }
 
   panel.data("ovlay",this);

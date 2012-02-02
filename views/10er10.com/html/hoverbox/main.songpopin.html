@@ -1,5 +1,5 @@
 <div class="songMenuOverlay yellowOverlay leftArrow">
-
+<!--
 <div style="float: left; width: 400px; height: 200px; overflow: hidden; border-right: 1px solid #9A9A9A; font-size: 0.9em; background: url({{image_url}}) no-repeat left bottom" class="leftSide">
   <div style="min-height: 70px">
 	<div style="text-align:center; font-size: 1.1em; padding-bottom:5px;">{{title}}{{#date}} ({{.}}){{/date}}</div>
@@ -16,10 +16,35 @@
 	</div>
   </div>
 </div>
-
-
-
-
+-->
+<div class="sliderWindow" style="height: 200px; width: 600px; overflow: hidden">
+  <div class="sliderRibbon" style="position: relative; height: 200px; width: 800px">
+	<div style="float: left; width: 280px; height: 200px; overflow: hidden; border-right: 1px solid #9A9A9A; font-size: 0.9em" class="leftSide">
+	  <div style="max-height: 160px; overflow: hidden;">
+		<div style="width: 64px; float: left; text-align: center;">
+		  <img src="{{image_url}}" width="64px" height="64px">
+		  <img src="css/22x22/actions/get-hot-new-stuff.png">
+		  <img src="css/22x22/actions/mail-mark-junk.png">
+		</div>
+		<div class="titleDiv" style="margin-left: 70px; padding-top: 10px;">
+		  <div style="text-align: center">{{title}}{{#date}} ({{.}}){{/date}}</div>
+		  <div style="font-size:0.95em; margin-top:1em;">
+			by <span class="link" data-name="{{artist}}">{{artist}}</span> 
+			{{#album}}on <span class="link" data-name="{{.}}">{{.}}</span>{{/album}}.
+			<br>
+			<span class="link" data-name="{{genre}}">{{genre}}</span>
+		  </div>
+		</div>
+	  </div>
+	  
+	  <div style="position:absolute; bottom: 5px;">
+		<div style="text-align:center">
+		</div>
+		<button style="margin-left: 10px; width: 260px; padding: 6px; ">Ajouter à la lecture en cours</button>
+	  </div>
+	</div>
+  </div>
+</div>
 
 
 
