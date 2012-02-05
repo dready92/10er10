@@ -10,7 +10,7 @@ var getSongs = function(data, then) {
 		inclusive_end: false,
 		limit: rpp
 	};
-	if ( data && data.qtartkey ) {
+	if ( data && data.startkey ) {
 		query.startkey = data.startkey;
 	}
 	d10.couch.d10wi.getAllDocs(query, function(err,resp) {
@@ -32,7 +32,7 @@ var getSongs = function(data, then) {
 				});
 				return then(null, responseDocs, responseData);
 			});
-			
+
 		}
 	});
 };
