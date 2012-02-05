@@ -14,14 +14,19 @@ configParser.getConfig(function(foo,cfg) {
 });
 
 process.on("message",function(message) { 
-	if ( !message || !message.type ) { return ; }
-	messageQueue.push(message);
-	consumeQueue();
+    pushInQueue(message);
 });
 
 
 
 var consumer = false;
+
+var pushInQueue = function(message) {
+    if ( !message || !message.type ) { return ; }
+    messageQueue.push(message);
+    consumeQueue();
+};
+
 var consumeQueue = function() {
 	if ( consumer ) { return ; }
 	if ( !config ) { return ; }
@@ -39,15 +44,18 @@ var consumeQueue = function() {
 				d10 = require(__dirname+"/d10");
 				d10.setConfig(config);
 				messageQueue.splice(i,1);
-				messageQueue.push({type: "updateSongsHits"});
-				return consumeQueue();
+                enableReccurrentJobs();
+                return pushInQueue({type: "updateSongsHits"});
 			}
 		}
 		// no configuration 
 		return ;
 	}
 	
-	var next = function() {
+	var next = function(err) {
+        if ( err ) {
+            console.log("background worker: got an error on previous job: ",err);
+        }
 		if ( messageQueue.length ) {
 			var job = messageQueue.splice(0,1)[0];
 			if ( ! job.type in jobs ) {
@@ -58,6 +66,12 @@ var consumeQueue = function() {
 			jobs[job.type](next);
 		}
 	};
-	
 	next();
+};
+
+
+var enableReccurrentJobs = function() {
+    setInterval(function() {
+        messageQueue.push({type: "updateSongsHits"});
+    },3600000*12); // 12 hours
 };

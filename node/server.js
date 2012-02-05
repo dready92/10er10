@@ -5,16 +5,19 @@ var config,
 configParser.getConfig(function(foo,cfg) {
 	config = cfg;
 	// production test
+	var prod = false;
 	if ( process.argv.length > 2 && process.argv[2] == "-p" ) {
+		prod = true;
 		configParser.switchProd();
 	} else {
 		configParser.switchDev();
 	}
 	require("./d10").setConfig(config);
-	onConfig();
+	onConfig(prod);
 });
 
-var onConfig = function() {
+
+var onConfig = function(isProduction) {
 
 	var	connect = require("connect");
     connect.router = require("./connect-router");
@@ -35,6 +38,9 @@ var onConfig = function() {
 		;
 
 	process.chdir(__dirname);
+	
+	var child = require('child_process').fork(__dirname + '/bgworker.js');
+	child.send({type: "configuration", production: isProduction});
 
 	console.log("Database binding: "+config.couch.d10.dsn+"/"+config.couch.d10.database);
 

@@ -19,21 +19,21 @@ var getSongs = function(data, then) {
 		if ( resp.rows.length == rpp ) {
 			var lastRow = resp.rows.pop();
 			responseData = {startkey: lastRow.key};
-			responseDocs = {};
-			var keys=[];
-			resp.rows.forEach(function(v) {
-				keys.push(v.key);
-				responseDocs[v.key].d10wi = v.doc;
-			});
-			d10.couch.d10.getAllDocs({keys: keys, include_docs: true},function(err,resp) {
-				if ( err ) { return then(err); }
-				resp.rows.forEach(function(v) {
-					responseDocs[v.key].d10 = v.doc;
-				});
-				return then(null, responseDocs, responseData);
-			});
+        }
+        responseDocs = {};
+        var keys=[];
+        resp.rows.forEach(function(v) {
+            keys.push(v.key);
+            responseDocs[v.key] = {d10wi: v.doc};
+        });
+        d10.couch.d10.getAllDocs({keys: keys, include_docs: true},function(err,resp) {
+            if ( err ) { return then(err); }
+            resp.rows.forEach(function(v) {
+                responseDocs[v.key].d10 = v.doc;
+            });
+            return then(null, responseDocs, responseData);
+        });
 
-		}
 	});
 };
 
@@ -48,9 +48,9 @@ var processAndRecordDocs = function(data, then) {
 	if ( !docs.length ) {
 		return then();
 	}
-	console.log("got "+docs.length+" docs to update");
 	d10.couch.d10.storeDocs(docs,function(err,resp) {
 		if ( err ) { return then(err) }
+        console.log("updateSongsHits: updated "+docs.length+" doc(s)");
 		return then();
 	});
 };
