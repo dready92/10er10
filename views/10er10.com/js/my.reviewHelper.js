@@ -2,7 +2,7 @@
 define(["js/d10.templates", "js/user"], function(tpl, user) {
   
   	var showReviewHelper = function (reference) {
-	  var reviewHelper = $(tpl.mustacheView("my.reviewHelper.bubble"));
+	  var reviewHelper = $(tpl.mustacheView("my.reviewHelper.bubble")).css({visibility: "hidden"}).appendTo($("body"));
 	  var reviewHelperBody = $(tpl.mustacheView("my.reviewHelper"));
 	  var startOverlay = function () {
 		reviewHelper.ovlay(
@@ -21,7 +21,7 @@ define(["js/d10.templates", "js/user"], function(tpl, user) {
 		user.set_preference("hiddenReviewHelper", true);
 	  });
 	  reviewHelper.find(".link").click(function() {
-		if ( reviewHelperBody.is(":visible") ) {
+		if ( reviewHelperBody.ovlay() ) {
 		  reviewHelperBody.ovlay().close();
 		} else {
 		  reviewHelperBody.find(".close").click(function() { reviewHelperBody.ovlay().close(); });

@@ -92,34 +92,45 @@ var overlay = function(panel, options) {
 	return {left: popinLeft, top: popinTop};
   };
   
+  var getEffect = function(step) {
+    if ( ! settings.effect ) {
+      effect = effects.fade[step];
+    } else if ( $.isPlainObject(settings.effect) ) {
+      effect = settings.effect[step];
+    } else {
+      effect = effects[settings.effect][step];
+    }
+    return effect;
+  };
   
   this.getOverlay = function() { return panel; };
   this.close = function() {
     settings.onBeforeClose.call(this);
 	
-	if ( settings.effect ) {
-	  panel[effects[settings.effect].hide](function() {
-		settings.onClose.call(that);
-		panel.removeData("ovlay");
-	  });
-	} else {
-	  settings.onClose.call(that);
-	  panel.removeData("ovlay");
-	}
-	
+    var effect = getEffect("hide"),
+    callback = function() {
+      settings.onClose.call(that);
+      panel.removeData("ovlay");
+    };
+
+    if ( typeof effect == "string" ) {
+      panel[effect](callback);
+    } else {
+      effect.call(panel,callback);
+    }
+    
 	
     $(document).unbind("click."+evtsClass+" keyup."+evtsClass);
 	opened[settings.family] = null;
   }
   this.open = function () {
     settings.onBeforeLoad.call(this);
-	if ( settings.effect ) {
-	  panel.css({"position": "absolute"})[effects[settings.effect].show](function() {
-		settings.onLoad.call(that);
-	  });
+	var effect = getEffect("show"),
+		callback = function() { settings.onLoad.call(that); };
+	if ( typeof effect == "string" ) {
+	  panel.css({"position": "absolute", visibility: "visible"})[effect](callback);
 	} else {
-	  panel.css({"position": "absolute"});
-	  settings.onLoad.call(that);
+	  effect.call(panel,callback);
 	}
   }
 
@@ -127,7 +138,7 @@ var overlay = function(panel, options) {
   
   if ( settings.align.reference && alignments.indexOf(settings.align.position) >= 0 ) {
 	//get panel size
-	panel.css({position: "absolute", left: -10000, visibility: "hidden", display: "block"}).appendTo($("body"));
+	panel.css({position: "absolute", left: -10000, visibility: "hidden", display: "block"});
 	var position ;
 	if ( settings.align.position == "left" ) position = alignLeft(settings.align.reference);
 	else if ( settings.align.position == "right" ) position = alignRight(settings.align.reference);
@@ -179,6 +190,20 @@ var overlay = function(panel, options) {
   },20);
 
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 $.fn.ovlay = function(options) {
   if ( !options ) { return this.data("ovlay"); }

@@ -36,13 +36,26 @@ define(["js/d10.imageUtils","js/d10.templates"],function(imageUtils, tpl) {
 // 	leftSide.append("<div><span style=\"padding: 5px; vertical-align: top\">"+song.find(".title").html()+"</span></div>");
 // 	overlay.append(leftSide);
 
-	var overlay = $(tpl.mustacheView("hoverbox.main.songpopin",templateData));
+	var overlay = $(tpl.mustacheView("hoverbox.main.songpopin",templateData)).css({visibility: "hidden"}).appendTo($("body"));
 	overlay.ovlay(
 	  {
 		closeOnClick: true, 
 		closeOnMouseOut: false, 
 		closeOnEsc: true, 
-		align:{position: "right", reference: plus, leftOffset: 9}
+		align:{position: "right", reference: plus, leftOffset: 9},
+        onClose: function() {
+          overlay.remove();
+        },
+        effect: {
+          show: function(then) {
+            overlay.css("display","block").addClass("opened");
+            setTimeout(then, 200);
+          },
+          hide: function(then) {
+            overlay.removeClass("opened");
+            setTimeout(then, 200);
+          }
+        }
 	  }
 	);
 	

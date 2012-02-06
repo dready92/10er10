@@ -2363,7 +2363,18 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
   width: 600px;
   z-index: 1;
   padding: 5px;
+  -webkit-transform: scale(0.01);
+  -webkit-transform-origin: left center;
+  -webkit-transition: -webkit-transform 0.2s;
+  -moz-transform: scale(0.01);
+  -moz-transform-origin: left center;
+  -moz-transition: -moz-transform 0.2s;
 }
+.songMenuOverlay.opened {
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+}
+
 
 .reviewHelper {
   width: 400px;
