@@ -1,5 +1,5 @@
-define(["js/domReady","js/d10.templates", "js/d10.rest", "js/dnd","js/playlist.new", "js/user", "js/d10.router","js/my", "js/d10.events"],
-	   function(foo, tpl, rest, dnd, playlist, user, router, myCtrl, pubsub) {
+define(["js/domReady","js/d10.templates", "js/d10.rest", "js/dnd","js/playlist.new", "js/user", "js/d10.router","js/my", "js/d10.events", "js/d10.utils"],
+	   function(foo, tpl, rest, dnd, playlist, user, router, myCtrl, pubsub, utils) {
 
 function playlistManager (mydiv,mypldiv) {
 	var that = this;
@@ -180,7 +180,7 @@ function playlistManager (mydiv,mypldiv) {
 		var playlists = user.get_playlists();
 		for ( var index in  playlists ) {
 			$('.plm-list',mypldiv).append(
-				'<div class="plm-list-item" name="'+playlists[index]._id+'" action="'+playlists[index]._id+'">'+playlists[index].name+'</div>'
+				'<div class="plm-list-item" name="'+playlists[index]._id+'" action="'+playlists[index]._id+'">'+utils.encodeHTMLEntities(playlists[index].name)+'</div>'
 			);
 		}
 
@@ -271,7 +271,7 @@ function playlistManager (mydiv,mypldiv) {
 					   // playlist menu item
 						var pl_item = $('<div class="plm-list-item" name="'+response.playlist._id+'" action="'+response.playlist._id+'"></div>');
 						debug("plm:createplaylist pl_item: ",pl_item);
-						pl_item.html(response.playlist.name);
+						pl_item.html(utils.encodeHTMLEntities(response.playlist.name));
 						debug("plm:createplaylist pl_item: ",pl_item);
 						//
 						// place menu item alphabetically
@@ -299,7 +299,9 @@ function playlistManager (mydiv,mypldiv) {
 						// trigger the click event on newly added list item
 						//
 						debug("plm:createplaylist pl_item: ",pl_item);
-						pl_item.trigger('click');
+                        if ( !opts.noDisplay ) {
+                          pl_item.trigger('click');
+                        }
 					}
 					debug(resp);
 					rplCreationSuccessHandler(resp);
@@ -437,7 +439,7 @@ function playlistManager (mydiv,mypldiv) {
 	var rplRenameSuccessHandler = function ( response ) {
 		var item = $('.plm-list .plm-list-item[name='+response._id+']',mydiv);
 		if ( item.length ) {
-		item.html(response.name);
+		item.html(utils.encodeHTMLEntities(response.name));
 		}
 	}
 	
@@ -446,6 +448,7 @@ function playlistManager (mydiv,mypldiv) {
 		opts = opts || {};
 		rest.rpl.append(playlist_id,song_id,{
 			load: function(err,resp) {
+              debug(err,resp);
 				if ( err ) {
 					if ( opts.error ) {
 						opts.error.call(e);
@@ -453,11 +456,12 @@ function playlistManager (mydiv,mypldiv) {
 					pubsub.topic('rplAppendFailure').publish(err);
 				} else  {
 					var playlistdiv=$('div[name=plm] .rpl[name='+resp.playlist._id+']',mydiv);
-					if ( !playlistdiv.length )	return ;
-					_appendSong (resp.song, playlistdiv, -1) ;
-					if ( opts.success ) {
-						opts.success.call(resp);
-					}
+					if ( playlistdiv.length ) {
+                      _appendSong (resp.song, playlistdiv, -1) ;
+                    }
+                    if ( opts.success ) {
+                        opts.success.call(resp);
+                    }
 					debug('trigger; rplAppendSuccess');
 					pubsub.topic('rplAppendSuccess').publish({ 'playlist': resp.playlist, 'song': resp.song, 'index': -1 });
 				}

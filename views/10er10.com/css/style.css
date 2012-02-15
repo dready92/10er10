@@ -51,8 +51,10 @@ a:active { color: #FFCA40 }
 .clear { clear: both; color: rgba(0,0,0,0); }
 .overmeup > span{ padding-top: 5px; border-top: 2px solid #BF9730; }
 .floatright { float: right;}
+.floatleft { float: left;}
 .link {	cursor: pointer;	color: #BF9730; }
 .relative { position: relative; }
+.hundredPercentWidth {width: 100%}
 .grippie {
 	background: url("grippie.png") no-repeat scroll 50% 50% #3C3C3C;
 	-moz-user-select: none;
@@ -297,13 +299,13 @@ button.risky {
 }
 
 button:hover {
-  background: -webkit-linear-gradient(top,  #696969,  #454545);
-  background: -moz-linear-gradient(top,  #696969,  #454545);
+  background-image: -webkit-linear-gradient(top,  #696969,  #454545);
+  background-image: -moz-linear-gradient(top,  #696969,  #454545);
 }
 
 button:active {
-  background: -webkit-linear-gradient(top,  #343434,  #595959);
-  background: -moz-linear-gradient(top,  #343434,  #595959);
+  background-image: -webkit-linear-gradient(top,  #343434,  #595959);
+  background-image: -moz-linear-gradient(top,  #343434,  #595959);
 }
 
 img {	border: none; }
@@ -2375,6 +2377,85 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
   -moz-transform: scale(1);
 }
 
+.songMenuOverlay .fixHeight { height: 200px; }
+.songMenuOverlay .sliderWindow { width: 600px; overflow: hidden }
+.songMenuOverlay .sliderRibbon {position: relative; width: 1200px }
+.songMenuOverlay .leftSide {float: left; width: 350px; overflow: hidden; border-right: 1px solid #9A9A9A; font-size: 0.9em}
+.songMenuOverlay .songInfos {max-height: 150px; overflow: hidden;}
+.songMenuOverlay .images {width: 64px; float: left; text-align: center;}
+.songMenuOverlay .infosContainer {margin-left: 70px; padding-top: 10px;}
+.songMenuOverlay .titleContainer {text-align: center; color: #62C361; text-shadow: 0px 0px 2px black; font-weight: bold;}
+.songMenuOverlay .songInfosContainer {font-size:0.95em; margin-top:1em;}
+.songMenuOverlay .actionsContainer {position:absolute; bottom: 0px; text-align:left; width: 345px;}
+.songMenuOverlay .downloadControl {padding: 2px 4px; margin-top: 4px; width:48%;}
+.songMenuOverlay .editMetaControl {padding: 2px 4px; margin-top: 4px;  width:48%; float: right;}
+.songMenuOverlay .actionSide {float: left; width: 244px; padding-left: 5px; overflow: hidden;}
+.songMenuOverlay .floarightArrow {float: right}
+.songMenuOverlay .rightArrow {float: right}
+
+
+.songMenuOverlay .categoryButton {
+  background: #232323;
+  border: 0px solid transparent;
+  border-bottom: 1px solid #565656;
+  padding: 2px;
+  width:100%;
+  border-radius: 0px;
+}
+.songMenuOverlay .categoryButton > .active {
+  display: none;
+}
+
+.songMenuOverlay .categoryButton:hover {
+  background: #121212;
+  color: #BF9730;
+}
+
+
+.songMenuOverlay .playlistsList { overflow: auto; width:600px; display: none; }
+.songMenuOverlay .playlistsListLabel { width: 200px; }
+.songMenuOverlay .cancel    {position: absolute; bottom: 20px}
+.songMenuOverlay .playlistsListContainer {margin-left: 202px;}
+.songMenuOverlay button[data-action=toggleForm] {background: transparent; border: none;}
+
+.songMenuOverlay .categoryChoiceButton {
+    background: #121212;
+    border: 0px solid transparent;
+    border-bottom: 1px solid transparent;
+}
+
+.songMenuOverlay .categoryChoiceButton:hover {
+  background: #232323;
+  color: #BF9730;
+}
+
+.songMenuOverlay .playlistsList div[data-display=playlistForm] >div{
+  background: -webkit-linear-gradient(bottom, rgba(200,200,200,0.01),rgba(200,200,200,0.2));
+  border-radius: 5px;
+  border: 1px solid #454545;
+}
+
+.songMenuOverlay .playlistsList div[data-display=playlistForm] .triangle {
+  display: inline-block;
+  vertical-align: top;
+  -webkit-transition: -webkit-transform 0.3s;
+}
+
+.songMenuOverlay .playlistsList div.opened[data-display=playlistForm] .triangle {
+  -webkit-transform: rotate(90deg);
+}
+
+.songMenuOverlay .playlistsList div[data-display=playlistForm] .playlistCreationForm {
+  display: none;
+  opacity: 0;
+  -webkit-transition: all 0.3s;
+}
+
+.songMenuOverlay .playlistsList div.opened[data-display=playlistForm] .playlistCreationForm {
+  display: block;
+  opacity: 1;
+}
+
 
 .reviewHelper {
   width: 400px;
@@ -2411,4 +2492,74 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 .listInside {
   list-style-position:inside;
 }
+
+.btn{display:inline-block;padding:4px 10px 4px;font-size:13px;line-height:18px;color:#333333;text-align:center;text-shadow:0 1px 1px rgba(255, 255, 255, 0.75);background-color:#fafafa;background-image:-webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), color-stop(25%, #ffffff), to(#e6e6e6));background-image:-webkit-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);background-image:-moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);background-image:-ms-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);background-image:-o-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);background-image:linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);background-repeat:no-repeat;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);border:1px solid #ccc;border-bottom-color:#bbb;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;-webkit-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.2),0 1px 2px rgba(0, 0, 0, 0.05);-moz-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.2),0 1px 2px rgba(0, 0, 0, 0.05);box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.2),0 1px 2px rgba(0, 0, 0, 0.05);cursor:pointer;*margin-left:.3em;}.btn:first-child{*margin-left:0;}
+.btn:hover{
+  color:#333333;
+  text-decoration:none;
+  background-color:#e6e6e6;
+  background-position:0 -15px;
+  -webkit-transition:background-position 0.1s linear;
+  -moz-transition:background-position 0.1s linear;
+  -ms-transition:background-position 0.1s linear;
+  -o-transition:background-position 0.1s linear;
+  transition:background-position 0.1s linear;
+  
+}
+.btn:focus{outline:thin dotted;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px;}
+.btn.active,.btn:active{background-image:none;-webkit-box-shadow:inset 0 2px 4px rgba(0, 0, 0, 0.15),0 1px 2px rgba(0, 0, 0, 0.05);-moz-box-shadow:inset 0 2px 4px rgba(0, 0, 0, 0.15),0 1px 2px rgba(0, 0, 0, 0.05);box-shadow:inset 0 2px 4px rgba(0, 0, 0, 0.15),0 1px 2px rgba(0, 0, 0, 0.05);background-color:#e6e6e6;background-color:#d9d9d9 \9;color:rgba(0, 0, 0, 0.5);outline:0;}
+.btn.disabled,.btn[disabled]{cursor:default;background-image:none;background-color:#e6e6e6;opacity:0.65;filter:alpha(opacity=65);-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none;}
+
+.btn-large {
+    border-radius: 5px 5px 5px 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    line-height: normal;
+    padding: 7px 15px;
+}
+
+
+.btn-beyond-the-invisible-5 { text-shadow: 0px -1px 0px #004573; color: #BFBFBF; background-color: #006391; 
+background-image: -moz-linear-gradient(top, #1e81af, #004573); 
+background-image: -webkit-linear-gradient(top, #1e81af, #004573); 
+background-image: -o-linear-gradient(top, #1e81af, #004573); 
+background-image: linear-gradient(top, #1e81af, #004573); 
+border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.25); }
+.btn-beyond-the-invisible-5:hover, .btn-beyond-the-invisible-5:active, .btn-beyond-the-invisible-5.active, .btn-beyond-the-invisible-5.disabled, .btn-beyond-the-invisible-5[disabled] { 
+  background-color: #004573; 
+}
+.btn-beyond-the-invisible-5:hover { 
+  color: #CFCFCF; 
+  text-shadow: 0px -1px 0px #002755; 
+background-image: -moz-linear-gradient(top, #1e81af, #004573); 
+background-image: -webkit-linear-gradient(top, #1e81af, #004573); 
+  
+}
+.btn-beyond-the-invisible-5:focus { color: #64c7f5; -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.25); }
+.btn-beyond-the-invisible-5.active, .btn-beyond-the-invisible-5:active { background-image: none; -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); color: #64c7f5; }
+
+
+/* class: .btn-beyond-the-invisible-4,  color theme: Beyond The Invisible */
+.btn-beyond-the-invisible-4 { 
+  text-shadow: 0px -1px 0px #0e3148; 
+  color: #BFBFBF; 
+  background-color: #2C4F66; 
+  background-image: -moz-linear-gradient(top, #4a6d84, #0e3148); 
+  background-image: -webkit-linear-gradient(top, #4a6d84, #0e3148); 
+  background-image: -o-linear-gradient(top, #4a6d84, #0e3148); 
+  background-image: linear-gradient(top, #4a6d84, #0e3148); 
+  border-color: #2C4F66 #0e3148 #0e3148 #2C4F66; border-color: rgba(0, 0, 0, 0.25) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.25); }
+.btn-beyond-the-invisible-4:hover, .btn-beyond-the-invisible-4:active, .btn-beyond-the-invisible-4.active, .btn-beyond-the-invisible-4.disabled, .btn-beyond-the-invisible-4[disabled] { 
+  background-color: #0e3148; 
+  background-image: -moz-linear-gradient(top, #4a6d84, #0e3148); 
+  background-image: -webkit-linear-gradient(top, #4a6d84, #0e3148); 
+  background-image: -o-linear-gradient(top, #4a6d84, #0e3148); 
+  background-image: linear-gradient(top, #4a6d84, #0e3148); 
+  
+}
+.btn-beyond-the-invisible-4:hover { color: #CFCFCF; text-shadow: 0px -1px 0px #00132a; }
+.btn-beyond-the-invisible-4:focus { color: #90b3ca; -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); border-color: #2C4F66 #0e3148 #0e3148 #2C4F66; border-color: rgba(0, 0, 0, 0.25) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.25); }
+.btn-beyond-the-invisible-4.active, .btn-beyond-the-invisible-4:active { background-image: none; -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); color: #90b3ca; }
+/* end .btn-beyond-the-invisible-4 */
+
 /* http://colorschemedesigner.com/#3s31Tw0w0w0w0 */

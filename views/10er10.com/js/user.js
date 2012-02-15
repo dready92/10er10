@@ -69,12 +69,13 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 	});
 
 	
-		this.refresh_infos = function () {
+		this.refresh_infos = function (then) {
 			rest.user.infos(
 				{
 					load: function(err,resp) {
 						if (!err) {
 							pubsub.topic("user.infos").publish(resp);
+                            if (then) {then();}
 						}
 					}
 				}
@@ -124,6 +125,16 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 			}
 			return false;
 		}
+		
+		this.getPlaylistId = function(name) {
+          var pl = this.get_playlists();
+            for ( var index in pl ) {
+                if ( pl[index].name == name ) {
+                    return pl[index]._id;
+                }
+            }
+            return false;
+        };
 		
 		this.get_invites_count = function() {
 			if ( infos == null )  return 0;

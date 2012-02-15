@@ -1,5 +1,5 @@
-define(["js/playlistDriverDefault","js/playlist.new", "js/d10.rest", "js/d10.templates"], 
-	   function(playlistDriverDefault, playlist, rest, tpl) {
+define(["js/playlistDriverDefault","js/playlist.new", "js/d10.rest", "js/d10.templates", "js/d10.events"], 
+	   function(playlistDriverDefault, playlist, rest, tpl, pubsub) {
 
 
 

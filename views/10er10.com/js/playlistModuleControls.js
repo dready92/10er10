@@ -1,4 +1,5 @@
-define(["js/playlist.new", "js/d10.playlistModule", "js/user", "js/d10.rest"],function(playlist, playlistModule, user, rest) {
+define(["js/playlist.new", "js/d10.playlistModule", "js/user", "js/d10.rest", "js/d10.events"],
+       function(playlist, playlistModule, user, rest, pubsub) {
 	
 	
 var createModule = function(ui) {	
@@ -14,6 +15,11 @@ var createModule = function(ui) {
 			play.show();
 		}
 	},{});
+    
+    pubsub.topic('songStarring').subscribe(function(resp) { 
+      starringUpdated(resp.id, resp.star);
+    });
+    
 	var starringControls = function () {
 		// test if user likes this song
 		starUp.removeClass('littletrans');
@@ -34,8 +40,9 @@ var createModule = function(ui) {
 		rest.song.starring.set(id, type, {
 			load: function(err,resp) {
 				if ( !err ) {
-					starringUpdated(resp.id, resp.star);
-					user.refresh_infos();
+                  user.refresh_infos(function() {
+                    pubsub.topic('songStarring').publish(resp);
+                  });
 				}
 			}
 		});

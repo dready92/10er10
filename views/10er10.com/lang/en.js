@@ -238,6 +238,21 @@ exports.server = {
 	"html/hoverbox/playlist.rpl.container.html": {
 		load: "Load..."
 	},
+    "html/hoverbox/main.songpopin.html": {
+        artist_by: "by",
+        album_on: "on",
+        genre: "Genre",
+        button_add_to_player: "Add to current playing queue",
+        button_download: "Download",
+        button_edit_meta: "Edit meta data",
+        button_add_to_playlist: "Add to playlist...",
+        label_back: "Back",
+        label_add_song_to_playlist: "Add <strong>{{title}}</strong> to playlist:",
+        cancel: "Cancel",
+        button_new_playlist: "New playlist",
+        label_new_playlist_name: "New playlist name",
+        button_create_playlist: "Create and add this song"
+    },
 	"html/upload/file.widget.html": {
 		review_button: "Review this song",
 		close_button: "Close",

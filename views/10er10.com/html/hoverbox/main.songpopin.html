@@ -1,48 +1,70 @@
 <div class="songMenuOverlay yellowOverlay leftArrow">
-<!--
-<div style="float: left; width: 400px; height: 200px; overflow: hidden; border-right: 1px solid #9A9A9A; font-size: 0.9em; background: url({{image_url}}) no-repeat left bottom" class="leftSide">
-  <div style="min-height: 70px">
-	<div style="text-align:center; font-size: 1.1em; padding-bottom:5px;">{{title}}{{#date}} ({{.}}){{/date}}</div>
-	<div>by <span class="link" data-name="{{artist}}">{{artist}}</span> {{#album}}on <span class="link" data-name="{{.}}">{{.}}</span>{{/album}}</div>
-  </div>
-  <div>
-	<div style="margin-left: 130px">
-	  <div style="text-align: center; padding-bottom: 5px;">
-		<span class="link" data-name="{{genre}}">{{genre}}</span>
-	  </div>
-	  <div style="text-align: center">
-		<button>Ajouter à la lecture en cours</button>
-	  </div>
-	</div>
-  </div>
-</div>
--->
-<div class="sliderWindow" style="height: 200px; width: 600px; overflow: hidden">
-  <div class="sliderRibbon" style="position: relative; height: 200px; width: 800px">
-	<div style="float: left; width: 280px; height: 200px; overflow: hidden; border-right: 1px solid #9A9A9A; font-size: 0.9em" class="leftSide">
-	  <div style="max-height: 160px; overflow: hidden;">
-		<div style="width: 64px; float: left; text-align: center;">
+<div class="sliderWindow fixHeight">
+  <div class="sliderRibbon fixHeight">
+
+	<div class="leftSide fixHeight">
+	  <div class="songInfos">
+		<div class="images">
 		  <img src="{{image_url}}" width="64px" height="64px">
-		  <img src="css/22x22/actions/get-hot-new-stuff.png">
-		  <img src="css/22x22/actions/mail-mark-junk.png">
+		  <img src="css/22x22/actions/get-hot-new-stuff.png" name="likes" class="link">
+		  <img src="css/22x22/actions/mail-mark-junk.png" name="dislikes" class="link">
 		</div>
-		<div class="titleDiv" style="margin-left: 70px; padding-top: 10px;">
-		  <div style="text-align: center">{{title}}{{#date}} ({{.}}){{/date}}</div>
-		  <div style="font-size:0.95em; margin-top:1em;">
-			by <span class="link" data-name="{{artist}}">{{artist}}</span> 
-			{{#album}}<br style="margin-top: 4px">on <span class="link" data-name="{{.}}">{{.}}</span>{{/album}}.
-			<br>
-			Genre <span class="link" data-name="{{genre}}">{{genre}}</span>
+		<div class="infosContainer">
+		  <div class="titleContainer">{{title}}{{#date}} ({{.}}){{/date}}</div>
+		  <div class="songInfosContainer">
+            <div class="vertical-little-air">((artist_by)) <span class="link" data-name="{{artist}}" data-action="libraryArtist">{{artist}}</span></div>
+			{{#album}}((album_on)) <span class="link" data-name="{{.}}" data-action="libraryAlbum">{{.}}</span>.{{/album}}
+            <div class="vertical-little-air">((genre)) <span class="link" data-name="{{genre}}" data-action="libraryGenre">{{genre}}</span></div>
 		  </div>
 		</div>
 	  </div>
 	  
-	  <div style="position:absolute; bottom: 5px;">
-		<div style="text-align:center">
+	  <div class="actionsContainer">
+		<div class="center">
+          <button class="btn btn-xlarge btn-beyond-the-invisible-4 hundredPercentWidth " data-action="addToPlayer">
+            <img class="middle" src="css/22x22/actions/favorite-genres-amarok.png">
+            ((button_add_to_player))
+          </button>
 		</div>
-		<button style="margin-left: 10px; width: 260px; padding: 6px; ">Ajouter à la lecture en cours</button>
+        <a href="audio/download/{{id}}" data-action="songDownload"><button class="downloadControl">
+          <img class="middle" src="css/22x22/places/folder-downloads.png">
+          ((button_download))
+        </button></a>
+{{#editButton}}<button style=""class="editMetaControl" data-action="editMeta"><img class="middle" src="css/22x22/actions/media-track-edit-amarok.png"> ((button_edit_meta))</button>{{/editButton}}
 	  </div>
 	</div>
+
+    <div class="actionSide fixHeight">
+      <button  class="categoryButton hundredPercentWidth" data-action="playlistChooser">
+        <span class="inactive">((button_add_to_playlist)) <span class="floatright">&gt;</span></span>
+        <span class="active"><span class="floatleft">&lt;&lt;</span>((label_back))</span>
+      </button>
+    </div>
+
+    <div class="playlistsList floatleft fixHeight">
+      <div class="playlistsListLabel floatleft fixHeight">
+        <div>(({label_add_song_to_playlist}))</div>
+        <div class="link center airin cancel" data-action="cancel">&lt;&lt; ((cancel))</div>
+      </div>
+      <div class="playlistsListContainer fixHeight" style=" height: 200px;">
+        {{#playlists}}
+        <button data-playlist-id="{{_id}}"  class="categoryChoiceButton center hundredPercentWidth">{{name}}</button>
+        {{/playlists}}
+        <div class="vertical-air center" data-display="playlistForm">
+          <div>
+            <button data-action="toggleForm"  class="hundredPercentWidth left"><span class="triangle">&#9654;</span> ((button_new_playlist))</button>
+            <div class="playlistCreationForm vertical-air">
+              ((label_new_playlist_name)):<br>
+              <p class="vertical-air">
+                <input type="text" name="playlistName" value="" class="vertical-little-air">
+              </p>
+              <button data-action="playlistCreate" class="link">((button_create_playlist))</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 

@@ -40,6 +40,13 @@ define(function() {
 			var count = 0;
 			for ( var k in obj ) {count++;}
 			return count;
-		}
+		},
+        encodeHTMLEntities: function(str) {
+          return str.replace(/&/g, "&amp;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/'/g, "&#146;") ;
+        }
 	};
 });
