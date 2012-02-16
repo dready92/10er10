@@ -251,7 +251,9 @@ exports.server = {
         cancel: "Cancel",
         button_new_playlist: "New playlist",
         label_new_playlist_name: "New playlist name",
-        button_create_playlist: "Create and add this song"
+        button_create_playlist: "Create and add this song",
+        button_remove_all_next_songs: "Remove all following songs",
+        button_remove_all_previous_songs: "Remove all preceding songs"
     },
 	"html/upload/file.widget.html": {
 		review_button: "Review this song",

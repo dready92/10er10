@@ -250,7 +250,9 @@ exports.server = {
         cancel: "Annuler",
         button_new_playlist: "Nouvelle playlist",
         label_new_playlist_name: "Non de la nouvelle playlist",
-        button_create_playlist: "Créer et ajouter ce morceau"
+        button_create_playlist: "Créer et ajouter ce morceau",
+        button_remove_all_next_songs: "Enlever tous les morceaux suivants",
+        button_remove_all_previous_songs: "Enlever tous les morceaux précédents"
     },
 	"html/upload/file.widget.html": {
 		review_button: "Valider le morceau",

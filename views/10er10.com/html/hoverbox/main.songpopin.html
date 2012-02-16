@@ -20,12 +20,14 @@
 	  </div>
 	  
 	  <div class="actionsContainer">
+          {{#addToPlayer}}
 		<div class="center">
           <button class="btn btn-xlarge btn-beyond-the-invisible-4 hundredPercentWidth " data-action="addToPlayer">
             <img class="middle" src="css/22x22/actions/favorite-genres-amarok.png">
             ((button_add_to_player))
           </button>
 		</div>
+          {{/addToPlayer}}
         <a href="audio/download/{{id}}" data-action="songDownload"><button class="downloadControl">
           <img class="middle" src="css/22x22/places/folder-downloads.png">
           ((button_download))
@@ -37,8 +39,18 @@
     <div class="actionSide fixHeight">
       <button  class="categoryButton hundredPercentWidth" data-action="playlistChooser">
         <span class="inactive">((button_add_to_playlist)) <span class="floatright">&gt;</span></span>
-        <span class="active"><span class="floatleft">&lt;&lt;</span>((label_back))</span>
       </button>
+        {{#removeAllNext}}
+        <button  class="categoryButton hundredPercentWidth" data-action="removeAllNext">
+            <span class="inactive">((button_remove_all_next_songs))</span>
+        </button>
+        {{/removeAllNext}}
+        {{#removeAllPrevious}}
+        <button  class="categoryButton hundredPercentWidth" data-action="removeAllPrevious">
+            <span class="inactive">((button_remove_all_previous_songs))</span>
+        </button>
+        {{/removeAllPrevious}}
+
     </div>
 
     <div class="playlistsList floatleft fixHeight">

@@ -92,7 +92,11 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 		var container = this.container = function() {
 			return ui;
 		};
-		
+
+        var songsList = this.songsList = function() {
+            return list;
+        }
+
 		var songId = this.songId = function(song) {
 			var songs = list.children(".song[name="+song.attr("name")+"]");
 			var back = 0;
@@ -426,66 +430,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 				}
 			);
 		};
-		
-		var handlePlusClick = function() {
-			
-			var node = $(this).closest(".song");
-			var elem = $(tpl.mustacheView("hoverbox.playlist.container", {id: node.attr("name")}));
-			if ( node.prevAll().not(".current").length == 0 ) {
-				elem.find(".removeAllPrev").remove();
-			} else {
-				elem.find(".removeAllPrev").click(function() {
-					remove(node.prevAll().not(".current"));
-					elem.ovlay().close();
-				});
-			}
-			if ( node.nextAll().not(".current").length == 0 ) {
-				elem.find(".removeAllNext").remove();
-			} else {
-				elem.find(".removeAllNext").click(function() {
-					remove(node.nextAll().not(".current"));
-					elem.ovlay().close();
-				});
-			}
-			
-			$("div.fromArtist",elem).click(function() {
-				router.navigateTo(["library","artists",node.find("span.artist").text()]);
-				elem.ovlay().close();
-			});
-			
-			if ( node.find("span.album").text().length ) {
-				$("div.fromAlbum",elem).click(function() {
-					router.navigateTo(["library","albums",node.find("span.album").text()]);
-					elem.ovlay().close();
-				});
-			} else {
-				$("div.fromAlbum",elem).remove();
-			}
-			
-			if ( !node.attr("data-owner") ) {
-				elem.find(".edit").remove();
-			} else {
-				elem.find(".edit").click(function() {
-					router.navigateTo(["my","review",node.attr("name")]);
-					elem.ovlay().close();
-				});
-			}
-			
-			elem.css({visibility:'hidden',top:0,left:0}).appendTo($("body"));
-			var height = elem.outerHeight(false);
-			var width = elem.outerWidth(false);
-			var left = $(this).offset().left - width + 10;
-			var top= $(this).offset().top - height + 10;
-			if ( top < 0 ) top = 0;
-			
-			elem.hide()
-			.css ( { top: top, left : left, visibility:'' } )
-			.ovlay({
-				"onClose":function() {this.getOverlay().remove();} ,
-				"closeOnMouseOut": true
-			});
-		};
-		
+
 		this.currentDriverName = function() {
 			if ( !driver )	return false;
 			for ( var name in drivers ) {
@@ -550,10 +495,6 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/
 					remove($(this));
 				}
 			);
-		})
-		.delegate("div.song span.options","click", function(e) {
-			handlePlusClick.call(this);
-			return false;
 		})
 ;
 		
