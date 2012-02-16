@@ -21,6 +21,12 @@ To upgrade your PROD databases, run
 - exports.library.defaultTab in config.js to select the default display when click on Catalog
 - use native gzip module when running with node >= 0.6.0 (no need for connect-gzip module then)
 - helper to explain the review number that appears next to "Personnal Space"
+- new context menus for songs (when clicking on the + icon)
+
+**Be aware**
+
+In a not so long future, 10er10 will require you to run a node.js >= 0.6.0. This is needed for the software to launch
+background jobs, that will allow for even more wonderfulness !
 
 Upgrade from 0.8 to 0.9
 =======================
