@@ -61,21 +61,19 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 		});
 		
 		ui.children("nav").find(".libraryMenuButton").click(function() {
-			var button = $(this), offset = button.offset(), height = button.height();
-// 			debug(button.offset());
-			var label = ( libraryScope.current == "full" ) ? tpl.mustacheView("library.scope.toggle.user",{}) : tpl.mustacheView("library.scope.toggle.full",{}) ;
-			var widget = $(
-				tpl.mustacheView("hoverbox.library.scope", {toggle_scope: label})
-				).hide();
-			$("body").append(widget);
-			offset.left = offset.left - widget.width();
-			offset.top += height;
-			widget.offset(offset);
-			widget.find(".toggleScope").click(function() {
-				widget.ovlay().close();
-				libraryScope.toggle();
-			});
-			widget.ovlay({"onClose": function() {this.getOverlay().remove()}, "closeOnMouseOut": true });
+            var button = $(this);
+            var scope = ( libraryScope.current == "full" ) ? tpl.mustacheView("library.scope.toggle.user",{}) : tpl.mustacheView("library.scope.toggle.full",{}) ;
+            var overlay = $(tpl.mustacheView("hoverbox.library.scope", {scope: scope})).appendTo("body");
+            overlay.click(function() {
+                overlay.ovlay().close();
+                libraryScope.toggle();
+            });
+            button.addClass("active");
+            overlay.ovlay({
+                onClose: function() {this.getOverlay().remove(); button.removeClass("active");},
+                closeOnMouseOut: true,
+                align:{position: "bottomright", reference: button, leftOffset: 20, topOffset: 15}
+            });
 		});
 		
 		
@@ -215,7 +213,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 					},
 					"beforeLoad": function() {
 						this.getOverlay().width(widget.width());
-					},
+					}
 				});
 				events.topic("libraryScopeChange").subscribe(function(current) {
 					if ( current == "full" ) {

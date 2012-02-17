@@ -66,7 +66,6 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 	var allAlbumsContents = {};
 	
 	var allAlbums = function(topicdiv,categorydiv, topic, category, letter) {
-		debug("allAlbums: ",topicdiv, categorydiv, letter);
 		if ( !categorydiv.data("toc-loaded") ) {
 			var restBase = libraryScope.current == "full" ? rest.album : rest.user.album;
 			restBase.firstLetter({
@@ -88,7 +87,6 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 	};
 
 	var getAllAlbumsContents = function(topicdiv, categorydiv, letter) {
-		debug("getAllAlbumsContents: ",topicdiv, categorydiv, letter);
 		var tocAll = categorydiv.find(".tocAll");
 		if ( letter ) {
 			var letterSpan = categorydiv.find(".toc .letter[name="+letter+"]");
@@ -100,12 +98,9 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 				}
 			}
 		} else {
-			debug("tocAll ? ",tocAll.css("display"));
 			if ( tocAll.css("display") == "block" ) {
-				debug("should slideUp tocAll");
 				categorydiv.find(".toc .letter.active").removeClass("active");
-				debug("should slideUp tocAll");
-				tocAll.slideUp(function() { 
+				tocAll.slideUp(function() {
 					if ( tocAll.css("display") == "block" ) {
 						tocAll.css("display","none");
 					}
@@ -141,19 +136,17 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 			options.startkey = JSON.stringify([letter]);
 			options.endkey = JSON.stringify([toolbox.nextLetter(letter)]);
 		}
-		debug("options",options);
+
 		var cursor = new restHelpers.couchMapMergedCursor(endPoint,options,"album");
 		var rows = null;
 		var fetchAll = function(err,resp) {
 			if ( err ) { return ; }
+            if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
 			$.each(resp,function(k,songs) {
 				var albumData = dataParsers.singleAlbumParser(songs);
 				var html = $( tpl.mustacheView("library.content.album.all.mini",albumData) ).data("albumDetails",albumData);
 				contentDiv.append(html);
 			});
-			
-			
-			if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
 		};
 		if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
 	};

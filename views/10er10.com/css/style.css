@@ -52,7 +52,7 @@ a:active { color: #FFCA40 }
 .overmeup > span{ padding-top: 5px; border-top: 2px solid #BF9730; }
 .floatright { float: right;}
 .floatleft { float: left;}
-.link {	cursor: pointer;	color: #BF9730; }
+.link, .linkOnHover:hover {	cursor: pointer;	color: #BF9730; }
 .relative { position: relative; }
 .hundredPercentWidth {width: 100%}
 .grippie {
@@ -760,7 +760,16 @@ article.review .form_error {
 	-moz-box-shadow: 0 0 4px #121212;
 	box-shadow: 0 0 4px #121212;
 	cursor: pointer;
+    -webkit-transition: all 0.2s;
+    -moz-transition: all 0.2s;
 }
+
+.libraryMenuButton.active {
+    background-color: rgba(100,100,100,0.4);
+    color: #BF9730;
+  box-shadow: 0 0 2px #BF9730;
+}
+
 
 .libraryMenuButton:hover {
 	background-color: rgba(100,100,100,0.4);
@@ -2335,6 +2344,17 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
     left: 612px;
     border: 10px solid transparent;
     border-left-color: rgb(191, 151, 48);
+    position:absolute;
+}
+
+.librarySwitch:after {
+    content: " ";
+    height:0;
+    width:0;
+    top: -22px;
+    right: 15px;
+    border: 10px solid transparent;
+    border-bottom-color: rgb(191, 151, 48);
     position:absolute;
 }
 

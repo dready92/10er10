@@ -24,7 +24,7 @@ var overlay = function(panel, options) {
     "slide": {"show": "slideDown", "hide": "slideUp"}
   };
 
-  var alignments = ["left","right","top","bottom"];
+  var alignments = ["left","right","top","bottom", "bottomright"];
   
   $.extend(settings,options);
 
@@ -91,7 +91,18 @@ var overlay = function(panel, options) {
 	var popinTop = rrCenter - popinSize.outerHeight / 2 ;
 	return {left: popinLeft, top: popinTop};
   };
-  
+
+
+  var alignBottomRight = function(reference) {
+      var popinSize = elemSize(panel);
+      var rrSize = elemSize(reference);
+      var rrOffset = reference.offset();
+      var popinLeft = rrOffset.left + rrSize.outerWidth - popinSize.outerWidth;
+      var popinTop = rrOffset.top + rrSize.outerHeight;
+      debug("returning: ", {left: popinLeft, top: popinTop})
+      return {left: popinLeft, top: popinTop};
+  }
+
   var getEffect = function(step) {
     if ( ! settings.effect ) {
       effect = effects.fade[step];
@@ -143,6 +154,7 @@ var overlay = function(panel, options) {
 	if ( settings.align.position == "left" ) position = alignLeft(settings.align.reference);
 	else if ( settings.align.position == "right" ) position = alignRight(settings.align.reference);
 	else if ( settings.align.position == "top" ) position = alignTop(settings.align.reference);
+    else if ( settings.align.position == "bottomright" ) position = alignBottomRight(settings.align.reference);
 	else position = alignBottom(settings.align.reference);
 	if ( settings.align.leftOffset ) {
 	  position.left += settings.align.leftOffset
