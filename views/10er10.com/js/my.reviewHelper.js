@@ -61,6 +61,8 @@ define(["js/d10.templates", "js/user"], function(tpl, user) {
 			}
 		} else if ( rr.is(":visible") ) {
 			rr.slideUp("fast");
+            var overlay = reviewHelper.ovlay();
+            if ( overlay ) { overlay.close(); }
 		}
 	};
 	
