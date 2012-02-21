@@ -20,6 +20,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/user", "js
 	};
 
 	var loadOverlay = function(e) {
+        var button = $(this);
 // 		var elem = $('<div class="hoverbox overlay"><div class="part">Charger...</div></div>');
 		playlists = user.get_playlists();
 		if ( !playlists.length ) {
@@ -30,28 +31,38 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/user", "js
 // 			tt.attr("name",playlists[index]._id).html(playlists[index].name);
 // 			elem.append(tt);
 // 		}
-		elem = $( tpl.mustacheView("hoverbox.playlist.rpl.container",{rpl: playlists}) );
+
+        var code = "<div class=\"yellowOverlay\"><div>Load: </div>";
+        code+="{{#rpl}}<div class=\"clickable\"  name=\"{{_id}}\">{{name}}</div>{{/rpl}}</div>";
+        var elem = $( Mustache.to_html(code, {rpl: playlists}) );
+//		elem = $( tpl.mustacheView("hoverbox.playlist.rpl.container",{rpl: playlists}) );
 
 		elem.css({'visibility':'hidden','top':0,'left':0}).appendTo($('body'));
-		var height = elem.outerHeight(false);
+/*		var height = elem.outerHeight(false);
 		var width = elem.outerWidth(false);
 		var wwidth = $(window).width();
 		var left = e.pageX - width + 10;
 		var top= e.pageY - height + 10;
 		if ( top < 0 ) top = 0;
-		
-		elem.hide()
-		.css ( {
-			'top': top,
-			'left' : left,
-			'visibility':''
-		})
-		.find('.clickable')
+*/
+//		elem.hide()
+//		.css ( {
+//			'top': top,
+//			'left' : left,
+//			'visibility':''
+//		})
+		elem.find('.clickable')
 		.click(function() {
 			loadPlm($(this).attr('name'));
 			$(this).closest('.overlay').ovlay().close();
 		});
-		elem.ovlay({"onClose":function() {this.getOverlay().remove();} });
+		elem.ovlay(
+            {
+                onClose:function() {this.getOverlay().remove();},
+                align: {position: "top", reference: button}
+            }
+        );
+        console.debug();
 			
 	};
 	playlist.container().find("div.manager button[name=load]").bind("click",loadOverlay);
