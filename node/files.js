@@ -2,7 +2,8 @@ var fs = require('fs'),
 	events = require("events"),
 	stream = require("stream"),
 	util = require("util"),
-	spawn = require("child_process").spawn;
+	spawn = require("child_process").spawn,
+	nodeVersion = require(__dirname+"/nodeVersion");
 // 	d10 = require("./d10");
 	
 var fileWriter = exports.fileWriter = function(path) {
@@ -105,19 +106,37 @@ exports.bufferSum = function(buffers) {
 	return b;
 };
 
-exports.md5_file = function ( file, callback ) {
+var md5_file_spawn = function ( file, callback ) {
 	var out = "",
 	spawn  = require('child_process').spawn,
 	md5    = spawn('md5sum', [file]);
-	
 	md5.stdout.on('data', function (data) { out+=data; });
-// 	md5.stderr.on('data', function (data) { d10.log("debug",'stderr: ' + data); });
-	
 	md5.on('exit', function (code) {  callback.call(this,out,code); });
 };
 
+var md5_file_internal = function(filename, callback) {
+    var crypto = require('crypto');
+    var sum = crypto.createHash('md5');
+    var s = fs.ReadStream(filename);
+    s.on('data', function(d) { sum.update(d); });
+    s.on('end', function() { callback(null, sum.digest('hex')); });
+};
 
-exports.sha1_file = function ( file, callback ) {
+if ( nodeVersion.minor > 5 ) {
+  exports.md5_file = md5_file_internal;
+} else {
+  exports.md5_file = md5_file_spawn;
+}
+
+var sha1_file_internal = function(filename, callback) {
+    var crypto = require('crypto');
+    var shasum = crypto.createHash('sha1');
+    var s = fs.ReadStream(filename);
+    s.on('data', function(d) { shasum.update(d); });
+    s.on('end', function() { callback(null, shasum.digest('hex')); });
+};
+
+var sha1_file_spawn = function ( file, callback ) {
 	var out = "",
 	spawn  = require('child_process').spawn,
 	sha1    = spawn('sha1sum', [file]);
@@ -126,6 +145,12 @@ exports.sha1_file = function ( file, callback ) {
 // 	sha1.stderr.on('data', function (data) { d10.log("debug",'stderr: ' + data); });
 	sha1.on('exit', function (code) {  callback(code,out.replace(/\s+$/,"")); });
 };
+
+if ( nodeVersion.minor > 5 ) {
+  exports.sha1_file = sha1_file_internal;
+} else {
+  exports.sha1_file = sha1_file_spawn;
+}
 
 
 exports.fileCache = function(options) {

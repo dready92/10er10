@@ -42,7 +42,8 @@ var onConfig = function() {
 		download = require(__dirname+"/d10.router.audio.download"),
 		invitesRouter = require(__dirname+"/invites.router"),
 		lang = require(__dirname+"/lang"),
-		contextMiddleware = require(__dirname+"/contextMiddleware").context
+		contextMiddleware = require(__dirname+"/contextMiddleware").context,
+		nodeVersion = require(__dirname+"/nodeVersion");
 		;
 
 	process.chdir(__dirname);
@@ -109,17 +110,13 @@ var onConfig = function() {
 
 	function startServer() {
 		
-		var nodeVersion = process.versions.node.split("."),
-			major = parseInt(nodeVersion[0],10),
-			minor = parseInt(nodeVersion[1],10);
-		
 		var d10Server = connect.createServer(connect.favicon('../views/10er10.com/favicon.ico'));
 		if ( !config.production ) {
 			d10Server.use(connect.logger());
 		}
 
 		if ( config.gzipContentEncoding ) {
- 			if ( minor > 5 ) { // beginning from node 0.6.0 we use internal gzip encoding
+ 			if ( nodeVersion.minor > 5 ) { // beginning from node 0.6.0 we use internal gzip encoding
  				console.log("INFO: using node.js native gzip encoder");
  				d10Server.use(require("./native-gzip")({ matchType: /css|text|javascript|json|x-font-ttf/ }));
  			} else {

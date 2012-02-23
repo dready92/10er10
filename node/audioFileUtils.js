@@ -23,7 +23,7 @@ exports.oggLength = function(file,cb) {
 	});
 };
 
-exports.id3tags = function(file,cb) {
+exports.extractTags = function(file,cb) {
 	var stream = fs.createReadStream(file);
 	var back = { ALBUM: "", ARTIST: "", TRACKNUMBER: "", TITLE: "", GENRE: "", DATE: "", PICTURES: [] };
 	var cbCalled = false;
@@ -79,10 +79,6 @@ exports.id3tags = function(file,cb) {
 	});
 };
 
-exports.oggtags = exports.id3tags;
-
-exports.flactags = exports.id3tags;
-
 exports.escapeShellArg = function(s) {
 	return "'"+s.replace(/'/g, "'\\''")+"'";
 };
@@ -95,7 +91,7 @@ exports.setOggtags = function(file, tags, cb) {
 	for ( var index in tags ) {
 		args.push("-t "+exports.escapeShellArg(index+"="+tags[index]));
 	}
-	var tagsPipe = exec(d10.config.cmds.vorbiscomment+" -s "+args.join(" ")+" "+file,function(err,stdout,stderr) {
+	var tagsPipe = exec(d10.config.cmds.vorbiscomment+" -w "+args.join(" ")+" "+file,function(err,stdout,stderr) {
 		if ( err )	{
 			return cb(err);
 		}

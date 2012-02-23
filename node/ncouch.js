@@ -186,7 +186,14 @@ function ncouch (url) {
 				});
 			}
 		);
-		request.end( settings.body ? settings.body : null );
+        try {
+          
+          console.log("couch commmunication starts: ");
+          request.end( settings.body ? settings.body : null );
+        } catch(e) {
+          console.log("############## ncouch can't write ##################");
+          throw e;
+        }
 	};
 	
 

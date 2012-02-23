@@ -875,7 +875,6 @@ exports.api = function(app) {
 					if ( errs ) { console.log("error on findAllSongReferences"); return d10.realrest.err(423,errs,request.ctx); }
 					getUnusedImages(doc,function(errs,images) {
 						if ( errs ) { console.log("error on getUnusedImages"); return d10.realrest.err(423,errs,request.ctx); }
-// 						return d10.rest.success([references,images],request.ctx);
 						removeSongReferences(doc._id, errs, references, function(errs, modifiedDocs) {
 							if ( errs ) { console.log("error on removeSongReferences"); return d10.realrest.err(423,errs,request.ctx); }
 							recordModifiedDocs(modifiedDocs,function(err,resp) {
