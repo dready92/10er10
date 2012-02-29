@@ -109,7 +109,18 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 						$.proxy(this.refresh_infos,this);
 					}
 				});
-			}
+			} else if ( name == "audioFade" ) {
+                value = parseInt(value,10);
+                if ( isNaN(value) ) {
+                  return false;
+                }
+                rest.user.setPreference("audioFade",value, {
+                    load: function(err,resp) {
+                        if ( err ) return ;
+                        $.proxy(this.refresh_infos,this);
+                    }
+                });
+            }
 		};
 		
 		this.get_playlists = function () {

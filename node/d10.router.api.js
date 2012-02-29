@@ -411,7 +411,19 @@ exports.api = function(app) {
 					},
 					defaultCallback
 				);
-			} else {
+			} else if ( request.params.name == "audioFade" ) {
+              prefValue = parseInt(prefValue,10);
+              if ( isNaN(prefValue) ) {
+                return d10.realrest.err(406,"preference "+request.params.name+" should be a number",request.ctx);
+              }
+              updateUserPreferences(
+                    request, 
+                    function(doc) {
+                        doc[request.params.name] = prefValue;
+                    },
+                    defaultCallback
+                );
+            } else {
 				d10.realrest.err(404,"preference "+request.params.name+" is unknown",request.ctx);
 			}
 		});

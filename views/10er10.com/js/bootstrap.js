@@ -254,7 +254,6 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		// variables par defaut
 		//
 		$('body').data('volume',0.5);
-		$('body').data('audioFade',15);
 		$('body').data('cache_ttl',300000); // msecs
 
 		

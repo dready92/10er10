@@ -1,5 +1,5 @@
-define(["js/d10.rest","js/d10.eventEmitter","js/track","js/d10.templates", "js/d10.events"],
-	   function(rest, eventEmitterDef, track, tpl, pubsub) {
+define(["js/d10.rest","js/d10.eventEmitter","js/track","js/d10.templates", "js/d10.events", "js/user"],
+	   function(rest, eventEmitterDef, track, tpl, pubsub, user) {
 
 /*
 
@@ -43,7 +43,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	var settings = $.extend({
 		fade: (function() {
 					var body = $("body");
-					return function() { return body.data("audioFade") }
+					return function() { return user.get_preferences().audioFade ? user.get_preferences().audioFade : 15 }
 		})(),
 		prefectchMinStartupTime: 9,
 		title: tpl.mustacheView("playlist.anonymous.name")
