@@ -137,7 +137,7 @@ define(["js/d10.utils", "js/config", "js/d10.events"], function(toolbox, config,
 			},
 			"onprogress": function(e) {
 				var progressPC = state.progressPC;
-				if((typeof audio.buffered == "object") ) {
+				if( typeof audio.buffered == "object" ) {
 					if ( progressTimeout ) {
 						clearTimeout(progressTimeout);
 					}
@@ -178,7 +178,12 @@ define(["js/d10.utils", "js/config", "js/d10.events"], function(toolbox, config,
 		
 		this.fading = function() { return fadeInterval ? true : false; };
 		
-		this.getProgressPC = function() { return state.progressPC; };
+		this.getProgressPC = function() { 
+          if( typeof audio.buffered == "object" ) {
+            return progressFromBuffered();
+          }
+          return state.progressPC; 
+        };
 		
 		this.destroy = function() {
 			try { audio.pause(); } catch (e) {}
@@ -260,9 +265,9 @@ define(["js/d10.utils", "js/config", "js/d10.events"], function(toolbox, config,
 				remaining--;
 				audio.volume = audio.volume + step;
 			};
-			
-			if ( state.progressPC < 90 || audio.readyState < 3 ) { //4 = have enough_data, 3 = have future data
-				debug("don't have enough data to fade in. networkState = "+audio.networkState+' and readyState = '+audio.readyState);
+			//debug("progress: ",this.getProgressPC(),"% and readyState: ",audio.readyState);
+			if ( audio.readyState < audio.HAVE_ENOUGH_DATA ) { //4 = have enough_data, 3 = have future data
+				debug("don't have enough data to fade in. readyState = "+audio.readyState);
 				return false;
 			}
 			audio.currentTime = config.startTime;

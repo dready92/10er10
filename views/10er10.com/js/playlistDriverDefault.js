@@ -164,6 +164,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	var optimistPrefetch = function() {
 		//debug("oPrefetch on id");
 		if ( !current )	return ;
+        debug("optimistPrefetch: ",current.getProgressPC(),"% and ",current.audio.readyState, "< ",current.audio.HAVE_ENOUGH_DATA);
 		if (  current.getProgressPC() < 90 || current.audio.readyState < current.audio.HAVE_ENOUGH_DATA ) {
 			return;
 		}

@@ -187,8 +187,6 @@ function ncouch (url) {
 			}
 		);
         try {
-          
-          console.log("couch commmunication starts: ");
           request.end( settings.body ? settings.body : null );
         } catch(e) {
           console.log("############## ncouch can't write ##################");
