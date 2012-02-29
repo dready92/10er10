@@ -2,58 +2,12 @@ var d10 = require ("./d10"),
 	querystring = require("querystring"),
 	fs = require("fs"),
 	files = require("./files"),
-	util = require("util"),
 	when = require("./when"),
 	audioUtils = require("./audioFileUtils"),
 	gu = require("./graphicsUtils"),
 	spawn = require('child_process').spawn,
 	exec = require('child_process').exec,
 	supportedAudioTypes = [ "audio/mpeg", "audio/mp4", "application/ogg", "audio/x-flac" ];
-
-    
-var pump = function(readStream, writeStream, callback) {
-  var callbackCalled = false;
-
-  function call(a, b, c) {
-    if (callback && !callbackCalled) {
-      callback(a, b, c);
-      callbackCalled = true;
-    }
-  }
-
-  readStream.addListener('data', function(chunk) {
-    var flushed ;
-    try {
-      flushed = writeStream.write(chunk);
-    } catch (err) {
-      readStream.destroy();
-      call(err);
-    }
-    if ( flushed === false ) readStream.pause();
-  });
-
-  writeStream.addListener('drain', function() {
-    readStream.resume();
-  });
-
-  readStream.addListener('end', function() {
-    writeStream.end();
-  });
-
-  readStream.addListener('close', function() {
-    call();
-  });
-
-  readStream.addListener('error', function(err) {
-    writeStream.end();
-    call(err);
-  });
-
-  writeStream.addListener('error', function(err) {
-    readStream.destroy();
-    call(err);
-  });
-};
 
 exports.api = function(app) {
 	app.get("/api/review/list", function(request, response) {
@@ -305,14 +259,16 @@ exports.api = function(app) {
 							then(code ? code : null,null);
 						});
 						job.decoder.on("exit",function() { d10.log("debug","job.decoder exited"); });
-                        pump(job.decoder.stdout, job.oggWriter.stdin,function(c) { d10.log("debug",jobid,"encoding pump stopped",c); });
+                        job.oggWriter.stdin.on("error",function(err) {console.log("Oggwriter error",err);});
+                        job.decoder.stdout.pipe(job.oggWriter.stdin);
 						function writeBuffer() {
 							if ( ! job.inputFileBuffer.buffer.length ) {
 								if ( job.requestEnd ) {
 									job.decoder.stdin.end();
 								} else {
 									d10.log("debug",jobid,"================= Decoder pumping from request ===============");
-                                    pump(request, job.decoder.stdin, null);
+                                    request.on("error",function(err) {console.log("request error", err);});
+                                    request.pipe(job.decoder.stdin);
 									job.inputFileBuffer.status = false;
 								}
 								return ;
