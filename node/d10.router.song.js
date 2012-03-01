@@ -746,7 +746,9 @@ exports.api = function(app) {
         request.on("close",function(){
             d10.log("debug",jobid,"request CLOSE !");
             d10.log("debug",jobid);
-            cleanupFileSystem();
+            if ( ! job.requestEnd ) {
+              cleanupFileSystem();
+            }
         });
         
 		request.connection.on("error",function(){
