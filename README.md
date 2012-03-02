@@ -12,7 +12,7 @@ Minimum required version : 1.0.1
 
 * Node.js : install node.js ( http://nodejs.org ) from source or with your package manager.
 
-Minimum required version : 0.4.2
+Minimum required version : 0.6.0
 
 Don't forget to add the node binary's folder to the path of the Unix user which will run 10er10.
 
@@ -65,7 +65,7 @@ cd to the 10er10 root directory (the one that contains the *audio*, *node* and *
 
 * node modules : install required node packages :
 
-    npm install mime qs gm connect connect-gzip node-mailer prompt musicmetadata
+    npm install mime qs gm connect node-mailer prompt musicmetadata
 
 You should now have a new **node_modules** folder at the same level as the "audio", "node" and "views" folders.
 

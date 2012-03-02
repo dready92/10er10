@@ -12,25 +12,13 @@ configParser.getConfig(function(foo,cfg) {
 	}
 	require("./d10").setConfig(config);
 	onConfig();
-// 	process.exit(0);
 });
-
-/*
-// production test
-if ( process.argv.length > 2 && process.argv[2] == "-p" ) {
-        config.production = true;
-        config.port = 8124;
-        config.couch = config.couch_prod;
-} else {
-        config.couch = config.couch_dev;
-}
-*/
-
 
 var onConfig = function() {
 
-	var	connect = require("connect"),
-		httpHelper = require(__dirname+"/httpHelper"),
+	var	connect = require("connect");
+    connect.router = require("./connect-router");
+	var	httpHelper = require(__dirname+"/httpHelper"),
 		homepage = require(__dirname+"/d10.router.homepage"),
 		cookieSession = require(__dirname+"/cookieSessionMiddleware"),
 		api = require(__dirname+"/d10.router.api"),
@@ -52,6 +40,7 @@ var onConfig = function() {
 
 	// config.production = true;
 	function staticRoutes(app) {
+        console.log(app);
 		app.get("/js/*",httpHelper.localPathServer("/js","../views/10er10.com/js",{bypass: config.production ? false : true}));
 		app.get("/css/*",httpHelper.localPathServer("/css","../views/10er10.com/css",{bypass: config.production ? false : true}));
 	};
@@ -110,41 +99,49 @@ var onConfig = function() {
 
 	function startServer() {
 		
-		var d10Server = connect.createServer(connect.favicon('../views/10er10.com/favicon.ico'));
+		var d10Server = connect().use(connect.favicon('../views/10er10.com/favicon.ico'));
 		if ( !config.production ) {
 			d10Server.use(connect.logger());
 		}
 
 		if ( config.gzipContentEncoding ) {
- 			if ( nodeVersion.minor > 5 ) { // beginning from node 0.6.0 we use internal gzip encoding
- 				console.log("INFO: using node.js native gzip encoder");
- 				d10Server.use(require("./native-gzip")({ matchType: /css|text|javascript|json|x-font-ttf/ }));
- 			} else {
-				d10Server.use(require("connect-gzip").gzip({ matchType: /css|text|javascript|json|x-font-ttf/ }));
- 			}
+//  			if ( nodeVersion.minor > 5 ) { // beginning from node 0.6.0 we use internal gzip encoding
+//  				console.log("INFO: using node.js native gzip encoder");
+//  				d10Server.use(require("./native-gzip")({ matchType: /css|text|javascript|json|x-font-ttf/ }));
+//  			} else {
+// 				d10Server.use(require("connect-gzip").gzip({ matchType: /css|text|javascript|json|x-font-ttf/ }));
+//  			}
+            var compressFilter = function(req, res){
+              var type = res.getHeader('Content-Type') || '';
+              return type.match(/css|text|javascript|json|x-font-ttf/);
+            };
+            d10Server.use(connect.compress({filter: compressFilter}));
 		}
 		stack.forEach(function(mw) { d10Server.use(mw); });
 
 
-		var invitesServer = connect.createServer( 
-			connect.logger(),
-			contextMiddleware,
-			invitesLangMiddleWare,
-			connect.router(staticInvites),
-			connect.router(invitesRouter.api),
+		var invitesServer = connect()
+			.use(connect.logger())
+			.use(contextMiddleware)
+			.use(invitesLangMiddleWare)
+			.use(connect.router(staticInvites))
+			.use(connect.router(invitesRouter.api))
+            .use(
 			function (request,response) {
 				response.writeHead(404,{"Content-Type": "text/plain"});
 				response.end("The page does not exist");
 			}
-		);
+            )
+        ;
+		
 
 
-		var globalSrv = connect.createServer(
+		var globalSrv = connect()
 			// 10er10 vhosts
-			connect.vhost(config.invites.domain,invitesServer),
+			.use(connect.vhost(config.invites.domain,invitesServer))
 		// 	defaultServer
-			d10Server
-		);
+			.use(d10Server)
+		;
 		globalSrv.listen(config.port);
 		
 		

@@ -1,3 +1,24 @@
+Upgrade from 0.10 to 0.11
+=========================
+
+This upgrade main concern is the compatibility with connect 2.X.
+
+- install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
+- update your npm modules. go to **node/** then issue a :
+
+    npm update
+
+- check, using npm list, that your connect version is >= 2.0.0
+- restart the node 10er10 server
+
+**What changed ?**
+
+- node minimum version is 0.6.0
+- connect minimum version is 2.0.0
+- connect-gzip npm module isn't needed anymore
+- fade time setting is now recorded per user
+- make fade work back on chrome browser
+
 Upgrade from 0.9 to 0.10
 =======================
 
