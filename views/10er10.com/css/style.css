@@ -2603,4 +2603,42 @@ background-image: -webkit-linear-gradient(top, #1e81af, #004573);
 .btn-beyond-the-invisible-4.active, .btn-beyond-the-invisible-4:active { background-image: none; -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); color: #90b3ca; }
 /* end .btn-beyond-the-invisible-4 */
 
+
+.yellowOverlay.rplBox {
+  width: 200px;
+}
+
+.yellowOverlay.rplBox.downArrow:after {
+       content: " ";
+       height:0;
+       width:0;
+       bottom: -21px;
+       left: 92px;
+       border: 10px solid transparent;
+       border-top-color: rgb(191, 151, 48);
+       position:absolute;
+}
+
+.yellowOverlay.rplBox > div:first-child {
+  text-align: center;
+  padding: 10px 2px;
+  font-size: 1.1em;
+  color: #3CA0D0;
+}
+
+.yellowOverlay.rplBox .clickable {
+  cursor: pointer;
+  text-align:center;
+  border-top: 1px solid #454545;
+  padding: 1px 2px;
+}
+
+.yellowOverlay.rplBox .clickable:hover {
+  color: #BF9730;
+  background-color: rgba(200,200,200,0.1);
+  border-top: 1px solid #454545;
+  padding: 1px 2px;
+}
+
+
 /* http://colorschemedesigner.com/#3s31Tw0w0w0w0 */
