@@ -1,4 +1,9 @@
 define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
+
+  var seconds2display = function(secs) {
+    var d = new Date(1970,1,1,0,0,secs);
+    return d.getMinutes()+':'+d.getSeconds();
+  };
 var createInstance = function(container) {
 // 	debug(binder);
 	var module = new playlistModule("time",
@@ -8,7 +13,7 @@ var createInstance = function(container) {
 				bar.setMax( secs );
 				var total_secs = parseInt(secs);
 				var d = new Date(1970,1,1,0,0,total_secs);
-				total.html(d.getMinutes()+':'+d.getSeconds());
+				total.html(seconds2display(total_secs));
 				bar.setNetloadBar(playlist.driver().currentLoadProgress());
 			},
 			"playlist:ended": function() {
@@ -55,14 +60,52 @@ var createInstance = function(container) {
 		var resized = $('div.timer',ui);
 		$('div.netload',ui).css({ position: 'absolute', width: 0, height: '100%', overflow: 'hidden' });
 		$('div.timer',ui).css({ position: 'absolute', width: 0, height: '100%', overflow: 'hidden' });
+        
+        var timeOverlay = null;
+        var timeOverlaySize = {width:0, height: 0};
+        var timeOverlayElem = null;
+        var onMouseMove = function(e) {
+          if (!punit) { return ;}
+          var offset = ui.offset();
+          var pix = e.pageX-offset.left;
+          var secs = Math.floor(pix/punit);
+          if ( !timeOverlay ) {
+            timeOverlay = $("<div class=\"yellowOverlay currentTime downArrow\">"+seconds2display(secs)+"</div>")
+                            .data("seconds",secs)
+                            .css("visibility","hidden")
+                            .appendTo($("body"));
+            timeOverlaySize =  {width: timeOverlay.outerWidth() / 2 - 1, height: timeOverlay.outerHeight() +10};
+            timeOverlay.css("visibility","visible");
+            timeOverlayElem = timeOverlay.get(0);
+          }
 
+          if ( timeOverlay.data("seconds") != secs ) {
+            timeOverlay.html(seconds2display(secs));
+          }
+          timeOverlay.css({
+            left: (e.pageX - timeOverlaySize.width) +"px",
+            top: (offset.top - timeOverlaySize.height) +"px"
+          });
+        };
+        
 		ui.click(function(e) {
 			if ( !module.isEnabled() )	return ;
 			var offset = ui.offset();
 			var pix = e.pageX-offset.left;
 			playlist.seek(Math.floor(pix/punit));
 			debug(pix+' = '+pix/punit+' secs');
-		});
+		})
+        .mouseenter(function() {
+          if (!punit) { return ;}
+          $(document).mousemove(onMouseMove);
+        })
+        .mouseleave(function() {
+          if ( timeOverlay ) {
+            timeOverlay.remove();
+            timeOverlay = null;
+          }
+          $(document).unbind("mousemove",onMouseMove);
+        });
 
 		this.getMax = function () { return pmax; }
 
