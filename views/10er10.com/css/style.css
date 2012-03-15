@@ -959,7 +959,10 @@ article div.refreshList {
 
 #my .plm-list-container {
 	float: left; width: 110px; background-color: #121212; padding: 0;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
 }
+
 #my .plm-list-container h1 {
 	margin:2px 0 2px 0; padding: 0 0 2px 0; font-size: 1em; text-align: center; font-weight: bold;
 	border-bottom: 1px solid #232323;
@@ -994,6 +997,13 @@ article div.refreshList {
   margin-right: 1px; 
   padding-left: 1px;
   background-color: #232323;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+}
+
+@media screen and (min-width: 1224px) {
+  #my .plm-list-container { width: 200px; }
+  #my .plm-content-container { margin-left: 202px; }
 }
 
 #my .plm-content-container .rpl {
