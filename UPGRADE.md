@@ -1,3 +1,14 @@
+Upgrade from 0.11 to 0.12
+=========================
+
+- install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
+- restart the node 10er10 server
+
+**What changed ?**
+
+- use CSS media queries to adapt search results width and my playlists width
+- display the time at cursor in progression bar 
+
 Upgrade from 0.10 to 0.11
 =========================
 
