@@ -2050,6 +2050,9 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	position: relative;
 }
 
+
+
+
 #results div.resultContainer div.rSum1 {
 	position: absolute;
 	left: 31px;
@@ -2095,6 +2098,7 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	-moz-transition: all 0.6s;
 }
 
+
 #results .list {display: table; }
 
 #results div.resultContainer div.songs div.list {
@@ -2129,6 +2133,15 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	-moz-border-radius: 0px;
 	-webkit-transition: all 0.6s;
 	-moz-transition: all 0.6s;
+}
+
+@media screen and (min-width: 1224px) {
+  #results div.resultContainer {
+      width: 899px;
+  }
+  #results div.resultContainer div.rCenter, #results div.resultContainer div.rCenter div.items {
+      width: 889px;
+  } 
 }
 
 #results div.resultContainer div.rSum1 h1, #results div.resultContainer div.rSum2 h1 {
