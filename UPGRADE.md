@@ -7,7 +7,8 @@ Upgrade from 0.11 to 0.12
 **What changed ?**
 
 - use CSS media queries to adapt search results width and my playlists width
-- display the time at cursor in progression bar 
+- display the time at cursor in progression bar
+- click on an artist or album in search results minified boxes to open it 
 
 Upgrade from 0.10 to 0.11
 =========================

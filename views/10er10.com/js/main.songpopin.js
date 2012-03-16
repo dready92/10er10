@@ -38,16 +38,30 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/plm", "js/d10.rou
                starDown.addClass('littletrans');
            }
        }
-
+       var starringUpdated = function (update_id,star) {
+        if ( update_id != id ) return ;
+        starUp.removeClass('littletrans');
+        starDown.removeClass('littletrans');
+        if ( star == null ) {
+                starUp.addClass('littletrans');
+                starDown.addClass('littletrans');
+        } else if ( star == 'likes' ) {
+                starDown.addClass('littletrans');
+        } else if ( star == 'dislikes' ) {
+                starUp.addClass('littletrans');
+        }
+      };
        starUp.click(function() {
-           overlay.ovlay().close();
+//            overlay.ovlay().close();
            handleStarring('likes',id);
        });
        starDown.click(function() {
-           overlay.ovlay().close();
+//            overlay.ovlay().close();
            handleStarring('dislikes',id);
        });
-
+      pubsub.topic('songStarring').subscribe(function(resp) { 
+        starringUpdated(resp.id, resp.star);
+      });
        overlay.find("button[data-action=addToPlayer]").click(function() {
            overlay.ovlay().close();
            playlist.append(song.clone());
