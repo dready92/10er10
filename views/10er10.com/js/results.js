@@ -37,41 +37,47 @@ var results = function (search,mainUi) {
 		});
 		pagers = [];
 	},
+    replaceMainContainer  = function(box) {
+      var boxClass=box.hasClass("rSum1") ? "rSum1" : box.hasClass("rSum2") ? "rSum2" : null;
+      if( !boxClass ) return ;
+      var o = {"node":ui.find("div.rCenter"),"class":boxClass,"oldClass":"rCenter"};
+      var n = {"node":box,"oldClass":boxClass,"class":"rCenter"};
+      if ( !o.node.length ) {
+          return ;
+      }
+      n.node.addClass(n.class).removeClass(n.oldClass);
+      o.node.addClass(o.class).removeClass(o.oldClass);
+    },
+    openHead = function(head) {
+      var item = head.closest(".rItem");
+      if ( item.hasClass("parsed") ) {
+          if ( item.hasClass("opened") ) {
+              item.removeClass("opened");
+          } else {
+              item.addClass("opened");
+          }
+          return ;
+      }
+      if ( item.data("songs") ) {
+          var html = "";
+          $.each(item.data("songs"),function(key,val) {
+              html+=tpl.song_template(val);
+          });
+          item.find("div.details div.list").html(html);
+      }
+      item.addClass("parsed").addClass("opened").removeData("songs");
+    },
 	minChars=3;
 	
 	var load = function () {
 		ui = mainUi.find("div.resultContainer").eq(0);
 		ui.find("div.enlarge button").click(function() {
 			var box=$(this).closest("div.rBox");
-			var boxClass=box.hasClass("rSum1") ? "rSum1" : box.hasClass("rSum2") ? "rSum2" : null;
-			if( !boxClass )	return ;
-			var o = {"node":ui.find("div.rCenter"),"class":boxClass,"oldClass":"rCenter"};
-			var n = {"node":box,"oldClass":boxClass,"class":"rCenter"};
-			if ( !o.node.length ) {
-				return ;
-			}
-			n.node.addClass(n.class).removeClass(n.oldClass);
-			o.node.addClass(o.class).removeClass(o.oldClass);
+			replaceMainContainer(box);
 		});
 		
 		ui.delegate(".rCenter .head", "click", function() {
-			var item = $(this).closest(".rItem");
-			if ( item.hasClass("parsed") ) {
-				if ( item.hasClass("opened") ) {
-					item.removeClass("opened");
-				} else {
-					item.addClass("opened");
-				}
-				return ;
-			}
-			if ( item.data("songs") ) {
-				var html = "";
-				$.each(item.data("songs"),function(key,val) {
-					html+=tpl.song_template(val);
-				});
-				item.find("div.details div.list").html(html);
-			}
-			item.addClass("parsed").addClass("opened").removeData("songs");
+			openHead($(this));
 		})
 		.delegate(".openInLibrary","click",function(e) {
 			e.stopPropagation();
@@ -82,7 +88,26 @@ var results = function (search,mainUi) {
 				router.navigateTo(["library","albums",unescape(item.attr("name"))]);
 			}
 		});
-		
+
+        ui.delegate(".rSum1 .head, .rSum2 .head", "click", function() {
+          var box=$(this).closest("div.rBox");
+          var items = $(this).closest(".items");
+          var ritem = $(this).closest(".rItem");
+          replaceMainContainer(box);
+          if ( !ritem.hasClass("opened") ) {
+            openHead($(this));
+          }
+          setTimeout(function() {
+            items.animate({scrollTop: items.scrollTop() + ritem.position().top},300);
+//             ritem.one("transitionend", function() {debug("animation ended");});
+            ritem.addClass("highlight");
+//             items.scrollTop = items.scrollTop + ritem.position().top;
+          },600);
+          if ( ritem.hasClass("highlight") ) {
+            ritem.removeClass("highlight");
+          }
+        });
+        
 		ui.delegate("div.song","dragstart", dnd.onDragDefault)
 		.delegate("div.song","dragend",dnd.removeDragItem)
 		.delegate("div.song","dblclick",function(e) {

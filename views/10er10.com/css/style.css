@@ -2135,6 +2135,7 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 }
 
 #results div.resultContainer div.rCenter div.items {
+    position: relative;
 	overflow: auto;
 	margin: auto;
 	width: 689px;
@@ -2146,6 +2147,30 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	-moz-transition: all 0.6s;
 }
 
+.highlight {
+    -webkit-animation-delay: 0.3s;
+    -webkit-animation-duration: 0.3s;
+    -webkit-animation-name: highlight;
+    -webkit-animation-iteration-count: 2;
+    -webkit-animation-direction: alternate;
+    -moz-animation-delay: 0.3s;
+    -moz-animation-duration: 0.3s;
+    -moz-animation-name: highlight;
+    -moz-animation-iteration-count: 2;
+    -moz-animation-direction: alternate;
+  }
+
+@-webkit-keyframes highlight {
+  from { background-color: rgba(0,0,0,0); }
+  to { background-color: rgba(84,155,190,0.5); }
+}
+
+@-moz-keyframes highlight {
+  from { background-color: rgba(0,0,0,0); }
+  to { background-color: rgba(84,155,190,0.5); }
+}
+
+
 @media screen and (min-width: 1224px) {
   #results div.resultContainer {
       width: 899px;
@@ -2153,6 +2178,18 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
   #results div.resultContainer div.rCenter, #results div.resultContainer div.rCenter div.items {
       width: 889px;
   } 
+  #results div.resultContainer div.rSum1 {
+    width: 400px;
+  }
+  
+  #results div.resultContainer div.rSum2 {
+    left: 460px;
+    width: 400px;
+  }
+  
+  #results div.resultContainer div.rSum1 div.items, #results div.resultContainer div.rSum2 div.items {
+    width: 390px;
+  }
 }
 
 #results div.resultContainer div.rSum1 h1, #results div.resultContainer div.rSum2 h1 {
@@ -2204,15 +2241,16 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 #results div.resultContainer div.albums div.rItem div.head,
 #results div.resultContainer div.artists div.rItem div.head {
 	padding-top: 0px;
-	-webkit-transition: all 0.6s;
-	-moz-transition: all 0.6s;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
 }
 
-#results div.resultContainer div.albums div.rItem.opened div.head,
-#results div.resultContainer div.artists div.rItem.opened div.head {
+#results div.resultContainer div.albums div.rItem div.head,
+#results div.resultContainer div.artists div.rItem div.head {
 	padding-top: 5px;
-	-webkit-transition: all 0.6s;
-	-moz-transition: all 0.6s;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+    cursor: pointer;
 }
 
 #results div.resultContainer div.albums div.rItem div.head span.name,
@@ -2267,18 +2305,18 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	padding-left: 20px;
 	font-size: 0.9em;
 	color: #777;
-	-webkit-transition: all 0.6s;
-	-moz-transition: all 0.6s;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
 }
 
-#results div.resultContainer div.rCenter div.rItem.details div.head:hover,
-#results div.resultContainer div.rCenter div.rItem.details div.head:hover,
+#results div.resultContainer div.rItem div.head:hover,
+#results div.resultContainer div.rItem div.head:hover,
 #results div.resultContainer div.rCenter div.rItem.details div.head:hover>span.count,
 #results div.resultContainer div.rCenter div.rItem.details div.head:hover>span.duration{
 	cursor: pointer;
 	color: #BF9730;
-	-webkit-transition: all 0.3s;
-	-moz-transition: all 0.3s;
+/* 	-webkit-transition: all 0.3s; */
+/* 	-moz-transition: all 0.3s; */
 }
 
 
