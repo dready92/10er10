@@ -95,16 +95,13 @@ var createInstance = function(container) {
 			playlist.seek(Math.floor(pix/punit));
 			debug(pix+' = '+pix/punit+' secs');
 		})
-        .mouseenter(function() {
-          if (!punit) { return ;}
-          $(document).mousemove(onMouseMove);
-        })
+        .mousemove(onMouseMove)
+        .mouseenter(onMouseMove)
         .mouseleave(function() {
           if ( timeOverlay ) {
             timeOverlay.remove();
             timeOverlay = null;
           }
-          $(document).unbind("mousemove",onMouseMove);
         });
 
 		this.getMax = function () { return pmax; }
