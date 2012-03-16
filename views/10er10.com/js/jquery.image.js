@@ -62,7 +62,7 @@
 		};		
 		$.extend(settings,options);
 		var update = function(pc, image) {
-			image = image || waitImage;
+			image = image || uploadImage;
 			if ( pc == 100 ) {
 				image = okImage;
 			}
