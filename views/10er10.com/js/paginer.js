@@ -81,10 +81,9 @@ define(["js/d10.templates", "js/config"], function(tpl, config) {
 	};
 	
 	var couchMapCursor = function(endpoint, queryData) {
-		var originalData = queryData || {};
 		var actualData = $.extend({},queryData);
-		actualData.limit = rpp;
 		var rpp = config.rpp;
+        actualData.limit = rpp;
 		var endOfStream = false;
 		var getResults = function(cb) {
 			endpoint(actualData, {
@@ -102,7 +101,9 @@ define(["js/d10.templates", "js/config"], function(tpl, config) {
 						} else {
 							lastResult = resp.pop();
 							actualData.startkey = JSON.stringify( lastResult.key );
-							actualData.startkey_docid = lastResult.doc._id;
+                            if ( "doc" in lastResult && "_id" in lastResult.doc ) {
+                              actualData.startkey_docid = lastResult.doc._id;
+                            }
 						}
 						cb(null,resp);
 					}

@@ -357,7 +357,8 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 				}
 				restQuery("user.artist.list","GET",config.site_url+"/api/own/artist",options);
 			},
-			allByName: function(options) {
+			allByName: function(data, options) {
+                options.data = data;
 				restQuery("user.artist.allByName","GET",config.site_url+"/api/own/artistsListing",options);
 			}
 		},
@@ -520,7 +521,8 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 		 * 
 		 * @return [ {key: ["ACDC"], value: 4} ]
 		 */
-		allByName: function(options) {
+		allByName: function(data, options) {
+            options.data = data;
 			restQuery("artist.allByName","GET",config.site_url+"/api/artistsListing",options);
 		},
   

@@ -99,6 +99,18 @@ exports.api = function(app) {
 	});
 	var _artistTokenized = function(view, request,response) {
 		var query = {group:true, group_level: 1};
+        if ( request.query.startkey ) {
+          query.startkey = JSON.parse(request.query.startkey);
+          if ( request.query.startkey_docid ) {
+              query.startkey_docid = request.query.startkey_docid;
+          }
+        }
+        if ( request.query.limit ) {
+          var limit = parseInt(request.query.limit,10);
+          if ( !isNaN(limit) ) {
+            query.limit=limit;
+          }
+        }
 		d10.couch.d10.view(view,query,function(err,resp) {
 			if ( err ) {
 				d10.realrest.err(423, err, request.ctx);
