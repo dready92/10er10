@@ -506,9 +506,7 @@ exports.api = function(app) {
 		var options = {include_docs: true};
 		if ( request.query.start ) {
 			var start = d10.ucwords( request.query.start.replace(/^\s+/,"").replace(/\s+$/,"") );
-			var end = start;
-			var next = String.fromCharCode( end.charCodeAt( end.length-1 ) + 1 );
-			end = end.substr(0, end.length - 1) + next;
+			var end = d10.nextWord(start);
 // 			d10.log("debug","startkey",start,"endkey",end,"next",next);
 			options.startkey = start;
 			options.endkey = end;

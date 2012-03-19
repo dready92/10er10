@@ -1,11 +1,11 @@
 define(function() {
-	var icuCollation = [
-		" ", "`" , "^", "_", "-", ",", ";", ":", "!", "?", "." ,"'", "\"", "(", ")", "[", "]", "{", "}",
-	   "@", "*", "/", "\\", "&", "#", "%", "+", "<", "=", ">", "|", "~", "$", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-	   "a", "A", "b", "B", "c", "C", "d", "D", "e", "E", "f", "F", "g", "G", "h", "H", "i", "I", "j", "J", "k", "K", "l", "L",
-	   "m", "M", "n", "N", "o", "O", "p", "P", "q", "Q", "r", "R", "s", "S", "t", "T", "u", "U", "v", "V", "w", "W", "x", "X",
-	   "y", "Y", "z", "Z", "ZZZZZZZZ"
-	],
+  var icuCollation = [
+        " ", "`" , "^", "_", "-", ",", ";", ":", "!", "?", "." ,"'", "\"", "(", ")", "[", "]", "{", "}",
+        "@", "*", "/", "\\", "&", "#", "%", "+", "<", "=", ">", "|", "~", "$", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+        "a", "b", "c",  "d", "e",  "f",  "g", "h",  "i", "j",  "k", "l", 
+        "m", "n",  "o",  "p",  "q",  "r",  "s",  "t", "u",  "v",  "w", "x", 
+        "y",  "z", "ZZZZZZZZ"
+    ],
 	nextLetterJS = function(l) {
 		debug("using JS collation");
 		return String.fromCharCode( (l.charCodeAt(0)+1) );
@@ -31,7 +31,7 @@ define(function() {
 			return value;
 		},
 		nextLetter: function(l) {
-			var index = icuCollation.indexOf(l), 
+			var index = icuCollation.indexOf(l.toLowerCase()), 
 				next = ( index > -1 && index+1 < icuCollation.length ) ? icuCollation[ (index+1) ] : nextLetterJS(l);
 			return next;
 		},
