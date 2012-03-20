@@ -1,12 +1,4 @@
 define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, config) {
-	var useFileReader = false;
-	if ( typeof FileReader != "undefined" ) {
-		var fr = new FileReader();
-		if ( fr.addEventListener ) {
-			useFileReader = true;
-		}
-		delete fr;
-	}
 	
 	var restQuery = function(endpoint, method, url, options) {
 			var query = {
@@ -72,23 +64,9 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 				});
 				xhr=null;
 			};
- 
-			if ( useFileReader ) {
-				debug("using filereader");
-				var reader = new FileReader();
-				reader.onload = function() {
-					xhr.open("PUT",url);
-					xhr.sendAsBinary(reader.result);
-					reader = null;
-					file = null;
-				};
-				reader.readAsBinaryString(file);
-			} else {
-				debug("NOT using filereader");
-				xhr.open("PUT",url);
-				xhr.send(file);
-				file = null;
-			}
+            xhr.open("PUT",url);
+            xhr.send(file);
+            
 			emitter.topic("whenRestBegin").publish({
 				endpoint: endpoint,
 				filename: filename,
@@ -141,7 +119,6 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 			if ( options.end ) xhr.upload.onload = options.end;
 			if ( options.readystatechange ) xhr.onreadystatechange = options.readystatechange;
 			xhr.onerror = function(event) {
-// 				debug("got error on upload",arguments);
 				if ( options.error ) options.error.call(this,event);
 				emitter.topic("whenRestError").publish({endpoint: endpoint,event: event});
 				xhr= null;
@@ -166,23 +143,10 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 				});
 				xhr=null;
 			};
- 
-			if ( useFileReader ) {
-				debug("using filereader");
-				var reader = new FileReader();
-				reader.onload = function() {
-					xhr.open("POST",url);
-					xhr.sendAsBinary(reader.result);
-					reader = null;
-					file = null;
-				};
-				reader.readAsBinaryString(file);
-			} else {
-				debug("NOT using filereader");
-				xhr.open("POST",url);
-				xhr.send(file);
-				file = null;
-			}
+
+            xhr.open("POST",url);
+            xhr.send(file);
+
 			emitter.topic("whenRestBegin").publish({
 				endpoint: endpoint,
 				filename: filename,
