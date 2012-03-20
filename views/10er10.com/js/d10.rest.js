@@ -66,7 +66,7 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 			};
             xhr.open("PUT",url);
             xhr.send(file);
-            
+            file = null;
 			emitter.topic("whenRestBegin").publish({
 				endpoint: endpoint,
 				filename: filename,
@@ -146,7 +146,7 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 
             xhr.open("POST",url);
             xhr.send(file);
-
+            file = null;
 			emitter.topic("whenRestBegin").publish({
 				endpoint: endpoint,
 				filename: filename,
