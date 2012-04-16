@@ -1,4 +1,5 @@
 var d10 = require ("./d10"),
+    artists = require ("./d10.artists"),
 	qs = require("qs");
 
 exports.api = function(app) {
@@ -449,4 +450,33 @@ exports.api = function(app) {
 			d10.realrest.success(resp.rows,request.ctx);
 		});
 	};
+    
+    
+    var artistHitsCallback = function(err,resp) {
+      if ( err ) {
+        console.log("error: ",err);
+        return d10.realrest.err(423, err, this);
+      }
+      d10.realrest.success(resp.rows, this);
+    };
+    
+    app.get("/api/list/artist/hits", function(request, response) {
+      var artist, startkey, startkey_docid;
+      if ( !request.query.artist ) {
+        console.log("no artist");
+        return d10.realrest.err(428, request.query.artist, request.ctx);
+      }
+      artist = request.query.artist;
+      if ( request.query.startkey ) {
+        startkey = JSON.parse(request.query.startkey);
+        if ( request.query.startkey_docid ) {
+          startkey_docid = request.query.startkey_docid;
+        }
+      }
+      
+      artists.getSongsByHits(artist,artistHitsCallback.bind(request.ctx),startkey,startkey_docid);
+      
+    });
+    
+    
 }; // exports.api
