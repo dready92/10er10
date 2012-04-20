@@ -130,7 +130,11 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 					require(["js/libraryAllArtists"], function(libraryAllArtists) {
 						libraryAllArtists.onContainerCreation(topicdiv, categorydiv, topic, category, param);
 					});
-				} else {
+				} else if ( topic == "artists" && category ) {
+                    require(["js/libraryArtist"], function(libraryArtist) {
+                        libraryArtist.onContainerCreation(topicdiv, categorydiv, topic, category, param);
+                    });
+                } else {
 					require(["js/libraryBasicListing"],function(basicListing) {
 						basicListing.onContainerCreation(topicdiv, categorydiv, topic, category, param);
 					});
@@ -143,7 +147,11 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				require(["js/libraryAllArtists"], function(libraryAllArtists) {
 					libraryAllArtists.onRoute(topicdiv, categorydiv, topic, category, param);
 				});
-			} else if ( topic == "albums" && category == "<all>" ) {
+			} else if ( topic == "artists" && category ) {
+                require(["js/libraryArtist"], function(libraryArtist) {
+                    libraryArtist.onRoute(topicdiv, categorydiv, topic, category, param);
+                });
+            } else if ( topic == "albums" && category == "<all>" ) {
 				require(["js/libraryAlbums"], function(libraryAlbums) {
 					libraryAlbums.onRoute(topicdiv,categorydiv,topic, category, param);
 				});

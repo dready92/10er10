@@ -1,9 +1,9 @@
 define(["js/d10.templates", "js/d10.utils", "js/d10.imageUtils"], function(tpl, toolbox, imageUtils) {
 	function singleAlbumParser(songs) {
-		var albumData = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: "", e_artists: [], e_genres: []}, 
+		var albumData = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: "", e_artists: [], e_genres: [], image_url: null, album: ""}, 
 			artists = {}, genres = {}, duration = 0, images = {};
 		songs.forEach(function(row) {
-			albumData.album = row.doc.album;
+			albumData.album = row.doc.album || "";
 			artists[row.doc.artist] = 1;
 			if ( row.doc.genre ) {
 				genres[row.doc.genre] = 1;
@@ -42,7 +42,32 @@ define(["js/d10.templates", "js/d10.utils", "js/d10.imageUtils"], function(tpl, 
 		}
 		return albumData;
 	};
+    
+    function multiAlbumsParser (songs) {
+      var albums = {};
+      songs.forEach(function(row) {
+        var key ;
+        if ( !row.doc.album ) {
+          key = "__no_album_name__";
+        } else {
+          key = row.doc.album;
+        }
+        if ( key in albums ) {
+          albums[key].push(row);
+        } else {
+          albums[key] = [row];
+        }
+      });
+      var back = [];
+      for ( var i in albums ) {
+        back.push ( singleAlbumParser(albums[i]) );
+      }
+      return back;
+    };
+    
+    
 	return {
-		singleAlbumParser: singleAlbumParser
+		singleAlbumParser: singleAlbumParser,
+        multiAlbumsParser: multiAlbumsParser
 	};
 });

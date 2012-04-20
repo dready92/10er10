@@ -508,6 +508,11 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 			restQuery("artist.albums","GET",config.site_url+"/api/list/artists/albums/"+ encodeURIComponent(artist),options);
 		},
  
+        songsByAlbum: function(artist, options) {
+          options = options || {};
+          restQuery("artist.songsByAlbums","GET",config.site_url+"/api/list/artists/songsByAlbum/"+ encodeURIComponent(artist),options);
+        },
+       
 		/*
 		 * @param artist String artist name
 		 * 
@@ -515,7 +520,13 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 		 */
 		genres: function(artist, options) {
 			restQuery("artist.genres","GET",config.site_url+"/api/list/artists/genres/"+ encodeURIComponent(artist),options);
-		}
+		},
+       
+        songHits: function(artist, options) {
+            options = options || {};
+            options.data = {artist: artist};
+            restQuery("artist.songHits","GET",config.site_url+"/api/list/artist/hits", options);
+        },
 	};
 	
 	rest.genre = {

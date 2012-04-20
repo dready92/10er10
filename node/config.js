@@ -323,6 +323,7 @@ exports.templates.clientList = {
 	'my.reviewHelper.bubble': 'html/my/reviewHelper_bubble.html',
 	'my.reviewHelper': 'html/my/reviewHelper.html',
 	'library.content.simple': 'html/library/content_simple.html',
+    'library.content.artist': 'html/library/content_artist.html',
 	'library.content.genre': 'html/library/content_genre.html',
     'library.content.none':'html/library/content_none.html',
 	'library.content.album.widget':'html/library/content_album_widget.html',

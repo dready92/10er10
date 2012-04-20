@@ -175,11 +175,23 @@ exports.server = {
 		select_visible: "Select only visible songs"
 
 	},
+    "html/library/content_artist.html": {
+      no_song: "No song found",
+      all_artists: "Artists",
+      greatest_hits: "Most listened songs",
+      all_songs: "All songs",
+      without_album: "No album",
+      see_album: "See album",
+      add_to_player: "Add to player queue",
+      refresh_page: "Refresh page"
+    },
 	"html/library/content_none.html": {
 		no_song: "No song"
 	},
 	"html/library/content_artist_related.html": {
-		see_also: "See also"
+        you_like: "Do you like ",
+        also_listen: "You can try",
+        view_more: "more"
 	},
 	"html/library/content_album_widget.html": {
 		show_songs: "Show album songs",

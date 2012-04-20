@@ -35,6 +35,7 @@ a:active { color: #FFCA40 }
 .hidden {	display: none;}
 .center {	text-align: center;}
 .middle {	vertical-align:middle;}
+.top {vertical-align: top}
 .left {	text-align: left;}
 .right {	text-align: right;}
 .table {	display: table;}
@@ -816,6 +817,67 @@ article div.refreshList {
 #library div[name=artists] div[name='_%3Call%3E'] > div > div {
   padding-left: 10px;
 }
+
+#library article.artistPage h1 {
+  display: inline;
+  font-weight: normal;
+  text-shadow: 1px 1px 2px #595959, -1px -1px #121212;
+}
+
+#library article.artistPage h2 {
+  font-weight: normal;
+  font-size: 1.25em;
+  text-shadow: 1px 1px 2px #595959, -1px -1px #121212;
+  border-bottom: 1px solid #565656;
+  margin-bottom: 20px;
+  max-width: 500px;
+}
+
+#library article.artistPage h3 {
+  border-bottom: 1px solid #565656; padding-bottom: 5px; margin-bottom: 10px
+}
+
+#library article.artistPage [name=all] {
+  font-weight: normal;
+}
+
+#library article.artistPage div.list .album {
+  display: none;
+}
+
+#library article.artistPage div.list {
+  min-width: 500px
+}
+
+#library article.artistPage div.hits div.list {
+  width: initial;
+}
+
+#library article.artistPage div.list span.title, #library article.artistPage div.list span.artist{
+  padding: 0 20px;
+}
+
+
+#library article.artistPage div.hits, #library article.artistPage div.all {
+  margin-top: 20px;
+}
+
+#library article.artistPage .oneAlbumRow .cell:first-child {
+  padding-top: 5px;
+}
+
+#library article.artistPage .albumContents {
+  padding-left: 10px;
+}
+
+#library article.artistPage .albumControls {
+  padding-bottom: 10px;
+}
+
+#library article.artistPage .artistLink:not(:last-child):after { display: inline; content: " , "; color: #9F9F9F; }
+
+#library article.artistPage .artistLink:hover { background-color: #565656; border-radius: 3px; }
+#library article.artistPage div.refresh { padding-top: 30px;}
 
 #library .genresLanding {
 	margin: 10px;

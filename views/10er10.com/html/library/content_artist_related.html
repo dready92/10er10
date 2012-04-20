@@ -1,1 +1,4 @@
-<span>((see_also))</span>{{#artists}}&nbsp;<span class="link" name="{{.}}">{{.}}</span>&nbsp; {{/artists}}
+<div>
+<span>((you_like)) {{artist}} ? ((also_listen)) </span>{{#artists}}&nbsp;<span class="link artistLink" name="{{artist_e}}">{{artist}}</span>{{/artists}} 
+{{#moreArtistsLink}}<span class="link moreLink">&nbsp;((view_more))...</span>{{/moreArtistsLink}}{{#moreArtists}}&nbsp;<span class="link artistLink hidden" name="{{artist_e}}">{{artist}}</span>{{/moreArtists}}
+</div>

@@ -412,6 +412,26 @@ exports.api = function(app) {
 		});
 	};
 	
+    app.get("/api/own/list/artists/songsByAlbum/:artist",function(request,response) {
+        _artistSongsOrderedByAlbums(request.ctx.user._id+"/artist_songsOrderedByAlbums",request,response);
+    });
+    app.get("/api/list/artists/songsByAlbum/:artist",function(request,response) {
+        _artistSongsOrderedByAlbums("artist/songsOrderedByAlbums",request,response);
+    });
+    var _artistSongsOrderedByAlbums = function(view,request,response) {
+        if ( !request.params.artist ) {
+            return d10.realrest.err(428, request.params.artist, request.ctx);
+        }
+        
+        d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], include_docs: true},function(err,resp) {
+            if ( err ) {
+                console.log("error: ",err);
+                return d10.realrest.err(423, err, request.ctx);
+            }
+            d10.realrest.success(resp.rows,request.ctx);
+        });
+    };
+    
 	app.get("/api/own/list/artists/genres/:artist",function(request,response) {
 		_artistGenres(request.ctx.user._id+"/artist_genres",request,response);
 	});

@@ -15,8 +15,3 @@ exports.getSongsByHits = function(artist, callback, startkey, startkey_docid) {
   }
   d10.couch.d10.view("artist/hits",query,callback);
 };
-
-
-
-
-
