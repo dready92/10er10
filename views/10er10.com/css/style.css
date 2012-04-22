@@ -830,7 +830,7 @@ article div.refreshList {
   text-shadow: 1px 1px 2px #595959, -1px -1px #121212;
   border-bottom: 1px solid #565656;
   margin-bottom: 20px;
-  max-width: 500px;
+/*   max-width: 500px; */
 }
 
 #library article.artistPage h3 {
@@ -862,8 +862,17 @@ article div.refreshList {
   margin-top: 20px;
 }
 
+#library article.artistPage .oneAlbum {
+	background-color: #3D3D3D;
+	padding: 10px 5px;
+	width: 100%;
+	border-radius: 20px;
+	margin-bottom: 30px;
+}
+
 #library article.artistPage .oneAlbumRow .cell:first-child {
   padding-top: 5px;
+  width: 128px;
 }
 
 #library article.artistPage .albumContents {
@@ -876,7 +885,7 @@ article div.refreshList {
 
 #library article.artistPage .artistLink:not(:last-child):after { display: inline; content: " , "; color: #9F9F9F; }
 
-#library article.artistPage .artistLink:hover { background-color: #565656; border-radius: 3px; }
+#library article.artistPage .artistLink:hover { background-color: #3D3D3D; border-radius: 3px; }
 #library article.artistPage div.refresh { padding-top: 30px;}
 
 #library .genresLanding {
