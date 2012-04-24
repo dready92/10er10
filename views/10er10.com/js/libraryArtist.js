@@ -121,8 +121,13 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
           return onRestResponse("hits", []);;
         }
         var html = '';
+        var songCount = 0;
         resp.forEach(function(row) {
+          if ( songCount>=15 ) {
+            return ;
+          }
           html+=tpl.song_template(row.doc);
+          songCount++;
         });
         onRestResponse("hits", [html]);
       }
