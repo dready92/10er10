@@ -1,6 +1,6 @@
 define(["js/d10.templates", "js/d10.utils", "js/d10.imageUtils"], function(tpl, toolbox, imageUtils) {
 	function singleAlbumParser(songs) {
-		var albumData = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: "", e_artists: [], e_genres: [], image_url: null, album: ""}, 
+		var albumData = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: "", e_artists: [], e_genres: [], image_url: null, album: "", date: []}, 
 			artists = {}, genres = {}, duration = 0, images = {};
 		songs.forEach(function(row) {
 			albumData.album = row.doc.album || "";
@@ -18,8 +18,12 @@ define(["js/d10.templates", "js/d10.utils", "js/d10.imageUtils"], function(tpl, 
 					}
 				});
 			}
+			if ( row.doc.date ) {
+              albumData.date.push(row.doc.date);
+            }
 			albumData.songs+=tpl.song_template(row.doc);
 		});
+        albumData.date.sort(function (a, b){  return a - b; });
 		for ( var k in artists ) {
 			var e = encodeURIComponent(k);
 			albumData.artists.push({name: k, encoded: e});

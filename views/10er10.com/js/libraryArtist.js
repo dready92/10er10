@@ -96,6 +96,11 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
     var parseAlbumSongs = function(all) {
       var template_data = { no_album: [], albums: []  };
       var parsed = dataParsers.multiAlbumsParser(all);
+      parsed.sort(function(a,b) {
+        var datea = a.date.length ? a.date[ (a.date.length -1) ] : 0;
+        var dateb = b.date.length ? b.date[ (b.date.length -1) ] : 0;
+        return dateb - datea;
+      });
       parsed.forEach(function(album) {
         if ( album.album.length ) {
           album.album_e = album.album.replace("\"","&quot;");
