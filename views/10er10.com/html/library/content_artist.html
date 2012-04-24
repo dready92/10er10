@@ -10,8 +10,22 @@
     <div class="all">
       <h2>((all_songs))</h2>
       {{#no_album}}
-      <h2><img src="{{image_url}}"> ((without_album))</h2>
-      <div class="list">{{{songs}}}</div>
+      <div class="oneAlbum table">
+        <div class="oneAlbumRow row">
+          <div class="cell">
+            <img src="{{image_url}}">
+          </div>
+          <div class="cell top albumContents">
+            <div style="">
+              <h3  class="blueTitle">((without_album))</h3>
+              <div class="albumControls">
+                <button name="load"><img src="css/16x16/actions/favorite-genres-amarok.png" class="middle"> ((add_to_player))</button>
+              </div>
+            </div>
+            <div class="list">{{{songs}}}</div>
+          </div>
+        </div>
+      </div>
       {{/no_album}}
 
       {{#albums}}
