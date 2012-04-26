@@ -2,6 +2,16 @@ Upgrade from 0.11 to 0.12
 =========================
 
 - install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
+- re-run the installer script (don't worry, it won't eat your dog) : go to **node/install**. Then:
+
+To upgrade your DEV databases, run
+
+    node install.js
+
+To upgrade your PROD databases, run
+
+    node install.js -p
+
 - restart the node 10er10 server
 
 **What changed ?**
@@ -9,6 +19,9 @@ Upgrade from 0.11 to 0.12
 - use CSS media queries to adapt search results width and my playlists width
 - display the time at cursor in progression bar
 - click on an artist or album in search results minified boxes to open it 
+- dedicated artist page
+- dedicated album page
+- two columns layout for the "all artists" page
 
 Upgrade from 0.10 to 0.11
 =========================
