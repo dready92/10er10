@@ -802,6 +802,11 @@ article div.refreshList {
 	-webkit-border-radius: 5px;
 }
 
+#library div[name=artists] div[name='_%3Call%3E'] {
+  -moz-column-count: 2;
+  -webkit-column-count: 2;
+}
+
 #library div[name=artists] div[name='_%3Call%3E'] > div {
   padding: 5px 0;
   border-bottom: 1px solid #9A9A9A;
