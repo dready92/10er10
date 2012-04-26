@@ -204,6 +204,9 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 				if( query.album ) {
 					options.data.album = query.album;
 				}
+				if ( query.full ) {
+				  options.data.full = true;
+				}
 				restQuery("song.list.albums","GET",config.site_url+"/api/list/albums",options);
 			},
  			artists: function(query, options) {

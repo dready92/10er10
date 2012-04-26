@@ -122,11 +122,15 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 					require(["js/libraryAllGenres"], function(libraryAllGenres) {
 						libraryAllGenres.onContainerCreation(topicdiv, categorydiv, topic, category, param);
 					});
-				} else if ( topic == "albums" && category == "<all>" ) {
+				} else if ( topic == "albums" && category == "<covers>" ) {
 					require(["js/libraryAlbums"], function(libraryAlbums) {
 						libraryAlbums.onContainerCreation(topicdiv,categorydiv,topic, category, param);
 					});
-				} else if ( topic == "artists" && category == "<all>" ) {
+				} else if ( topic == "albums" && category && category != "<all>" ) {
+                    require(["js/libraryAlbum"], function(libraryAlbum) {
+                        libraryAlbum.onContainerCreation(topicdiv, categorydiv, topic, category, param);
+                    });
+                } else if ( topic == "artists" && category == "<all>" ) {
 					require(["js/libraryAllArtists"], function(libraryAllArtists) {
 						libraryAllArtists.onContainerCreation(topicdiv, categorydiv, topic, category, param);
 					});
@@ -151,19 +155,24 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
                 require(["js/libraryArtist"], function(libraryArtist) {
                     libraryArtist.onRoute(topicdiv, categorydiv, topic, category, param);
                 });
-            } else if ( topic == "albums" && category == "<all>" ) {
+            } else if ( topic == "albums" && category == "<covers>" ) {
 				require(["js/libraryAlbums"], function(libraryAlbums) {
 					libraryAlbums.onRoute(topicdiv,categorydiv,topic, category, param);
 				});
 				topicdiv.find(".albumSearch").hide();
-				
-			} else if ( topic == "genres" && category == "<all>" ) {
+			} else if ( topic == "albums" && category && category != "<all>" ) {
+                require(["js/libraryAlbum"], function(libraryAlbum) {
+                    libraryAlbum.onRoute(topicdiv, categorydiv, topic, category, param);
+                });
+				topicdiv.find(".albumSearch").hide();
+            } else if ( topic == "genres" && category == "<all>" ) {
 				require(["js/libraryAllGenres"], function(libraryAllGenres) {
 					libraryAllGenres.onRoute(topicdiv, categorydiv, topic, category, param);
 				});
 			} else {
 				if ( topic == "albums" ) {
 					topicdiv.find(".albumSearch").show();
+					if ( category == "<all>" ) { category = null;}
 				}
 
 				require(["js/libraryBasicListing"],function(basicListing) {
@@ -232,29 +241,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				});
 			} else if ( topic == 'albums' ) {
 				catdiv.append( tpl.mustacheView('library.control.album') );
-				var widget = $('input[name=album]',catdiv);
-				catdiv.find("span[name=all]").click(function(){ widget.val('').trigger('blur');  router.navigateTo(["library","albums","<all>"]); });
-				var overlay = widget.val(widget.attr('defaultvalue'))
-				.permanentOvlay(libraryScope.current == "full" ? rest.album.list : rest.user.album.list, $(".overlay",catdiv),
-						{
-							"varname": "start", 
-							"minlength" : 1 ,
-							"autocss": true,
-							"select": function (data, json) {
-								router.navigateTo(["library",topic,data]);
-								return data;
-							}
-						}
-				);
-				events.topic("libraryScopeChange").subscribe(function(current) {
-					if ( current == "full" ) {
-						overlay.setUrl(rest.album.list);
-					} else {
-						overlay.setUrl(rest.user.album.list);
-					}
-				});
-				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger("blur"); router.navigateTo(["library",topic]); });
-				
+				catdiv.find("span[name=all]").click(function(){ router.navigateTo(["library","albums","<covers>"]); });
 			} else if ( topic == 'titles' ) {
 				catdiv.append( tpl.mustacheView('library.control.title') );
 				var widget = $('input[name=title]',catdiv);

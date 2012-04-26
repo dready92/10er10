@@ -184,8 +184,16 @@ exports.server = {
       add_to_player: "Ajouter à la lecture en cours",
       refresh_page: "Rafraichir la page"
     },
+	"html/library/content_album.html": {
+	  all_albums: "Albums",
+	  add_to_player: "Ajouter à la lecture en cours",
+	  refresh_page: "Rafraichir la page"
+	},
 	"html/library/content_none.html": {
 		no_song: "Aucun morceau"
+	},
+	"html/library/content_album_artists.html": {
+	  album_artists: "Artistes sur cet album"
 	},
 	"html/library/content_artist_related.html": {
         you_like: "Vous aimez ",

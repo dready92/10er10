@@ -185,8 +185,16 @@ exports.server = {
       add_to_player: "Add to player queue",
       refresh_page: "Refresh page"
     },
+	"html/library/content_album.html": {
+	  all_albums: "Albums",
+	  add_to_player: "Add to player queue",
+	  refresh_page: "Refresh page"
+	},
 	"html/library/content_none.html": {
 		no_song: "No song"
+	},
+	"html/library/content_album_artists.html": {
+	  album_artists: "This album artists"
 	},
 	"html/library/content_artist_related.html": {
         you_like: "Do you like ",

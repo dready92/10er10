@@ -46,10 +46,10 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 			if ( letter.hasClass("active") ) {
 				return;
 			}
-			router.navigateTo( [ "library","albums","<all>",letter.attr("name") ] );
+			router.navigateTo( [ "library","albums","<covers>",letter.attr("name") ] );
 		})
 		.delegate(".tocAll","click", function() {
-			router.navigateTo( [ "library","albums","<all>" ] );
+			router.navigateTo( [ "library","albums","<covers>" ] );
 		});
 		
 		events.topic("libraryScopeChange").subscribe(function() {

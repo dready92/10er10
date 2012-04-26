@@ -283,7 +283,10 @@ exports.api = function(app) {
 		_albumName("album/name",request,response);
 	});
 	var _albumName = function(view, request,response) {
-		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1};
+		var query = {include_docs: true, reduce: false};
+		if ( !request.query.full ) {
+		  query.limit = d10.config.rpp+1;
+		}
 		if ( request.query.album && request.query.album.length ) {
 			query.startkey = [request.query.album];
 			query.endkey = [request.query.album,[]];
