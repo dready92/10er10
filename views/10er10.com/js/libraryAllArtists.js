@@ -1,11 +1,15 @@
 define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/d10.router", "js/d10.libraryScope", "js/paginer"], 
 		function(localcache,rest,events, tpl, router, libraryScope, restHelpers) {
-    var letter = '', letter_container =null;
+    var letter = '', letter_container = null;
+	var cache_ttl = 1800000; //half an hour
+	var lastUpdate = 0;
+	
 	var allArtists = function (container) {
-		var cacheNotExpired = localcache.getJSON("artists.allartists");
 		var restEndPoint = libraryScope.current == "full" ? rest.artist.allByName : rest.user.artist.allByName;
-		if ( cacheNotExpired ) { return ; }
-		localcache.setJSON("artists.allartists", {"f":"b"},true);
+		var now = new Date().getTime();
+		var cacheExpired = now - lastUpdate - cache_ttl ;
+		if ( cacheExpired < 0 ) { debug("allArtists cache still valid"); return ; }
+		lastUpdate = now;
 		container.empty();
         letter = '';
         letter_container = null;
@@ -48,6 +52,7 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
             router.navigateTo(["library","artists",$(this).text()]);
         });
 		events.topic("libraryScopeChange").subscribe(function() {
+			lastUpdate = 0;
 			allArtists(categorydiv);
 		});
 	};
