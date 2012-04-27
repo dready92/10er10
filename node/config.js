@@ -342,7 +342,6 @@ exports.templates.clientList = {
     'library.control.album':'html/library/control_album.html',
     'library.control.title':'html/library/control_title.html',
     'library.listing.artist':'html/library/listing_artist.html',
-//     'library.listing.artist.line':'html/library/listing_artist_line.html',
 	'library.listing.artist.loading':'html/library/listing_artist_loading.html',
     'library.listing.genre':'html/library/listing_genre.html',
     'library.listing.genre.line':'html/library/listing_genre_line.html',
