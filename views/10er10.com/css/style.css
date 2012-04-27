@@ -773,21 +773,71 @@ article div.refreshList {
 #library div[name=artists] div[name='_%3Call%3E'] {
   -moz-column-count: 2;
   -webkit-column-count: 2;
+  position: relative;
 }
 
-#library div[name=artists] div[name='_%3Call%3E'] > div {
+#library div[name=artists] .loading {
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+}
+
+#library div[name=artists] .loading > div{
+  background-color: rgba(255,255,255,0.4);
+  width: 60%;
+  margin: 10px auto;
+  padding: 20px 0;
+  text-align: center;
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #343434;
+  border-radius: 9px;
+  border: 4px solid rgba(0,0,0,0.2);
+  -moz-animation-duration: 2s;
+  -moz-animation-name: bgcolor;
+  -moz-animation-iteration-count: infinite;  
+  -moz-animation-direction: alternate;  
+  -webkit-animation-duration: 2s;
+  -webkit-animation-name: bgcolor;
+  -webkit-animation-iteration-count: infinite;  
+  -webkit-animation-direction: alternate;  
+}
+
+ @-webkit-keyframes bgcolor {
+    from {
+	  background-color: rgba(255,255,255,0.4);
+    }
+    to {
+      background-color: rgba(255,255,255,0.1);
+    }
+  }
+
+  @-moz-keyframes bgcolor {
+    from {
+	  background-color: rgba(255,255,255,0.4);
+    }
+    to {
+      background-color: rgba(255,255,255,0.1);
+    }
+  }
+
+
+#library .artistLetter {
   padding: 5px 0;
-  border-bottom: 1px solid #9A9A9A;
+/*   border-bottom: 1px solid #9A9A9A; */
   margin: 0 10px 10px 10px;
 }
 
-#library div[name=artists] div[name='_%3Call%3E'] > div h3 {
+#library .artistLetter h3 {
   font-size: 1.2em;
   padding-left: 30px;
-  padding-bottom: 10px;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #565656;
 }
 
-#library div[name=artists] div[name='_%3Call%3E'] > div > div {
+#library .artistLetter > div {
   padding-left: 10px;
 }
 

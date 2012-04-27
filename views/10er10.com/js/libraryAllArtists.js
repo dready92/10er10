@@ -10,12 +10,14 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
 		var cacheExpired = now - lastUpdate - cache_ttl ;
 		if ( cacheExpired < 0 ) { debug("allArtists cache still valid"); return ; }
 		lastUpdate = now;
-		container.empty();
+		container.html(tpl.mustacheView("library.listing.artist.loading", {}));
         letter = '';
         letter_container = null;
-        var cursor = new restHelpers.couchMapCursor(restEndPoint, {limit: 200});
+		letter_container_body = null;
+        var cursor = new restHelpers.couchMapCursor(restEndPoint, {limit: 100});
         var fetchFromCursor = function() {
           if ( !cursor.hasMoreResults() ) {
+			container.find(".loading").remove();
             return ;
           }
           cursor.getNext(function(err,resp) {
@@ -39,15 +41,15 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
 				if ( letter_container ) container.append(letter_container);
 				letter = current_letter;
 				letter_container = $( tpl.mustacheView("library.listing.artist", {"letter": letter}) );
+				letter_container_body = letter_container.children("div");
 			}
-			$(">div",letter_container).append( tpl.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs}) );
+			letter_container_body.append( tpl.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs}) );
 		}
 		if ( letter_container ) { container.append( letter_container ); }
-
-		
 	};
 	
 	var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {
+		
         categorydiv.delegate("span.link","click", function() {
             router.navigateTo(["library","artists",$(this).text()]);
         });

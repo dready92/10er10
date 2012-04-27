@@ -234,7 +234,10 @@ exports.server = {
 		no_result: "Aucun titre trouvé"
 	},
 	"html/library/listing_artist_line.html": {
-		songs: "song(s)"
+		songs: "morceau(x)"
+	},
+	"html/library/listing_artist_loading.html": {
+		loading: "Chargement"
 	},
 	"html/library/listing_genre.html": {
 		songs_link: "Voir les {{count}} morceaux"

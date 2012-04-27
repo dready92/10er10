@@ -237,6 +237,9 @@ exports.server = {
 	"html/library/listing_artist_line.html": {
 		songs: "song(s)"
 	},
+	"html/library/listing_artist_loading.html": {
+		loading: "Loading"
+	},
 	"html/library/listing_genre.html": {
 		songs_link: "See the {{count}} songs"
 	},
