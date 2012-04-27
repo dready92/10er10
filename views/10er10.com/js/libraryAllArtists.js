@@ -1,6 +1,6 @@
 define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/d10.router", "js/d10.libraryScope", "js/paginer"], 
 		function(localcache,rest,events, tpl, router, libraryScope, restHelpers) {
-    var letter = '', letter_container = null;
+    var letter = '', letter_container = null, endOfCursor = false;;
 	var cache_ttl = 1800000; //half an hour
 	var lastUpdate = 0;
 	
@@ -13,13 +13,11 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
 		container.html(tpl.mustacheView("library.listing.artist.loading", {}));
         letter = '';
         letter_container = null;
-		letter_container_body = null;
         var cursor = new restHelpers.couchMapCursor(restEndPoint, {limit: 100});
         var fetchFromCursor = function() {
+		  debug(letter_container);
           if ( !cursor.hasMoreResults() ) {
-			if ( letter_container && letter_container.artists.length ) { 
-				container.append(tpl.mustacheView("library.listing.artist", letter_container));
-			}
+			endOfCursor = true;
 			container.find(".loading").remove();
             return ;
           }
@@ -42,17 +40,15 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
 			var current_letter = artist.substring(0,1);
 			if ( current_letter != letter ) {
 				if ( letter_container ) {
-// 				  letter_container.children("div").html(letter_container_body);
-// 				  container.append(letter_container);
 				  container.append(tpl.mustacheView("library.listing.artist", letter_container));
 				}
 				letter = current_letter;
 				letter_container = {letter: letter, artists: []};
-// 				letter_container = $( tpl.mustacheView("library.listing.artist", {"letter": letter}) );
-// 				letter_container_body = "";
 			}
 			letter_container.artists.push({"artist": artist, "songs": songs});
-// 			letter_container_body += tpl.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs});
+		}
+		if ( endOfCursor && letter_container && letter_container.artists.length ) {
+			container.append(tpl.mustacheView("library.listing.artist", letter_container));
 		}
 	};
 	
