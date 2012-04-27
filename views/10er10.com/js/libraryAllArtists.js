@@ -38,14 +38,20 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
 			var songs = data[index].value;
 			var current_letter = artist.substring(0,1);
 			if ( current_letter != letter ) {
-				if ( letter_container ) container.append(letter_container);
+				if ( letter_container ) {
+				  letter_container.children("div").html(letter_container_body);
+				  container.append(letter_container);
+				}
 				letter = current_letter;
 				letter_container = $( tpl.mustacheView("library.listing.artist", {"letter": letter}) );
-				letter_container_body = letter_container.children("div");
+				letter_container_body = "";
 			}
-			letter_container_body.append( tpl.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs}) );
+			letter_container_body += tpl.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs});
 		}
-		if ( letter_container ) { container.append( letter_container ); }
+		if ( letter_container ) { 
+		  letter_container.children("div").html(letter_container_body);
+		  container.append( letter_container ); 
+		}
 	};
 	
 	var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {
