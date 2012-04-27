@@ -233,7 +233,7 @@ exports.server = {
 		loading: "chargement...",
 		no_result: "Aucun titre trouvé"
 	},
-	"html/library/listing_artist_line.html": {
+	"html/library/listing_artist.html": {
 		songs: "morceau(x)"
 	},
 	"html/library/listing_artist_loading.html": {

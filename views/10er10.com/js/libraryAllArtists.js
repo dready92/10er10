@@ -39,18 +39,22 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
 			var current_letter = artist.substring(0,1);
 			if ( current_letter != letter ) {
 				if ( letter_container ) {
-				  letter_container.children("div").html(letter_container_body);
-				  container.append(letter_container);
+// 				  letter_container.children("div").html(letter_container_body);
+// 				  container.append(letter_container);
+				  container.append(tpl.mustacheView("library.listing.artist", letter_container));
 				}
 				letter = current_letter;
-				letter_container = $( tpl.mustacheView("library.listing.artist", {"letter": letter}) );
-				letter_container_body = "";
+				letter_container = {letter: letter, artists: []};
+// 				letter_container = $( tpl.mustacheView("library.listing.artist", {"letter": letter}) );
+// 				letter_container_body = "";
 			}
-			letter_container_body += tpl.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs});
+			letter_container.artists.push({"artist": artist, "songs": songs});
+// 			letter_container_body += tpl.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs});
 		}
 		if ( letter_container ) { 
-		  letter_container.children("div").html(letter_container_body);
-		  container.append( letter_container ); 
+		  container.append(tpl.mustacheView("library.listing.artist", letter_container));
+// 		  letter_container.children("div").html(letter_container_body);
+// 		  container.append( letter_container ); 
 		}
 	};
 	

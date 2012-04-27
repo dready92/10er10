@@ -234,7 +234,7 @@ exports.server = {
 		loading: "Loading...",
 		no_result: "No song found"
 	},
-	"html/library/listing_artist_line.html": {
+	"html/library/listing_artist.html": {
 		songs: "song(s)"
 	},
 	"html/library/listing_artist_loading.html": {
