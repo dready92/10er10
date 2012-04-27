@@ -82,7 +82,7 @@ define(["js/d10.templates", "js/config"], function(tpl, config) {
 	
 	var couchMapCursor = function(endpoint, queryData) {
 		var actualData = $.extend({},queryData);
-		var rpp = config.rpp;
+		var rpp = actualData.limit ? actualData.limit : config.rpp;
         actualData.limit = rpp;
 		var endOfStream = false;
 		var getResults = function(cb) {

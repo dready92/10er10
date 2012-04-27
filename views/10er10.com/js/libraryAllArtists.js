@@ -13,7 +13,7 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
 		container.empty();
         letter = '';
         letter_container = null;
-        var cursor = new restHelpers.couchMapCursor(restEndPoint);
+        var cursor = new restHelpers.couchMapCursor(restEndPoint, {limit: 200});
         var fetchFromCursor = function() {
           if ( !cursor.hasMoreResults() ) {
             return ;

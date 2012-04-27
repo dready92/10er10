@@ -92,7 +92,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				ui.append(topicdiv);
 			}
 			
-			if ( topic == "genres" && !category ) { category = "<all>"; }
+			if ( ( topic == "genres" || topic == "artists" ) && !category ) { category = "<all>"; }
 
 			//
 			//if category is specified select it
@@ -299,20 +299,12 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 		}
 
 		var getSelectedTopicCategory = function (topic, topicdiv ) {
-			if ( topic == 'artists' ) {
-				var widget = $('input[name=artist]',topicdiv);
-				if ( widget.val() == widget.attr("defaultvalue") ) { return ""; }
-				return widget.val();
-			} else if ( topic == 'albums' ) {
-				var widget = $('input[name=album]',topicdiv);
-				if ( widget.val() == widget.attr("defaultvalue") ) { return ""; }
-				return widget.val();
-			} else if ( topic == 'titles' ) {
+			 if ( topic == 'titles' ) {
 				var widget = $('input[name=title]',topicdiv);
 				if ( widget.val() == widget.attr("defaultvalue") ) { return ""; }
 				return widget.val();
 			}
-			return null;
+			return "";
 		}
 
 		return {
