@@ -17,6 +17,9 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
         var cursor = new restHelpers.couchMapCursor(restEndPoint, {limit: 100});
         var fetchFromCursor = function() {
           if ( !cursor.hasMoreResults() ) {
+			if ( letter_container && letter_container.artists.length ) { 
+				container.append(tpl.mustacheView("library.listing.artist", letter_container));
+			}
 			container.find(".loading").remove();
             return ;
           }
@@ -50,11 +53,6 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
 			}
 			letter_container.artists.push({"artist": artist, "songs": songs});
 // 			letter_container_body += tpl.mustacheView("library.listing.artist.line", {"artist": artist, "songs": songs});
-		}
-		if ( letter_container ) { 
-		  container.append(tpl.mustacheView("library.listing.artist", letter_container));
-// 		  letter_container.children("div").html(letter_container_body);
-// 		  container.append( letter_container ); 
 		}
 	};
 	
