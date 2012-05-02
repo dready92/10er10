@@ -6,7 +6,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 	
 
 	
-	
 	function library (ui) {
 
 		ui.delegate("div.song",'dragstart', dnd.onDragDefault)
@@ -206,13 +205,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			});
 			return back;
 		};
-
-		var resetCache = function() {
-			localcache.unset("genres.index");
-			localcache.unset("artists.allartists");
-		};
-
-		
 
 		var init_controls = function (topic,catdiv) {
 			if ( topic == 'artists' ) {
