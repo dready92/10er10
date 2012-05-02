@@ -123,12 +123,18 @@ exports.api = function(app) {
 					}
 					if ( request.body.album ) {
 						fields.album = d10.sanitize.string(request.body.album);
+					} else {
+						fields.album="";
 					}
 					if ( request.body.tracknumber && !isNaN(parseInt(request.body.tracknumber,10)) ) {
 						fields.tracknumber = parseInt(request.body.tracknumber,10);
+					} else {
+						fields.tracknumber = 0;
 					}
 					if ( request.body.date && !isNaN(parseInt(request.body.date,10)) ) {
 						fields.date= parseInt(request.body.date,10);
+					} else {
+						fields.date = 0;
 					}
 					
 					fields.valid = true;

@@ -1050,6 +1050,8 @@ article div.refreshList {
 	font-size: 1.2em; padding-right: 10px;
 }
 
+#my article.plm { margin-top: 10px;}
+
 #my .plm-list-container {
 	float: left; width: 110px; background-color: #121212; padding: 0;
     -webkit-transition: all 0.3s;
@@ -1206,6 +1208,10 @@ article div.refreshList {
 
 #my div.uploadDropBox canvas {
 	display: inline-block;
+}
+
+#my article.invites {
+	padding: 10px 5px;
 }
 
 /* #my div.uploadDropBox:hover { border: 2px solid rgba(200,200,200,1); } */
