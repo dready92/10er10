@@ -1,8 +1,11 @@
 define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
 
   var seconds2display = function(secs) {
-    var d = new Date(1970,1,1,0,0,secs);
-    return d.getMinutes()+':'+d.getSeconds();
+    var d = new Date(1970,1,1,0,0,secs),
+	   m = d.getMinutes(), s = d.getSeconds();
+	m = m < 10 ? "0"+m : m;
+	s = s < 10 ? "0"+s : s;
+    return m+':'+s;
   };
 var createInstance = function(container) {
 // 	debug(binder);
@@ -24,8 +27,8 @@ var createInstance = function(container) {
 			},
 			"playlist:currentTimeUpdate": function(e) {
 				bar.setBar(e.currentTime);
-				var d = new Date(1970,1,1,0,0,e.currentTime);
-				current.html(d.getMinutes()+':'+d.getSeconds());
+// 				var d = new Date(1970,1,1,0,0,e.currentTime);
+				current.html(seconds2display(e.currentTime));
 				
 			},
 			"playlist:currentLoadProgress": function(e) {
