@@ -1,7 +1,7 @@
 <div class="popover center">
 	<a class="link" href="#library/albums/{{e_album}}"><img src="{{image_url}}"></a>
 	<div class="albumTitle">
-		<a class="link" href="#library/albums/{{e_album}}">{{album}}</a> ({{duration}}), {{songsNb}} ((songs))
+		<a class="link" href="#library/albums/{{e_album}}">{{album}}</a> {{#hours}}{{.}} ((hours)) {{/hours}}{{#minutes}}{{.}} ((minutes)){{/minutes}}, {{songsNb}} ((songs))
 	</div>
 	<div class="left"><span class="label">((artists))</span>
 		<ul >

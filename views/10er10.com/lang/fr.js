@@ -187,7 +187,9 @@ exports.server = {
 	"html/library/content_album.html": {
 	  all_albums: "Albums",
 	  add_to_player: "Ajouter à la lecture en cours",
-	  refresh_page: "Rafraichir la page"
+	  refresh_page: "Rafraichir la page",
+		hours: "h",
+		minutes: "min"
 	},
 	"html/library/content_none.html": {
 		no_song: "Aucun morceau"
@@ -202,7 +204,10 @@ exports.server = {
 	},
 	"html/library/content_album_widget.html": {
 		show_songs: "Afficher les morceaux de cet album",
-		hide_songs: "Cacher les morceaux"
+		hide_songs: "Cacher les morceaux",
+		hours: "h",
+		minutes: "min",
+		songs: "morceau(x)"
 	},
 	"html/library/content_album_all.html": {
 		view_by_letter: "Afficher les albums commençant par la lettre:",
@@ -211,6 +216,8 @@ exports.server = {
 	"html/library/content_album_all_popover.html": {
 		songs: "morceau(x)",
 		artists: "Artistes",
+		hours: "h",
+		minutes: "min",
 		genres: "Genres"
 	},
 	"html/library/control_genre.html": {

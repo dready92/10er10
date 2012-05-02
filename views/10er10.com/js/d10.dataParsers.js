@@ -34,8 +34,16 @@ define(["js/d10.templates", "js/d10.utils", "js/d10.imageUtils"], function(tpl, 
 			albumData.genres.push({name: k, encoded: e}); 
 			albumData.e_genres.push( encodeURIComponent( k ) );
 		}
-		var d = new Date(1970,1,1,0,0,duration);
-		albumData.duration = d.getMinutes()+':'+d.getSeconds();
+		var d = new Date(1970,1,1,0,0,duration),
+			h = d.getHours(),
+			m = d.getMinutes();
+		albumData.minutes = m < 10 ? ["0"+m] : [m] ;
+		albumData.hours = [] ;
+		if ( h ) {
+		  albumData.hours.push(h);
+		}
+// 		albumData.duration = h ? h+" hour(s) " : "";//d.getMinutes()+':'+d.getSeconds();
+// 		albumData.duration += m;
 		albumData.image_url = toolbox.keyOfHighestValue(images);
 		albumData.e_album = encodeURIComponent(albumData.album);
 		if ( albumData.image_url ) { 

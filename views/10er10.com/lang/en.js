@@ -188,7 +188,10 @@ exports.server = {
 	"html/library/content_album.html": {
 	  all_albums: "Albums",
 	  add_to_player: "Add to player queue",
-	  refresh_page: "Refresh page"
+	  refresh_page: "Refresh page",
+	  hours: "h",
+	  minutes: "min"
+
 	},
 	"html/library/content_none.html": {
 		no_song: "No song"
@@ -203,7 +206,10 @@ exports.server = {
 	},
 	"html/library/content_album_widget.html": {
 		show_songs: "Show album songs",
-		hide_songs: "Hide album songs"
+		hide_songs: "Hide album songs",
+		hours: "h",
+		minutes: "min",
+		songs: "song(s)"
 	},
 	"html/library/content_album_all.html": {
 		view_by_letter: "Display albums beginning by the letter:",
@@ -212,7 +218,9 @@ exports.server = {
 	"html/library/content_album_all_popover.html": {
 		songs: "song(s)",
 		artists: "Artists",
-		genres: "Genres"
+		genres: "Genres",
+		hours: "h",
+		minutes: "min"
 	},
 	"html/library/control_genre.html": {
 		loading: "Loading..."
