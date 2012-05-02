@@ -20,7 +20,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 
-var sys = require('sys'),
+var sys = require('util'),
 crypto = require('crypto'),
 algos = ["sha1", "md5", "sha256", "sha512", "ripemd160"],
 encoding = "hex";
