@@ -54,32 +54,49 @@ define(["js/d10.templates", "js/d10.utils", "js/d10.imageUtils"], function(tpl, 
 		}
 		return albumData;
 	};
+	
+	function multiAlbumsParser(songs) {
+		var back = [];
+		var sap = new streamAlbumParser(function(album) {back.push(album);});
+		sap.onData(songs);
+		sap.end();
+		sap = null;
+		return back;
+	};
+	
     
-    function multiAlbumsParser (songs) {
-      var albums = {};
-      songs.forEach(function(row) {
-        var key ;
-        if ( !row.doc.album ) {
-          key = "__no_album_name__";
-        } else {
-          key = row.doc.album;
-        }
-        if ( key in albums ) {
-          albums[key].push(row);
-        } else {
-          albums[key] = [row];
-        }
-      });
-      var back = [];
-      for ( var i in albums ) {
-        back.push ( singleAlbumParser(albums[i]) );
-      }
-      return back;
-    };
-    
+	function streamAlbumParser (onAlbumComplete) {
+		
+		var currentAlbumName = null, currentAlbumSongs = [];
+		
+		this.onData = function(songs) {
+			songs.forEach(function(row) {
+				var key = row.doc.album ? row.doc.album : "__no_album_name__" ;
+				if ( currentAlbumName == key ) {
+					return currentAlbumSongs.push(row);
+				}
+				if ( currentAlbumSongs.length ) {
+					onAlbumComplete(singleAlbumParser(currentAlbumSongs));
+					currentAlbumSongs = [];
+				}
+				currentAlbumName = key;
+				currentAlbumSongs.push(row);
+			});
+		};
+		
+		this.end = function() {
+			if ( currentAlbumSongs.length ) {
+				onAlbumComplete(singleAlbumParser(currentAlbumSongs));
+				currentAlbumSongs = [];
+			}
+		};
+	};
+	
+	
     
 	return {
 		singleAlbumParser: singleAlbumParser,
-        multiAlbumsParser: multiAlbumsParser
+        multiAlbumsParser: multiAlbumsParser,
+		streamAlbumParser: streamAlbumParser
 	};
 });
