@@ -15,7 +15,6 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
         letter_container = null;
         var cursor = new restHelpers.couchMapCursor(restEndPoint, {limit: 100});
         var fetchFromCursor = function() {
-		  debug(letter_container);
           if ( !cursor.hasMoreResults() ) {
 			endOfCursor = true;
 			container.find(".loading").remove();
@@ -23,7 +22,6 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
           }
           cursor.getNext(function(err,resp) {
             if ( err) {
-              debug("Error:",err);
               return ;
             }
             fetchFromCursor();

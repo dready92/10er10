@@ -75,7 +75,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
             });
 		});
 		
-		
 		var init_topic = function (topic,category, param) {
 			debug("library.display start",topic,category, param);
 			if ( typeof category == "undefined" ) {
@@ -87,20 +86,10 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			var topicdiv = ui.find('div[name='+topic+']');
 			if ( topicdiv.length == 0 ) {
 				topicdiv=$('<div name="'+topic+'"></div>');
-				init_controls(topic,topicdiv);
 				ui.append(topicdiv);
 			}
 			
 			if ( ( topic == "genres" || topic == "artists" ) && !category ) { category = "<all>"; }
-
-			//
-			//if category is specified select it
-			//
-			if ( category ) {
-				selectTopicCategory(topic,category,topicdiv);
-			} else {
-				category = getSelectedTopicCategory (topic, topicdiv );
-			}
 
 			//
 			// launch the topic category display
@@ -111,6 +100,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			//
 			var id = get_id(topic,topicdiv,category);
 			debug("ID: ",id);
+			
 			if ( topic == "albums" && category == "<all>" ) {
 				category = null;
 			}
@@ -170,34 +160,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			return back;
 		};
 
-		var init_controls = function (topic,catdiv) {
-			if ( topic == 'titles' ) {
-				catdiv.append( tpl.mustacheView('library.control.title') );
-				var widget = catdiv.find('input[name=title]');
-				var overlay = widget.val(widget.attr('defaultvalue'))
-				.permanentOvlay( libraryScope.current == "full" ? rest.song.listByTitle : rest.user.song.listByTitle, catdiv.find(".overlay"), 
-					{
-						"autocss": true,
-						"varname": 'start', 
-						"minlength" : 1 ,
-						"select": function (data, json) {
-							router.navigateTo(["library",topic,data]);
-							return data;
-						}
-					}
-				);
-				events.topic("libraryScopeChange").subscribe(function(current) {
-					if ( current == "full" ) {
-						overlay.setUrl(rest.song.listByTitle);
-					} else {
-						overlay.setUrl(rest.user.song.listByTitle);
-					}
-				});
-				catdiv.find('img[name=clear]').click(function() { widget.val('').trigger("blur"); router.navigateTo(["library",topic]); });
-			}
-			return catdiv;
-		}
-
 		var get_id = function (topic,catdiv,category) {
 			var id=topic;
 			category = category || '';
@@ -215,26 +177,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				return false;
 			}
 		};
-
-		var selectTopicCategory = function (topic,category,topicdiv) {
-			if ( topic == 'artists' && category != '<all>' ) {
-				topicdiv.find('input[name=artist]').val(category);
-			} else if ( topic == 'albums' ) {
-				topicdiv.find('input[name=album]').val(category);
-			} else if ( topic == 'titles' ) {
-				topicdiv.find('input[name=title]').val(category);
-			}
-			return topicdiv;
-		}
-
-		var getSelectedTopicCategory = function (topic, topicdiv ) {
-			 if ( topic == 'titles' ) {
-				var widget = topicdiv.find('input[name=title]');
-				if ( widget.val() == widget.attr("defaultvalue") ) { return ""; }
-				return widget.val();
-			}
-			return "";
-		}
 
 		return {
 			display: init_topic,

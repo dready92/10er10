@@ -339,7 +339,6 @@ exports.templates.clientList = {
 	'library.content.extended.2part':'html/library/content_extended_2parts.html',
 	'library.content.extended.1part':'html/library/content_extended_1part.html',
     'library.control.genre':'html/library/control_genre.html',
-    'library.control.title':'html/library/control_title.html',
     'library.listing.artist':'html/library/listing_artist.html',
 	'library.listing.artist.loading':'html/library/listing_artist_loading.html',
     'library.listing.genre':'html/library/listing_genre.html',

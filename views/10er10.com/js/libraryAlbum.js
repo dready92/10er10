@@ -7,7 +7,6 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
   var getAlbumArtists = function(album, then) {
 	rest.album.artists(album,{
 		load: function(err, data) {
-			debug(err,data);
 			if ( err ) { return then(); }
 			var back = [];
 			for ( var i in data ) {
@@ -16,7 +15,6 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
 			if ( back.length == 1 ) {
 				return then();
 			}
-// 			debug(back);
 			return then(back);
 		}
 	});
@@ -37,12 +35,10 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
   var getTemplateData = function(album, then) {
 	var template_data = {album: album, songs:""};
 	getSongs(album, function(err,resp) {
-// 	  debug("album getSongs: ",resp);
 	  if ( err ) {
 		return then(template_data);
 	  }
 	  template_data = dataParsers.singleAlbumParser(resp);
-	  debug("album template_data: ",template_data);
 	  then(template_data);
 	});
   };
@@ -51,7 +47,6 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
 	getAlbumArtists(album,function(artists) {
 	  if ( !artists ) return;
 	  var artistsTemplate = $(tpl.mustacheView("library.content.album.artists",{artists: artists}));
-	  debug(artistsTemplate);
 	  artistsTemplate.find(".artistLink").click(function() {
           router.navigateTo(["library","artists",$(this).attr("name")]);
         });
