@@ -4,7 +4,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 	   function(foo, dnd, playlist, router, events, libraryScope, tpl, 
 				localcache, rest, osd, imageUtils, user, When, toolbox, restHelpers, config) {
 	
-
+	"use strict";
 	
 	function library (ui) {
 
@@ -111,73 +111,51 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			//
 			var id = get_id(topic,topicdiv,category);
 			debug("ID: ",id);
+			if ( topic == "albums" && category == "<all>" ) {
+				category = null;
+			}
 			//
 			// get topic category container
 			//
+			var categoryModuleName;
+			if ( topic == "artists" && category == "<all>" ) {
+				categoryModuleName = "js/libraryAllArtists";
+			} else if ( topic == "artists" && category ) {
+				categoryModuleName = "js/libraryArtist";
+            } else if ( topic == "albums" && category == "<covers>" ) {
+				categoryModuleName = "js/libraryAlbums";
+			} else if ( topic == "albums" && category ) {
+				categoryModuleName = "js/libraryAlbum";
+            } else if ( topic == "genres" && category == "<all>" ) {
+				categoryModuleName = "js/libraryAllGenres";
+			} else {
+				categoryModuleName = "js/libraryBasicListing";
+			}
 			var categorydiv=topicdiv.children('div[name="'+id+'"]');
 			if ( !categorydiv.length ) {
 				categorydiv=$("<div name=\""+id+"\" class=\"topic_category\" />");
-				if ( topic == "genres" && category == "<all>" ) {
-					require(["js/libraryAllGenres"], function(libraryAllGenres) {
-						libraryAllGenres.onContainerCreation(topicdiv, categorydiv, topic, category, param);
-					});
-				} else if ( topic == "albums" && category == "<covers>" ) {
-					require(["js/libraryAlbums"], function(libraryAlbums) {
-						libraryAlbums.onContainerCreation(topicdiv,categorydiv,topic, category, param);
-					});
-				} else if ( topic == "albums" && category && category != "<all>" ) {
-                    require(["js/libraryAlbum"], function(libraryAlbum) {
-                        libraryAlbum.onContainerCreation(topicdiv, categorydiv, topic, category, param);
-                    });
-                } else if ( topic == "artists" && category == "<all>" ) {
-					require(["js/libraryAllArtists"], function(libraryAllArtists) {
-						libraryAllArtists.onContainerCreation(topicdiv, categorydiv, topic, category, param);
-					});
-				} else if ( topic == "artists" && category ) {
-                    require(["js/libraryArtist"], function(libraryArtist) {
-                        libraryArtist.onContainerCreation(topicdiv, categorydiv, topic, category, param);
-                    });
-                } else {
-					require(["js/libraryBasicListing"],function(basicListing) {
-						basicListing.onContainerCreation(topicdiv, categorydiv, topic, category, param);
-					});
-				}
+				require([categoryModuleName], function(categoryModule) {
+					categoryModule.onContainerCreation(topicdiv, categorydiv, topic, category, param);
+				});
 				topicdiv.append(categorydiv);
 			}
 			
-			// special pages
 			if ( topic == "artists" && category == "<all>" ) {
-				require(["js/libraryAllArtists"], function(libraryAllArtists) {
-					libraryAllArtists.onRoute(topicdiv, categorydiv, topic, category, param);
-				});
+				categoryModuleName = "js/libraryAllArtists";
 			} else if ( topic == "artists" && category ) {
-                require(["js/libraryArtist"], function(libraryArtist) {
-                    libraryArtist.onRoute(topicdiv, categorydiv, topic, category, param);
-                });
+				categoryModuleName = "js/libraryArtist";
             } else if ( topic == "albums" && category == "<covers>" ) {
-				require(["js/libraryAlbums"], function(libraryAlbums) {
-					libraryAlbums.onRoute(topicdiv,categorydiv,topic, category, param);
-				});
-				topicdiv.find(".albumSearch").hide();
+				categoryModuleName = "js/libraryAlbums";
 			} else if ( topic == "albums" && category && category != "<all>" ) {
-                require(["js/libraryAlbum"], function(libraryAlbum) {
-                    libraryAlbum.onRoute(topicdiv, categorydiv, topic, category, param);
-                });
-				topicdiv.find(".albumSearch").hide();
+				categoryModuleName = "js/libraryAlbum";
             } else if ( topic == "genres" && category == "<all>" ) {
-				require(["js/libraryAllGenres"], function(libraryAllGenres) {
-					libraryAllGenres.onRoute(topicdiv, categorydiv, topic, category, param);
-				});
+				categoryModuleName = "js/libraryAllGenres";
 			} else {
-				if ( topic == "albums" ) {
-					topicdiv.find(".albumSearch").show();
-					if ( category == "<all>" ) { category = null;}
-				}
-
-				require(["js/libraryBasicListing"],function(basicListing) {
-					basicListing.onRoute(topicdiv, categorydiv, topic, category, param);
-				});
+				categoryModuleName = "js/libraryBasicListing";
 			}
+			require([categoryModuleName],function(basicListing) {
+				basicListing.onRoute(topicdiv, categorydiv, topic, category, param);
+			});
 			
 			
 			//
@@ -209,28 +187,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 		var init_controls = function (topic,catdiv) {
 			if ( topic == 'artists' ) {
 				catdiv.append( tpl.mustacheView('library.control.artist') );
-				var widget = $("input[name=artist]",catdiv);
-				$("span[name=all]",catdiv).click(function(){ widget.val('').trigger('blur');  router.navigateTo(["library","artists","<all>"]); });
-				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger('blur'); router.navigateTo(["library",topic]); });
-				var overlay = widget.val(widget.attr('defaultvalue'))
-				.permanentOvlay( libraryScope.current == "full" ? rest.artist.list : rest.user.artist.list , $(".overlay",catdiv),{
-					"autocss": true,
-					"minlength" : 1 ,
-					"select": function (data, json) {
-						router.navigateTo(["library",topic,json]);
-						return json;
-					},
-					"beforeLoad": function() {
-						this.getOverlay().width(widget.width());
-					}
-				});
-				events.topic("libraryScopeChange").subscribe(function(current) {
-					if ( current == "full" ) {
-						overlay.setUrl(rest.artist.list);
-					} else {
-						overlay.setUrl(rest.user.artist.list);
-					}
-				});
+				catdiv.find("span[name=all]").click(function(){ router.navigateTo(["library","artists","<all>"]); });
 			} else if ( topic == 'albums' ) {
 				catdiv.append( tpl.mustacheView('library.control.album') );
 				catdiv.find("span[name=all]").click(function(){ router.navigateTo(["library","albums","<covers>"]); });
