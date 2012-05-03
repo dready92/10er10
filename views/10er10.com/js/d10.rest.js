@@ -571,8 +571,16 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 		 */
 		artists: function(genre, options) {
 			restQuery("genre.artists","GET",config.site_url+"/api/list/genres/artists/"+encodeURIComponent(genre),options);
+		},
+		/*
+		 * @param genre String genre the genre we check if albums exists
+		 *
+		 * @return {albums: true|false}
+		 */
+		gotAlbums: function(genre, options) {
+			restQuery("genre.gotAlbums","GET",config.site_url+"/api/list/genres/gotAlbums/"+encodeURIComponent(genre),options);
 		}
-	};	
+	};
 	
 	rest.rpl = {
 		/*
