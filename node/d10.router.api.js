@@ -927,6 +927,26 @@ exports.api = function(app) {
 		});
 	};
 	
+	
+	app.get("/api/genre/gotAlbums/:genre", function(request, response) {
+		if ( !request.params.genre || 
+			d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
+			return d10.realrest.err(428, request.params.genre, request.ctx);
+		}
+		d10.couch.d10.view("genre/albums",{
+			group: true, 
+			group_level: 1,
+			startkey: [request.params.genre],
+			endkey: [request.params.genre,[]]
+		}, function(err,resp) {
+			console.log(err,resp);
+			if( err ) {
+				console.log(err);
+				return d10.realrest.err(423, request.params.genre, request.ctx);
+			}
+			d10.realrest.success({albums: resp.rows.length ? true : false},request.ctx);
+		});
+	});
 }; // exports.api
 
 
