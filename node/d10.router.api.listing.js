@@ -396,6 +396,39 @@ exports.api = function(app) {
 		});
 	};
 	
+	app.get("/api/own/list/genres/albumsSongs/:genre",function(request,response) {
+		_genreAlbumsSongs(request.ctx.user._id+"/genre_albums",request,response);
+	});
+	app.get("/api/list/genres/albumsSongs/:genre",function(request,response) {
+		_genreAlbumsSongs("genre/albums",request,response);
+	});
+	var _genreAlbumsSongs = function(view,request,response) {
+		if ( !request.params.genre || d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
+			return d10.realrest.err(428, request.params.genre, request.ctx);
+		}
+		var opts = {
+			startkey: [request.params.genre], 
+			endkey: [request.params.genre,[]], 
+			reduce: false,
+			include_docs: true,
+			limit: d10.config.rpp + 1
+		};
+		if ( request.query.startkey ) {
+			opts.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+				opts.startkey_docid = request.query.startkey_docid;
+			}
+		}
+		
+		
+		d10.couch.d10.view(view, opts, function(err,resp) {
+			if ( err ) {
+				return d10.realrest.err(423, err, request.ctx);
+			}
+			d10.realrest.success(resp.rows,request.ctx);
+		});
+	};
+	
 	app.get("/api/own/list/artists/albums/:artist",function(request,response) {
 		_artistAlbums(request.ctx.user._id+"/artist_albums",request,response);
 	});
