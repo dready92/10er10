@@ -25,13 +25,7 @@ define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10
 		var data = {}, endpoint = restBase[topic];
 		if ( topic == "genres" ) {
 			data.genre = category;
-		} else if ( topic == "albums" ) {
-			data.album = category ? category : "";
-		} else if ( topic == "artists" ) {
-			data.artist = category ? category : "";
-		} else if ( topic == "titles" ) {
-			data.title = category ? category : "";
-		} else if ( topic != "creations" && topic != "hits" ) {
+		} else if ( topic != "albums" && topic != "artists" && topic != "titles" && topic != "creations" && topic != "hits" ) {
 			return false;
 		}
 		var loadTimeout = null, 
@@ -87,7 +81,7 @@ define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10
 			}
 		};
 
-		if ( topic == "albums" && !category ) {
+		if ( topic == "albums" ) {
 			cursor = new restHelpers.couchMapMergedCursor(restBase.albums,{},"album");
 			isOpts.parseResults = albumResultsParser;
 		} else {
@@ -162,7 +156,7 @@ define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10
 			categorydiv.find("article h2 > .link").click(function() { router.navigateTo(["library","genres"]); });
 		} else {
 			categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.simple"));
-			if ( topic == "albums" && !category ) {
+			if ( topic == "albums" ) {
 				categorydiv.prepend(tpl.mustacheView("library.content.album.list.header"));
 				categorydiv.find(".link[name=all]").click(function() { router.navigateTo(["library","albums", "<covers>"]); });
 				categorydiv.find(".selectVisible").hide();

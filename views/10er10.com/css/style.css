@@ -779,7 +779,7 @@ article div.refreshList {
 	border-radius: 5px;
 }
 
-#library div[name=artists] div[name='_%3Call%3E'] {
+#library div[name=artists] div[name='_all_'] {
   -moz-column-count: 2;
   -webkit-column-count: 2;
   position: relative;

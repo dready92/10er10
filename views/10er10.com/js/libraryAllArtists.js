@@ -51,7 +51,7 @@ define(["js/localcache", "js/d10.rest", "js/d10.events", "js/d10.templates","js/
 	};
 	
 	var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {
-		
+		categorydiv.attr("name","_all_");
         categorydiv.delegate("span.link","click", function() {
             router.navigateTo(["library","artists",$(this).text()]);
         });

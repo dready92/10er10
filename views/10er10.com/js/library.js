@@ -74,7 +74,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
                 align:{position: "bottomright", reference: button, leftOffset: 20, topOffset: 15}
             });
 		});
-		
+		var currentCategory = {}, categories = {};
 		var init_topic = function (topic,category, param) {
 			debug("library.display start",topic,category, param);
 			if ( typeof category == "undefined" ) {
@@ -87,23 +87,16 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			if ( topicdiv.length == 0 ) {
 				topicdiv=$('<div name="'+topic+'"></div>');
 				ui.append(topicdiv);
+				currentCategory[topic] = null;
+				categories[topic] = {};
 			}
 			
-			if ( ( topic == "genres" || topic == "artists" ) && !category ) { category = "<all>"; }
-
+			if ( ( topic == "genres" || topic == "artists" || topic == "albums" ) && !category ) { category = "<all>"; }
+			var categoryKey = category ? category : "<all>";
+			
 			//
 			// launch the topic category display
 			//
-
-			//
-			// get id
-			//
-			var id = get_id(topic,topicdiv,category);
-			debug("ID: ",id);
-			
-			if ( topic == "albums" && category == "<all>" ) {
-				category = null;
-			}
 			//
 			// get topic category container
 			//
@@ -114,7 +107,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				categoryModuleName = "js/libraryArtist";
             } else if ( topic == "albums" && category == "<covers>" ) {
 				categoryModuleName = "js/libraryAlbums";
-			} else if ( topic == "albums" && category ) {
+			} else if ( topic == "albums" && category !="<all>" ) {
 				categoryModuleName = "js/libraryAlbum";
             } else if ( topic == "genres" && category == "<all>" ) {
 				categoryModuleName = "js/libraryAllGenres";
@@ -122,60 +115,34 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				categoryModuleName = "js/libraryBasicListing";
 			}
 			
-			var categorydiv=topicdiv.children('div[name="'+id+'"]');
-			if ( !categorydiv.length ) {
-				categorydiv=$("<div name=\""+id+"\" class=\"topic_category\" />");
+			var categorydiv = ( categoryKey in categories[topic] ) ? categories[topic][categoryKey] : null;
+			if ( !categorydiv ) {
+				categorydiv=$("<div class=\"topic_category\" />");
+				categories[topic][categoryKey] = categorydiv;
 				require([categoryModuleName], function(categoryModule) {
 					categoryModule.onContainerCreation(topicdiv, categorydiv, topic, category, param);
 				});
-				topicdiv.append(categorydiv);
+			}
+			
+			//
+			// show current topic category if not already visible
+			//
+			if ( currentCategory[topic] != categoryKey ) {
+				if ( currentCategory[topic] ) {
+					categories[topic][currentCategory[topic]].detach();
+				}
+				categorydiv.hide().appendTo(topicdiv).fadeIn("fast");
+				currentCategory[topic] = categoryKey;
 			}
 			
 			require([categoryModuleName],function(basicListing) {
 				basicListing.onRoute(topicdiv, categorydiv, topic, category, param);
 			});
-			
-			
-			//
-			// show current topic category if not already visible
-			//
-			if ( topicdiv.data('activeCategory') != id ) {
-				topicdiv.data('activeCategory',id).find('div.topic_category').hide();
-				categorydiv.show();
-			}
+
 		};
 
 		var getCurrentCategory = function(topic) {
-			var topicdiv = ui.children('div[name='+topic+']');
-			if ( topicdiv.length == 0 ) {
-				return false;
-			}
-			var back = false;
-			topicdiv.find(".topic_category").each(function() {
-				if ( $(this).css("display") == "block" ) {
-					back = get_category_from_id(topic, $(this).attr("name"));
-					return false;
-				}
-			});
-			return back;
-		};
-
-		var get_id = function (topic,catdiv,category) {
-			var id=topic;
-			category = category || '';
-			if ( topic == 'genres' || topic == 'artists' || topic == 'albums' || topic == 'titles' ) {
-				id='_'+ escape(category) ;
-			}
-			return id;
-		}
-
-		var get_category_from_id = function(topic, id)  {
-			if ( topic == 'genres' || topic == 'artists' || topic == 'albums' || topic == 'titles' ) {
-				id =  unescape( id.substr(1) ) 
-				return id;
-			} else {
-				return false;
-			}
+			return currentCategory[topic] ? currentCategory[topic] : false;
 		};
 
 		return {
