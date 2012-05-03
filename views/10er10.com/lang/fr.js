@@ -189,7 +189,10 @@ exports.server = {
 	  add_to_player: "Ajouter à la lecture en cours",
 	  refresh_page: "Rafraichir la page",
 		hours: "h",
-		minutes: "min"
+		minutes: "min",
+		list_view: "En liste",
+		covers_view: "jaquettes"
+
 	},
 	"html/library/content_none.html": {
 		no_song: "Aucun morceau"
@@ -202,6 +205,9 @@ exports.server = {
         also_listen: "Ecoutez aussi",
         view_more: "plus"
 	},
+	"html/library/content_album_list_header.html": {
+		all_albums: "Afficher les jaquettes"
+	},
 	"html/library/content_album_widget.html": {
 		show_songs: "Afficher les morceaux de cet album",
 		hide_songs: "Cacher les morceaux",
@@ -210,6 +216,7 @@ exports.server = {
 		songs: "morceau(x)"
 	},
 	"html/library/content_album_all.html": {
+		all_albums: "Affichage en liste",
 		view_by_letter: "Afficher les albums commençant par la lettre:",
 		view_all: "Afficher tous les albums"
 	},

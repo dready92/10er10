@@ -66,6 +66,9 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
 	  template.find("span[name=all]").click(function() {
 		router.navigateTo(["library","albums", "<all>"]);
 	  });
+	  template.find("span[name=covers]").click(function() {
+		router.navigateTo(["library","albums", "<covers>"]);
+	  });
 	  template.find("button[name=load]").click(function() {
 		var songs = $(this).closest(".oneAlbumRow").find("div.song").clone();
 		playlist.append(songs);

@@ -84,7 +84,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			//
 			// create topic div + controls (if any)
 			//
-			var topicdiv = $('div[name='+topic+']',ui);
+			var topicdiv = ui.find('div[name='+topic+']');
 			if ( topicdiv.length == 0 ) {
 				topicdiv=$('<div name="'+topic+'"></div>');
 				init_controls(topic,topicdiv);
@@ -131,6 +131,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			} else {
 				categoryModuleName = "js/libraryBasicListing";
 			}
+			
 			var categorydiv=topicdiv.children('div[name="'+id+'"]');
 			if ( !categorydiv.length ) {
 				categorydiv=$("<div name=\""+id+"\" class=\"topic_category\" />");
@@ -140,19 +141,6 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 				topicdiv.append(categorydiv);
 			}
 			
-			if ( topic == "artists" && category == "<all>" ) {
-				categoryModuleName = "js/libraryAllArtists";
-			} else if ( topic == "artists" && category ) {
-				categoryModuleName = "js/libraryArtist";
-            } else if ( topic == "albums" && category == "<covers>" ) {
-				categoryModuleName = "js/libraryAlbums";
-			} else if ( topic == "albums" && category && category != "<all>" ) {
-				categoryModuleName = "js/libraryAlbum";
-            } else if ( topic == "genres" && category == "<all>" ) {
-				categoryModuleName = "js/libraryAllGenres";
-			} else {
-				categoryModuleName = "js/libraryBasicListing";
-			}
 			require([categoryModuleName],function(basicListing) {
 				basicListing.onRoute(topicdiv, categorydiv, topic, category, param);
 			});
@@ -162,11 +150,9 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			// show current topic category if not already visible
 			//
 			if ( topicdiv.data('activeCategory') != id ) {
-				$('div.topic_category',topicdiv).hide();
+				topicdiv.data('activeCategory',id).find('div.topic_category').hide();
 				categorydiv.show();
-				topicdiv.data('activeCategory',id);
 			}
-
 		};
 
 		var getCurrentCategory = function(topic) {
@@ -185,17 +171,11 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 		};
 
 		var init_controls = function (topic,catdiv) {
-			if ( topic == 'artists' ) {
-				catdiv.append( tpl.mustacheView('library.control.artist') );
-				catdiv.find("span[name=all]").click(function(){ router.navigateTo(["library","artists","<all>"]); });
-			} else if ( topic == 'albums' ) {
-				catdiv.append( tpl.mustacheView('library.control.album') );
-				catdiv.find("span[name=all]").click(function(){ router.navigateTo(["library","albums","<covers>"]); });
-			} else if ( topic == 'titles' ) {
+			if ( topic == 'titles' ) {
 				catdiv.append( tpl.mustacheView('library.control.title') );
-				var widget = $('input[name=title]',catdiv);
+				var widget = catdiv.find('input[name=title]');
 				var overlay = widget.val(widget.attr('defaultvalue'))
-				.permanentOvlay( libraryScope.current == "full" ? rest.song.listByTitle : rest.user.song.listByTitle, $(".overlay",catdiv), 
+				.permanentOvlay( libraryScope.current == "full" ? rest.song.listByTitle : rest.user.song.listByTitle, catdiv.find(".overlay"), 
 					{
 						"autocss": true,
 						"varname": 'start', 
@@ -213,7 +193,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 						overlay.setUrl(rest.user.song.listByTitle);
 					}
 				});
-				$('img[name=clear]',catdiv).click(function() { widget.val('').trigger("blur"); router.navigateTo(["library",topic]); });
+				catdiv.find('img[name=clear]').click(function() { widget.val('').trigger("blur"); router.navigateTo(["library",topic]); });
 			}
 			return catdiv;
 		}
@@ -238,18 +218,18 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 
 		var selectTopicCategory = function (topic,category,topicdiv) {
 			if ( topic == 'artists' && category != '<all>' ) {
-				$('input[name=artist]',topicdiv).val(category);
+				topicdiv.find('input[name=artist]').val(category);
 			} else if ( topic == 'albums' ) {
-				$('input[name=album]',topicdiv).val(category);
+				topicdiv.find('input[name=album]').val(category);
 			} else if ( topic == 'titles' ) {
-				$('input[name=title]',topicdiv).val(category);
+				topicdiv.find('input[name=title]').val(category);
 			}
 			return topicdiv;
 		}
 
 		var getSelectedTopicCategory = function (topic, topicdiv ) {
 			 if ( topic == 'titles' ) {
-				var widget = $('input[name=title]',topicdiv);
+				var widget = topicdiv.find('input[name=title]');
 				if ( widget.val() == widget.attr("defaultvalue") ) { return ""; }
 				return widget.val();
 			}
@@ -309,7 +289,7 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 	router._containers.library.tab.delegate("[action]","click",function() {
 		var elem = $(this), action = elem.attr("action"), currentCategory = lib.getCurrentCategory(action);
 		
-		if ( ! elem.hasClass("active") ) { 
+		if ( ! elem.hasClass("active") ) {
 			if ( currentCategory ) {router.navigateTo(["library",action,currentCategory]); } 
 			else { router.navigateTo(["library",action]); }
 		}

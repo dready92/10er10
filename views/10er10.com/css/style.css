@@ -54,6 +54,15 @@ a:active { color: #FFCA40 }
 .floatright { float: right;}
 .floatleft { float: left;}
 .link, .linkOnHover:hover {	cursor: pointer;	color: #BF9730; }
+.linkHover:hover { 
+  border-radius: 3px;
+  background-color: rgba(255,255,255,0.1); 
+  -webkit-box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.1);
+  box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.1);
+  -moz-transition: all 0.3s;
+  -webkit-transition: all 0.3s;
+}
 .relative { position: relative; }
 .hundredPercentWidth {width: 100%}
 .grippie {
@@ -897,7 +906,6 @@ article div.refreshList {
 
 #library article.artistPage .artistLink:not(:last-child):after,#library article.albumPage .artistLink:not(:last-child):after  { display: inline; content: " , "; color: #9F9F9F; }
 
-#library article.artistPage .artistLink:hover, #library article.albumPage .artistLink:hover { background-color: #3D3D3D; border-radius: 3px; }
 #library article.artistPage div.refresh { padding-top: 30px;}
 
 #library .albumPage .list .album {display: none}

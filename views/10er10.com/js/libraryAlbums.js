@@ -50,6 +50,9 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 		})
 		.delegate(".tocAll","click", function() {
 			router.navigateTo( [ "library","albums","<covers>" ] );
+		})
+		.delegate(".link[name=all]","click", function() {
+			router.navigateTo( [ "library","albums","<all>" ] );
 		});
 		
 		events.topic("libraryScopeChange").subscribe(function() {

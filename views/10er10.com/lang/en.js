@@ -190,8 +190,9 @@ exports.server = {
 	  add_to_player: "Add to player queue",
 	  refresh_page: "Refresh page",
 	  hours: "h",
-	  minutes: "min"
-
+	  minutes: "min",
+	  list_view: "list",
+	  covers_view: "covers"
 	},
 	"html/library/content_none.html": {
 		no_song: "No song"
@@ -204,6 +205,9 @@ exports.server = {
         also_listen: "You can try",
         view_more: "more"
 	},
+	"html/library/content_album_list_header.html": {
+		all_albums: "Display album covers"
+	},
 	"html/library/content_album_widget.html": {
 		show_songs: "Show album songs",
 		hide_songs: "Hide album songs",
@@ -212,6 +216,7 @@ exports.server = {
 		songs: "song(s)"
 	},
 	"html/library/content_album_all.html": {
+		all_albums: "Display albums list",
 		view_by_letter: "Display albums beginning by the letter:",
 		view_all: "Display all albums"
 	},

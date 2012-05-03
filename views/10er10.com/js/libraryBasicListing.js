@@ -163,6 +163,8 @@ define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10
 		} else {
 			categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.simple"));
 			if ( topic == "albums" && !category ) {
+				categorydiv.prepend(tpl.mustacheView("library.content.album.list.header"));
+				categorydiv.find(".link[name=all]").click(function() { router.navigateTo(["library","albums", "<covers>"]); });
 				categorydiv.find(".selectVisible").hide();
 				categorydiv.find(".pushAll").hide();
 				albumCoverUploader.setListeners(categorydiv);
