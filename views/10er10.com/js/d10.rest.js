@@ -579,6 +579,18 @@ define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, 
 		 */
 		gotAlbums: function(genre, options) {
 			restQuery("genre.gotAlbums","GET",config.site_url+"/api/list/genres/gotAlbums/"+encodeURIComponent(genre),options);
+		},
+		/*
+		 * @param genre String genre we query on
+		 * @param query {startkey:.., startkey_docid:...} to paginate
+		 * @return [ {key: ["genre","album name"], doc: .., value: null } ]
+		 */
+		albumsSongs: function(genre, query, options) {
+			options.data = {};
+			if ( query.startkey && query.startkey_docid ) {
+				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+			}
+			restQuery("genre.list.albumsSongs","GET",config.site_url+"/api/list/genres/albumsSongs/"+encodeURIComponent(genre),options);
 		}
 	};
 	

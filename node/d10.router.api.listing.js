@@ -403,7 +403,8 @@ exports.api = function(app) {
 		_genreAlbumsSongs("genre/albums",request,response);
 	});
 	var _genreAlbumsSongs = function(view,request,response) {
-		if ( !request.params.genre || d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
+		if ( !request.params.genre || 
+			d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
 		var opts = {
