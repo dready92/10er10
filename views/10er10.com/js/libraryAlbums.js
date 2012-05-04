@@ -2,6 +2,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 	   "js/d10.events", "js/d10.libraryScope", "js/d10.rest", "js/d10.utils", "js/paginer"],
 	   function(dataParsers, tpl, router, events, libraryScope, rest, toolbox, restHelpers) {
 	"use strict";
+	var currentOpenedPopin = null;
 	var bindAllAlbums = function(topicdiv, categorydiv, topic, category, letter) {
 		categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all"));
 		categorydiv.delegate(".albumMini img","mouseenter",function() {
@@ -17,6 +18,10 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 					$(this).closest(".popover").remove();
 				});
 				;
+				if ( currentOpenedPopin ) {
+				  currentOpenedPopin.remove();
+				}
+				currentOpenedPopin = widget;
 				$("body").append(widget);
 				var srcpos = container.offset(),
 				srcsize = { width: container.outerWidth(), height: container.outerHeight() },
@@ -33,7 +38,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 				}).mouseleave(function() {$(this).remove();}).addClass("on");
 				
 				
-			},500));
+			},100));
 		})
 		.delegate(".albumMini img","mouseleave",function() {
 			var tid = $(this).data("popupTimeout");
@@ -53,6 +58,9 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 		})
 		.delegate(".link[name=all]","click", function() {
 			router.navigateTo( [ "library","albums","<all>" ] );
+		})
+		.delegate(".albumMini .albumTitle","click",function() {
+		  router.navigateTo( [ "library","albums",$(this).closest(".albumMini").data("albumDetails").album ] );
 		});
 		
 		events.topic("libraryScopeChange").subscribe(function() {

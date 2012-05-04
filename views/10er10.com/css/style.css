@@ -953,23 +953,43 @@ article div.refreshList {
 #library div[name=genres] div.genresub span.all:hover { color: #AFAFAF; }
 
 #library .albumMini {
-	width: 100px;
-	height: 100px;
+	width: 150px;
+	height: 150px;
 	padding: 5px;
+	border: 1px solid #232323;
 	display: inline-block;
 	text-align: center;
+	vertical-align: middle;
+	background: -webkit-linear-gradient(30deg, #222222, #343434);
+	background: -moz-linear-gradient(30deg, #222222, #343434);
+	position: relative;
+	margin: 2px;
 /* 	vertical-align: middle; */
 }
 #library .albumMini img{
-	-webkit-transform: scale(0.8);
-	-webkit-transform-origin: top left;
+ 	-webkit-transform: scale(0.8); 
+	-webkit-transform-origin: center;
 	-moz-transform: scale(0.8);
-	-moz-transform-origin: top left;
+	-moz-transform-origin: center center;
 	vertical-align: middle;
+	box-shadow: -2px 2px 3px rgba(255,255,255,0.1), 2px -2px 3px rgba(0,0,0,0.15);
 }
+
 
 #library .albumMini img:hover{
 	box-shadow: 0 0 4px rgba(150,150,150,0.6);
+}
+
+#library .albumMini .albumTitle{
+  position: absolute;
+  left: 1px;
+  bottom:1px;
+  width: 156px;
+  height: 16px;
+  padding: 4px 1px 0 1px;
+  background-color: rgba(0,0,0,0.15);
+  font-size: 0.85em;
+  white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
 }
 
 #library .albumsLanding menu {
