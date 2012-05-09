@@ -1,4 +1,4 @@
-define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10.libraryScope", "js/d10.dataParsers", 
+define(["js/playlist", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10.libraryScope", "js/d10.dataParsers", 
 	   "js/d10.templates", "js/d10.router", "js/d10.albumCoverUploader"], 
 	   function(playlist, pubsub, rest, restHelpers, libraryScope, dataParsers, tpl, router, albumCoverUploader) {
 	
@@ -59,7 +59,7 @@ define(["js/playlist.new", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10
 						grippie: $(categorydiv).find(".grippie")
 					}
 				);
-				require(["js/libraryExtendedInfos"], function(extendedInfos) {
+				require(["js/library.extendedInfos"], function(extendedInfos) {
 					if ( extendedInfos[topic] ) {
 						extendedInfos[topic](category,categorydiv);
 					}

@@ -1,4 +1,4 @@
-define(["js/domReady","js/d10.templates", "js/d10.rest", "js/dnd","js/playlist.new", "js/user", "js/d10.router","js/my", "js/d10.events", "js/d10.utils"],
+define(["js/domReady","js/d10.templates", "js/d10.rest", "js/dnd","js/playlist", "js/user", "js/d10.router","js/my", "js/d10.events", "js/d10.utils"],
 	   function(foo, tpl, rest, dnd, playlist, user, router, myCtrl, pubsub, utils) {
 
 function playlistManager (mydiv,mypldiv) {

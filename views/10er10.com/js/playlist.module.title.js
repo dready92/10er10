@@ -1,4 +1,4 @@
-define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
+define(["js/domReady","js/d10.playlistModule", "js/playlist"], function(foo, playlistModule, playlist) {
 	var module = new playlistModule("title",{
 		"playlist:currentSongChanged": function() {
 			var s = playlist.current();

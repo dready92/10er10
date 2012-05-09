@@ -1,4 +1,4 @@
-define(["js/domReady","js/d10.playlistModule", "js/playlist.new"], function(foo, playlistModule, playlist) {
+define(["js/domReady","js/d10.playlistModule", "js/playlist"], function(foo, playlistModule, playlist) {
 	var widget= $("header div.playing");
 
 	var updatePlayingHeader = function (song) {

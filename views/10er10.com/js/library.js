@@ -1,4 +1,4 @@
-define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.events", "js/d10.libraryScope", 
+define(["js/domReady", "js/dnd", "js/playlist", "js/d10.router", "js/d10.events", "js/d10.libraryScope", 
 	   "js/d10.templates", "js/localcache", "js/d10.rest", 
 	   "js/osd", "js/d10.imageUtils", "js/user", "js/d10.when", "js/d10.utils", "js/paginer", "js/config"],
 	   function(foo, dnd, playlist, router, events, libraryScope, tpl, 

@@ -1,4 +1,4 @@
-define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/d10.templates", "js/user", "js/d10.libraryScope", "js/d10.rest"], 
+define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/d10.templates", "js/user", "js/d10.libraryScope", "js/d10.rest"], 
 	   function(foo, playlistModule, playlist, tpl, user, libraryScope, rest) {
 
 var module = null;

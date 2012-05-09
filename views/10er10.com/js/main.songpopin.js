@@ -1,6 +1,6 @@
 "use strict";
 
-define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.router", "js/playlist.new", "js/d10.events", "js/d10.rest", "js/osd"],
+define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.router", "js/playlist", "js/d10.events", "js/d10.rest", "js/osd"],
    function(imageUtils, tpl, user, plmanager, router, playlist, pubsub, rest, osd) {
 
    var getImage = function(song) {

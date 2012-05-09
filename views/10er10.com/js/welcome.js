@@ -1,4 +1,4 @@
-define(["js/domReady","js/d10.router", "js/playlist.new","js/d10.rest","js/d10.templates","js/d10.utils","js/d10.imageUtils", "js/config"],
+define(["js/domReady","js/d10.router", "js/playlist","js/d10.rest","js/d10.templates","js/d10.utils","js/d10.imageUtils", "js/config"],
 	   function(foo,router,playlist,rest,tpl,toolbox,imageUtils, config) {
 
 	function  welcome (ui) {

@@ -1,4 +1,4 @@
-define(["js/playlist.new", "js/d10.playlistModule", "js/user", "js/d10.rest", "js/d10.events"],
+define(["js/playlist", "js/d10.playlistModule", "js/user", "js/d10.rest", "js/d10.events"],
        function(playlist, playlistModule, user, rest, pubsub) {
 	
 	
