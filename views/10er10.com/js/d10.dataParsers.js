@@ -1,4 +1,4 @@
-define(["js/d10.templates", "js/d10.utils", "js/d10.imageUtils"], function(tpl, toolbox, imageUtils) {
+define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils"], function(tpl, toolbox, imageUtils) {
 	function singleAlbumParser(songs) {
 		var albumData = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: "", e_artists: [], e_genres: [], image_url: null, album: "", date: []}, 
 			artists = {}, genres = {}, duration = 0, images = {};

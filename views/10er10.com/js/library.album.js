@@ -1,4 +1,4 @@
-define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers", "js/d10.utils", "js/playlist"],
+define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers", "js/d10.toolbox", "js/playlist"],
        function(tpl, rest, router, dataParsers, toolbox, playlist) {
   
   "use strict";

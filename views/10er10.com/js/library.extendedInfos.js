@@ -1,4 +1,4 @@
-define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.utils", "js/d10.router"],function(tpl,user,rest, When, toolbox, router) {
+define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolbox", "js/d10.router"],function(tpl,user,rest, When, toolbox, router) {
 
 	var parseExtended = function (responses, infos, loading, showHide) {
 		var infosParts = 0, infosTemplateData = {};

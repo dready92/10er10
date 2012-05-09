@@ -1,4 +1,4 @@
-define(["js/d10.utils", "js/config", "js/d10.events"], function(toolbox, config, pubsub) {
+define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, config, pubsub) {
 
 	/**
 	* <audio> wrapper
