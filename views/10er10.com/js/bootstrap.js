@@ -1,6 +1,6 @@
 
 define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache", "js/d10.templates", "js/d10.router", 
-	   "js/playlist.new", "js/d10.jobWorker","js/bgtask", "js/plm", "js/d10.events", "js/config"],
+	   "js/playlist.new", "js/d10.jobWorker","js/bgtask", "js/my.plm", "js/d10.events", "js/config"],
 	   function(bghttp, When, rest, user, localcache, tpl, router, playlist, jobs, bgtask, plmCtlr, pubsub, config) {
 		   
 		   
@@ -35,7 +35,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		side.css("display","");
 		
 		
-		require(["js/welcome","js/upload", "js/my", "js/plm", "js/library", "js/results"], 
+		require(["js/welcome","js/upload", "js/my", "js/my.plm", "js/library", "js/results"], 
 				function() {
 					router.startRouting(["welcome"]);
 				}

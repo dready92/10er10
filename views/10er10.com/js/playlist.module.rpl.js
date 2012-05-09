@@ -1,5 +1,5 @@
 "use strict";
-define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/user", "js/d10.templates", "js/plm", "js/d10.events"], 
+define(["js/domReady","js/d10.playlistModule", "js/playlist.new", "js/user", "js/d10.templates", "js/my.plm", "js/d10.events"], 
 	   function(foo, playlistModule, playlist, user, tpl, plmanager, pubsub) {
 
 	var module = new playlistModule("rpl",{},{});
