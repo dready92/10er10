@@ -112,14 +112,7 @@ exports.api = function(app) {
             query.limit=limit;
           }
         }
-		d10.couch.d10.view(view,query,function(err,resp) {
-			if ( err ) {
-				d10.realrest.err(423, err, request.ctx);
-			}else {
-				console.log(resp.rows);
-				d10.realrest.success(resp.rows,request.ctx);
-			}
-		});
+		d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/own/genresResume",function(request,response) {
@@ -129,13 +122,7 @@ exports.api = function(app) {
 		_genreArtist("genre/artist",request,response);
 	});
 	var _genreArtist = function(view, request,response) {
-		d10.couch.d10.view(view, {group:true, group_level: 1}, function(err,resp) {
-			if ( err ) {
-				d10.realrest.err(423, err, request.ctx);
-			}else {
-				d10.realrest.success(resp.rows,request.ctx);
-			}
-		});
+		d10.couch.d10.view(view, {group:true, group_level: 1}, listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/own/list/artists",function(request,response) {
@@ -160,12 +147,7 @@ exports.api = function(app) {
 			}
 		}
 		
-		d10.couch.d10.view(view+viewPart,query,function(err,resp) {
-			if( err ) {
-				return d10.realrest.err(423, request.params.sort, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		d10.couch.d10.view(view+viewPart,query,listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/own/list/creations",function(request,response) {
@@ -182,12 +164,7 @@ exports.api = function(app) {
 				query.startkey_docid = request.query.startkey_docid;
 			}
 		}
-		d10.couch.d10.view(view,query,function(err,resp,meta) {
-			if ( err ) {
-				return d10.realrest.err(423, request.params.sort, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/list/hits",function(request,response) {
@@ -240,12 +217,7 @@ exports.api = function(app) {
 		} else {
 			query.startkey =  [request.query.genre];
 		}
-		d10.couch.d10.view(view,query,function(err,resp) {
-			if ( err ) {
-				return d10.realrest.err(423, err, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/own/list/titles",function(request,response) {
@@ -268,12 +240,7 @@ exports.api = function(app) {
 			}
 		}
 		
-		d10.couch.d10.view(view,query,function(err,resp) {
-			if ( err ) {
-				return d10.realrest.err(423, request.params.sort, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
 	};
 
 	app.get("/api/own/list/albums",function(request,response) {
@@ -300,12 +267,7 @@ exports.api = function(app) {
 		if ( request.query.endkey ) {
 			query.endkey = JSON.parse(request.query.endkey);
 		}
-		d10.couch.d10.view(view,query,function(err,resp) {
-			if ( err ) {
-				return d10.realrest.err(423, err, request.ctx);
-			}
-			d10.realrest.success(resp.rows, request.ctx);
-		});
+		d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/list/s_user",function(request,response) {
@@ -317,13 +279,7 @@ exports.api = function(app) {
 			}
 		}
 		
-		d10.couch.d10.view("s_user/name",query,function(err,resp) {
-			if ( err ) {
-				return d10.realrest.err(423, err, request.ctx);
-			} else {
-				d10.realrest.success(resp.rows,request.ctx);
-			}
-		});
+		d10.couch.d10.view("s_user/name",query,listDefaultCallback.bind(request.ctx));
 	});
 	
 	
@@ -370,12 +326,7 @@ exports.api = function(app) {
 		if ( !request.params.genre || d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
-		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},function(err,resp) {
-			if ( err ) {
-				return d10.realrest.err(423, err, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/own/list/genres/albums/:genre",function(request,response) {
@@ -388,12 +339,7 @@ exports.api = function(app) {
 		if ( !request.params.genre || d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
-		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},function(err,resp) {
-			if ( err ) {
-				return d10.realrest.err(423, err, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/own/list/genres/albumsSongs/:genre",function(request,response) {
@@ -422,12 +368,7 @@ exports.api = function(app) {
 		}
 		
 		
-		d10.couch.d10.view(view, opts, function(err,resp) {
-			if ( err ) {
-				return d10.realrest.err(423, err, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		d10.couch.d10.view(view, opts, listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/own/list/artists/albums/:artist",function(request,response) {
@@ -440,13 +381,7 @@ exports.api = function(app) {
 		if ( !request.params.artist ) {
 			return d10.realrest.err(428, request.params.artist, request.ctx);
 		}
-		d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},function(err,resp) {
-			if ( err ) {
-				console.log("error: ",err);
-				return d10.realrest.err(423, err, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
 	};
 	
     app.get("/api/own/list/artists/songsByAlbum/:artist",function(request,response) {
@@ -460,13 +395,7 @@ exports.api = function(app) {
             return d10.realrest.err(428, request.params.artist, request.ctx);
         }
         
-        d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], include_docs: true},function(err,resp) {
-            if ( err ) {
-                console.log("error: ",err);
-                return d10.realrest.err(423, err, request.ctx);
-            }
-            d10.realrest.success(resp.rows,request.ctx);
-        });
+        d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], include_docs: true},listDefaultCallback.bind(request.ctx));
     };
     
 	app.get("/api/own/list/artists/genres/:artist",function(request,response) {
@@ -479,13 +408,7 @@ exports.api = function(app) {
 		if ( !request.params.artist ) {
 			return d10.realrest.err(428, request.params.artist, request.ctx);
 		}
-		d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},function(err,resp) {
-			if ( err ) {
-				console.log("error: ",err);
-				return d10.realrest.err(423, err, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/own/list/albums/artists/:album",function(request,response) {
@@ -499,17 +422,11 @@ exports.api = function(app) {
 			console.log("no album");
 			return d10.realrest.err(428, request.params.album, request.ctx);
 		}
-		d10.couch.d10.view(view,{startkey: [request.params.album], endkey: [request.params.album,[]], group: true, group_level: 2},function(err,resp) {
-			if ( err ) {
-				console.log("error: ",err);
-				return d10.realrest.err(423, err, request.ctx);
-			}
-			d10.realrest.success(resp.rows,request.ctx);
-		});
+		d10.couch.d10.view(view,{startkey: [request.params.album], endkey: [request.params.album,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
 	};
     
     
-    var artistHitsCallback = function(err,resp) {
+    var listDefaultCallback = function(err,resp) {
       if ( err ) {
         console.log("error: ",err);
         return d10.realrest.err(423, err, this);
@@ -531,7 +448,7 @@ exports.api = function(app) {
         }
       }
       
-      artists.getSongsByHits(artist,artistHitsCallback.bind(request.ctx),startkey,startkey_docid);
+      artists.getSongsByHits(artist,listDefaultCallback.bind(request.ctx),startkey,startkey_docid);
       
     });
     
