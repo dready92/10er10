@@ -28,7 +28,7 @@ define(["js/httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/localcache"
 		var height = $("#search > div").eq(0).height();
 		$("#search > div").eq(1).css({"top": pos.top + height, "left": pos.left,"min-width": $("#search input").width() });
 		
-		require(["js/playlistDriverRpl"], function() {
+		require(["js/playlist.driver.rpl"], function() {
 			playlist.bootstrap();
 // 			$(document).trigger("bootstrap:playlist");
 		});

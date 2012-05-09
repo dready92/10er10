@@ -1,4 +1,4 @@
-define(["js/playlistDriverDefault","js/playlist", "js/d10.rest", "js/d10.templates", "js/d10.events"], 
+define(["js/playlist.driver.default","js/playlist", "js/d10.rest", "js/d10.templates", "js/d10.events"], 
 	   function(playlistDriverDefault, playlist, rest, tpl, pubsub) {
 
 
@@ -40,9 +40,10 @@ function playlistDriverRpl (options) {
 		} else {
 			debug("GRAVE: doc ou doc.name n'existe pas",doc);
 		}
+		var self = this;
 		for ( var e in this.trackEvents ) {
 			(function(e) {
-				var callback = function() { this.trackEvents[e].apply(this,arguments); },
+				var callback = function() { self.trackEvents[e].apply(this,arguments); },
 				topic = "on"+e;
 				subscribedEvents.push( {topic: topic, callback: callback } );
 				debug("subscribing to topic ",topic);

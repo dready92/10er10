@@ -1,4 +1,4 @@
-define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/playlistDriverDefault", "js/d10.templates", 
+define(["js/domReady", "js/user", "js/d10.rest", "js/dnd", "js/d10.router", "js/playlist.driver.default", "js/d10.templates", 
 	   "js/d10.libraryScope", "js/config", "js/d10.events"], 
 	   function(foo, user, rest, dnd, router, defaultDriver, tpl, libraryScope, config, pubsub) {
 	
