@@ -102,17 +102,17 @@ define(["js/domReady", "js/dnd", "js/playlist.new", "js/d10.router", "js/d10.eve
 			//
 			var categoryModuleName;
 			if ( topic == "artists" && category == "<all>" ) {
-				categoryModuleName = "js/libraryAllArtists";
+				categoryModuleName = "js/library.artists";
 			} else if ( topic == "artists" && category ) {
-				categoryModuleName = "js/libraryArtist";
+				categoryModuleName = "js/library.artist";
             } else if ( topic == "albums" && category == "<covers>" ) {
-				categoryModuleName = "js/libraryAlbums";
+				categoryModuleName = "js/library.albums";
 			} else if ( topic == "albums" && category !="<all>" ) {
-				categoryModuleName = "js/libraryAlbum";
+				categoryModuleName = "js/library.album";
             } else if ( topic == "genres" && category == "<all>" ) {
-				categoryModuleName = "js/libraryAllGenres";
+				categoryModuleName = "js/library.genres";
 			} else {
-				categoryModuleName = "js/libraryBasicListing";
+				categoryModuleName = "js/library.basicListing";
 			}
 			
 			var categorydiv = ( categoryKey in categories[topic] ) ? categories[topic][categoryKey] : null;
