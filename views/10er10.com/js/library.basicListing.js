@@ -1,4 +1,4 @@
-define(["js/playlist", "js/d10.events", "js/d10.rest", "js/paginer", "js/d10.libraryScope", "js/d10.dataParsers", 
+define(["js/playlist", "js/d10.events", "js/d10.rest", "js/d10.restHelpers", "js/d10.libraryScope", "js/d10.dataParsers", 
 	   "js/d10.templates", "js/d10.router", "js/d10.albumCoverUploader"], 
 	   function(playlist, pubsub, rest, restHelpers, libraryScope, dataParsers, tpl, router, albumCoverUploader) {
 	

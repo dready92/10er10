@@ -1,4 +1,4 @@
-define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/d10.dnd", "js/playlist", "js/paginer", 
+define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/d10.dnd", "js/playlist", "js/d10.restHelpers", 
 	   "js/d10.router", "js/d10.toolbox", "js/d10.osd", "js/d10.imageUtils", "js/config", "js/d10.events"],
 	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils, config, pubsub) {
 

@@ -1,4 +1,4 @@
-define(["js/domReady", "js/d10.rest", "js/d10.router", "js/d10.templates", "js/d10.dnd", "js/playlist", "js/paginer", "js/d10.events", "js/d10.libraryScope"],
+define(["js/domReady", "js/d10.rest", "js/d10.router", "js/d10.templates", "js/d10.dnd", "js/playlist", "js/d10.restHelpers", "js/d10.events", "js/d10.libraryScope"],
 	   function(foo, rest, router, tpl, dnd, playlist, restHelpers, events, libraryScope) {
 	
 var results = function (search,mainUi) {

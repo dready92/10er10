@@ -1,6 +1,6 @@
 define(["js/domReady", "js/d10.dnd", "js/playlist", "js/d10.router", "js/d10.events", "js/d10.libraryScope", 
 	   "js/d10.templates", "js/d10.rest", 
-	   "js/d10.osd", "js/d10.imageUtils", "js/user", "js/d10.when", "js/d10.toolbox", "js/paginer", "js/config"],
+	   "js/d10.osd", "js/d10.imageUtils", "js/user", "js/d10.when", "js/d10.toolbox", "js/d10.restHelpers", "js/config"],
 	   function(foo, dnd, playlist, router, events, libraryScope, tpl,
 				rest, osd, imageUtils, user, When, toolbox, restHelpers, config) {
 	

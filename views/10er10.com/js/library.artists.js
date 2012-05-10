@@ -1,4 +1,4 @@
-define(["js/d10.rest", "js/d10.events", "js/d10.templates","js/d10.router", "js/d10.libraryScope", "js/paginer"], 
+define(["js/d10.rest", "js/d10.events", "js/d10.templates","js/d10.router", "js/d10.libraryScope", "js/d10.restHelpers"], 
 		function(rest,events, tpl, router, libraryScope, restHelpers) {
     var letter = '', letter_container = null, endOfCursor = false;;
 	var cache_ttl = 1800000; //half an hour

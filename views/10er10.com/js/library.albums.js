@@ -1,5 +1,5 @@
 define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router", 
-	   "js/d10.events", "js/d10.libraryScope", "js/d10.rest", "js/d10.toolbox", "js/paginer"],
+	   "js/d10.events", "js/d10.libraryScope", "js/d10.rest", "js/d10.toolbox", "js/d10.restHelpers"],
 	   function(dataParsers, tpl, router, events, libraryScope, rest, toolbox, restHelpers) {
 	"use strict";
 	var currentOpenedPopin = null;
