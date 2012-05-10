@@ -1,4 +1,4 @@
-define(["js/httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, config) {
+define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, config) {
 	
 	var restQuery = function(endpoint, method, url, options) {
 			var query = {

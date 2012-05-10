@@ -100,41 +100,6 @@ function localcache ( ) {
   };
 
 }
-/*
-function sessioncache ( ) {
-	$.extend(this,storagebase);
-  this.set = function (key,val) {
-    if ( typeof val == 'object' ) {
-      debug("error, won't set storage key "+key+": it's an object");
-      return false;
-    }
-    return sessionStorage[key] = val;
-  }
-
-  this.get = function(key) {
-    return sessionStorage[key];
-  }
-
-  this.unset = function (key) {
-    return delete sessionStorage[key];
-  }
-  
-  this.dump = function () {
-	  var len = sessionStorage.length;
-	  var i = 0;
-	  var back = {"total": {"items": 0,"bytes":0}, "items": []};
-	  while ( i< len ) {
-		  var key = sessionStorage.key(i);
-		  back.total.items++;
-		  back.total.bytes += sessionStorage.getItem(key).length;
-		  back.items.push ({ "key": key, "bytes": sessionStorage.getItem(key).length });
-		  i++;
-	  }
-	  return back;
-  };
-  
-}
-*/
 	return new localcache();
 
 });

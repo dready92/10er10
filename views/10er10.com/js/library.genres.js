@@ -1,4 +1,4 @@
-define(["js/d10.rest", "js/localcache", "js/d10.templates", "js/d10.libraryScope", "js/d10.events", "js/d10.router"], 
+define(["js/d10.rest", "js/d10.localcache", "js/d10.templates", "js/d10.libraryScope", "js/d10.events", "js/d10.router"], 
 	   function(rest, localcache, tpl, libraryScope, events, router) {
 	
 	var displayGenres = function(categorydiv) {

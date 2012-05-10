@@ -1,4 +1,4 @@
-define(["js/user", "js/localcache"],function(user, localcache) {
+define(["js/user", "js/d10.localcache"],function(user, localcache) {
 	function mustacheView (a,b,c) {
 		return Mustache.to_html( localcache.getTemplate(a), b, c );
 	};
