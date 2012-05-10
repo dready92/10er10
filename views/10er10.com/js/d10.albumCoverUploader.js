@@ -1,4 +1,4 @@
-define( ["js/d10.imageUtils", "js/osd", "js/d10.templates", "js/d10.rest", "js/config"], function(imageUtils, osd, tpl, rest, config) {
+define( ["js/d10.imageUtils", "js/d10.osd", "js/d10.templates", "js/d10.rest", "js/config"], function(imageUtils, osd, tpl, rest, config) {
 	
 	var albumImageUpload = function (image, file, api, canvas) {
 // 		debug("Start of setting album image",image,file);
