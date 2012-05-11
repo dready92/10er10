@@ -9,6 +9,10 @@
     {{/hits}}
     <div class="all">
       <h2>((all_songs))</h2>
+		<div class="airin bigbottom">
+			{{songsNumber}} ((songs)),  {{#hours}}{{.}} ((hours)) {{/hours}}{{minutes}} ((minutes)) ((of_music)). 
+			<button name="loadAll"><img src="css/16x16/actions/favorite-genres-amarok.png" class="middle"> ((add_all_to_player))</button>
+		</div>
       {{#no_album}}
       <div class="oneAlbum table">
         <div class="oneAlbumRow row">

@@ -176,14 +176,19 @@ exports.server = {
 
 	},
     "html/library/content_artist.html": {
-      no_song: "No song found",
-      all_artists: "Artists",
-      greatest_hits: "Most listened songs",
-      all_songs: "All songs",
-      without_album: "No album",
-      see_album: "See album",
-      add_to_player: "Add to player queue",
-      refresh_page: "Refresh page"
+		no_song: "No song found",
+		all_artists: "Artists",
+		greatest_hits: "Most listened songs",
+		all_songs: "All songs",
+		without_album: "No album",
+		see_album: "See album",
+		add_to_player: "Add to player queue",
+		refresh_page: "Refresh page",
+		hours: "h",
+		minutes: "min",
+		songs: "song(s)",
+		of_music: "of music",
+		add_all_to_player: "Add all songs to player queue"
     },
 	"html/library/content_album.html": {
 	  all_albums: "Albums",

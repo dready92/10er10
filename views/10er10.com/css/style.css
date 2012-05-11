@@ -42,6 +42,7 @@ a:active { color: #FFCA40 }
 .row {	display: table-row;}
 .cell {	display: table-cell;}
 .airin {	padding: 15px 10px;}
+.bigbottom {	padding-bottom: 30px;}
 .airnobottom { padding: 15px 20px 0 20px; }
 .vertical-air { padding: 10px 0; }
 .vertical-little-air {padding: 5px 0;}

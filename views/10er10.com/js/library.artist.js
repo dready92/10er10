@@ -66,6 +66,10 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
       var songs = $(this).closest(".oneAlbumRow").find("div.song").clone();
       playlist.append(songs);
     });
+	template.find("button[name=loadAll]").click(function() {
+      var songs = $(this).closest("article").find(".all div.song").clone();
+      playlist.append(songs);
+    });
   };
   
   var onRoute = function(topicdiv, categorydiv, topic, category, param) {};
@@ -94,7 +98,8 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
     };
     
     var parseAlbumSongs = function(all) {
-      var template_data = { no_album: [], albums: []  };
+      var template_data = { no_album: [], albums: [], songsNumber: 0, hours: 0, minutes: 0 };
+	  var duration = 0;
       var parsed = dataParsers.multiAlbumsParser(all);
       parsed.sort(function(a,b) {
         var datea = a.date.length ? a.date[ (a.date.length -1) ] : 0;
@@ -102,6 +107,8 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
         return dateb - datea;
       });
       parsed.forEach(function(album) {
+		template_data.songsNumber += album.songsNb;
+		duration += album.duration;
         if ( album.album.length ) {
           album.album_e = album.album.replace("\"","&quot;");
           template_data.albums.push(album);
@@ -109,6 +116,13 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
           template_data.no_album.push(album);
         }
       });
+	  
+	  var mins = Math.floor(duration / 60);
+	  template_data.hours = Math.floor( mins/60 );
+	  template_data.hours = template_data.hours ? [template_data.hours] : [];
+	  template_data.minutes =  mins - template_data.hours*60;
+	  template_data.minutes = template_data.minutes < 10 ? "0"+template_data.minutes : template_data.minutes;
+	  debug(template_data);
       return template_data;
     };
     

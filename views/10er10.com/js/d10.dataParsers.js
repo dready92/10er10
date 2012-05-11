@@ -1,14 +1,14 @@
 define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils"], function(tpl, toolbox, imageUtils) {
 	function singleAlbumParser(songs) {
 		var albumData = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: "", e_artists: [], e_genres: [], image_url: null, album: "", date: []}, 
-			artists = {}, genres = {}, duration = 0, images = {};
+			artists = {}, genres = {}, images = {};
 		songs.forEach(function(row) {
 			albumData.album = row.doc.album || "";
 			artists[row.doc.artist] = 1;
 			if ( row.doc.genre ) {
 				genres[row.doc.genre] = 1;
 			}
-			duration+=row.doc.duration;
+			albumData.duration+=row.doc.duration;
 			if ( row.doc.images ) {
 				row.doc.images.forEach(function(i) {
 					if ( images[i.filename] ) {
@@ -34,7 +34,7 @@ define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils"], function(tpl
 			albumData.genres.push({name: k, encoded: e}); 
 			albumData.e_genres.push( encodeURIComponent( k ) );
 		}
-		var d = new Date(1970,1,1,0,0,duration),
+		var d = new Date(1970,1,1,0,0,albumData.duration),
 			h = d.getHours(),
 			m = d.getMinutes();
 		albumData.minutes = m < 10 ? ["0"+m] : [m] ;
@@ -42,8 +42,6 @@ define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils"], function(tpl
 		if ( h ) {
 		  albumData.hours.push(h);
 		}
-// 		albumData.duration = h ? h+" hour(s) " : "";//d.getMinutes()+':'+d.getSeconds();
-// 		albumData.duration += m;
 		albumData.image_url = toolbox.keyOfHighestValue(images);
 		albumData.e_album = encodeURIComponent(albumData.album);
 		if ( albumData.image_url ) { 

@@ -175,14 +175,19 @@ exports.server = {
 		select_visible: "Sélectionner les morceaux visibles"
 	},
     "html/library/content_artist.html": {
-      no_song: "Aucun morceau trouvé",
-      all_artists: "Artistes",
-      greatest_hits: "Morceaux les plus écoutés",
-      all_songs: "Tous les morceaux",
-      without_album: "Sans album",
-      see_album: "Voir l'album",
-      add_to_player: "Ajouter à la lecture en cours",
-      refresh_page: "Rafraichir la page"
+		no_song: "Aucun morceau trouvé",
+		all_artists: "Artistes",
+		greatest_hits: "Morceaux les plus écoutés",
+		all_songs: "Tous les morceaux",
+		without_album: "Sans album",
+		see_album: "Voir l'album",
+		add_to_player: "Ajouter à la lecture en cours",
+		refresh_page: "Rafraichir la page",
+		hours: "h",
+		minutes: "min",
+		songs: "morceau(x)",
+		of_music: "de musique",
+		add_all_to_player: "Ajouter tous les morceaux à la lecture en cours"
     },
 	"html/library/content_album.html": {
 	  all_albums: "Albums",
