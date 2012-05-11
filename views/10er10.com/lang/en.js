@@ -235,23 +235,6 @@ exports.server = {
 	"html/library/control_genre.html": {
 		loading: "Loading..."
 	},
-	"html/library/control_artist.html": {
-		artist_placeholder: "Artist name...",
-		all_artists: "All artists",
-		loading: "Loading...",
-		no_result: "No artist found"
-	},
-	"html/library/control_album.html": {
-		album_placeholder: "Album name...",
-		loading: "Loading...",
-		no_result: "no album found",
-		all_albums: "All albums by cover"
-	},
-	"html/library/control_title.html": {
-		title_placeholder: "Song title...",
-		loading: "Loading...",
-		no_result: "No song found"
-	},
 	"html/library/listing_artist.html": {
 		songs: "song(s)"
 	},

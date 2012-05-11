@@ -235,23 +235,6 @@ exports.server = {
 	"html/library/control_genre.html": {
 		loading: "Chargement en cours..."
 	},
-	"html/library/control_artist.html": {
-		artist_placeholder: "Artist name...",
-		all_artists: "Tous les artistes",
-		loading: "chargement...",
-		no_result: "Aucun artiste trouvé"
-	},
-	"html/library/control_album.html": {
-		album_placeholder: "Album name...",
-		loading: "chargement...",
-		no_result: "Aucun album trouvé",
-		all_albums: "Tous les albums, par jaquette"
-	},
-	"html/library/control_title.html": {
-		title_placeholder: "Song title...",
-		loading: "chargement...",
-		no_result: "Aucun titre trouvé"
-	},
 	"html/library/listing_artist.html": {
 		songs: "morceau(x)"
 	},
