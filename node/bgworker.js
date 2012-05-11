@@ -5,7 +5,7 @@ var config,
 	jobs = {};
 
 	jobs.updateSongsHits = require(__dirname+"/jobs/updateSongsHits");
-	
+	jobs.updateArtistHits = require(__dirname+"/jobs/updateArtistHits");
 	console.log(jobs);
 
 configParser.getConfig(function(foo,cfg) {
@@ -45,6 +45,7 @@ var consumeQueue = function() {
 				d10.setConfig(config);
 				messageQueue.splice(i,1);
                 enableReccurrentJobs();
+				pushInQueue({type: "updateArtistHits"})
                 return pushInQueue({type: "updateSongsHits"});
 			}
 		}
