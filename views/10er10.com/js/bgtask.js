@@ -40,24 +40,6 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 					if ( !err  ) {
 						pubsub.topic("review.count").publish(data);
 					}
-					/*
-					var count = data.count;
-					var rr = $("#reviewReminder");
-					if ( count ) {
-						$("strong",rr).html(count);
-						rr.attr("title",tpl.mustacheView("side.review_reminder",{count: count}));
-						if ( rr.is(":visible") ) {
-						rr.whoobee();
-						} else {
-						rr.slideDown(function() {
-							rr.flipflap();
-						});
-						}
-					} else if ( rr.is(":visible") ) {
-						rr.slideUp("fast");
-					}
-					}
-					*/
 				}
 			});
 		});

@@ -28,9 +28,9 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 		});
 		pubsub.topic('rplAppendSuccess').subscribe(function(data) {
 			infos.playlists = jQuery.map(infos.playlists, function(n, i){
-		if ( n._id == data.playlist._id )	return data.playlist;
-				else																				return n;
-		});
+				if ( n._id == data.playlist._id )	return data.playlist;
+				else								return n;
+			});
 		});
 		
 		pubsub.topic('rplCreationSuccess').subscribe(function(data) {
@@ -49,24 +49,24 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 			infos.playlists = newlist;
 		});
 
-	pubsub.topic('rplRenameSuccess').subscribe(function(playlist) {
-		for ( var index in infos.playlists ) {
-		if ( infos.playlists[index]._id == playlist._id ) {
-			infos.playlists[index].name = playlist.name;
-			break;
-		}
-		}
-	});
+		pubsub.topic('rplRenameSuccess').subscribe(function(playlist) {
+			for ( var index in infos.playlists ) {
+				if ( infos.playlists[index]._id == playlist._id ) {
+					infos.playlists[index].name = playlist.name;
+					break;
+				}
+			}
+		});
 
-	pubsub.topic('rplDropSuccess').subscribe(function(playlist) {
-		var newlist = [] ;
-		for ( var index in infos.playlists ) {
-		if ( infos.playlists[index]._id != playlist._id) {
-			newlist[ newlist.length ] = infos.playlists[index];
-		}
-		}
-		infos.playlists = newlist;
-	});
+		pubsub.topic('rplDropSuccess').subscribe(function(playlist) {
+			var newlist = [] ;
+			for ( var index in infos.playlists ) {
+				if ( infos.playlists[index]._id != playlist._id) {
+					newlist[ newlist.length ] = infos.playlists[index];
+				}
+			}
+			infos.playlists = newlist;
+		});
 
 	
 		this.refresh_infos = function (then) {
@@ -112,7 +112,7 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 			} else if ( name == "audioFade" ) {
                 value = parseInt(value,10);
                 if ( isNaN(value) ) {
-                  return false;
+					return false;
                 }
                 rest.user.setPreference("audioFade",value, {
                     load: function(err,resp) {
@@ -165,8 +165,5 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 		};
 		
 	}
-
-	var u = new user();
-	return u;
-
+	return new user();
 });
