@@ -403,6 +403,15 @@ function ncouch (url) {
 			_query(options,[200,201],cb);
 		}
 		
+		wrapper.overwriteDoc = function(doc, cb) {
+		  wrapper.getDoc(doc._id,function(err,resp) {
+			if ( !err ) {
+				doc._rev = resp._rev;
+			}
+			wrapper.storeDoc(doc,cb);
+		  });
+		};
+		
 		wrapper.deleteDocs = function(docs,data,cb) {
 			docs.forEach(function(doc) {
 				doc._deleted=true;
