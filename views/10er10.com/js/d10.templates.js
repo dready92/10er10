@@ -4,6 +4,13 @@ define(["js/user", "js/d10.localcache"],function(user, localcache) {
 	};
 
 	function song_template (doc) {
+		if ( Object.prototype.toString.call(doc) === '[object Array]' ) {
+			var html = "";
+			for ( var i in doc ) {
+				html+= ( "doc" in doc[i] ) ? song_template(doc[i].doc) : song_template(doc[i]);
+			}
+			return html;
+		}
 		var d = new Date(1970,1,1,0,0,doc.duration),
 	    m = d.getMinutes(), s = d.getSeconds();
 		m = m < 10 ? "0"+m : m;
@@ -26,6 +33,6 @@ define(["js/user", "js/d10.localcache"],function(user, localcache) {
 	
 	return {
 		mustacheView: mustacheView,
-	   song_template: song_template
+		song_template: song_template
 	};
 });

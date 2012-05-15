@@ -145,9 +145,10 @@ define(["js/d10.templates", "js/config"], function(tpl, config) {
 			onFirstContent: function() {},
 			onQuery: function() {},
 			parseResults: function(rows) {
-				var html="";
+				return tpl.song_template(rows);
+				/*var html="";
 				rows.forEach(function(v) { html+=tpl.song_template(v.doc); });
-				return html;
+				return html;*/
 			}
 		};
 		$.extend(settings,options);

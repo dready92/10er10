@@ -376,10 +376,7 @@ function playlistManager (mydiv,mypldiv) {
 				debug("plm:replace_playlist success callback response: ",response);
 				var pldiv = mypldiv.find("section.plm-content-container .rpl[name="+name+"] > .list");
 				if ( pldiv.length ) {
-					var html = "";
-					for ( var i in response.data.songs ) {
-						html += tpl.song_template(response.data.songs[i]);
-					}
+					var html = tpl.song_template(response.data.songs);
 					pldiv.empty();
 					if ( html.length ) {
 						pldiv.html(html);

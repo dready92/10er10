@@ -317,10 +317,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 				load: function (err,songs) {
 					if ( err ) { return;
 					};
-					var items = "";
-					for ( var index in songs ) {
-						items+= tpl.song_template( songs[index] );
-					}
+					var items = tpl.song_template( songs );
 					if ( items.length ) {
 						append($(items));
 					}

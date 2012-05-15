@@ -59,10 +59,7 @@ var results = function (search,mainUi) {
           return ;
       }
       if ( item.data("songs") ) {
-          var html = "";
-          $.each(item.data("songs"),function(key,val) {
-              html+=tpl.song_template(val);
-          });
+          var html = tpl.song_template(item.data("songs"));
           item.find("div.details div.list").html(html);
       }
       item.addClass("parsed").addClass("opened").removeData("songs");

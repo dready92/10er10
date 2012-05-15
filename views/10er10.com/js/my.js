@@ -190,9 +190,7 @@ function myCtrl (ui) {
 // 			var url = "/api/list/s_user";
 			var endpoint = rest.user.songs;
 			var parseResults = function(rows) {
-				var html = "";
-				rows.forEach(function(v) { html += tpl.song_template(v.doc); });
-				html = $(html);
+				var html = $( tpl.song_template(rows) );
 				html.each(function() {
 					if ( $(this).attr('data-reviewed') == "true" ) {
 						$(this).append(tpl.mustacheView('my.song_template_trailer'));

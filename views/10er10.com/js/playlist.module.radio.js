@@ -23,10 +23,7 @@ var createModule= function (ui) {
 			},
 			load: function (err, response) {
 				if ( !err && response.length && ui.find(".autofill").hasClass("enabled") && playlist.driver().writable() ) {
-					var items = '';
-					for ( var index in response ) {
-						items+= tpl.song_template( response[index] );
-					}
+					var items = tpl.song_template( response );
 					playlist.append($(items));
 				}
 			}

@@ -141,9 +141,8 @@ define(["js/domReady","js/d10.router", "js/playlist","js/d10.rest","js/d10.templ
 			})
 			.delegate(".whatsNewWidget .footer","click",function() {
 				var songs = JSON.parse(JSON.stringify($(this).closest(".whatsNewWidget").data("songs")));
-				$.each(songs,function(k,v) {
-					playlist.append( $( tpl.song_template(v) ) );
-				});
+				var songsHTML = tpl.song_template(songs);
+				playlist.append($(songsHTML));
 			})
 			;
 		};
