@@ -30,9 +30,14 @@ define(["js/user", "js/d10.localcache"],function(user, localcache) {
 		return mustacheView('song_template',doc);
 	};
 	
+	function albumMini(data) {
+		return mustacheView("library.content.album.all.mini",data);
+	};
+	
 	
 	return {
 		mustacheView: mustacheView,
-		song_template: song_template
+		song_template: song_template,
+		albumMini: albumMini
 	};
 });

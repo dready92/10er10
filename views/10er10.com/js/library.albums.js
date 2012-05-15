@@ -155,7 +155,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
             if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
 			$.each(resp,function(k,songs) {
 				var albumData = dataParsers.singleAlbumParser(songs);
-				var html = $( tpl.mustacheView("library.content.album.all.mini",albumData) ).data("albumDetails",albumData);
+				var html = $( tpl.albumMini(albumData) ).data("albumDetails",albumData);
 				contentDiv.append(html);
 			});
 		};
