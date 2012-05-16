@@ -1,4 +1,4 @@
-define(["js/d10.templates", "js/config"], function(tpl, config) {
+define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl, config, user, rest) {
 	
 	
 	var couchMapMergedCursor = function(endpoint,queryData, mergeField) {
@@ -204,6 +204,46 @@ define(["js/d10.templates", "js/config"], function(tpl, config) {
 		};
 	};
 	
+	
+	/*
+	 * Infos getter: favorites
+	 */
+	var favoriteSongsLoader = function(options) {
+		var api = {}, jq = $(api), favorites = user.getLikes();
+		api.bind = function(){jq.bind.apply(jq,arguments);};
+		api.trigger = function(){jq.trigger.apply(jq,arguments);};
+		options = options || {};
+		var getRows = function() {
+			var exit = function () {
+				api.trigger("end");
+				api = null;
+				jq = null;
+				return ;
+			};
+			if ( !favorites.length ) {
+				return exit();
+			}
+			var current = favorites.splice(0,50);
+			rest.song.get(current,{load:
+				function(err,resp) {
+					if ( err ) {
+						return exit();
+					}
+					var selected = ("filter" in options ) ? resp.filter(options.filter) : resp;
+					if ( selected.length ) {
+						api.trigger("data",selected);
+					}
+					getRows();
+				}
+			});
+			
+		};
+		
+		setTimeout(getRows, 0);
+		return api;
+	};
+	
+	
 // scrollHeight: total height in px ( height + padding )
 // scrollTop: nb of px hidden from the top
 // widget.outerHeight: the visible window
@@ -211,7 +251,8 @@ define(["js/d10.templates", "js/config"], function(tpl, config) {
 	return {
 		couchMapMergedCursor: couchMapMergedCursor,
 		couchMapCursor: couchMapCursor,
-		emulatedCursor: emulatedCursor
+		emulatedCursor: emulatedCursor,
+		favoriteSongsLoader: favoriteSongsLoader
 	};
 
 	
