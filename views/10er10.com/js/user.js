@@ -164,6 +164,17 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 			return infos.user.superman;
 		};
 		
+		this.getLikes = function() {
+			var back = [];
+			if ( infos == null )  return back;
+			if ( "preferences" in infos && "likes" in infos.preferences ) {
+				for (var i in infos.preferences.likes) {
+					back.push(i);
+				}
+			}
+			return back;
+		};
+		
 	}
 	return new user();
 });
