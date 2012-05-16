@@ -549,6 +549,13 @@ article.songlist div.controls button{
 	-webkit-transition: margin-right 0.5s;
 }
 
+#main .infoBar {
+background-color: #444;
+padding: 10px;
+border: 9px solid  #393939;
+border-radius: 5px;
+}
+
 #main .song > span.artist:hover {
 	cursor: pointer;
 	color: #BF9730;
@@ -905,7 +912,9 @@ article div.refreshList {
   padding-bottom: 10px;
 }
 
-#library article.artistPage .artistLink:not(:last-child):after,#library article.albumPage .artistLink:not(:last-child):after  { display: inline; content: " , "; color: #9F9F9F; }
+#library article.artistPage .artistGenre:not(:last-child):after,
+#library article.artistPage .artistLink:not(:last-child):after,
+#library article.albumPage .artistLink:not(:last-child):after  { display: inline; content: " , "; color: #9F9F9F; }
 
 #library article.artistPage div.refresh { padding-top: 30px;}
 

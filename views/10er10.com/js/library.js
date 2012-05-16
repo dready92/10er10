@@ -93,7 +93,9 @@ define(["js/domReady", "js/d10.dnd", "js/playlist", "js/d10.router", "js/d10.eve
 			
 			if ( ( topic == "genres" || topic == "artists" || topic == "albums" ) && !category ) { category = "<all>"; }
 			var categoryKey = category ? category : "<all>";
-			
+			if ( param ) {
+				categoryKey += "::"+param;
+			}
 			//
 			// launch the topic category display
 			//
@@ -142,12 +144,22 @@ define(["js/domReady", "js/d10.dnd", "js/playlist", "js/d10.router", "js/d10.eve
 		};
 
 		var getCurrentCategory = function(topic) {
-			return currentCategory[topic] ? currentCategory[topic] : false;
+			return currentCategory[topic] ? currentCategory[topic].split('::')[0] : false;
 		};
 
+		var getCurrentParam = function(topic) {
+			if ( !currentCategory[topic] ) { return null; }
+			var split = currentCategory[topic].split('::');
+			if ( split.length == 2 ) {
+				return split.pop();
+			}
+			return null;
+		};
+		
 		return {
 			display: init_topic,
-			getCurrentCategory: getCurrentCategory
+			getCurrentCategory: getCurrentCategory,
+			getCurrentParam: getCurrentParam
 		};
 	};
 
@@ -194,12 +206,25 @@ define(["js/domReady", "js/d10.dnd", "js/playlist", "js/d10.router", "js/d10.eve
 	router.route("library/:topic","library",libraryRouteHandler);
 	router.route("library/:topic/:category","library",libraryRouteHandler);
 	router.route("library/:topic/:category/:parameter","library",libraryRouteHandler);
+	router.route("library/artists/:category/genre/:parameter","library",function(category, param) {
+		libraryRouteHandler.call(this,"artists",category,param);
+	});
 	
 	router._containers.library.tab.delegate("[action]","click",function() {
-		var elem = $(this), action = elem.attr("action"), currentCategory = lib.getCurrentCategory(action);
+		var elem = $(this), 
+			action = elem.attr("action"), 
+			currentCategory = lib.getCurrentCategory(action), 
+			currentParam = lib.getCurrentParam(action);
 		
 		if ( ! elem.hasClass("active") ) {
-			if ( currentCategory ) {router.navigateTo(["library",action,currentCategory]); } 
+			if ( currentCategory ) { 
+				if ( currentParam ) {
+					if ( action == "artists" ) {
+						return router.navigateTo(["library",action,currentCategory, "genre", currentParam]); 
+					}
+				}
+				router.navigateTo(["library",action,currentCategory]); 
+			} 
 			else { router.navigateTo(["library",action]); }
 		}
 	});

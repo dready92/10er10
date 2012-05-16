@@ -1,6 +1,18 @@
 <div class="noResult hidden center vertical-air">((no_song))</div>
 <article class="songlist artistPage">
-    <span class="link" name="all">((all_artists))</span><strong> &gt; </strong><h1 class="blueTitle">{{artist}}</h1>
+    <span class="link" name="all">((all_artists))</span><strong> &gt; </strong><h1 class="blueTitle">{{artist}}</h1> 
+{{#notFull}} <strong> &gt; </strong> <strong>{{genre}}</strong>{{/notFull}}
+
+{{#notFull}}
+<div class="airin">
+  <div class="infoBar">
+((nofullgenre_infobar_summary)) ((nofullgenre_infobar_othergenres))<span>{{#genres}}<span class="artistGenre link linkHover">{{genre}}</span> {{/genres}}</span>.
+((nofullgenre_infobar_seeall_summary)) <span class="link linkHover artistAllGenres">((nofullgenre_infobar_seeall_link))</span>.
+  </div>
+</div>
+{{/notFull}}
+
+
     {{#hits}}
     <div class="hits">
       <h2>((greatest_hits))</h2>
@@ -12,6 +24,12 @@
 		<div class="airin bigbottom">
 			{{songsNumber}} ((songs)),  {{#hours}}{{.}} ((hours)) {{/hours}}{{minutes}} ((minutes)) ((of_music)). 
 			<button name="loadAll"><img src="css/16x16/actions/favorite-genres-amarok.png" class="middle"> ((add_all_to_player))</button>
+{{#full}}
+			<br>&nbsp;<br>
+			  ((fullgenre_filter_summary)) {{#genres}}<span class="link artistGenre linkHover">{{genre}}</span> {{/genres}}.
+			
+{{/full}}
+
 		</div>
       {{#no_album}}
       <div class="oneAlbum table">

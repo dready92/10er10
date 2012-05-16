@@ -188,7 +188,12 @@ exports.server = {
 		minutes: "min",
 		songs: "song(s)",
 		of_music: "of music",
-		add_all_to_player: "Add all songs to player queue"
+		add_all_to_player: "Add all songs to player queue",
+		nofullgenre_infobar_summary: "Hey! You're seeing {{genre}} songs from {{artist}}.",
+		nofullgenre_infobar_othergenres: "This artist also have songs in ",
+		nofullgenre_infobar_seeall_summary: " Or you can",
+		nofullgenre_infobar_seeall_link: "See the entire discography",
+		fullgenre_filter_summary:"Filter the songs by genre:"
     },
 	"html/library/content_album.html": {
 	  all_albums: "Albums",

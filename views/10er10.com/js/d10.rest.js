@@ -528,6 +528,7 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
         songHits: function(artist, options) {
             options = options || {};
             options.data = {artist: artist};
+			if ( options.genre ) { options.data.genre = options.genre ; }
             restQuery("artist.songHits","GET",config.site_url+"/api/list/artist/hits", options);
         },
 	};

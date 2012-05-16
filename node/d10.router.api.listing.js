@@ -436,6 +436,14 @@ exports.api = function(app) {
     
     app.get("/api/list/artist/hits", function(request, response) {
       var artist, startkey, startkey_docid;
+	  var opts = {};
+	  if ( request.query.genre ) {
+		  if ( d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.query.genre) < 0 ) {
+			return d10.realrest.err(428, request.query.genre, request.ctx);
+		  }
+		  opts.genre = request.query.genre;
+	  }
+	  
       if ( !request.query.artist ) {
         console.log("no artist");
         return d10.realrest.err(428, request.query.artist, request.ctx);
@@ -447,8 +455,10 @@ exports.api = function(app) {
           startkey_docid = request.query.startkey_docid;
         }
       }
-      
-      artists.getSongsByHits(artist,listDefaultCallback.bind(request.ctx),startkey,startkey_docid);
+      opts.startkey= startkey;
+	  opts.startkey_docid = startkey_docid;
+	  
+      artists.getSongsByHits(artist,listDefaultCallback.bind(request.ctx),opts);
       
     });
     

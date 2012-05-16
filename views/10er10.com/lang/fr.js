@@ -187,7 +187,13 @@ exports.server = {
 		minutes: "min",
 		songs: "morceau(x)",
 		of_music: "de musique",
-		add_all_to_player: "Ajouter tous les morceaux à la lecture en cours"
+		add_all_to_player: "Ajouter tous les morceaux à la lecture en cours",
+		nofullgenre_infobar_summary: "Hey! Vous consultez les morceaux {{genre}} de {{artist}}.",
+		nofullgenre_infobar_othergenres: "Cet artiste a aussi des morceaux ",
+		nofullgenre_infobar_seeall_summary: " Ou alors ",
+		nofullgenre_infobar_seeall_link: "Consulter la discographie complète",
+		fullgenre_filter_summary:"Filtrer les morceaux par genre:"
+
     },
 	"html/library/content_album.html": {
 	  all_albums: "Albums",

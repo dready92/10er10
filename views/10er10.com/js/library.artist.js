@@ -70,6 +70,12 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
       var songs = $(this).closest("article").find(".all div.song").clone();
       playlist.append(songs);
     });
+	template.find(".link.artistGenre").click(function() {
+		router.navigateTo(["library","artists", category, "genre", $(this).html()]);
+	});
+	template.find(".link.artistAllGenres").click(function() {
+		router.navigateTo(["library","artists", category]);
+	});
   };
   
   var onRoute = function(topicdiv, categorydiv, topic, category, param) {};
@@ -98,9 +104,34 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
     };
     
     var parseAlbumSongs = function(all) {
-      var template_data = { no_album: [], albums: [], songsNumber: 0, hours: 0, minutes: 0 };
+      var template_data = { 
+			no_album: [], 
+			albums: [], 
+			songsNumber: 0, 
+			hours: 0, 
+			minutes: 0,
+			full: [],
+			notFull: []
+	  };
 	  var duration = 0;
-      var parsed = dataParsers.multiAlbumsParser(all);
+	  debug(all);
+	  var selectedSongs = [];
+	  var otherSongs = [];
+  	  var availableGenres = [];
+
+	  all.forEach(function(row) {
+		  if ( !param || row.doc.genre == param ) {
+			  selectedSongs.push(row);
+		  } else {
+			  otherSongs.push(row);
+		  }
+		  if  ( (!param || row.doc.genre != param) &&  availableGenres.indexOf(row.doc.genre) < 0 ) {
+			  availableGenres.push(row.doc.genre);
+		  }
+	  });
+      var parsed = dataParsers.multiAlbumsParser(selectedSongs);
+	  debug(parsed);
+	  
       parsed.sort(function(a,b) {
         var datea = a.date.length ? a.date[ (a.date.length -1) ] : 0;
         var dateb = b.date.length ? b.date[ (b.date.length -1) ] : 0;
@@ -122,11 +153,22 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
 	  template_data.hours = template_data.hours ? [template_data.hours] : [];
 	  template_data.minutes =  mins - template_data.hours*60;
 	  template_data.minutes = template_data.minutes < 10 ? "0"+template_data.minutes : template_data.minutes;
+	  
+	  if ( !param && availableGenres.length > 1 ) {
+		  availableGenres = availableGenres.map(function(g) { return {genre: g, genre_e: g.replace('"','&quot;')}; });
+		  template_data.full.push({genres: availableGenres});
+	  } else if ( param && availableGenres.length ) {
+		  template_data.genre = param;
+		  availableGenres = availableGenres.map(function(g) { return {genre: g, genre_e: g.replace('"','&quot;')}; });
+		  template_data.notFull.push({genres: availableGenres});
+	  }
+	  
 	  debug(template_data);
       return template_data;
     };
     
     rest.artist.songHits(category, {
+	  genre: param,
       load: function(err,resp) {
         if ( err ) {
           return onRestResponse("hits", []);
@@ -137,7 +179,7 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
         var html = '';
         var songCount = 0;
         resp.forEach(function(row) {
-          if ( songCount>=15 ) {
+          if ( songCount>=10 ) {
             return ;
           }
           html+=tpl.song_template(row.doc);
