@@ -26,7 +26,7 @@ var getSongs = function(data, then) {
 
 var pump = function(data, callback) {
   
-	var artistDoc = {_id: "artistHits", artists: {}, artistsGenres: {}};
+	var artistDoc = {_id: "artistHits", artistsGenres: {}};
 	
 	var processSongs = function(err,rows,nextData) {
 		if ( err ) {
@@ -40,11 +40,6 @@ var pump = function(data, callback) {
 			}
 			var artists = tokenizer(row.doc).artists;
 			artists.forEach(function(artist) {
-				if ( artist in artistDoc.artists ) {
-					artistDoc.artists[artist]+=row.doc.hits;
-				} else {
-					artistDoc.artists[artist]=row.doc.hits;
-				}
 				if ( !  (row.doc.genre in artistDoc.artistsGenres) ) {
 					console.log("creating genre ",row.doc.genre);
 					artistDoc.artistsGenres[row.doc.genre] = {};
@@ -64,7 +59,7 @@ var pump = function(data, callback) {
 		
 		console.dir(artistDoc);
 		d10.couch.d10.overwriteDoc(artistDoc, function(err,resp) {
-			console.log(err);
+			if ( err ) 	console.log(err);
 			callback();
 		});
 	};

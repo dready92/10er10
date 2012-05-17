@@ -5,6 +5,7 @@ var config,
 	jobs = {};
 
 	jobs.updateSongsHits = require(__dirname+"/jobs/updateSongsHits");
+	jobs.updateAlbumHits = require(__dirname+"/jobs/updateAlbumHits");
 	jobs.updateArtistHits = require(__dirname+"/jobs/updateArtistHits");
 	console.log(jobs);
 
@@ -45,6 +46,7 @@ var consumeQueue = function() {
 				d10.setConfig(config);
 				messageQueue.splice(i,1);
                 enableReccurrentJobs();
+				pushInQueue({type: "updateAlbumHits"})
 				pushInQueue({type: "updateArtistHits"})
                 return pushInQueue({type: "updateSongsHits"});
 			}
@@ -73,6 +75,8 @@ var consumeQueue = function() {
 
 var enableReccurrentJobs = function() {
     setInterval(function() {
-        messageQueue.push({type: "updateSongsHits"});
+		pushInQueue({type: "updateAlbumHits"})
+		pushInQueue({type: "updateArtistHits"})
+        pushInQueue({type: "updateSongsHits"});
     },3600000*12); // 12 hours
 };
