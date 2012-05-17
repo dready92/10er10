@@ -7,13 +7,13 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 		var merged = [];
 		var rpp = config.rpp;
 		var mergedRpp = 10;
-		var onGetResults = function(err,resp,cb) {
-			
-		};
 
 		var innerCursorFetchUntilRpp = function(then) {
 			if ( !innerCursor.hasMoreResults() || merged.length >= mergedRpp ) {
 				var back = merged.splice(0,mergedRpp);
+				if (buffer.length && !innerCursor.hasMoreResults()) {
+				  back.push(buffer);
+				}
 				return then(back);
 			} else {
 				innerCursorFetch(function(err,resp) {
