@@ -1,7 +1,11 @@
 var d10 = require ("./d10"),
     artists = require ("./d10.artists"),
+    users = require("./d10.users"),
 	qs = require("qs");
 
+var validGenre = function(genre) {
+  return d10.config.allowCustomGenres == true || d10.config.genres.indexOf(genre) >= 0;
+}
 exports.api = function(app) {
 	
 	app.get("/api/own/title",function(request,response) {
@@ -154,8 +158,30 @@ exports.api = function(app) {
 		_ts_creationName(request.ctx.user._id+"/ts_creation_name",request,response);
 	});
 	app.get("/api/list/creations",function(request,response) {
+		
+		if ( request.query.genre ) {
+			if ( !validGenre(request.query.genre) ) {
+				return d10.realrest.err(428, request.query.genre, request.ctx);			
+			}
+			return _ts_creationGenre("genre/creation",request,response);
+		}
 		_ts_creationName("ts_creation/name",request,response);
 	});
+	
+	var _ts_creationGenre = function (view, request, response) {
+		var query = {include_docs: true, descending: true, limit: d10.config.rpp+1, endkey: request.query.genre};
+		if ( request.query.startkey ) {
+			query.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+				query.startkey_docid = request.query.startkey_docid;
+			}
+		}
+		if ( !query.startkey ) {
+			query.startkey = [request.query.genre,{}];
+		}
+		d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
+	};
+	
 	var _ts_creationName = function (view, request, response) {
 		var query = {include_docs: true, reduce: false, descending: true, limit: d10.config.rpp+1};
 		if ( request.query.startkey ) {
@@ -205,7 +231,8 @@ exports.api = function(app) {
 		_genreName("genre/name",request,response);
 	});
 	var _genreName = function(view, request,response) {
-		if ( !request.query.genre || d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.query.genre) < 0 ) {
+		
+		if ( !request.query.genre || !validGenre(request.query.genre) ) {
 			return d10.realrest.err(428, request.query.genre, request.ctx);
 		}
 		var query = {include_docs: true, reduce: false, limit: d10.config.rpp+1 ,endkey: [request.query.genre, {} ]};
@@ -323,7 +350,7 @@ exports.api = function(app) {
 		_genreArtists("genre/artists",request,response);
 	});
 	var _genreArtists = function(view, request,response) {
-		if ( !request.params.genre || d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
+		if ( !request.params.genre || !validGenre(request.params.genre) ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
 		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
@@ -336,7 +363,7 @@ exports.api = function(app) {
 		_genreAlbums("genre/albums",request,response);
 	});
 	var _genreAlbums = function(view,request,response) {
-		if ( !request.params.genre || d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
+		if ( !request.params.genre || !validGenre(request.params.genre) ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
 		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
@@ -350,7 +377,7 @@ exports.api = function(app) {
 	});
 	var _genreAlbumsSongs = function(view,request,response) {
 		if ( !request.params.genre || 
-			d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
+			!validGenre(request.params.genre) ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
 		var opts = {
@@ -438,7 +465,7 @@ exports.api = function(app) {
       var artist, startkey, startkey_docid;
 	  var opts = {};
 	  if ( request.query.genre ) {
-		  if ( d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.query.genre) < 0 ) {
+		  if ( !validGenre(request.query.genre) ) {
 			return d10.realrest.err(428, request.query.genre, request.ctx);
 		  }
 		  opts.genre = request.query.genre;
@@ -462,5 +489,131 @@ exports.api = function(app) {
       
     });
     
-    
+    app.get("/api/genre/artistsByHits/:genre", function(request, response) {
+		if ( !validGenre(request.params.genre) ) {
+			return d10.realrest.err(428, request.params.genre, request.ctx);
+		}
+		var opts = {descending: true, endkey: [request.params.genre]};
+		if ( request.query.startkey ) {
+			opts.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+			  opts.startkey_docid = request.query.startkey_docid;
+			}
+		} else {
+			opts.startkey = [request.params.genre,{}]
+		}
+		d10.couch.d10.view("artistHits/artists",opts,listDefaultCallback.bind(request.ctx));
+	});
+	
+	app.get("/api/genre/albumsByHits/:genre", function(request, response) {
+		if ( !validGenre(request.params.genre) ) {
+			return d10.realrest.err(428, request.params.genre, request.ctx);
+		}
+		var opts = {descending: true, endkey: [request.params.genre]};
+		if ( request.query.startkey ) {
+			opts.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+			  opts.startkey_docid = request.query.startkey_docid;
+			}
+		} else {
+			opts.startkey = [request.params.genre,{}]
+		}
+		
+		d10.couch.d10.view("albumHits/albums", opts, function(err,list) {
+			if ( err || !list.rows.length ) {
+				return listDefaultCallback.call(request.ctx, err, list);
+			}
+			var albumSongs = {};
+			var keys = [];
+			list.rows.forEach(function(row) {albumSongs[row.key[2]] = []; row.value = albumSongs[row.key[2]]; keys.push(row.key[2])});
+			console.log("going to second view", {reduce: false, include_docs: true, keys: keys});
+			d10.couch.d10.view("album/album", {reduce:false, include_docs: true, keys: keys}, function(err,docs) {
+				if ( err ) {
+					return listDefaultCallback.call(request.ctx, err, docs);
+				}
+				docs.rows.forEach(function(row) { albumSongs[row.doc.album].push(row.doc); });
+				return listDefaultCallback.call(request.ctx, err, list);
+			});
+		});
+	});
+	
+	app.get("/api/genre/songsByHits/:genre", function(request, response) {
+		if ( !validGenre(request.params.genre) ) {
+			return d10.realrest.err(428, request.params.genre, request.ctx);
+		}
+		var opts = {include_docs: true, descending: true, endkey: [request.params.genre]};
+		if ( request.query.startkey ) {
+			opts.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+			  opts.startkey_docid = request.query.startkey_docid;
+			}
+		} else {
+			opts.startkey = [request.params.genre,{}]
+		}
+
+		d10.couch.d10.view("genre/song-hits",opts,listDefaultCallback.bind(request.ctx));
+	});
+	
+	app.get("/api/own/list/genre/lastPlayed/:genre",function(request,response) {
+		if ( !validGenre(request.params.genre) ) {
+			return d10.realrest.err(428, request.params.genre, request.ctx);
+		}
+		var responseLength = d10.config.rpp + 1;
+		var requestLength = d10.config.rpp*3;
+		var responses = [];
+		var opts = {reduce: false, descending: true, endkey: [request.ctx.user._id], limit: requestLength};
+		if ( request.query.startkey ) {
+			opts.startkey = JSON.parse(request.query.startkey);
+			if ( request.query.startkey_docid ) {
+			  opts.startkey_docid = request.query.startkey_docid;
+			}
+		} else {
+			opts.startkey = [request.ctx.user._id, {}]
+		}		
+		
+		var fetchLastPlayed = function() {
+			users.getListenedSongsByDate(request.ctx.user._id, opts, function(err, hits) {
+// 				console.log(opts, err,hits);
+				if ( err ) {
+					return d10.realrest.err(423, err, request.ctx);
+				}
+				if( !hits.rows.length ) {
+					return d10.realrest.success(responses, request.ctx);
+				}
+				var ids = hits.rows.map(function(row) {return row.value});
+				d10.couch.d10.getAllDocs({include_docs: true, keys: ids},function(err,docs) {
+					if ( err ) {
+					  return d10.realrest.err(423, err, request.ctx);
+					}
+					var docHash = {};
+					docs.rows.forEach(function(row) { if ( row.doc && row.doc._id ) { docHash[row.doc._id] = row.doc; }  });
+					for ( var  i in hits.rows ) {
+					  if ( hits.rows[i].value in docHash && docHash[hits.rows[i].value].genre == request.params.genre ) {
+						  responses.push({doc: docHash[hits.rows[i].value], id: hits.rows[i].id, key: hits.rows[i].key, value: hits.rows[i].value});
+// 						  console.log("got",responses.length , "responses", responses);
+						  if ( responses.length == responseLength ) {
+							  return d10.realrest.success(responses, request.ctx);
+						  }
+					  }
+					}
+					
+					if ( hits.rows.length < requestLength ) {
+						return d10.realrest.success(responses, request.ctx);
+					}
+					
+// 					console.log(hits.rows, hits.rows[ (hits.rows.length -1) ].startkey);
+					opts.startkey = hits.rows[ (hits.rows.length -1) ].key;
+					opts.startkey_docid = hits.rows[ (hits.rows.length -1) ].id;
+					fetchLastPlayed();
+				});
+
+				  
+				});
+		};
+		
+		fetchLastPlayed();
+		
+	});
+	
+
 }; // exports.api

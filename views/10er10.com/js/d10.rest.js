@@ -417,6 +417,14 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 						options.data.title = query.title;
 					}
 					restQuery("user.song.list.titles","GET",config.site_url+"/api/own/list/titles",options);
+				},
+				genreLastListened: function(genre, query, options) {
+					options.data = {};
+					if ( query.startkey && query.startkey_docid ) {
+						options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+					}
+					restQuery("user.song.list.genreLastListened","GET",
+							  config.site_url+"/api/own/list/genre/lastPlayed/" +encodeURIComponent(genre),options);
 				}
 			}
 		}
@@ -592,7 +600,43 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
 			}
 			restQuery("genre.list.albumsSongs","GET",config.site_url+"/api/list/genres/albumsSongs/"+encodeURIComponent(genre),options);
-		}
+		},
+		songsByCreation: function(genre, query, options) {
+			options.data = {genre: genre};
+			if ( query.startkey && query.startkey_docid ) {
+				options.data.startkey = query.startkey;
+				options.data.startkey_docid = query.startkey_docid;
+			}
+			restQuery("genre.list.songsByCreation","GET",config.site_url+"/api/list/creations",options);
+		},
+	   songsByHits: function(genre, query, options) {
+			options.data = {};
+			if ( query.startkey && query.startkey_docid ) {
+				options.data.startkey = query.startkey;
+				options.data.startkey_docid = query.startkey_docid;
+			}
+			restQuery("genre.list.songsByHits","GET",config.site_url+"/api/genre/songsByHits/"+encodeURIComponent(genre),options);
+		},
+		artistsByHits: function(genre, query, options) {
+			options.data = {};
+			if ( query.startkey && query.startkey_docid ) {
+				options.data.startkey = query.startkey;
+				options.data.startkey_docid = query.startkey_docid;
+			}
+			restQuery("genre.list.artistsByHits","GET",config.site_url+"/api/genre/artistsByHits/"+encodeURIComponent(genre),options);
+		},
+		albumsByHits: function(genre, query, options) {
+			options.data = {};
+			if ( query.startkey && query.startkey_docid ) {
+				options.data.startkey = query.startkey;
+				options.data.startkey_docid = query.startkey_docid;
+			}
+			restQuery("genre.list.albumsByHits","GET",config.site_url+"/api/genre/albumsByHits/"+encodeURIComponent(genre),options);
+		},
+   		genreResume: function(genre, options) {
+			restQuery("genre.resume","GET",config.site_url+"/api/genre/resume/"+encodeURIComponent(genre),options);
+		},
+
 	};
 	
 	rest.rpl = {
