@@ -281,6 +281,14 @@ var makeSession = function(uid, cb ) {
 	});
 };
 
+var getListenedSongsByDate = function(uid, opts, callback) {
+	if ( opts.startkey && opts.startkey.length && opts.startkey[0]!=uid ) {
+		opts.startkey[0]=uid;
+	}
+	
+	d10.couch.track.view("tracking/userDateTracking",opts, callback);
+	
+};
 
 
 exports.isValidLogin = isValidLogin;
@@ -288,4 +296,5 @@ exports.isValidPassword = isValidPassword;
 exports.createUser = createUser;
 exports.checkAuthFromLogin = checkAuthFromLogin;
 exports.makeSession = makeSession;
+exports.getListenedSongsByDate = getListenedSongsByDate;
 
