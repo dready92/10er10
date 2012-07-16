@@ -11,6 +11,7 @@ define(["js/user", "js/d10.localcache"],function(user, localcache) {
 			}
 			return html;
 		}
+                doc = JSON.parse(JSON.stringify(doc));
 		var d = new Date(1970,1,1,0,0,doc.duration),
 	    m = d.getMinutes(), s = d.getSeconds();
 		m = m < 10 ? "0"+m : m;
