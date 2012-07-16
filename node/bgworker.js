@@ -2,6 +2,7 @@ var config,
 	configParser = require(__dirname+"/configParser"),
 	d10 = null,
 	messageQueue = [],
+	working = false,
 	jobs = {};
 
 	jobs.updateSongsHits = require(__dirname+"/jobs/updateSongsHits");
@@ -46,9 +47,9 @@ var consumeQueue = function() {
 				d10.setConfig(config);
 				messageQueue.splice(i,1);
                 enableReccurrentJobs();
-				pushInQueue({type: "updateAlbumHits"})
-				pushInQueue({type: "updateArtistHits"})
-                return pushInQueue({type: "updateSongsHits"});
+				pushInQueue({type: "updateSongsHits"});
+				pushInQueue({type: "updateAlbumHits"});
+                return pushInQueue({type: "updateArtistHits"});
 			}
 		}
 		// no configuration 
@@ -56,6 +57,7 @@ var consumeQueue = function() {
 	}
 	
 	var next = function(err) {
+		working = false;
         if ( err ) {
             console.log("background worker: got an error on previous job: ",err);
         }
@@ -65,18 +67,21 @@ var consumeQueue = function() {
 				console.log("background worker: unknown job ",job);
 				return next();
 			}
-				console.log("background worker: launching ",job);
+			console.log("background worker: launching ",job);
+			working = true;
 			jobs[job.type](next);
 		}
 	};
-	next();
+	if ( !working ) {
+		next();
+	}
 };
 
 
 var enableReccurrentJobs = function() {
     setInterval(function() {
+        pushInQueue({type: "updateSongsHits"});
 		pushInQueue({type: "updateAlbumHits"})
 		pushInQueue({type: "updateArtistHits"})
-        pushInQueue({type: "updateSongsHits"});
     },3600000*12); // 12 hours
 };
