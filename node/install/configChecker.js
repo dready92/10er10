@@ -5,7 +5,6 @@ var Url = require("url");
 var http = require("http");
 
 var binaries = [
-	config.cmds.file,
 	config.cmds.lame,
 	config.cmds.oggenc,
 	config.cmds.ogginfo,

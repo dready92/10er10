@@ -1,6 +1,10 @@
+process.env.MAGIC = process.env.MAGIC || __dirname+"/magic/magic.mgc";
+
 var fs = require("fs"),
 	ncouch = require("./ncouch"),
 	files = require("./files"),
+	mmmagic = require("mmmagic"),
+	Magic = mmmagic.Magic,
 	exec = require('child_process').exec;
 	
 exports.mustache = require("./mustache");
@@ -262,18 +266,12 @@ exports.fillUserCtx = function (ctx,response,session) {
 
 
 exports.fileType = function(file,cb) {
-	var process = exec(
-		config.cmds.file+" "+config.cmds.file_options+" "+file,
-		function(error,stdout, stderr) {
-			if ( error !== null ) {
-				exports.log("debug","fileType error while checking ",file);
-				cb(error);
-			} else {
-				exports.log("debug","fileType : ",stdout);
-				cb(null,stdout.replace(/\s/g,"").split(";").shift());
-			}
-		}
-	);
+  var magic = new Magic(mmmagic.MAGIC_MIME_TYPE);
+  magic.detectFile(file, function(err, result) {
+    exports.log("debug","fileType : ",result);
+    exports.log("debug","fileType error ?",err);
+    cb(err,result);
+  });
 };
 
 exports.sanitize = {

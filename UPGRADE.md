@@ -12,6 +12,10 @@ To upgrade your PROD databases, run
 
     node install.js -p
 
+- install the node **mmmagic** module : from the UNIX user you setup node & npm, run
+
+    npm install mmmagic
+
 - restart the node 10er10 server
 
 **What changed ?**
