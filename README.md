@@ -113,8 +113,6 @@ Of course, those two folders should be writable by the unix user that will launc
 
 Look at exports.cmds.
 
-- exports.cmds.file : the path to the Unix "file" executable.
-- exports.cmds.file_options : be careful on this one : some Linux flavors don't use the same flags. The output of "file -bi /etc/passwd" should be "text/plain". Debian/Ubuntu users : set file_options to "-b --mime-type"
 - exports.cmds.lame : the path to the lame executable
 - exports.cmds.oggenc : the path to the oggenc executable
 - exports.cmds.ogginfo : the path to the ogginfo executable

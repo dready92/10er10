@@ -54,7 +54,6 @@ exports.images = {
 
 
 exports.cmds = {
-	file_options: "-bi",
 	lame: "/usr/bin/lame",
 	lame_opts:  ["--mp3input","--quiet","--decode","-","-"],
 	oggenc: "/usr/bin/oggenc",
