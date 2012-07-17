@@ -396,11 +396,45 @@ exports.api = function(app) {
 						then(null,tags);
 					}
 				},
+                moveAlternativeFile: {
+                  status: null,
+                  run: function(then) {
+                    var c = this.id[2],
+                    filename = this.oggName,
+                    tmpFile = d10.config.audio.tmpdir+"/"+this.fileName,
+                    id = this.id,
+                    fileType = this.tasks.fileType.response,
+                    alternativeExtension = null;
+                    d10.log("debug",jobid,"file type : ",fileType);
+                    if ( fileType == "audio/mpeg" ) {
+                      alternativeExtension = "mp3";
+                    } else if ( fileType == "audio/mp4" ) {
+                      alternativeExtension = "m4a";
+                    }
+                    if ( !alternativeExtension ) {
+                      return then();
+                    }
+                    var targetFile = d10.config.audio.dir+"/"+id[2]+"/"+id+"."+alternativeExtension;
+                    d10.log("debug",jobid,"moveAlternativeFile : ",tmpFile," -> ",targetFile);
+                    fs.rename(
+                      tmpFile,
+                      targetFile,
+                      function(err,resp) {
+                        if ( err ) {
+                          return then(err);
+                        }
+                        return then(null, {type: fileType, extension: alternativeExtension});
+                      }
+                    );
+                  }
+                },
 				moveFile: {
 					status: null,
 					run: function(then) {
 						var c = this.id[2],
 							filename = this.oggName,
+                            tmpFile = d10.config.audio.tmpdir+"/"+this.fileName,
+                            id = this.id,
 							sourceFile = d10.config.audio.tmpdir+"/";
 							sourceFile+= (this.tasks.fileType.response == "application/ogg" ) ? this.fileName : this.oggName ;
 						d10.log("debug",jobid,"moveFile : ",sourceFile," -> ",d10.config.audio.dir+"/"+c+"/"+filename);
@@ -408,9 +442,19 @@ exports.api = function(app) {
 							fs.rename(
 								sourceFile,
 								d10.config.audio.dir+"/"+c+"/"+filename,
-								then
+                                function(err,resp) {
+                                  if ( err ) {
+                                    return then(err);
+                                  }
+                                  job.complete("moveAlternativeFile",function() {
+                                    then(err,resp);
+                                  });
+                                  job.run("moveAlternativeFile");
+                                }
 							);
+                            
 						};
+                        
 						fs.stat(d10.config.audio.dir+"/"+c,function(err,stat) {
 							if ( err ) {
 								d10.log("debug",jobid,"moveFile", err);
@@ -467,6 +511,9 @@ exports.api = function(app) {
 							hits: 0,
 							duration: duration
 						};
+                        if ( this.tasks.moveAlternativeFile.response ) {
+                          doc.sourceFile = this.tasks.moveAlternativeFile.response;
+                        }
 						for ( var index in this.tasks.cleanupTags.response ) {
 							var k = index.toLowerCase(),
 								v = this.tasks.cleanupTags.response[index];
