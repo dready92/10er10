@@ -3,7 +3,11 @@ var d10 = require ("./d10"),fs = require("fs"), util = require("util"),when = re
 exports.api = function(app) {
 
 	app.get("/audio/download/aa:id", function(request,response) {
-		var file = d10.config.audio.dir +"/"+ request.params.id.substr(0,1) + "/aa" + request.params.id+".ogg";
+        var extension = "ogg";
+        if ( request.query.extension && request.query.extension.length ) {
+          extension = request.query.extension;
+        }
+		var file = d10.config.audio.dir +"/"+ request.params.id.substr(0,1) + "/aa" + request.params.id+"."+extension;
 		d10.log("debug","sending",file);
 		when(
 			{
@@ -23,7 +27,7 @@ exports.api = function(app) {
 					response.end ("Filesystem error");
 				} else {
 					request.ctx.headers["Content-Type"] = "application/octet-stream";
-					request.ctx.headers["Content-Disposition"] = 'attachment; filename="'+r.doc.artist+' - '+r.doc.title+'.ogg"';
+					request.ctx.headers["Content-Disposition"] = 'attachment; filename="'+r.doc.artist+' - '+r.doc.title+'.'+extension+'"';
 					request.ctx.headers["Content-Transfer-Encoding"] = "binary";
 					request.ctx.headers["Expires"] = "0";
 					request.ctx.headers["Pagma"] = "no-cache";
