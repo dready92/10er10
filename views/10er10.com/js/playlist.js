@@ -149,8 +149,17 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 		};
 		
 		var getUrl = this.getUrl = function(song) {
-			var url = function (id) { return config.audio_root+id.substr(2,1)+"/"+id+".ogg"; } ;
-			return {"audio/ogg": url(song.attr('name'))};
+            var url = function (id, extension) { return config.audio_root+id.substr(2,1)+"/"+id+"."+extension; } ;
+            var urls = {};
+            
+            if ( song.attr("data-originalfile-type") ) {
+              urls[song.attr("data-originalfile-type")] = url(song.attr('name'), song.attr("data-originalfile-extension"));
+            }
+            
+			
+            urls["audio/ogg"] = url(song.attr('name'),"ogg");
+            debug("playlist::getUrl returns: ",urls);
+			return urls;
 		};
 		var getTrackParameters = this.getTrackParameters = function(song) {
 			return [
