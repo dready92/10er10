@@ -28,6 +28,10 @@ define(["js/user", "js/d10.localcache"],function(user, localcache) {
 		if ( doc.user == user.id() ) {
 			doc.owner = true;
 		}
+		if ( doc.sourceFile && doc.sourceFile.type && doc.sourceFile.extension ) {
+          doc.originalFile = [ doc.sourceFile ];
+        }
+		
 		return mustacheView('song_template',doc);
 	};
 	
