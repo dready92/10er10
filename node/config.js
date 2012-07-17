@@ -38,7 +38,11 @@ exports.rpp = 30;
 
 exports.audio = {
 	tmpdir: "../audio/tmp",
-	dir: "../audio/files"
+	dir: "../audio/files",
+    
+    // when the source audio file is already encoded, and not on ogg format,
+    // setting this to true will also record the original file
+    keepOriginalFile: true
 };
 
 // used to set the ogg path in the URL of the browser

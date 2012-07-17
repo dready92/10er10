@@ -399,6 +399,11 @@ exports.api = function(app) {
                 moveAlternativeFile: {
                   status: null,
                   run: function(then) {
+                    
+                    if ( !d10.config.audio.keepOriginalFile ) {
+                      return then();
+                    }
+                    
                     var c = this.id[2],
                     filename = this.oggName,
                     tmpFile = d10.config.audio.tmpdir+"/"+this.fileName,
