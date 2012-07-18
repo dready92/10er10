@@ -83,8 +83,27 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
            overlay.ovlay().close();
            router.navigateTo(["library","genres",name]);
        });
-       overlay.find("a[data-action=songDownload]").click(function() {
-           overlay.ovlay().close();
+       overlay.find("a[data-action=songDownload]").click(function(e) {
+           if ( song.attr("data-originalfile-extension") ) {
+             e.preventDefault();
+             var nextRibbon = overlay.find(".multiType");
+             var currentRibbon = nextRibbon.prev();
+             currentRibbon.slideUp("fast");
+             nextRibbon.slideDown("fast");
+           } else {
+            overlay.ovlay().close();
+           }
+       });
+       overlay.find("a[data-action=songDownloadByExtension]").click(function() {
+         overlay.ovlay().close();
+       });
+       overlay.find("a[data-action=cancelDownload]").click(function(e) {
+          e.preventDefault();
+          var nextRibbon = overlay.find(".multiType");
+          var currentRibbon = nextRibbon.prev();
+          nextRibbon.slideUp("fast");
+          currentRibbon.slideDown("fast");
+
        });
 
        overlay.find("button[data-action=editMeta]").click(function() {
@@ -148,6 +167,7 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
        templateData.title     = song.find(".title").html();
        templateData.artist    = song.find(".artist").html();
        templateData.genre     = song.attr("data-genre");
+       templateData.multiType = [];
        var album = song.find(".album").html();
        if ( album && album.length ) {
            templateData.album = [album];
@@ -160,6 +180,11 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
        if ( song.attr("data-owner") || user.is_superman() ) {
            templateData.editButton=[true];
        }
+       
+       if ( song.attr("data-originalfile-extension") ) {
+         templateData.multiType.push({ id: id, extension: song.attr("data-originalfile-extension") });
+       }
+       
         return templateData;
    };
 

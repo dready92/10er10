@@ -273,6 +273,8 @@ exports.server = {
         genre: "Genre",
         button_add_to_player: "Add to current playing queue",
         button_download: "Download",
+        button_download_as_ogg: "Download ogg encoded song",
+        button_download_as_other: "Download original, {{extension}} encoded song",
         button_edit_meta: "Edit meta data",
         button_add_to_playlist: "Add to playlist...",
         label_back: "Back",

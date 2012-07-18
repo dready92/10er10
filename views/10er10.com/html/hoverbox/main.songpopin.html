@@ -78,6 +78,27 @@
     </div>
 
   </div>
+{{#multiType}}
+  <div class="fixHeight multiType hidden center">
+    <p>
+      <a href="audio/download/{{id}}" data-action="songDownloadByExtension"><button class="downloadControl">
+        <img class="middle" src="css/48x48/places/folder-downloads.png">
+        &nbsp;<b>ogg</b><br>
+        ((button_download_as_ogg))
+      </button></a>
+    </p>
+    <p>
+      <a href="audio/download/{{id}}?extension={{extension}}" data-action="songDownloadByExtension"><button class="downloadControl">
+        <img class="middle" src="css/48x48/places/folder-downloads.png" >
+        &nbsp;<b>{{extension}}</b><br>
+        ((button_download_as_other))
+      </button></a>
+    </p>
+    <a href="#" data-action="cancelDownload">Cancel</a>
+  </div>
+{{/multiType}}
+
+
 </div>
 
 

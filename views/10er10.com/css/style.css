@@ -2580,6 +2580,8 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 .songMenuOverlay .fixHeight { height: 200px; }
 .songMenuOverlay .sliderWindow { width: 600px; overflow: hidden }
 .songMenuOverlay .sliderRibbon {position: relative; width: 1200px }
+.songMenuOverlay .sliderWindow .multiType {position: relative; width: 600px }
+.songMenuOverlay .sliderWindow .multiType p{margin-bottom: 18px}
 .songMenuOverlay .leftSide {float: left; width: 350px; overflow: hidden; border-right: 1px solid #9A9A9A; font-size: 0.9em}
 .songMenuOverlay .songInfos {max-height: 150px; overflow: hidden;}
 .songMenuOverlay .images {width: 64px; float: left; text-align: center;}

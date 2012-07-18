@@ -274,6 +274,8 @@ exports.server = {
         genre: "Genre",
         button_add_to_player: "Ajouter à la lecture en cours",
         button_download: "Télécharger",
+        button_download_as_ogg: "Télécharger le morceau au format ogg",
+        button_download_as_other: "Télécharger le morceau au format {{extension}}",
         button_edit_meta: "Editer les informations",
         button_add_to_playlist: "Ajouter à la liste de lecture...",
         label_back: "Retour",
