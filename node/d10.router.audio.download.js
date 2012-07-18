@@ -5,7 +5,7 @@ exports.api = function(app) {
 	app.get("/audio/download/aa:id", function(request,response) {
         var extension = "ogg";
         if ( request.query.extension && request.query.extension.length ) {
-          extension = request.query.extension;
+          extension = request.query.extension.replace(/\W+/g,"");
         }
 		var file = d10.config.audio.dir +"/"+ request.params.id.substr(0,1) + "/aa" + request.params.id+"."+extension;
 		d10.log("debug","sending",file);
