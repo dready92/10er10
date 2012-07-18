@@ -21,7 +21,8 @@ To upgrade your PROD databases, run
 **What changed ?**
 
 - artist catalog can be filtered by genre
-
+- replaced Unix *file* utility by the mmmagic module
+- record original audio file if uploaded audio file is an mp3 or m4a (why this ? Read it here https://plus.google.com/u/0/b/109983204693472020055/109983204693472020055/posts/WeWEfbgcuVD )
 
 Upgrade from 0.11 to 0.12
 =========================
