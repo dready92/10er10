@@ -48,6 +48,7 @@ To upgrade your PROD databases, run
 - dedicated artist page
 - dedicated album page
 - two columns layout for the "all artists" page
+- renaming of javascript files (empty your browser cache if the website don't work well)
 
 Upgrade from 0.10 to 0.11
 =========================
