@@ -1,46 +1,40 @@
-define(["js/domReady","js/d10.router", "js/playlist","js/d10.rest","js/d10.templates","js/d10.toolbox","js/d10.imageUtils", "js/config"],
-	   function(foo,router,playlist,rest,tpl,toolbox,imageUtils, config) {
-
+define(["js/domReady","js/d10.router", "js/playlist","js/d10.rest","js/d10.templates",
+       "js/d10.toolbox","js/d10.imageUtils", "js/config", "js/d10.restHelpers"],
+	   function(foo,router,playlist,rest,tpl,toolbox,imageUtils, config, restHelpers) {
+    var whatsNewTtl = 3600000;
 	function  welcome (ui) {
-
+        var lastRefresh = 0;
+        var shouldRefresh = function() {
+          return ( (new Date().getTime() - whatsNewTtl) > lastRefresh );
+        };
 		ui.find(".welcomeBox[data-target]").click(function() {
 			router.navigateTo($(this).attr("data-target"));
 			return false;
 		});
 
 		var findLatest = function(then) {
-			rest.song.list.creations({},{
-				load: function(err,resp) {
-					if ( err ) {
-						return ;
-					}
-					if ( !resp.length ) {
-						return ;
-					}
-					if ( resp.length <= config.rpp ) {
-						return then(resp);
-					}
-					last = resp.pop();
-					rest.song.list.creations(
-						{
-							startkey: JSON.stringify(last.key),
-							startkey_docid: last.doc._id
-							
-						},{
-							load: function(err,resp2) {
-								if ( err ) {
-									return then(resp);
-								}
-								if ( !resp2.length ) {
-									return then(resp);
-								}
-								resp = resp.concat(resp2);
-								return then(resp);
-							}
-						}
-					);
-				}
-			});
+          var cursor = new restHelpers.couchMapCursor(rest.song.list.creations);
+          var results = [];
+          var requests = 0;
+          var appendResults = function() {
+            if ( requests == 4 ) {
+              if ( results.length ) {
+                then(results);
+              }
+              return ;
+            }
+            requests++;
+            if ( !cursor.hasMoreResults() ) {
+              return appendResults();
+            }
+            cursor.getNext(function(err,res) {
+              if ( res ) {
+                results = results.concat(res);
+              } 
+              appendResults();
+            });
+          };
+          appendResults();
 		},
 		undefinedAlbum = "__undefined_album__",
 		arrangeLatest = function(latest, then) {
@@ -115,7 +109,9 @@ define(["js/domReady","js/d10.router", "js/playlist","js/d10.rest","js/d10.templ
 					widget
 				);
 			}
-			var container = ui.find(".whatsNew .body");
+			var whatsNew = ui.find(".whatsNew"),
+			    container =  whatsNew.find(".body");
+            container.empty();
 			if ( widgets.length % 2 != 0 ) {
 				widgets.pop();
 			}
@@ -123,10 +119,10 @@ define(["js/domReady","js/d10.router", "js/playlist","js/d10.rest","js/d10.templ
 				$.each(widgets,function(k,v) {
 					container.append(v);
 				});
-				ui.find(".whatsNew").slideDown();
+				whatsNew.slideDown();
 			}
-		},
-		bindEvents = function() {
+		};
+		this.bindEvents = function() {
 			ui.find(".whatsNew")
 			.delegate(".albumWidget .head","click",function() {
 				router.navigateTo(["library","albums",$(this).attr("data-album")]);
@@ -147,24 +143,21 @@ define(["js/domReady","js/d10.router", "js/playlist","js/d10.rest","js/d10.templ
 			;
 		};
 		this.whatsNew = function() {
-			ui.find(".whatsNew .body").empty();
-			bindEvents();
-			findLatest(function(latest) {
-				arrangeLatest(latest,displayLatest);
-			});
+            if (shouldRefresh() ) {
+              findLatest(function(latest) {
+                  arrangeLatest(latest,displayLatest);
+                  lastRefresh = new Date().getTime();
+              });
+            }
 		};
 	};
 	
 	var w = new welcome($('#welcome'));
-	
-	var welcomeRouteHandler = function() { this._activate("main","welcome",this.switchMainContainer); },
-		firstLoad = true;
+	w.bindEvents();
+	var welcomeRouteHandler = function() { this._activate("main","welcome",this.switchMainContainer); };
 	router.route("welcome","welcome",welcomeRouteHandler);
 	router.bind("route:welcome",function() {
-		if ( firstLoad ) {
-			w.whatsNew();
-			firstLoad = false;
-		}
+		w.whatsNew();
 	});
 	return w;
 });
