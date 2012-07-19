@@ -947,6 +947,71 @@ exports.api = function(app) {
 			d10.realrest.success({albums: resp.rows.length ? true : false},request.ctx);
 		});
 	});
+    
+    app.get("/api/genre/resume/:genre", function(request, response) {
+        if ( !request.params.genre || 
+            d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
+            return d10.realrest.err(428, request.params.genre, request.ctx);
+        }
+        
+        var getAlbums = function(genre, cb) {
+            var startkey = [genre];
+            var endkey = [genre, {}];
+            d10.couch.d10.view("genre/albums",{reduce: true, group: true, group_level: 2, startkey: startkey, endkey: endkey}, function(err,resp) {
+                if ( err ) {
+                    return cb(err);
+                }
+                var albums = [];
+                for (var i in resp.rows ) {
+                    if ( albums.indexOf(resp.rows[i].key[1]) < 0) {
+                        albums.push(resp.rows[i].key[1]);
+                    }
+                }
+                return cb(null, albums.length);
+            });
+        };
+        
+        var getArtists = function(genre, cb) {
+            var startkey = [genre];
+            var endkey = [genre, {}];
+            d10.couch.d10.view("genre/artists",{reduce: true, group: true, group_level: 2, startkey: startkey, endkey: endkey}, function(err,resp) {
+                if ( err ) {
+                    return cb(err);
+                }
+                var artists = [];
+                for (var i in resp.rows ) {
+                    if ( artists.indexOf(resp.rows[i].key[1])<0 ) {
+                        artists.push(resp.rows[i].key[1]);
+                    }
+                }
+                return cb(null, artists.length);
+            });
+        };
+        
+        var getSongInfos = function(genre,cb) {
+            d10.couch.d10.view("genre/songInfos",{reduce: true, group: true, group_level: 1, key: genre}, function(err,resp) {
+                if ( err ) { return cb(err); }
+                if ( !resp.rows.length ) { return cb("Unknown genre in database"); }
+                return cb(null,resp.rows[0].value);
+            });
+        };
+        
+        when({
+                songs: function(cb) {getSongInfos(request.params.genre,cb);} ,
+                albums: function(cb) {getAlbums(request.params.genre,cb);} ,
+                artists: function(cb) {getArtists(request.params.genre,cb);}
+            },
+            function(errs,resps) {
+                if ( errs )
+                  return d10.realrest.err(423, errs, request.ctx);
+                
+                return d10.realrest.success(resps, request.ctx);
+            }
+        );
+        
+        
+    });
+    
 }; // exports.api
 
 
