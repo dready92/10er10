@@ -152,8 +152,8 @@ define(["js/playlist", "js/d10.events", "js/d10.rest", "js/d10.restHelpers", "js
 	var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {
 		if ( topic == "genres" ) {
 			categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.genre"));
-			categorydiv.find("article h2 > span:first-child").text(category);
-			categorydiv.find("article h2 > .link").click(function() { router.navigateTo(["library","genres"]); });
+			categorydiv.find("article h1").text(category);
+			categorydiv.find("article .link[name=all]").click(function() { router.navigateTo(["library","genres"]); });
 		} else {
 			categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.simple"));
 			if ( topic == "albums" ) {

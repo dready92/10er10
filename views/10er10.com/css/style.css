@@ -460,6 +460,8 @@ div.tooltip > p {
 	padding: 5px 20px; background-color: #454545; text-align: center;
 	border-top-right-radius: 5px;border-top-left-radius: 5px;
 }
+
+#library article.songlist div.pageTitle {margin-bottom: 20px;}
 #library article.songlist .extendedInfosContainer { text-align: center;background-color: #454545;}
 #library article.songlist .extendedInfos { height: 200px; vertical-align: middle; display: inline-block; }
 #library article.songlist .extendedInfos .part3 {width: 211px; margin: 5px;}
@@ -770,9 +772,9 @@ article.review .form_error {
 }
 
 #library article h2 span.link {
-	font-size: 11px;
+/* 	font-size: 11px; */
 	font-weight: normal;
-	padding-left: 50px;
+/* 	padding-left: 50px; */
 }
 
 article div.refreshList {
@@ -844,7 +846,7 @@ article div.refreshList {
   padding-left: 10px;
 }
 
-#library article.artistPage h1, #library article.albumPage h1 {
+#library article.artistPage h1, #library article.albumPage h1,  #library article.genrePage h1  {
   display: inline;
   font-weight: normal;
   text-shadow: 1px 1px 2px #595959, -1px -1px #121212;

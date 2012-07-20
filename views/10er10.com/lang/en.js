@@ -164,7 +164,7 @@ exports.server = {
 		select_visible: "Select only visible songs"
 	},
 	"html/library/content_genre.html": {
-		back_to_list: "Back to genres listing",
+		all_genres: "Genres",
 		add_to_playlist: "Add all songs to the player queue",
 		refresh: "Refresh list",
 		no_song: "No song found",

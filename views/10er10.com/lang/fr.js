@@ -164,7 +164,7 @@ exports.server = {
 		select_visible: "Sélectionner les morceaux visibles"
 	},
 	"html/library/content_genre.html": {
-		back_to_list: "Revenir à la liste des genres",
+		all_genres: "Genres",
 		add_to_playlist: "Tout ajouter à la lecture en cours",
 		refresh: "Rafraichir la liste",
 		no_song: "Aucun morceau trouvé",
