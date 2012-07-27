@@ -147,12 +147,7 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
           template_data.no_album.push(album);
         }
       });
-	  
-	  var mins = Math.floor(duration / 60);
-	  template_data.hours = Math.floor( mins/60 );
-	  template_data.hours = template_data.hours ? [template_data.hours] : [];
-	  template_data.minutes =  mins - template_data.hours*60;
-	  template_data.minutes = template_data.minutes < 10 ? "0"+template_data.minutes : template_data.minutes;
+	  tpl.secondsToTemplate(duration, template_data);
 	  
 	  if ( !param && availableGenres.length > 1 ) {
 		  availableGenres = availableGenres.map(function(g) { return {genre: g, genre_e: g.replace('"','&quot;')}; });

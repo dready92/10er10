@@ -38,11 +38,20 @@ define(["js/user", "js/d10.localcache"],function(user, localcache) {
 	function albumMini(data) {
 		return mustacheView("library.content.album.all.mini",data);
 	};
+    
+    function secondsToTemplate(seconds, template_data) {
+      var mins = Math.floor(seconds / 60);
+      template_data.hours = Math.floor( mins/60 );
+      template_data.hours = template_data.hours ? [template_data.hours] : [];
+      template_data.minutes =  mins - template_data.hours*60;
+      template_data.minutes = template_data.minutes < 10 ? "0"+template_data.minutes : template_data.minutes;
+    };
 	
 	
 	return {
-		mustacheView: mustacheView,
-		song_template: song_template,
-		albumMini: albumMini
+      mustacheView: mustacheView,
+      song_template: song_template,
+      albumMini: albumMini,
+      secondsToTemplate: secondsToTemplate
 	};
 });
