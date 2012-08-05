@@ -496,7 +496,8 @@ div.tooltip > p {
 }
 
 #library article.songlist div.pageTitle {margin-bottom: 20px;}
-#library article.songlist .extendedInfosContainer { text-align: center;background-color: #454545;}
+#library article.songlist .extendedInfosContainer { text-align: center; background-color: #454545;}
+#library article.songlist.genrePage .extendedInfosContainer { border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; }
 #library article.songlist .extendedInfos { height: 200px; vertical-align: middle; display: inline-block; }
 #library article.songlist .extendedInfos .part3 {width: 211px; margin: 5px;}
 #library article.songlist .extendedInfos .part2 {width: 330px; margin: 5px;}

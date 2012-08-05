@@ -39,24 +39,56 @@ define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolb
 		template.slideDown("fast");
 	};
 
+    
+    var bindHideShowExtendedInfos = function(topicdiv) {
+      var hide = topicdiv.find("span.hide");
+      var show = topicdiv.find("span.show");
+      if ( user.get_preferences().hiddenExtendedInfos ) {
+        hide.hide();
+        show.show();
+        infos.hide();
+        topicdiv.find(".extendedInfosContainer").show();
+      } else {
+        hide.show();
+        show.hide();
+        topicdiv.find(".extendedInfosContainer").slideDown("fast");
+      }
+      hide.click(function() {
+        infos.slideUp("fast");
+        hide.slideUp("fast",function() {
+          show.slideDown("fast");
+        });
+        user.set_preference("hiddenExtendedInfos",true);
+      });
+      show.click(function() {
+        infos.slideDown("fast");
+        show.slideUp("fast",function() {
+          hide.slideDown("fast");
+        });
+        user.set_preference("hiddenExtendedInfos",false);
+      });
+    };
 
 	var extendedInfos = {
 		genres: function(genre, topicdiv) {
-			var hide = topicdiv.find("span.hide");
-			var show = topicdiv.find("span.show");
+          
+            rest.genre.genreResume(genre, {
+              load: function(err,data) {
+                if ( err ) { return }
+                console.log(data);
+                var widget = topicdiv.find(".subtitle");
+                widget.find(".songs").text( data.songs.count );
+                widget.find(".artists").text( data.artists );
+                widget.find(".albums").text( data.albums );
+                widget.fadeIn();
+                
+              }
+            });
+          
+          
+            bindHideShowExtendedInfos(topicdiv);
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			if ( user.get_preferences().hiddenExtendedInfos ) {
-				hide.hide();
-				show.show();
-				infos.hide();
-				topicdiv.find(".extendedInfosContainer").show();
-			} else {
-				hide.show();
-				show.hide();
-				topicdiv.find(".extendedInfosContainer").slideDown("fast");
-			}
-
 			When({
 				artists: function(then) {
 					rest.genre.artists(genre, {
@@ -88,20 +120,6 @@ define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolb
 			function(errs,responses) {
 				parseExtended(responses, infos, loading, topicdiv.find(".showHideExtended") );
 			});
-			hide.click(function() {
-				infos.slideUp("fast");
-				hide.slideUp("fast",function() {
-					show.slideDown("fast");
-				});
-				user.set_preference("hiddenExtendedInfos",true);
-			});
-			show.click(function() {
-				infos.slideDown("fast");
-				show.slideUp("fast",function() {
-					hide.slideDown("fast");
-				});
-				user.set_preference("hiddenExtendedInfos",false);
-			});
 		},
 		artists: function(artist,topicdiv) {
 			if ( !artist || !artist.length ) {
@@ -109,20 +127,9 @@ define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolb
 				topicdiv.find(".extendedInfosContainer").remove();
 				return ;
 			}
-			var show = topicdiv.find(".show");
-			var hide = topicdiv.find(".hide");
+			bindHideShowExtendedInfos(topicdiv);
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			if ( user.get_preferences().hiddenExtendedInfos ) {
-				hide.hide();
-				show.show();
-				infos.hide();
-				topicdiv.find(".extendedInfosContainer").show();
-			} else {
-				hide.show();
-				show.hide();
-				topicdiv.find(".extendedInfosContainer").slideDown("fast");
-			}
 			topicdiv.find(".showHideExtended").removeClass("hidden");
 
 			
@@ -193,20 +200,6 @@ define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolb
 			function(errs,responses) {
 				parseExtended(responses, infos, loading, topicdiv.find(".showHideExtended") );
 			});
-			hide.click(function() {
-				infos.slideUp("fast");
-				hide.slideUp("fast",function() {
-					show.slideDown("fast");
-				});
-				user.set_preference("hiddenExtendedInfos",true);
-			});
-			show.click(function() {
-				infos.slideDown("fast");
-				show.slideUp("fast",function() {
-					hide.slideDown("fast");
-				});
-				user.set_preference("hiddenExtendedInfos",false);
-			});
 		},
 		albums: function(album,topicdiv) {
 			if ( !album || !album.length ) {
@@ -214,23 +207,12 @@ define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolb
 				topicdiv.find(".extendedInfosContainer").remove();
 				return ;
 			}
-			var show = topicdiv.find(".show");
-			var hide = topicdiv.find(".hide");
+			bindHideShowExtendedInfos(topicdiv);
 			var loading = topicdiv.find(".extendedInfos .loading");
 			var infos = topicdiv.find(".extendedInfos");
-			if ( user.get_preferences().hiddenExtendedInfos ) {
-				hide.hide();
-				show.show();
-				infos.hide();
-				topicdiv.find(".extendedInfosContainer").show();
-			} else {
-				hide.show();
-				show.hide();
-				topicdiv.find(".extendedInfosContainer").slideDown("fast");
-			}
 			topicdiv.find(".showHideExtended").removeClass("hidden");
-			
-			When({
+
+            When({
 				artists: function(then) {
 					rest.album.artists(album,{
 						load: function(err, data) {
@@ -250,20 +232,6 @@ define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolb
 			},
 			function(errs,responses) {
 				parseExtended(responses, infos, loading, topicdiv.find(".showHideExtended") );
-			});
-			hide.click(function() {
-				infos.slideUp("fast");
-				hide.slideUp("fast",function() {
-					show.slideDown("fast");
-				});
-				user.set_preference("hiddenExtendedInfos",true);
-			});
-			show.click(function() {
-				infos.slideDown("fast");
-				show.slideUp("fast",function() {
-					hide.slideDown("fast");
-				});
-				user.set_preference("hiddenExtendedInfos",false);
 			});
 		}
 	};
