@@ -57,32 +57,27 @@ var incoming = null;
 
 /* worker onmessage callback */
 onmessage = function(e){
-//   var data = null;
-
-//   sendResult("OOOKKKKK");
-//   return ;
   try {
     incoming = JSON.parse(e.data);
   } catch (e) {
     sendError("parsererror", "bad data format");
     return;
   }
-
+  var request_id = incoming.request_id ? incoming.request_id : null;
   if ( !incoming.job || !jobs[incoming.job] ) {
-    sendError("job", "unknown job");
+    sendError("job", "unknown job", request_id);
     return ;
   }
-  jobs[incoming.job].job(incoming.data);
-//   sendResult({"called": true});
+  jobs[incoming.job].job(incoming.data, request_id);
 };
 
-function sendError(err,message) {
-	postMessage ( JSON.stringify({ "error": err, "message": message }) );
+function sendError(err,message, request_id) {
+	postMessage ( JSON.stringify({ "error": err, "message": message, request_id: request_id }) );
 }
 
 
-function sendResult (result) {
-	postMessage ( JSON.stringify({ "data": result }) );
+function sendResult (result, request_id) {
+	postMessage ( JSON.stringify({ "data": result, request_id: request_id }) );
 }
 
 
@@ -90,19 +85,19 @@ var jobs = {
   "enablePing": {
     "interval": null,
     "url": null,
-    "job":  function(data) {
+    "job":  function(data, request_id) {
       if ( ! jobs.enablePing.interval ) {
         jobs.enablePing.interval = setInterval(pingReporter,900000);
       }
       jobs.enablePing.url = data.url;
-      sendResult({"enabled": true});
+      sendResult({"enabled": true}, request_id);
       pingReporter();
     }
   },
   "player": {
     "buffer": [],
     // data : {"id", "creation","duration","events"}
-    "job":  function(data) {
+    "job":  function(data, request_id) {
 
       var id = data.id.replace(/^.*-/,'');
       var play = jobs.player.getEvent(data.events,"play");
@@ -121,7 +116,7 @@ var jobs = {
       }
 
 
-      sendResult({"parsed": true,"buffer": jobs.player.buffer});
+      sendResult({"parsed": true,"buffer": jobs.player.buffer, request_id: request_id});
     },
     "shortPath": function (events, duration) {
       duration = parseInt(duration,10);
