@@ -179,6 +179,6 @@ define( ["js/config", "js/d10.toolbox"], function(config, toolbox) {
 		};
 	};
 
-	return new httpbroker(10);
+	return new httpbroker(5);
 });
 
