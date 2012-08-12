@@ -254,9 +254,6 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		// variables par defaut
 		//
 		$('body').data('volume',0.5);
-		$('body').data('cache_ttl',300000); // msecs
-
-		
 		
 		$("footer a.logout").click(function() {
 			$("footer .loggedin").hide();

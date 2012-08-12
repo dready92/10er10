@@ -8,14 +8,7 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
         rest.server.load({
           load: function(err, data) {
             if ( !err  ) {
-              var load = data.load.shift();
-              if ( load < 3 ) {
-                $("body").data("cache_ttl",15000);
-              } else if ( load < 6 ) {
-                $("body").data("cache_ttl",60000);
-              } else {
-                $("body").data("cache_ttl",300000);
-              }
+              pubsub.topic("server.load").publish(data.load);
             }
           }
         });

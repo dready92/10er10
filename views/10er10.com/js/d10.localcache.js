@@ -1,5 +1,17 @@
-define(function() {
+define(["js/d10.events"],function(pubsub) {
 
+var cache_ttl = 60000;
+pubsub.topic("server.load").subscribe(function(load) {
+  var load1 = load.shift();
+  if ( load1 < 3 ) {
+    cache_ttl = 15000;
+  } else if ( load1 < 6 ) {
+    cache_ttl = 60000;
+  } else {
+    cache_ttl = 300000;
+  }
+});
+  
 var storagebase = {
   getTemplate: function (key) {
     var obj = this.getJSON('site.templates');
@@ -22,7 +34,7 @@ var storagebase = {
     var val = JSON.parse(value);
     if ( val && val._cache_ttl ) {
       var now = new Date();
-      if ( now.getTime() - val._cache_ttl > $('body').data('cache_ttl') ) {
+      if ( now.getTime() - val._cache_ttl > cache_ttl ) {
         debug("localcache: ttl expired");
         this.unset(key);
         return ;
