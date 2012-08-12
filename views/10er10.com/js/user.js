@@ -2,23 +2,12 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 
 	function user () {
 		var infos = null;
-		var orderPlaylists = function(playlists) {
-			var pl = [];
-			$.each(playlists,function(k,v) {
-				var inserted = false;
-				$.each(pl,function(pk,pv) {
-					if ( v.name < pv.name ) {
-						inserted = true;
-						pl.splice(pk,0,v);
-						return false;
-					}
-				});
-				if ( !inserted )	{
-					pl.push(v);
-				}
-			});
-			return pl;
-		};
+        
+        var orderPlaylists = function(playlists) {
+          return playlists.sort(function(p1,p2) {
+            return p1.name > p2.name;
+          });
+        };
 
 		pubsub.topic('user.infos').subscribe(function(data) { 
 			debug(data);
