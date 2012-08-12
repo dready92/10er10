@@ -3,7 +3,11 @@ define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/d10.dnd",
 	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils, config, pubsub) {
 
 function myCtrl (ui) {
-	
+    //
+    // reminder click
+    //
+    $("#reviewReminder").click(function() { router.navigateTo(["my","review"]); });
+    
 	pubsub.topic("review.count").subscribe(function(data) {
 	  require(["js/my.reviewHelper"],function(helper) {
 		helper(data);

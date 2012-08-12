@@ -47,11 +47,6 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		$("#containerWrap").css("position","");
 
 		//
-		// reminder click
-		//
-		$("#reviewReminder").click(function() { router.navigateTo(["my","review"]); });
-
-		//
 		// the monitor
 		//
 		jobs.push("enablePing",{"url": config.site_url+"/api/ping"},{
