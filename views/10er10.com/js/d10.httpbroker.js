@@ -1,5 +1,5 @@
 "use strict";
-define( ["js/config", "js/d10.toolbox"], function(config, toolbox) {
+define( ["js/config", "js/d10.toolbox", "js/d10.events"], function(config, toolbox, pubsub) {
 
 
 
@@ -51,6 +51,7 @@ define( ["js/config", "js/d10.toolbox"], function(config, toolbox) {
 				data.request.complete.call(data, null, data.data);
 			}
 			delete cache[data.request_id];
+            pubsub.topic("rest.time").publish({start: data.request._startTime, stop: data.request._stopTime});
 		}
 
 
