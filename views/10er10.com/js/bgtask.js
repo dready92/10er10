@@ -17,8 +17,7 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
         rest.server.length({
           load: function(err, data) {
             if ( !err  ) {
-              var length = parseInt(data.length / 60 / 60);
-              $("footer span.hours").html(length);
+              pubsub.topic("library.totalSecondsOfMusic").publish(parseInt(data.length,10));
             }
           }
         });

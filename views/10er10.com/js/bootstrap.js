@@ -60,6 +60,13 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		});
 		pubsub.topic("audioDump").subscribe(function(data) { jobs.push("player",data,{}); });
 		
+        //
+        // the footer displaying hours of music
+        //
+        pubsub.topic("library.totalSecondsOfMusic").subscribe(function(secs) { 
+          var length = parseInt(secs / 60 / 60);
+          $("footer span.hours").html(length);
+        });
 		
 		//
 		// init background tasks
