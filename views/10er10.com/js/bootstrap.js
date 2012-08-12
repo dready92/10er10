@@ -155,79 +155,10 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		loadCount.html(when.complete());
 		loadTotal.html(when.total());
 		
-	//
-	// gestion du bouton + a gauche de chaque morceau
-	//
+        //
+        // gestion du bouton + a gauche de chaque morceau
+        //
 		require(["js/main.songpopin"]);
-		$("#mainsdfsdfsdsdfsdf").delegate('.song .add','click',function  (e) {
-			var that = $(this);
-			require(["js/d10.imageUtils"], function(imageUtils) {
-			
-			  var plus = that.find("img");
-			  var song = that.closest('.song');
-			  var id=song.attr('name');
-			  
-			  var overlay = $("<div class=\"songMenuOverlay yellowOverlay leftArrow\"></div>");
-			  overlay.ovlay(
-				{
-				  closeOnClick: true, 
-				  closeOnMouseOut: false, 
-				  closeOnEsc: true, 
-				  align:{position: "right", reference: plus, leftOffset: 9}
-				}
-			  );
-			  
-			  var leftSide = $("<div style=\"float: left; width: 200px; height: 200px; overflow: hidden; border-right: 1px solid white\"></div>");
-			  var getImage = function(song) {
-				var images = song.attr("data-images");
-				if ( images && images.length ) {
-					var image = images.split(",").shift();
-					return $("<img src=\""+imageUtils.getImageUrl(image)+"\" width=\"25%\" height=\"25%\" style=\"padding-right:3px; vertical-align: top\">");
-				} else {
-					return $("<img src=\""+imageUtils.getAlbumDefaultImage()+"\" width=\"25%\" height=\"25%\" style=\"padding-right:3px; vertical-align: top\">");
-				}
-			  };
-			  
-			  leftSide.append($("<div></div>").append(getImage(song)));
-			  leftSide.append("<div><span style=\"padding: 5px; vertical-align: top\">"+song.find(".title").html()+"</span></div>");
-			  overlay.append(leftSide);
-			  
-			  
-			  return false;
-			});
-			return false;
-			var playlists = user.get_playlists();
-			var elem = $(tpl.mustacheView('hoverbox.addsong.container',{playlist: playlists, _id: id}));
-			if ( playlists.length ) { $('div[name=playlists]',elem).show(); }
-			if ( song.attr("data-owner") || user.is_superman() ) {
-				elem.find("[name=edit]").removeClass("hidden");
-			}
-			
-			var height = parseInt ( elem.css('height').replace(/px$/,'') );
-			var top = e.pageY - 10;
-			if ( top + height  > $(window).height() && $(window).height() + 10 - height > 0 ) {
-				top = $(window).height() - height -10;
-			}
-			elem.css ( {'top': top,'left' : e.pageX - 10})
-			.hide()
-			.delegate('.clickable','click',function() {
-				if ( $(this).hasClass("review") ) {
-					router.navigateTo(["my","review",$(this).attr("name")]);
-					$(this).closest('.hoverbox').ovlay().close();
-					return ;
-				}
-				var playlistId = $(this).attr('name');
-				if ( playlistId && playlistId.length ) {
-					plmCtlr.append_song(id,playlistId);
-				} else {
-					playlist.append(song.clone().removeClass("dragging selected"));
-				}
-				$(this).closest('.hoverbox').ovlay().close();
-			});
-			elem.appendTo("body").ovlay({"onClose": function() {this.getOverlay().remove()}, "closeOnMouseOut": true });
-			return false;
-		});
-
 		
 		$("#main").delegate("div.song > span.artist","click",function(e) {
 			router.navigateTo(["library","artists",$(this).text()]);
