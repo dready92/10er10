@@ -91,41 +91,42 @@
 	<div class="spectrum hidden center">
 		<canvas/>
 	</div>
-	<div class="otherOptions">
-		<div class="showOtherOptions link">((side_options_show))</div>
-		<div class="otherOptionsContainer">
-			<div class="autofill" title="((side_options_radiomode_title))"> 
-				<div class="off">
-					<div class="label">(({side_options_radiomode_disabled}))</div>
-					<div class="link center expandable">((side_options_radiomode_enable))</div>
-				</div> 
-				<div class="on hidden">
-					<div class="label">(({side_options_radiomode_enabled}))</div>
-					<div class="link center expandable">((side_options_radiomode_options))</div>
-				</div> 
-				<div class="overlay hidden"> 
-					<div class="center vertical-little-air">((side_radiomode_genre_selector_title))</div>
-					<div class="list">{{#genres}}<div name="{{.}}">{{.}}</div>{{/genres}}</div>
-					<div class="close center vertical-little-air"><span class="link">((side_radiomode_close))</span></div> 
-					<div class="disable center vertical-little-air"><span class="link">((side_radiomode_disable))</span></div> 
-				</div> 
-			</div>
-			<div class="audioFade">
-				<div class="label">(({side_options_audiofade_title}))</div>
-				<div class="rangeSelector center expandable"><input type="range" name="fade" min="0" max="60" value="15" size="3"/> <span class="fadeValue"></span> ((side_options_audiofade_seconds))</div>
-			</div>
-			<div class="spectrumOption hidden">
-				<div class="label">(({side_options_spectrum_title}))</div>
-				<div class="center expandable">
-					<div class="off link center">((side_options_spectrum_enable))</div>
-					<div class="on link center hidden">((side_options_spectrum_disable))</div>
-				</div>
-			</div>
-			<div class="hideOtherOptions link">((side_options_hide))</div>
-		</div>
-	</div>
+    <div class="options">
+      <div class="optionsTab">
+        <div data-target="autofill">Radio</div><div data-target="audioFade">Fading</div><div class="hidden" data-target="spectrumOption">Spectrum</div>
+      </div>
+      <div class="optionsPanel">
+          <div class="autofill hidden" title="((side_options_radiomode_title))"> 
+              <div class="off">
+                  <div class="label">(({side_options_radiomode_disabled}))</div>
+                  <div class="link center expandable">((side_options_radiomode_enable))</div>
+              </div> 
+              <div class="on hidden">
+                  <div class="label">(({side_options_radiomode_enabled}))</div>
+                  <div class="link center expandable">((side_options_radiomode_options))</div>
+              </div> 
+              <div class="overlay hidden"> 
+                  <div class="center vertical-little-air">((side_radiomode_genre_selector_title))</div>
+                  <div class="list">{{#genres}}<div name="{{.}}">{{.}}</div>{{/genres}}</div>
+                  <div class="close center vertical-little-air"><span class="link">((side_radiomode_close))</span></div> 
+                  <div class="disable center vertical-little-air"><span class="link">((side_radiomode_disable))</span></div> 
+              </div> 
+          </div>
+          <div class="audioFade hidden">
+              <div class="label">(({side_options_audiofade_title}))</div>
+              <div class="rangeSelector center expandable"><input type="range" name="fade" min="0" max="60" value="15" size="3"/> <span class="fadeValue"></span> ((side_options_audiofade_seconds))</div>
+          </div>
+          <div class="spectrumOption hidden">
+              <div class="label">(({side_options_spectrum_title}))</div>
+              <div class="center expandable">
+                  <div class="off link center">((side_options_spectrum_enable))</div>
+                  <div class="on link center hidden">((side_options_spectrum_disable))</div>
+              </div>
+          </div>
+      </div>
+    </div>
   </div> 
-	<div class="audioImage center"></div>
+  <div class="audioImage center"></div>
   <div class="playlisttitle"><span></span></div> 
   <div id="playlist"></div>
   <div id="playlistLoader">((side_playlistloader))</div>

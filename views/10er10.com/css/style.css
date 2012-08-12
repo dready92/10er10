@@ -1664,9 +1664,9 @@ body.wide #controls {
 		height: 100px;
 }
 
+/*
 #controls div.showOtherOptions {
 	padding: 5px 5px 5px 5px;
-/* 	margin-bottom: 5px; */
 	text-align:center;
 	font-size: 0.8em;
     transition: background-color 0.3s ease-in;
@@ -1782,35 +1782,103 @@ body.wide #controls {
     transition: height 0.3s, color 0.3s;
 	-moz-transition: height 0.3s, color 0.3s;
 }
-
-/*
-#controls div.audioFade .expandable {
-	-moz-transition: opacity 0.3s, padding 0.3s, font-size 0.3s;
-	-webkit-transition: opacity 0.3s, padding 0.3s, font-size 0.3s;
-	font-size: 1px;
-	opacity: 0;
-	padding-bottom: 0;
-}
-
-#controls div.audioFade:hover .expandable {
-	font-size: 0.9em;
-	opacity: 1;
-	padding-bottom: 5px;
-}
-*/
 #controls .audioFade:hover input {
 	height: auto;
 }
+*/
+
+#controls .options { margin: 10px 0 0 0 }
+
+#controls .optionsTab {
+  padding: 0 0 2px 0;
+  text-align: center;
+}
+#controls .optionsTab > div {
+  display: inline;
+  padding: 2px 5px;
+  font-size: 0.8em;
+  color: #666;
+  background-color: #121212;
+  cursor: pointer;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  transition: all 0.3s;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#controls .optionsTab > div.hidden {display: none;}
+
+#controls .optionsTab > div:hover {
+  color: #BF9730;
+  background-color: #555;
+}
+
+#controls .optionsTab > div:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+#controls .optionsTab > div:last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+#controls .optionsTab > div.on {
+  background-color: #666;
+  color: #121212;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 0px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 0px;
+}
 
 
-/* #controls div.spectrumOption input { */
-/* 	display: none; */
-/* } */
+#controls .optionsPanel > div {
+  background-color: #666;
+  border-radius: 5px;
+  padding-bottom: 5px;
+}
 
-/* #controls div.spectrumOption:hover input {  */
-/* 	display: inline; */
+#controls .optionsPanel div.label {
+  text-align: center;
+  padding: 10px 0;
+}
 
-/* } */
+#controls .optionsPanel input[type=range] {
+  width: auto;
+    vertical-align:middle;
+}
+
+#controls div.autofill.enabled .on {
+    display: block;
+}
+
+#controls div.autofill.enabled .off {
+    display: none;
+}
+
+#controls div.autofill div.overlay div.list {
+  max-height: 300px;
+  overflow: auto;
+}
+
+#controls div.autofill div.overlay div.list > div {
+  padding-left: 20px;
+  cursor: pointer;
+}
+
+#controls div.autofill div.overlay div.list  > div.checked {
+  background-image: url("16x16/actions/dialog-ok.png");
+  background-repeat: no-repeat;
+  background-position: left center;
+  color: #BF9730;
+}
+
+#controls div.autofill div.overlay div.list  > div:hover {
+  background-color: #454545;
+}
 
 #reviewReminder {
   background-color:rgb(191,151,48);

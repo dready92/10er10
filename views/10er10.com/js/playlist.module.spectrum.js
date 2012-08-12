@@ -192,7 +192,9 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"],
 		return ;
 	}
 	
-	$("#side div.spectrumOption").slideDown("fast").find("div.link").bind("click",function() {
+	$("#controls div[data-target=spectrumOption]").removeClass("hidden");
+	
+	$("#side div.spectrumOption").find("div.link").bind("click",function() {
 		var that = $(this);
 		if ( that.hasClass("off") ) {
 			enabled = true;

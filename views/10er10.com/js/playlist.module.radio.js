@@ -109,7 +109,7 @@ settings = $.extend(
 	
 ,{});
 
-var mod = createModule($("#side"));
+var mod = createModule($("#controls .optionsPanel"));
 playlist.modules[mod.name] = mod;
 return mod;	
 	
