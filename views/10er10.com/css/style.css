@@ -1796,8 +1796,8 @@ body.wide #controls {
 #controls .optionsTab > div {
   display: inline;
   padding: 2px 5px;
-  font-size: 0.8em;
-  color: #666;
+  font-size: 0.9em;
+  color: #454545;
   background-color: #121212;
   cursor: pointer;
   -webkit-transition: all 0.3s;
@@ -1826,7 +1826,7 @@ body.wide #controls {
 }
 
 #controls .optionsTab > div.on {
-  background-color: #666;
+  background-color: #454545;
   color: #121212;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 0px;
@@ -1836,7 +1836,7 @@ body.wide #controls {
 
 
 #controls .optionsPanel > div {
-  background-color: #666;
+  background-color: #454545;
   border-radius: 5px;
   padding-bottom: 5px;
 }
