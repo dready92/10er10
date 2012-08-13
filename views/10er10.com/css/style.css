@@ -1859,24 +1859,31 @@ body.wide #controls {
     display: none;
 }
 
-#controls div.autofill div.overlay div.list {
-  max-height: 300px;
-  overflow: auto;
+#controls div.autofill div.yellowOverlay {
+  z-index: 3;
 }
 
-#controls div.autofill div.overlay div.list > div {
+#controls div.autofill div.yellowOverlay div.list {
+  max-height: 300px;
+  overflow: auto;
+  background-color: rgba(160,160,160,0.1);
+  margin: 0 20px;
+  border-radius: 6px;
+}
+
+#controls div.autofill div.yellowOverlay div.list > div {
   padding-left: 20px;
   cursor: pointer;
 }
 
-#controls div.autofill div.overlay div.list  > div.checked {
+#controls div.autofill div.yellowOverlay div.list  > div.checked {
   background-image: url("16x16/actions/dialog-ok.png");
   background-repeat: no-repeat;
   background-position: left center;
   color: #BF9730;
 }
 
-#controls div.autofill div.overlay div.list  > div:hover {
+#controls div.autofill div.yellowOverlay div.list  > div:hover {
   background-color: #454545;
 }
 
@@ -2684,6 +2691,18 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
     width:0;
     top: 90px;
     left: 612px;
+    border: 10px solid transparent;
+    border-left-color: rgb(191, 151, 48);
+    position:absolute;
+}
+
+.yellowOverlay.fluidRightArrow:after {
+    content: " ";
+    height:0;
+    width:0;
+    top: 50%;
+    left: 100%;
+    margin-top: -10px;
     border: 10px solid transparent;
     border-left-color: rgb(191, 151, 48);
     position:absolute;

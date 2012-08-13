@@ -109,7 +109,7 @@ var createModule= function (ui) {
 	});
 
 
-	overlay = ui.find("div.overlay");
+	overlay = ui.find("div.yellowOverlay");
 	//debug(ui);
 	ui.find(".off > .link").click(function() {
 		if ( !module.isEnabled() ) { return ;}
@@ -127,9 +127,9 @@ var createModule= function (ui) {
           }
         });
 		var pos = $(this).position();
-		var top = pos.top-200;
-		if ( top < 10 )  top = 10;
-		overlay.css({"top": top ,"left": pos.left-270, "width": "250px"})
+		var top = pos.top-142;
+// 		if ( top < 10 )  top = 10;
+		overlay.css({"top": top ,"left": pos.left-200, "width": "250px"})
 		.ovlay({"load":true});
 	});
 	$("div.disable",overlay).click(function () {
@@ -138,7 +138,7 @@ var createModule= function (ui) {
 		ui.find(".autofill").removeClass("enabled");
 // 			ui.find(".off").show();
 	});
-	$("div.close",overlay).click(function() {
+	$("div.closeWindow",overlay).click(function() {
 		if ( !module.isEnabled() ) { return ;}
 		overlay.ovlay().close();
 	});
