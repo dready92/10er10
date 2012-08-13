@@ -1866,7 +1866,7 @@ body.wide #controls {
 #controls div.autofill div.yellowOverlay div.list {
   max-height: 300px;
   overflow: auto;
-  background-color: rgba(160,160,160,0.1);
+  background-color: rgba(0,0,0,0.1);
   margin: 0 20px;
   border-radius: 6px;
 }
@@ -1874,6 +1874,7 @@ body.wide #controls {
 #controls div.autofill div.yellowOverlay div.list > div {
   padding-left: 20px;
   cursor: pointer;
+  color: #9F9F9F;
 }
 
 #controls div.autofill div.yellowOverlay div.list  > div.checked {
