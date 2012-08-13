@@ -188,42 +188,11 @@
 <div class="hidden" id="songitem"><img src="/css/22x22/apps/amarok.png"></div> 
 <div class="hidden" id="waititem"><img src="/css/plsmall.gif"></div>
 
-<script> 
-/*
-site_url="";
-base_url="{{base_url}}";
-window.d10 = {};
-window.d10.config = {
-	debug: {{dbg}}, 
-	debug_options: {}, 
-	audio_root: "{{audio_root}}", 
-	img_root: "{{img_root}}",
-	img_size: "{{img_size}}",
-	img_default: "{{img_default}}",
-	rpp: {{rpp}},
-	invites: {
-		ttl: {{invites_ttl}}
-	}
-	
-};
-window.d10.config.img_default = window.d10.config.img_default.split(",");
-{{#debugAudio}}
-d10.config.debug_options.audio = true;
-{{/debugAudio}}
-{{#debugNet}}
-d10.config.debug_options.network = true;
-{{/debugNet}} 
-
-
-debug("site_url : ",site_url);
-*/
-</script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <!-- <script src="/js/jquery.min.js"></script> -->
 {{#scripts}}<script src="/js/{{.}}"></script>{{/scripts}}
 
 <script>
-
 
 function debug() {
 {{#debugloop}}
