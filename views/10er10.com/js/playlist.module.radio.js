@@ -1,5 +1,9 @@
-define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/d10.templates", "js/user", "js/d10.libraryScope", "js/d10.rest"], 
-	   function(foo, playlistModule, playlist, tpl, user, libraryScope, rest) {
+"use strict";
+
+define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/d10.templates", "js/user", "js/d10.libraryScope", "js/d10.rest",
+   "js/d10.localcache"
+], 
+	   function(foo, playlistModule, playlist, tpl, user, libraryScope, rest, localcache) {
 
 var module = null;
 var createModule= function (ui) {
@@ -8,6 +12,44 @@ var createModule= function (ui) {
 	delayTimeout = null
 	;
 
+    var loadGenres = function(then) {
+      rest.genre.available({load: then});
+    };
+    
+    var getGenres = function( then ) {
+      var genres = localcache.getJSON("playlist.module.radio.genres");
+      if ( genres ) {
+        return then(null,genres);
+      }
+      
+      loadGenres(function(err,resp) {
+        if ( err ) {
+          return then(err,resp);
+        }
+        localcache.setJSON("playlist.module.radio.genres",resp,true);
+        then(err,resp);
+      });
+    };
+    
+    var prepareGenresTemplate = function(then) {
+      getGenres(function(err,resp) {
+        if ( err ) {return then(err);}
+        var template_data = {genres: []};
+        var selected = getSelectedGenres();
+        for ( var i = 0; i<resp.length; i++) {
+          var name = resp[i].key.pop();
+          var g = {name: name, checked: false};
+          if ( selected.indexOf(name) >= 0 ) {
+            g.checked = true;
+          }
+          template_data.genres.push(g);
+        }
+        debug(template_data);
+        then( null, tpl.mustacheView("hoverbox.genres.list", template_data) );
+      });
+    };
+    
+    
 	var appendRandomSongs = function(count, genres) {
 		count = count || 3;
 		genres = genres || [];
@@ -40,9 +82,13 @@ var createModule= function (ui) {
 
 	var appendSongs = function(count) {
 		debug("playlistModules:radio should append songs");
-		var genres = overlay.find("div.checked").map(function() {     return $(this).attr('name');    }   ).get();
+		var genres = getSelectedGenres();
 		appendRandomSongs(count, genres);
 	};
+    
+    var getSelectedGenres = function() {
+      return overlay.find("div.checked").map(function() {     return $(this).attr('name');    }   ).get();
+    };
 
 	var module = new playlistModule("radio", {
 		"playlist:currentSongChanged": function(e) {
@@ -75,6 +121,11 @@ var createModule= function (ui) {
 		if ( overlay.ovlay() ) {
 			return overlay.ovlay().close();
 		}
+		prepareGenresTemplate(function(err,resp) {
+          if ( !err ) {
+            overlay.find(".list").html(resp);
+          }
+        });
 		var pos = $(this).position();
 		var top = pos.top-200;
 		if ( top < 10 )  top = 10;
@@ -91,7 +142,7 @@ var createModule= function (ui) {
 		if ( !module.isEnabled() ) { return ;}
 		overlay.ovlay().close();
 	});
-	$(".list > div",overlay).click(function() {
+	overlay.find(".list").delegate("div","click",function() {
 		if ( !module.isEnabled() ) { return ;}
 		$(this).toggleClass("checked"); 
 	});
