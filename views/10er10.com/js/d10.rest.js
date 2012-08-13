@@ -542,6 +542,15 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 	};
 	
 	rest.genre = {
+        /*
+         * number of songs available by genre
+         * 
+         * @return [ {key: ["genre1"], value: 12}, ... ]
+         */
+        available: function(options) {
+          restQuery("genre.available","GET",config.site_url+"/api/genres/available",options);
+        },
+       
 		/*
 		 * @param start starting string of the genre name
 		 * 

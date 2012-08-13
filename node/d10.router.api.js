@@ -927,7 +927,19 @@ exports.api = function(app) {
 		});
 	};
 	
-	
+    app.get("/api/genres/available", function(request, response) {
+      d10.couch.d10.view("genre/name",{
+        group: true, 
+        group_level: 1,
+      }, function(err,resp) {
+        if( err ) {
+          console.log(err);
+          return d10.realrest.err(423, null, request.ctx);
+        }
+        d10.realrest.success(resp.rows,request.ctx);
+      });
+    });
+    
 	app.get("/api/genre/gotAlbums/:genre", function(request, response) {
 		if ( !request.params.genre || 
 			d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
