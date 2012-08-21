@@ -1560,6 +1560,8 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 
 #playlist .song .options { position: absolute;  right: 14px;  top: 0}
 #playlist .song:hover .options { display: block; }
+#playlist .song:hover .remove { display: block; }
+#playlist .song.current:hover .remove { display: none; }
 
 #playlist .song.current .title {
 	font-style: italic;

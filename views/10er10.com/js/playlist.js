@@ -489,12 +489,6 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			driver.play.apply(driver, getTrackParameters($(this)));
 			if ( !$('span.remove',$(this)).hasClass('hidden') )   $('span.remove',$(this)).addClass('hidden');
 		})
-		.delegate("div.song",'mouseenter',function() {
-			if ( !$(this).hasClass('current') )                   $('span.remove',$(this)).removeClass('hidden');
-		})
-		.delegate("div.song",'mouseleave',function() {
-			if ( !$('span.remove',$(this)).hasClass('hidden') )   $('span.remove',$(this)).addClass('hidden');
-		})
 		.delegate("div.song span.remove",'click',function() {
 			$(this).closest("div.song").data("removing",true).slideUp(100,function() 
 				{
