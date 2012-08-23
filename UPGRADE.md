@@ -1,3 +1,15 @@
+Upgrade from 0.13 to 0.14
+=========================
+
+- install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
+
+- restart the node 10er10 server
+
+**What changed ?**
+
+- reworked UI for player options (radio mode, fade, spectrum on FF)
+- drag'n'drop an image in single album view to set image to all album songs
+
 Upgrade from 0.12 to 0.13
 =========================
 
