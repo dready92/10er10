@@ -1,5 +1,5 @@
-define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers", "js/d10.toolbox", "js/playlist"],
-       function(tpl, rest, router, dataParsers, toolbox, playlist) {
+define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers", "js/d10.toolbox", "js/playlist", "js/d10.albumCoverUploader"],
+       function(tpl, rest, router, dataParsers, toolbox, playlist, albumCoverUploader) {
   
   "use strict";
   
@@ -71,6 +71,9 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
 	  template.find("span.refresh").click(function(){ 
 		onContainerCreation(topicdiv, categorydiv, topic, category, param);
 	  });
+      albumCoverUploader.setListeners(template, function(widget) {
+        return widget.closest(".oneAlbumRow").find(".list .song").map(function(k,v) { return $(this).attr("name"); }).get();
+      });
 	  categorydiv.html(template);
 	});
   };
