@@ -1,8 +1,13 @@
 define( ["js/d10.imageUtils", "js/d10.osd", "js/d10.templates", "js/d10.rest", "js/config"], function(imageUtils, osd, tpl, rest, config) {
 	
-	var albumImageUpload = function (image, file, api, canvas) {
+
+  var getSongsId = function(widget) {
+    return widget.closest(".albumWidget").find(".list .song").map(function(k,v) { return $(this).attr("name"); }).get();
+  };
+  
+	var albumImageUpload = function (image, file, api, canvas, songsId) {
 // 		debug("Start of setting album image",image,file);
-		var ids = canvas.closest(".albumWidget").find(".list .song").map(function(k,v) { return $(this).attr("name"); }).get();
+        var ids = songsId(canvas);
 
 		rest.song.uploadImage(ids, file, file.name, file.size, {
 			load: function(err, headers, body) {
@@ -34,7 +39,7 @@ define( ["js/d10.imageUtils", "js/d10.osd", "js/d10.templates", "js/d10.rest", "
 		});
 	};
 	
-	var albumImageRead = function(image, file) {
+	var albumImageRead = function(image, file, songsId) {
 		var reader = new FileReader();
 		reader.onload = function(e) {
 			var canvas = $("<canvas />")
@@ -45,7 +50,7 @@ define( ["js/d10.imageUtils", "js/d10.osd", "js/d10.templates", "js/d10.rest", "
 				{
 					onReady: function() {
 						image.after(canvas).remove();
-						albumImageUpload(image, file, api, canvas);
+						albumImageUpload(image, file, api, canvas, songsId);
 					},
 					onSize: function(w,h) {
 						var ratio = imageUtils.getImageRatio(w,h);
@@ -62,7 +67,8 @@ define( ["js/d10.imageUtils", "js/d10.osd", "js/d10.templates", "js/d10.rest", "
 		reader.readAsDataURL(file);
 	};
 	
-	function setListeners ( container ) {
+	function setListeners ( container, songsId ) {
+        songsId = songsId || getSongsId;
 		debug("Setting image uploader listeners on ",container);
 		container.delegate(".dropbox", "dragenter",function (e) {
 			$(this).addClass("hover");
@@ -85,7 +91,7 @@ define( ["js/d10.imageUtils", "js/d10.osd", "js/d10.templates", "js/d10.rest", "
 			if ( !files.length  ) { return ; }
 			var file = files[0];
 			if ( !imageUtils.isImage(file) ) { return ; }
-			albumImageRead(that, file);
+			albumImageRead(that, file, songsId);
 		});
 	};
 	
