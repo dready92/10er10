@@ -547,8 +547,8 @@ article.songlist div.controls button{
 	cursor: pointer;
 }
 
-#library .albumWidget .head img.hover {
-	border: 1px solid #BF9730;
+#library .albumWidget .head img.hover, #library .oneAlbum img.hover {
+    box-shadow: 0 0 1px 1px #BF9730;
 }
 
 #library .albumWidget .albumInfos { margin-left: 133px; }
