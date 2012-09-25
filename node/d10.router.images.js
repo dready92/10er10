@@ -137,71 +137,86 @@ exports.api = function(app) {
 		);
 	});
 
+    var sendUpdateDocsError = function (errs, responses, request) {
+      for ( var  i in errs ) {
+        console.log("Got an error ",i, errs[i]);
+      }
+      
+      if ( errs.docs && !errs.image && responses.image.isNew ) {
+        // if documents won't be updated we should remove the image from the filesystem
+        fs.unlink( d10.config.images.dir+"/"+responses.image.filename, function() {} );
+      }
+      for ( var  i in errs ) {
+        return d10.realrest.err(errs[i].code, errs[i].message, request.ctx);
+      }
+    };
+    
+    var updateDocsCallback = function(responses, request) {
+      return function (es,rs) {
+        if ( !d10.count(rs) ) {
+          d10.realrest.err(500, "No doc was updated", request.ctx);
+          if ( responses.image.isNew ) {
+            fs.unlink( d10.config.images.dir+"/"+responses.image.filename, function() {} );
+          }
+          return ;
+        }
+        console.log(rs);
+        responses.image.docs = [];
+        for ( var i in rs ) {
+          responses.image.docs.push(rs[i]);
+        }
+        d10.realrest.success(responses.image, request.ctx);
+      }
+    };
+    
 	var updateDocs = function(errs,responses,request) {
 		if ( errs ) {
-			for ( var  i in errs ) {
-				console.log("Got an error ",i, errs[i]);
-			}
-			
-			if ( errs.docs && !errs.image && responses.image.isNew ) {
-				// if documents won't be updated we should remove the image from the filesystem
-				fs.unlink( d10.config.images.dir+"/"+responses.image.filename, function() {} );
-			}
-			for ( var  i in errs ) {
-				return d10.realrest.err(errs[i].code, errs[i].message, request.ctx);
-			}
+          return sendUpdateDocsError(errs,responses,request);
 		}
 		
-		// still got to update docs
-		var toSet = {filename: responses.image.filename, sha1: responses.image.sha1};
+		var toSet = {
+          filename: responses.image.filename, 
+          sha1: responses.image.sha1
+        };
 		var jobs = {};
 		responses.docs.forEach(function(doc) {
 			jobs[doc._id] = updateOneDocWithImage(doc, toSet);
 		});
-		
-		when ( jobs, function (es,rs) {
-			if ( !d10.count(rs) ) {
-				d10.realrest.err(500, "No doc was updated", request.ctx);
-				if ( responses.image.isNew ) {
-					fs.unlink( d10.config.images.dir+"/"+responses.image.filename, function() {} );
-				}
-				return ;
-			}
-			console.log(rs);
-			responses.image.docs = [];
-			for ( var i in rs ) {
-				responses.image.docs.push(rs[i]);
-			}
-			d10.realrest.success(responses.image, request.ctx);
-		});
+		when ( jobs, updateDocsCallback(responses,request));
 	};
 	
+    var addImageInDoc = function(lastVerDoc, toSet) {
+      if  ( !lastVerDoc.images ) {
+        lastVerDoc.images = [ toSet ];
+      } else {
+        for ( var i = 0, len = lastVerDoc.images.length; i<len; i++ ) {
+          if ( lastVerDoc.images[i].sha1 == toSet.sha1 ) {
+            return false;
+          }
+        }
+        lastVerDoc.images = lastVerDoc.images.concat(toSet);
+      }
+      return lastVerDoc;
+    };
+    
 	var updateOneDocWithImage = function(doc,toSet) {
-		return function(cb) {
-			d10.couch.d10.getDoc(doc._id,function(err,lastVerDoc) {
-				if ( err ) {
-					return cb({code: 423, message: err});
-				}
-
-				if  ( !lastVerDoc.images ) {
-					lastVerDoc.images = [ toSet ];
-				} else {
-					for ( var i = 0, len = lastVerDoc.images.length; i<len; i++ ) {
-						if ( lastVerDoc.images[i].sha1 == toSet.sha1 ) {
-							return cb(null, lastVerDoc);
-						}
-					}
-					lastVerDoc.images = lastVerDoc.images.concat(toSet);
-				}
-				
-				d10.couch.d10.storeDoc(lastVerDoc, function(err,resp) {
-					if ( err ) {
-						return cb({code: 423, message: err});
-					}
-					return cb(null,lastVerDoc);
-				});
-			});
-		};
+      return function(cb) {
+        d10.couch.d10.getDoc(doc._id,function(err,lastVerDoc) {
+          if ( err ) {
+              return cb({code: 423, message: err});
+          }
+          var docWithNewImage = addImageInDoc(lastVerDoc, toSet);
+          if ( !docWithNewImage ) {
+            return cb(null, docWithNewImage);
+          }
+          d10.couch.d10.storeDoc(docWithNewImage, function(err,resp) {
+            if ( err ) {
+              return cb({code: 423, message: err});
+            }
+            return cb(null,docWithNewImage);
+          });
+        });
+      };
 	};
 	
 	var processImageUpload = function(request, filename, filesize, then) {
