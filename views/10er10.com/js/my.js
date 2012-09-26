@@ -228,12 +228,11 @@ function myCtrl (ui) {
     rest.user.invites.send(email, {
       load: function (err, data) {
 		if ( err ) {
-				$("article.my",topicdiv).hide();
-				$("article.notsent",topicdiv).fadeIn();
+				topicdiv.find("article.invites").hide();
+				topicdiv.find("article.notsent").fadeIn();
 		} else {
-	//         debug("success");
-			$("article.my",topicdiv).hide();
-			$("article.sent",topicdiv).fadeIn();
+			topicdiv.find("article.invites").hide();
+			topicdiv.find("article.sent").fadeIn();
 		}
       }
     });
