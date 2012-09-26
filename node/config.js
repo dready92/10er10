@@ -137,7 +137,9 @@ exports.javascript = {
 	]
 };
 
-
+/*
+ * See https://github.com/andris9/Nodemailer for transport configuration
+ */
 exports.emailTransport = {
   type: "sendmail",
   options: {

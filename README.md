@@ -65,7 +65,7 @@ cd to the 10er10 root directory (the one that contains the *audio*, *node* and *
 
 * node modules : install required node packages :
 
-    npm install mime qs gm connect node-mailer prompt musicmetadata mmmagic
+    npm install mime qs gm connect nodemailer prompt musicmetadata mmmagic
 
 You should now have a new **node_modules** folder at the same level as the "audio", "node" and "views" folders.
 
