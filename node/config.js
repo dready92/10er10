@@ -138,6 +138,12 @@ exports.javascript = {
 };
 
 
+exports.emailTransport = {
+  type: "sendmail",
+  options: {
+  }
+};
+
 exports.emailSender = "root@10er10.com";
 exports.emailSenderLabel = "10er10";
 exports.invites = {

@@ -1,10 +1,8 @@
 var bodyDecoder = require("connect").bodyParser,
-// 	spawn = require('child_process').spawn,
-	mailer = require("node-mailer"),
-	d10 = require("./d10");
+    nodemailer = require("nodemailer"),
+	d10 = require("./d10"),
+	mailTransport = nodemailer.createTransport(d10.config.emailTransport.type, d10.config.emailTransport.options);
 
-		
-		
 exports.api = function(app) {
 	
 
@@ -21,13 +19,15 @@ exports.api = function(app) {
 	};
 	
 	var reallySendMail = function (email,body,then) {
-		new mailer.Mail({
-			from: d10.config.emailSenderLabel+" <"+d10.config.emailSender+">",
-			to: email,
-			subject: d10.config.invites.subject,
-			body: body,
-			callback: then
-		});
+      mailTransport.sendMail({
+        from: d10.config.emailSenderLabel+" <"+d10.config.emailSender+">",
+        to: email,
+        subject: d10.config.invites.subject,
+        text: body
+      }, function(err,resp) {
+        console.log("email response: ",err,resp);
+        then(err,resp);
+      });
 	};
 	
 	
