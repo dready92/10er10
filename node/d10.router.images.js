@@ -219,6 +219,19 @@ exports.api = function(app) {
       };
 	};
 	
+    var resizeImage = function(fileName, sha1, then) {
+      gu.resizeImage(
+          d10.config.images.tmpdir+"/"+fileName,
+          d10.config.images.dir+"/"+fileName,
+          function(err) {
+              if ( err ) {
+                  return then({code:500, message: err});
+              }
+              return then(null, {filename: fileName, sha1: sha1, isNew: true});
+          }
+      );
+    };
+    
 	var processImageUpload = function(request, filename, filesize, then) {
 		var fileName = d10.uid() + "." + filename.split(".").pop();
 		files.writeStream(request, d10.config.images.tmpdir+"/"+fileName, function(err) {
