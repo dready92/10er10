@@ -158,7 +158,8 @@ exports.imageFromMeta = function(meta, then) {
 					} else {
 						exports.resizeImage(
 							imgTmp,
-							d10.config.images.dir+"/"+imgName,
+							d10.config.images.dir,
+                            imgName,
 							function(err, alternatives) {
 								if ( err ) { return then(err); }
 								return then(null, {
