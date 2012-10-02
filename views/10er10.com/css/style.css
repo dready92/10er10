@@ -932,7 +932,7 @@ article div.refreshList {
   min-width: 500px
 }
 
-#library article.artistPage.mediumImage div.list,  #library article.albumPage.mediumImage div.list{
+#library article.artistPage .oneAlbum.mediumImage div.list,  #library article.albumPage.mediumImage div.list{
   min-width: 428px
 }
 
@@ -964,7 +964,7 @@ article div.refreshList {
   width: 128px;
 }
 
-#library article.artistPage.mediumImage .oneAlbumRow .cell:first-child, #library article.albumPage.mediumImage .oneAlbumRow .cell:first-child {
+#library article.artistPage .oneAlbum.mediumImage .oneAlbumRow .cell:first-child, #library article.albumPage.mediumImage .oneAlbumRow .cell:first-child {
   width: 200px;
 }
 

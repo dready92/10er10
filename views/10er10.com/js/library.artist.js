@@ -142,6 +142,10 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
 		duration += album.duration;
         if ( album.album.length ) {
           album.album_e = album.album.replace("\"","&quot;");
+          if ( album.image_alternatives && album.image_alternatives[200] ) {
+            album.image_url = album.image_alternatives[200];
+            album.layoutClass = "mediumImage";
+          }
           template_data.albums.push(album);
         } else {
           template_data.no_album.push(album);
