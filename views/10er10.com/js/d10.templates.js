@@ -19,12 +19,17 @@ define(["js/user", "js/d10.localcache"],function(user, localcache) {
 		doc.human_length = m  + ':' + s;
 		
 		var images = [];
+        var imageAlternatives = {};
 		if ( doc.images ) {
 			doc.images.forEach(function(img) {
 				images.push(img.filename);
+                if ( img.alternatives ) {
+                  imageAlternatives[img.filename] = img.alternatives;
+                }
 			});
 		}
 		doc.images = images.join(",");
+        doc.imageAlternatives = JSON.stringify(imageAlternatives);
 		if ( doc.user == user.id() ) {
 			doc.owner = true;
 		}
