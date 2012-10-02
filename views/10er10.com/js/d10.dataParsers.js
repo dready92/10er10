@@ -2,6 +2,7 @@ define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils"], function(tpl
 	function singleAlbumParser(songs) {
 		var albumData = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: "", e_artists: [], e_genres: [], image_url: null, album: "", date: []}, 
 			artists = {}, genres = {}, images = {};
+        var imageAlternatives = {};
 		songs.forEach(function(row) {
 			albumData.album = row.doc.album || "";
 			artists[row.doc.artist] = 1;
@@ -11,6 +12,9 @@ define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils"], function(tpl
 			albumData.duration+=row.doc.duration;
 			if ( row.doc.images ) {
 				row.doc.images.forEach(function(i) {
+                    if ( i.alternatives ) {
+                      imageAlternatives[i.filename] = i.alternatives;
+                    }
 					if ( images[i.filename] ) {
 						images[i.filename]++;
 					} else {
@@ -44,7 +48,15 @@ define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils"], function(tpl
 		}
 		albumData.image_url = toolbox.keyOfHighestValue(images);
 		albumData.e_album = encodeURIComponent(albumData.album);
-		if ( albumData.image_url ) { 
+		if ( albumData.image_url ) {
+            if ( imageAlternatives[albumData.image_url] ) {
+              albumData.image_alternatives = {};
+              for ( var i in imageAlternatives[albumData.image_url] ) {
+                albumData.image_alternatives[i] = imageUtils.getImageUrl(
+                  imageUtils.getAlternateFileName(albumData.image_url, imageAlternatives[albumData.image_url][i])
+                                                             );
+              }
+            }
 			albumData.image_url = imageUtils.getImageUrl(albumData.image_url);
 		} else {
 			albumData.image_url = imageUtils.getAlbumDefaultImage();
