@@ -932,6 +932,10 @@ article div.refreshList {
   min-width: 500px
 }
 
+#library article.artistPage.mediumImage div.list,  #library article.albumPage.mediumImage div.list{
+  min-width: 428px
+}
+
 #library article.artistPage div.hits div.list {
   width: initial;
 }
@@ -958,6 +962,10 @@ article div.refreshList {
   padding-top: 5px;
   padding-left: 5px;
   width: 128px;
+}
+
+#library article.artistPage.mediumImage .oneAlbumRow .cell:first-child, #library article.albumPage.mediumImage .oneAlbumRow .cell:first-child {
+  width: 200px;
 }
 
 #library article.artistPage .albumContents, #library article.albumPage .albumContents {

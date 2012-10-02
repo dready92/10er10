@@ -56,6 +56,10 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
   
   var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {
 	getTemplateData(category, function(template_data) {
+      if ( template_data.image_alternatives && template_data.image_alternatives[200] ) {
+        template_data.image_url = template_data.image_alternatives[200];
+        template_data.layoutClass = "mediumImage";
+      }
 	  var template = $(tpl.mustacheView("library.content.album",template_data));
 	  addExtendedData(category,template);
 	  template.find("span[name=all]").click(function() {
