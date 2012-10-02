@@ -3,8 +3,104 @@ var d10 = require("./d10"),
 	files = require("./files"),
 	fs = require("fs");
 
- 
-exports.resizeImage = function (tmpfile, targetfile, cb) {
+var getResizeSize = function(size, newLength, onlyDownScale) {
+  if ( onlyDownScale && size.width < newLength && size.height < newLength ) {
+    return false;
+  }
+  if ( size.height > size.width ) {
+    newH = newLength;
+    newW = size.width / size.height * newH;
+  } else {
+    newW = newLength;
+    newH = size.height / size.width * newW;
+  }
+  newH = Math.round(newH);
+  newW = Math.round(newW);
+  if ( !newH || !newW ) {
+    return false;
+  }
+  
+  return {width: newW, height: newH};
+};
+
+var splitFileAndExtension = function(filename) {
+  var dotIndex = filename.lastIndexOf(".");
+  if ( dotIndex < 0 ) {
+    return false;
+  }
+  return {
+    name: filename.substr(0,dotIndex),
+    extension: filename.substr( (dotIndex+1) )
+  };
+};
+
+var recordAlternateSizes = function (tmpfile, targetdir, targetfile, size, onOtherSizesWritten) {
+  var jobs = [];
+  var targetFileAndExtension = splitFileAndExtension(targetfile);
+  if ( !targetFileAndExtension ) {
+    return onOtherSizesWritten();
+  }
+  
+  d10.config.images.sizeSteps.forEach(function(step) {
+    var newSize = getResizeSize(size, step, true);
+    if ( newSize ) {
+      jobs.push (
+        (function(newSize, step) {
+          return function(then) {
+            var targetfileName = exports.getAlternateFileName(targetfile, newSize);
+            console.log("will record image ",targetfileName);
+            gm(tmpfile)
+              .resize(newSize.width,newSize.height)
+              .write(targetdir+"/"+targetfileName,function(err) {
+                  if ( err ) {
+                      console.log("record image failed ",targetfileName);
+                      return then("image manipulation error (writing modified image)");
+                  }
+                  console.log("will record image success ",targetfileName);
+                  then(null, newSize, step);
+              });
+          };
+        })(newSize, step)
+      );
+    }
+  });
+  
+  if ( !jobs.length ) {
+    return onOtherSizesWritten();
+  }
+  
+  var available = {};
+  
+  var loopMe = function() {
+    if ( !jobs.length ) {
+      return onOtherSizesWritten(null, available);
+    }
+    var job = jobs.pop();
+    job(function(err,resp, step) {
+      if ( !err && resp && step ) {
+        available[step] = resp;
+      }
+      loopMe();
+    });
+  };
+  
+  loopMe();
+};
+
+exports.getAlternateFileName = function(filename, size) {
+  var targetFileAndExtension = splitFileAndExtension(filename);
+  if ( !targetFileAndExtension ) {
+    return false;
+  }
+  // somefile.250x245.jpg
+  var targetfileName = targetFileAndExtension.name+
+                      "."+
+                      size.width+"x"+size.height+
+                      "."+targetFileAndExtension.extension;
+  return targetfileName;
+};
+
+exports.resizeImage = function (tmpfile, targetdir, targetfile, cb) {
 	gm(tmpfile).size(function(err,size) {
 		if ( err ) {
 			cb("image manipulation error (get image size failed)");
@@ -15,10 +111,10 @@ exports.resizeImage = function (tmpfile, targetfile, cb) {
 		}
 		var newH, newW;
 		if ( size.height > size.width ) {
-			newH = d10.config.images.maxSize;
+			newH = d10.config.images.defaultSize;
 			newW = size.width / size.height * newH;
 		} else {
-			newW = d10.config.images.maxSize;
+			newW = d10.config.images.defaultSize;
 			newH = size.height / size.width * newW;
 		}
 		newH = Math.round(newH);
@@ -27,15 +123,21 @@ exports.resizeImage = function (tmpfile, targetfile, cb) {
 			cb("image manipulation error (new image size returns null)");
 		}
 // 						console.log("resizing image to ",newW,newH);
-		gm(tmpfile)
-		.resize(newW,newH)
-		.write(targetfile,function(err) {
-			if ( err ) {
-				return cb("image manipulation error (writing modified image)");
-			}
-// 							console.log("image written to disk");
-			cb();
-		});
+
+        var onOtherSizesWritten = function(err, sizes) {
+          gm(tmpfile)
+          .resize(newW,newH)
+          .write(targetdir+"/"+targetfile,function(err) {
+              if ( err ) {
+                  return cb("image manipulation error (writing modified image)");
+              }
+  // 							console.log("image written to disk");
+              cb(null, sizes);
+          });
+        };
+        
+        recordAlternateSizes(tmpfile, targetdir, targetfile, size, onOtherSizesWritten);
+        
 	});
 };
 
@@ -57,9 +159,13 @@ exports.imageFromMeta = function(meta, then) {
 						exports.resizeImage(
 							imgTmp,
 							d10.config.images.dir+"/"+imgName,
-							function(err) {
+							function(err, alternatives) {
 								if ( err ) { return then(err); }
-								return then(null, {filename: imgName, sha1: sha1});
+								return then(null, {
+                                  filename: imgName, 
+                                  sha1: sha1,
+                                  alternatives: alternatives ? alternatives : null
+                                });
 							}
 						);
 					}

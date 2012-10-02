@@ -52,7 +52,8 @@ exports.audio_root = "/audio/";
 exports.images = {
 	tmpdir: "../audio/tmp",
 	dir: "../audio/images",
-	maxSize: 128,			// maximum image size in pixel (width or height, depending which is larger)
+    sizeSteps: [200,250,300],
+	defaultSize: 128,			// default image size in pixel (width or height, depending which is larger)
 	default: [ "css/vinyl-green.png", "css/vinyl-blue.png", "css/vinyl-orange.png", "css/vinyl-pink.png", "css/vinyl-red.png", "css/vinyl-turquoise.png", "css/vinyl-violet.png", "css/vinyl-white.png", "css/vinyl-yellow.png" ]
 };
 

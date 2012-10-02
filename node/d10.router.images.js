@@ -42,9 +42,11 @@ exports.api = function(app) {
 					// image not in the list of images for this doc
 					return d10.realrest.success(doc, request.ctx);
 				}
-				//remove image from doc
+				//remove image from doc and keep image definition object
+				var removedImageDef = null;
 				doc.images = doc.images.filter(function(img) {
 					if ( img.filename == request.params.filename ) {
+                        removedImageDef = img;
 						return false;
 					}
 					return true;
@@ -64,6 +66,17 @@ exports.api = function(app) {
 								d10.log("image unlink failed",d10.config.images.dir+"/"+request.params.filename);
 							}
 						});
+                        if ( removedImageDef && removedImageDef.alternatives) {
+                          for ( var i in removedImageDef.alternatives ) {
+                            var imgName = gu.getAlternateFileName(removedImageDef.filename, removedImageDef.alternatives[i]);
+                            d10.log("unlink ",imgName);
+                            fs.unlink(d10.config.images.dir+"/"+imgName,function(err) {
+                              if ( err ) {
+                                d10.log("image unlink failed",d10.config.images.dir+"/"+imgName);
+                              }
+                            });
+                          }
+                        }
 					}
 				});
 			}
@@ -176,7 +189,8 @@ exports.api = function(app) {
 		
 		var toSet = {
           filename: responses.image.filename, 
-          sha1: responses.image.sha1
+          sha1: responses.image.sha1,
+          alternatives: responses.image.alternatives ? responses.image.alternatives : null
         };
 		var jobs = {};
 		responses.docs.forEach(function(doc) {
@@ -222,12 +236,13 @@ exports.api = function(app) {
     var resizeImage = function(fileName, sha1, then) {
       gu.resizeImage(
           d10.config.images.tmpdir+"/"+fileName,
-          d10.config.images.dir+"/"+fileName,
-          function(err) {
+          d10.config.images.dir,
+          fileName,
+          function(err, alternateSizes) {
               if ( err ) {
                   return then({code:500, message: err});
               }
-              return then(null, {filename: fileName, sha1: sha1, isNew: true});
+              return then(null, {filename: fileName, sha1: sha1, isNew: true, alternatives: alternateSizes});
           }
       );
     };
@@ -258,16 +273,7 @@ exports.api = function(app) {
 						if ( view.rows.length ) {
 							return then(null, {filename: view.rows[0].value, sha1: sha1, isNew: false});
 						} else {
-							gu.resizeImage(
-								d10.config.images.tmpdir+"/"+fileName,
-								d10.config.images.dir+"/"+fileName,
-								function(err) {
-									if ( err ) {
-										return then({code:500, message: err});
-									}
-									return then(null, {filename: fileName, sha1: sha1, isNew: true});
-								}
-							);
+                            resizeImage(fileName, sha1, then);
 						}
 					});
 				});
