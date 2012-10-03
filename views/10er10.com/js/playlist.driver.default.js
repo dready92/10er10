@@ -1,5 +1,12 @@
-define(["js/d10.rest","js/d10.eventEmitter","js/track","js/d10.templates", "js/d10.events", "js/user"],
-	   function(rest, eventEmitterDef, track, tpl, pubsub, user) {
+define(["js/d10.rest",
+       "js/d10.eventEmitter",
+       "js/track",
+       "js/d10.templates", 
+       "js/d10.events", 
+       "js/user",
+       "js/d10.mix"
+       ],
+	   function(rest, eventEmitterDef, track, tpl, pubsub, user, mix) {
 
 /*
 
@@ -193,35 +200,43 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		}
 	};
 	
-	var beginFade = function () {
-		debug("fade algorithm begins");
-		var secs = settings.fade();
-		
-		var nextId = getNextId();
-		if ( !nextId || ! cache[nextId] ) {
-			if ( !nextId ) {
-				debug("no way to fade: no next song");
-			}else{
-				debug("no way to fade: track not in cache",nextId,cache);
-			}
-			return ;
-		}
-		
-		if ( !next || next.id != nextId ) {
-			next = cache[nextId];
-		}
+    var beginFade = function () {
+      debug("Mix fade algorithm begins");
+      var secs = settings.fade();
+      
+      var nextId = getNextId();
+      if ( !nextId || ! cache[nextId] ) {
+          if ( !nextId ) {
+              debug("no way to fade: no next song");
+          }else{
+              debug("no way to fade: track not in cache",nextId,cache);
+          }
+          return ;
+      }
+      
+      if ( !next || next.id != nextId ) {
+          next = cache[nextId];
+      }
 
-		if ( !next.fadeIn(secs) ) {
-			debug('Fade In startup failed');
-			return ;
-		}
-		current.fadeOut(secs);
+      var mixSteps = [];
+      mixSteps.push(
+        new mix.mixStep("currentTrack", 0,secs,"volume",0)
+              );
+      mixSteps.push(
+        new mix.mixStep("nextTrack", 1, secs, "volume",
+                        mix.mixStep.PROPERTY_VALUE_CURRENT_VOLUME,
+                        {propertyStartValue: 0, startPlaybackOnBegin: true}
+                      )
+              );
+      var m = new mix.mix([], mixSteps);
+      debug("current:",current,"audio:",current.audio);
+      m.load(function() {m.start(current.audio, next.audio);});
 
-		var previous = current;
-		current = next;
-		next = null;
-		trigger('currentSongChanged',{'previous': previous, 'current': current});
-	}
+      var previous = current;
+      current = next;
+      next = null;
+      trigger('currentSongChanged',{'previous': previous, 'current': current});
+    }
 	
 	var play = this.play = function(id,url,duration,options) {
 		if ( id && $.isArray(id) ) {
