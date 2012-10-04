@@ -100,7 +100,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 //                                         if ( secs > settings. prefectchMinStartupTime && secs % 8 == 0 ) { optimistPrefetch(); }
 										var fade = settings.fade();
                                         if ( fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == fade && !inTheMix ) {
-                                                beginFade();
+                                                beginFade(createDefaultMix());
                                         }
                                 }
                         },
@@ -174,7 +174,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		//debug("oPrefetch on id");
 		if ( !current )	return ;
         debug("optimistPrefetch: ",current.getProgressPC(),"% and ",current.audio.readyState, "< ",current.audio.HAVE_ENOUGH_DATA);
-		if (  current.getProgressPC() < 90 || current.audio.readyState < current.audio.HAVE_ENOUGH_DATA ) {
+		if (  current.getProgressPC() < 70 || current.audio.readyState < current.audio.HAVE_ENOUGH_DATA ) {
 			return;
 		}
 		debug("playlistDriverDefault:optimistPrefetch");
@@ -201,25 +201,9 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 			delete cache[id];
 		}
 	};
-	
-    var beginFade = function () {
-      debug("Mix fade algorithm begins");
+    
+    var createDefaultMix = function() {
       var secs = settings.fade();
-      
-      var nextId = getNextId();
-      if ( !nextId || ! cache[nextId] ) {
-          if ( !nextId ) {
-              debug("no way to fade: no next song");
-          }else{
-              debug("no way to fade: track not in cache",nextId,cache);
-          }
-          return ;
-      }
-      
-      if ( !next || next.id != nextId ) {
-          next = cache[nextId];
-      }
-
       var mixSteps = [];
       mixSteps.push(
         new mix.mixStep("currentTrack", (secs/3), (secs/2),"volume",0)
@@ -231,16 +215,47 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                       )
               );
       var m = new mix.mix([], mixSteps);
-      debug("current:",current,"audio:",current.audio);
-      m.load(function() {
+      return m;
+    };
+	
+    var beginFade = this.beginFade = function (fadeMix) {
+      debug("Mix fade algorithm begins");
+      var nextId = getNextId();
+      if ( !nextId || ! cache[nextId] ) {
+          if ( !nextId ) {
+              debug("no way to fade: no next song");
+          }else{
+              debug("no way to fade: track not in cache",nextId,cache);
+          }
+          return false;
+      }
+      
+      if ( !next || next.id != nextId ) {
+          next = cache[nextId];
+      }
+      if ( !next ) {
+        return false;
+      }
+      if ( next.audio.readyState  < next.audio.HAVE_ENOUGH_DATA ) {
+        debug("Not enough data on next track to fade");
+        return false;
+      }
+      var state = {current: current.id, next: next.id};
+      fadeMix.load(function() {
+        if ( !next || current.id != state.current || next.id != current.next ) {
+          // current and|or next song changed between mix loading and now
+          return ;
+        }
         inTheMix = true;
-        m.start(current.audio, next.audio, function() { inTheMix = false; });
-        var previous = current;
-        current = next;
-        next = null;
-        trigger('currentSongChanged',{'previous': previous, 'current': current});
+        if ( fadeMix.start(current.audio, next.audio, function() { inTheMix = false; }) ) {
+          var previous = current;
+          current = next;
+          next = null;
+          trigger('currentSongChanged',{'previous': previous, 'current': current});
+        }
       });
-    }
+      return true;
+    };
 	
 	var play = this.play = function(id,url,duration,options) {
 		if ( id && $.isArray(id) ) {
