@@ -35,6 +35,7 @@ define(["js/d10.toolbox"], function(toolbox) {
       nextTrack: null
     };
     var body = $("body");
+    var endOfMixCallback = null;
     //order mixSteps by startTime
     ms.forEach(function(mixStep) {
       mixStep.uid = uidCount++;
@@ -57,8 +58,8 @@ define(["js/d10.toolbox"], function(toolbox) {
       }
       var toLoad = 0;
       var onCanPlayThrough = function() {
-        debug("Asset loaded, still",toLoad,"assets to wait");
         toLoad--;
+        debug("Asset loaded, still",toLoad,"assets to wait");
         if( toLoad == 0 ) {
           ready = true;
           then();
@@ -72,21 +73,22 @@ define(["js/d10.toolbox"], function(toolbox) {
         audio.autobuffer = true;
         audio.preload = "auto";
         audio.addEventListener("canplaythrough", onCanPlayThrough, true);
-        for ( var index in url ) {
-            var s = document.createElement("source");
-            s.setAttribute("src", assets[i].url);
-            s.setAttribute("type", "audio/ogg");
-            audio.appendChild(s);
-        }
+        var s = document.createElement("source");
+        s.setAttribute("src", assets[i].url);
+        s.setAttribute("type", "audio/ogg");
+        audio.appendChild(s);
         audio.load();
         media[assets[i].label] = audio;
       };
     };
 
-    this.start = function(currentTrack, nextTrack) {
+    this.start = function(currentTrack, nextTrack, then) {
       debug("mix starting, notStarted.length=",notStarted.length);
       if (!ready ) {
         return false;
+      }
+      if ( then ) {
+        endOfMixCallback = then;
       }
       startTime = toolbox.microtime();
       media.currentTrack = currentTrack;
@@ -105,9 +107,10 @@ define(["js/d10.toolbox"], function(toolbox) {
         return false;
       }
       debug("step audio:",audio);
-      console.dir(audio);
       if ( "propertyStartValue" in step.opts ) {
-        audio[step.property] = step.opts.propertyStartValue == mixStep.PROPERTY_VALUE_CURRENT_VOLUME ? body.data("volume") : step.opts.propertyStartValue;
+        var propertyStartValue = step.opts.propertyStartValue == mixStep.PROPERTY_VALUE_CURRENT_VOLUME ? body.data("volume") : step.opts.propertyStartValue;
+//         debug("setting propertyStartValue ",step.property,"to",propertyStartValue);
+        audio[step.property] = propertyStartValue;
       }
       step.__startTime = currentDuration;
       step.__startValue = audio[step.property];
@@ -134,10 +137,11 @@ define(["js/d10.toolbox"], function(toolbox) {
         return false;
       }
       //set property value
-      
-      var newValue = step.__startValue - ( ( step.__startValue - propertyValue ) / step.duration * stepCurrentDuration );
+      if ( step.duration != 0 ) {
+        var newValue = step.__startValue - ( ( step.__startValue - propertyValue ) / step.duration * stepCurrentDuration );
 //       debug(step.uid, step.__startTime, currentDuration, step.duration, step.__startValue, propertyValue, newValue);
-      audio[step.property] = newValue;
+        audio[step.property] = newValue;
+      }
     };
     
     var onFrame = function() {
@@ -146,6 +150,9 @@ define(["js/d10.toolbox"], function(toolbox) {
       //special End of work case
       if ( started.length == 0 && notStarted.length == 0 ) {
         debug("End of mix");
+        if ( endOfMixCallback ) {
+          endOfMixCallback();
+        }
         return ;
       }
 //       debug("onFrame currentDuration: ",currentDuration);
