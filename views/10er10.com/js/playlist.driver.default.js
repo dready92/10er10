@@ -59,6 +59,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	var next = null; // next track
 	var currentLoadProgressEnded = false;
 	var cache = {};
+    var inTheMix = false;
 	this.fadeSettings = {
 		source_duration: settings.fade(),
 		source_startup:  - settings.fade(),
@@ -98,7 +99,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 										}
 //                                         if ( secs > settings. prefectchMinStartupTime && secs % 8 == 0 ) { optimistPrefetch(); }
 										var fade = settings.fade();
-                                        if ( fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == fade ) {
+                                        if ( fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == fade && !inTheMix ) {
                                                 beginFade();
                                         }
                                 }
@@ -114,6 +115,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                                 //                                      $(document).trigger('audioEnded', {'id': this.id }  );
                                 if ( !current || ! current.audio || this !== current.audio ) {  return false; }
 //                                 trigger("songEnded",{});
+                                if ( inTheMix ) { return false; }
                                 var nextWidget = playlist.next();
                                 if ( nextWidget.length ) {
                                         play(playlist.getTrackParameters(nextWidget));
@@ -220,7 +222,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 
       var mixSteps = [];
       mixSteps.push(
-        new mix.mixStep("currentTrack", 0,secs,"volume",0)
+        new mix.mixStep("currentTrack", (secs/3), (secs/2),"volume",0)
               );
       mixSteps.push(
         new mix.mixStep("nextTrack", 1, secs, "volume",
@@ -230,12 +232,14 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
               );
       var m = new mix.mix([], mixSteps);
       debug("current:",current,"audio:",current.audio);
-      m.load(function() {m.start(current.audio, next.audio);});
-
-      var previous = current;
-      current = next;
-      next = null;
-      trigger('currentSongChanged',{'previous': previous, 'current': current});
+      m.load(function() {
+        inTheMix = true;
+        m.start(current.audio, next.audio, function() { inTheMix = false; });
+        var previous = current;
+        current = next;
+        next = null;
+        trigger('currentSongChanged',{'previous': previous, 'current': current});
+      });
     }
 	
 	var play = this.play = function(id,url,duration,options) {
