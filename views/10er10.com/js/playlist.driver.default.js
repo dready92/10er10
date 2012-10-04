@@ -181,7 +181,10 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		var nextWidget = playlist.next();
 		if ( nextWidget.length ) {
 			var infos = playlist.getTrackParameters(nextWidget);
-			if ( cache[infos[0]] )	return ;
+			if ( cache[infos[0]] ) {
+              debug("Already in cache, readyState = ",cache[infos[0]].audio.readyState);
+              return ;
+            }
 			cache[infos[0]] = createTrack.apply(this,infos);
 			next = cache[infos[0]];
 			debug("starting prefetch of "+infos[0]+" at "+current.audio.currentTime+" s");
@@ -217,9 +220,8 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       var m = new mix.mix([], mixSteps);
       return m;
     };
-	
-    var beginFade = this.beginFade = function (fadeMix) {
-      debug("Mix fade algorithm begins");
+
+    var doesNextExists = function() {
       var nextId = getNextId();
       if ( !nextId || ! cache[nextId] ) {
           if ( !nextId ) {
@@ -229,11 +231,46 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
           }
           return false;
       }
-      
       if ( !next || next.id != nextId ) {
           next = cache[nextId];
       }
-      if ( !next ) {
+      return true;
+    };
+    
+    var isNextPreloaded = function() {
+      if ( !doesNextExists() ) {
+        return false;
+      }
+      if ( next.audio.readyState < next.audio.HAVE_ENOUGH_DATA ) {
+        return false;
+      }
+      return true;
+    };
+    
+    var launchMix = this.launchMix = function(fadeMix, onFadeEnded) {
+      if ( !isNextPreloaded() ) {
+        debug("Next song isn't preloaded");
+        return false;
+      }
+      onFadeEnded = onFadeEnded || function(){};
+      inTheMix = true;
+      
+      if ( fadeMix.start(current.audio, next.audio, function() { inTheMix = false; onFadeEnded();}) ) {
+        var previous = current;
+        current = next;
+        next = null;
+        trigger("currentSongChanged",{previous: previous, current: current});
+      } else {
+        inTheMix = false;
+        return false;
+      }
+      return true;
+    };
+    
+    
+    var beginFade = this.beginFade = function (fadeMix) {
+      debug("Mix fade algorithm begins");
+      if ( !doesNextExists() ) {
         return false;
       }
       if ( next.audio.readyState  < next.audio.HAVE_ENOUGH_DATA ) {
@@ -242,17 +279,12 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       }
       var state = {current: current.id, next: next.id};
       fadeMix.load(function() {
-        if ( !next || current.id != state.current || next.id != current.next ) {
+        if ( !next || current.id != state.current || next.id != state.next ) {
           // current and|or next song changed between mix loading and now
+          debug("song changed between load and start mix",state, next, current.id, next.id);
           return ;
         }
-        inTheMix = true;
-        if ( fadeMix.start(current.audio, next.audio, function() { inTheMix = false; }) ) {
-          var previous = current;
-          current = next;
-          next = null;
-          trigger('currentSongChanged',{'previous': previous, 'current': current});
-        }
+        launchMix(fadeMix);
       });
       return true;
     };
