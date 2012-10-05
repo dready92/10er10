@@ -9,7 +9,8 @@ define([
 	"js/playlist.module.time",
 	"js/playlist.module.title",
 	"js/playlist.module.topinfos",
-	"js/playlist.module.volume"
+	"js/playlist.module.volume",
+    "js/playlist.module.mix",
 ], function() {
   
   var controls = $("#controls");

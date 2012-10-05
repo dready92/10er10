@@ -93,7 +93,7 @@
 	</div>
     <div class="options">
       <div class="optionsTab">
-        <div data-target="autofill">Radio</div><div class="hidden" data-target="spectrumOption">Spectrum</div><div data-target="audioFade">Fading</div>
+        <div data-target="autofill">Radio</div><div class="hidden" data-target="spectrumOption">Spectrum</div><div data-target="audioFade">Fading</div><div data-target="mixControl">Mix</div>
       </div>
       <div class="optionsPanel">
           <div class="autofill hidden" title="((side_options_radiomode_title))"> 
@@ -121,6 +121,15 @@
               <div class="center expandable">
                   <div class="off link center">((side_options_spectrum_enable))</div>
                   <div class="on link center hidden">((side_options_spectrum_disable))</div>
+              </div>
+          </div>
+          <div class="mixControl hidden">
+              <div class="label">Choose your mix</div>
+              <div class="center expandable">
+                <div class="notPreloaded">Waiting for the next song to be ready</div>
+                <div class="preloaded">
+                  <span class="mixStatus">-</span> <select name="mixType" style="width: auto;"><option value="none">--</option></select> <button disabled="true">fire</button>
+                </div>
               </div>
           </div>
       </div>

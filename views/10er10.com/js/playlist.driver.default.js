@@ -183,6 +183,9 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 			var infos = playlist.getTrackParameters(nextWidget);
 			if ( cache[infos[0]] ) {
               debug("Already in cache, readyState = ",cache[infos[0]].audio.readyState);
+              if ( cache[infos[0]].audio.readyState >= current.audio.HAVE_ENOUGH_DATA ) {
+                pubsub.topic("nextSongPreloaded").publish();
+              }
               return ;
             }
 			cache[infos[0]] = createTrack.apply(this,infos);
@@ -237,7 +240,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       return true;
     };
     
-    var isNextPreloaded = function() {
+    var isNextPreloaded = this.isNextPreloaded = function() {
       if ( !doesNextExists() ) {
         return false;
       }

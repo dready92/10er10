@@ -1,13 +1,7 @@
 "use strict";
 define(["js/d10.toolbox"], function(toolbox) {
 
-  var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-                              window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-  
-  if ( ! requestAnimationFrame ) {
-    debug("fallback to setTimeout emlation for animationFrame");
-    requestAnimationFrame = function(cb) {setTimeout(cb,60);};
-  }
+  var  requestAnimationFrame = function(cb) {setTimeout(cb,30);};
   // opts.propertyStartValue , opts.stopPlaybackOnEnd, opts.startPlaybackOnBegin
   function mixStep (target, startTime, duration, property, propertyValue, opts) {
     this.target = target;
