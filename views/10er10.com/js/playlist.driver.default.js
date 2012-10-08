@@ -112,10 +112,9 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                                 }
                         },
                         "ended": function() {
-                                //                                      $(document).trigger('audioEnded', {'id': this.id }  );
-                                if ( !current || ! current.audio || this !== current.audio ) {  return false; }
-//                                 trigger("songEnded",{});
-                                if ( inTheMix ) { return false; }
+                                // do not return false it breaks playback
+                                if ( !current || ! current.audio || this !== current.audio ) {  return ; }
+                                if ( inTheMix ) { return ; }
                                 var nextWidget = playlist.next();
                                 if ( nextWidget.length ) {
                                         play(playlist.getTrackParameters(nextWidget));

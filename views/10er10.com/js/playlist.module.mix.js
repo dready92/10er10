@@ -8,7 +8,8 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   var ui = $("#controls div.mixControl"),
       select = ui.find("select"),
       button = ui.find("button"),
-      readyUi = ui.find(".mixStatus"),
+      statusUi = ui.find(".mixStatus"),
+      readyUi = statusUi.find("div").eq(0),
       notPreloaded = ui.find(".notPreloaded"),
       preloaded = ui.find(".preloaded");
 
@@ -148,19 +149,19 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   };
   
   var statusNone = function() {
-    readyUi.text("-");
+    readyUi.text("");
   };
   
   var statusLoading = function() {
-    readyUi.text("...");
+    readyUi.text("Loading");
   };
   
   var statusError = function() {
-    readyUi.text("X");
+    readyUi.text("Error");
   };
   
   var statusOk = function() {
-    readyUi.text("OK");
+    readyUi.text("Ready !");
   };
   
   var getMix = function(label) {
