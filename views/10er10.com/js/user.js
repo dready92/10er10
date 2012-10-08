@@ -58,7 +58,7 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 		});
 
 	
-		this.refresh_infos = function (then) {
+		var refresh_infos = this.refresh_infos = function (then) {
 			rest.user.infos(
 				{
 					load: function(err,resp) {
@@ -106,7 +106,7 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
                 rest.user.setPreference("audioFade",value, {
                     load: function(err,resp) {
                         if ( err ) return ;
-                        $.proxy(this.refresh_infos,this);
+                        refresh_infos();
                     }
                 });
             }
