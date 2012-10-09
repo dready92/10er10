@@ -48,10 +48,13 @@ var allEvents = [
 function playlistDriverDefault (playlist, proxyHandler, options) {
 	options = options || {};
 	var settings = $.extend({
-		fade: (function() {
-					var body = $("body");
-					return function() { return user.get_preferences().audioFade ? user.get_preferences().audioFade : 15 }
-		})(),
+		fade: function() { 
+          var af = user.get_preferences().audioFade;
+          if ( isNaN(af) || af < 0 ) {
+            return 15;
+          }
+          return af;
+        },
 		prefectchMinStartupTime: 9,
 		title: tpl.mustacheView("playlist.anonymous.name")
 	},options);
@@ -158,14 +161,6 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		$.each(allEvents,function(i,e) {
 			debug("binding track evt on topic ",e);
 			options[e] = pubsub.topic(e).publish;
-			/*
-			(function(e) {
-				options[e] = function() {
-// 					debug("got event ",e,this,arguments);
-					pubsub.topic(e).publish.apply(this,arguments);
-				}
-			})(e);
-		*/
 		});
 		return new track(id, url,duration , options);
 	};
@@ -183,15 +178,23 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		if ( nextWidget.length ) {
 			var infos = playlist.getTrackParameters(nextWidget);
 			if ( cache[infos[0]] ) {
-              debug("Already in cache, readyState = ",cache[infos[0]].audio.readyState);
+              debug("Already in cache, readyState = ",cache[infos[0]].audio.readyState, ", percentLoaded = ",cache[infos[0]].getProgressPC());
               if ( cache[infos[0]].audio.readyState >= current.audio.HAVE_ENOUGH_DATA ) {
                 pubsub.topic("nextSongPreloaded").publish();
               }
               return ;
             }
-			cache[infos[0]] = createTrack.apply(this,infos);
-			next = cache[infos[0]];
-			debug("starting prefetch of "+infos[0]+" at "+current.audio.currentTime+" s");
+            debug(infos);
+            infos[3] = infos[3] || {};
+            infos[3].onCreated = function(track) {
+              cache[infos[0]] = track;
+              next = cache[infos[0]];
+              debug("starting prefetch of "+infos[0]+" at "+current.audio.currentTime+" s");
+            };
+            debug(infos);
+			createTrack.apply(this,infos);
+// 			next = cache[infos[0]];
+// 			debug("starting prefetch of "+infos[0]+" at "+current.audio.currentTime+" s");
 		}
 	}
 	
@@ -213,7 +216,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       var secs = settings.fade();
       var mixSteps = [];
       mixSteps.push(
-        new mix.mixStep("currentTrack", (secs/3), (secs/2),"volume",0)
+        new mix.mixStep("currentTrack", 0, secs,"volume",0)
               );
       mixSteps.push(
         new mix.mixStep("nextTrack", 1, secs, "volume",
@@ -300,7 +303,13 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		}
 		debug("playlistDriverDefault:play",arguments);
 		if ( !cache[id] ) {
-			cache[id] = createTrack(id,url,duration,options);
+            options = options || {};
+            options.onCreated = function(track) {
+              cache[id] = track;
+              play(id,url,duration,options);
+            };
+// 			cache[id] = createTrack(id,url,duration,options);
+            return createTrack(id,url,duration,options);
 		}
 		debug("playlistDriverDefault:play track",cache[id]);
 		if ( cache[id] === current && !cache[id].audio.paused ) return ;

@@ -8,6 +8,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
 	* - seconds : the song length in seconds
 	* - options : object. Supported options :
 	* 		onprogressUpdate: song availability, fired when something changed in the song loading infos
+    *       onCreated: if this callback is set, the track will start buffering and then call the callback
 	* 
 	* public properties
 	* - id : id of the wrapper
@@ -201,11 +202,12 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
 		};
 
 		this.seek = function(secs) {
+            var isPaused = audio.paused;
 			if ( audio.readyState >= audio.HAVE_ENOUGH_DATA ) {
 				debug("audioplayer: setting currentTime to "+secs+", currentTime= "+audio.currentTime+", duration = "+audio.duration+", seeking = "+audio.seeking);
-				audio.pause();
+				if ( !isPaused ) audio.pause();
 				audio.currentTime = secs;
-				audio.play();
+				if ( !isPaused ) audio.play();
 			}
 		}
 
@@ -307,7 +309,20 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
 				audio.addEventListener(evt.replace(/^on/,''),settings[evt],false);
 			}		
 		};
-	
+        
+        var preloadHack = function() {
+          var self = this;
+          var initialVolume = audio.volume;
+          audio.volume = 0;
+          audio.play();
+          setTimeout(function() {
+            audio.pause();
+            self.seek(0);
+            audio.volume = initialVolume;
+            settings.onCreated(self);
+          },10);
+        };
+        
 		// create song
 		audio  = document.createElement('audio');
 		this.audio = audio;
@@ -330,7 +345,9 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
 		}
 		
 		audio.load();
-	
+        if ( settings.onCreated ) {
+          preloadHack.call(this);
+        }
 	};
 	return track; 
 });
