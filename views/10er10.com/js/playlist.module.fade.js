@@ -6,7 +6,11 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
 	var ui = $("#controls div.audioFade");
     
     var getAudioFade = function() {
-      return user.get_preferences().audioFade ? user.get_preferences().audioFade : 15;
+      var af = user.get_preferences().audioFade;
+      if ( isNaN(af) || af < 0 ) {
+        return 15;
+      }
+      return af;
     };
     
     var updateAudioFadeDisplay = function() {
