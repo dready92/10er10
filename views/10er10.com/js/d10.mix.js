@@ -67,6 +67,7 @@ define(["js/d10.toolbox"], function(toolbox) {
         audio.autobuffer = true;
         audio.preload = "auto";
         audio.addEventListener("canplaythrough", onCanPlayThrough, true);
+        audio.addEventListener("timeupdate", onFrame, true);
         var s = document.createElement("source");
         s.setAttribute("src", assets[i].url);
         s.setAttribute("type", "audio/ogg");
@@ -87,7 +88,9 @@ define(["js/d10.toolbox"], function(toolbox) {
       startTime = toolbox.microtime();
       media.currentTrack = currentTrack;
       media.nextTrack = nextTrack;
-      requestAnimationFrame(onFrame);
+      media.currentTrack.addEventListener("timeupdate", onFrame, true);
+      media.nextTrack.addEventListener("timeupdate", onFrame, true);
+//       requestAnimationFrame(onFrame);
       return true;
     };
 
@@ -125,8 +128,13 @@ define(["js/d10.toolbox"], function(toolbox) {
       if ( stepCurrentDuration > step.duration ) {
         audio[step.property] = propertyValue;
         //should we stop playback ?
-        if ( step.opts.stopPlaybackOnEnd && !media.paused ) {
-          media.pause();
+        if ( step.opts.stopPlaybackOnEnd ) {
+          debug("Stopping playback of", step.target, "current property is",propertyValue);
+          try {
+            audio.pause();
+          } catch(e) {
+            debug("unable to stop playback, ",e);
+          }
         }
         return false;
       }
@@ -144,6 +152,9 @@ define(["js/d10.toolbox"], function(toolbox) {
       //special End of work case
       if ( started.length == 0 && notStarted.length == 0 ) {
         debug("End of mix");
+        for (var i in media ) {
+          media[i].removeEventListener("timeupdate", onFrame, true);
+        }
         if ( endOfMixCallback ) {
           endOfMixCallback();
         }
@@ -172,9 +183,9 @@ define(["js/d10.toolbox"], function(toolbox) {
         }
       }
       started = newStarted;
-      requestAnimationFrame(onFrame);
+//       requestAnimationFrame(onFrame);
     };
-    
+    this.heartbeat = onFrame;
   };
   
   

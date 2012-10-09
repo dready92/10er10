@@ -18,6 +18,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   mixes.push (
     {
       label: "explosion",
+      description: "An explosion ends up the current song, then the new song starts almost directly",
       builder: function() {
         var steps = [];
         steps.push(
@@ -38,7 +39,8 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
             0.1,
             0.1,
             "volume",
-            0
+            0,
+            {stopstopPlaybackOnEnd: true}
           )
         );
         steps.push(
@@ -63,6 +65,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   mixes.push (
     {
       label: "bombDrop",
+      description: "A bomb is falling, an explosion ends up the current song, then the new song starts almost directly",
       builder: function() {
         var steps = [];
         steps.push(
@@ -95,7 +98,8 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
             0.1,
             6,
             "volume",
-            0
+            0,
+            {stopPlaybackOnEnd: true}
           )
         );
         steps.push(

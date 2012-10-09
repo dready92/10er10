@@ -103,6 +103,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                                                 beginFade(createDefaultMix());
                                         }
                                 }
+                                
                         },
                         "canplaythrough":function() {
                                 if ( this === current.audio ) {
@@ -172,6 +173,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	var optimistPrefetch = function() {
 		//debug("oPrefetch on id");
 		if ( !current )	return ;
+        if ( inTheMix ) return ;
         debug("optimistPrefetch: ",current.getProgressPC(),"% and ",current.audio.readyState, "< ",current.audio.HAVE_ENOUGH_DATA);
 		if (  current.getProgressPC() < 70 || current.audio.readyState < current.audio.HAVE_ENOUGH_DATA ) {
 			return;
@@ -255,7 +257,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
         return false;
       }
       onFadeEnded = onFadeEnded || function(){};
-      inTheMix = true;
+      inTheMix = fadeMix;
       
       if ( fadeMix.start(current.audio, next.audio, function() { inTheMix = false; onFadeEnded();}) ) {
         var previous = current;
