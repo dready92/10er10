@@ -56,6 +56,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
           return af;
         },
 		prefectchMinStartupTime: 9,
+        prefetchInterval: 5,
 		title: tpl.mustacheView("playlist.anonymous.name")
 	},options);
 	var current = null; // current playing track
@@ -98,7 +99,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 											this.prefetchStart = secs + settings.prefectchMinStartupTime;
 										} else if ( this.prefetchStart == secs ) {
 											optimistPrefetch();
-											this.prefetchStart = secs + settings.prefectchMinStartupTime;
+											this.prefetchStart = secs + settings.prefetchInterval;
 										}
 //                                         if ( secs > settings. prefectchMinStartupTime && secs % 8 == 0 ) { optimistPrefetch(); }
 										var fade = settings.fade();
@@ -149,6 +150,10 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		}
 	};
 	*/
+
+	var updatePrefetchStartupTime = function() {
+		settings.prefectchMinStartupTime = settings.fade() + 2;
+	};
 
 	var getNextId = function() {
 		var widget = playlist.next();
@@ -267,6 +272,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
         current = next;
         next = null;
         trigger("currentSongChanged",{previous: previous, current: current});
+	updatePrefetchStartupTime();
       } else {
         inTheMix = false;
         return false;
@@ -353,6 +359,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 			}
 		}
 		trigger("currentSongChanged",{current: current});
+		updatePrefetchStartupTime();
 		return true;
 	};
 
