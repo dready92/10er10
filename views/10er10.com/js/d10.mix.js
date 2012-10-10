@@ -141,7 +141,7 @@ define(["js/d10.toolbox"], function(toolbox) {
       //set property value
       if ( step.duration != 0 ) {
         var newValue = step.__startValue - ( ( step.__startValue - propertyValue ) / step.duration * stepCurrentDuration );
-        debug(step.target,step.property,newValue);
+//         debug(step.target,step.property,newValue);
 //       debug(step.uid, step.__startTime, currentDuration, step.duration, step.__startValue, propertyValue, newValue);
         audio[step.property] = newValue;
       }
