@@ -75,7 +75,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	var trackEvents = this.trackEvents = {
 						"progressUpdate": function(e) {
 							if ( currentLoadProgressEnded ) return ;
-							if ( this === current.audio ) {
+							if ( current && this === current.audio ) {
 								if ( this.networkState == this.NETWORK_IDLE && this.readyState == this.HAVE_ENOUGH_DATA )  {
 									currentLoadProgressEnded = true;
 									//                                                      $(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 1, 'loaded':1}  }  );
@@ -109,7 +109,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                                 
                         },
                         "canplaythrough":function() {
-                                if ( this === current.audio ) {
+                                if ( current && this === current.audio ) {
                                         trigger("currentLoadProgress", {track:current});
                                         currentLoadProgressEnded = true;
                                         //                                              $(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 1, 'loaded':1}  }  );
