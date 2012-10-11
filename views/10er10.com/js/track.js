@@ -310,7 +310,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
 			}		
 		};
         
-        var preloadHack = function() {
+        var preloadHack = function(then) {
           var self = this;
           var initialVolume = audio.volume;
           audio.volume = 0;
@@ -319,7 +319,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
             audio.pause();
             self.seek(0);
             audio.volume = initialVolume;
-            settings.onCreated(self);
+            then(self);
           },10);
         };
         
@@ -346,7 +346,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
 		
 		audio.load();
         if ( settings.onCreated ) {
-          preloadHack.call(this);
+          preloadHack.call(this, settings.onCreated);
         }
 	};
 	return track; 

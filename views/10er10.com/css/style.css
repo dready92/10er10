@@ -286,7 +286,6 @@ footer .langChooser select {
 }
 
 button {
-  color: #BF9730;
   text-shadow: #121212 0px 1px 1px;
   border-radius: 3px;
     background: -webkit-linear-gradient(top,  
@@ -307,7 +306,8 @@ button {
   padding: 2px 4px;
   cursor: pointer;
   background-color: #232323;
-  border: 1px solid rgba(200,200,200,0.3); color: #9A9A9A;
+  border: 1px solid rgba(200,200,200,0.3); 
+  color: #9A9A9A;
   font-size: 0.95em;
   -moz-user-select: none;
   -webkit-user-select: none;
@@ -325,6 +325,11 @@ button.risky {
 	font-weight: bold;
 }
 
+button[disabled] {
+  background-color: #898989;
+  
+}
+
 button:hover {
   background-image: linear-gradient(top,  #696969,  #454545);
   background-image: -webkit-linear-gradient(top,  #696969,  #454545);
@@ -335,6 +340,12 @@ button:active {
   background-image: linear-gradient(top,  #343434,  #595959);
   background-image: -webkit-linear-gradient(top,  #343434,  #595959);
   background-image: -moz-linear-gradient(top,  #343434,  #595959);
+}
+
+button[disabled], button[disabled]:active, button[disabled]:hover {
+  color: #898989;
+  background-color: #787878;
+  background-image: none;
 }
 
 img {	border: none; }
@@ -1674,129 +1685,6 @@ body.wide #controls {
 		height: 100px;
 }
 
-/*
-#controls div.showOtherOptions {
-	padding: 5px 5px 5px 5px;
-	text-align:center;
-	font-size: 0.8em;
-    transition: background-color 0.3s ease-in;
-	-moz-transition: background-color 0.3s ease-in;
-	-webkit-transition: background-color 0.3s ease-in;
-	border-radius: 10px;
-}
-#controls div.hideOtherOptions {
-	text-align:center;
-	padding: 5px;
-	font-size: 0.8em;
-    transition: background-color 0.3s ease-in;
-	-moz-transition: background-color 0.3s ease-in;
-	-webkit-transition: background-color 0.3s ease-in;
-	border-radius: 10px;
-}
-
-#controls div.otherOptionsContainer {
-	margin-bottom: 5px;
-}
-
-#controls div.otherOptionsContainer .label {
-	padding: 3px 0;
-	font-size: 0.9em;
-	text-align: center;
-}
-
-#controls div.showOtherOptions:hover, #controls div.hideOtherOptions:hover,
-#controls div.autofill:hover, #controls div.audioFade:hover, #controls div.spectrumOption:hover {
-	background-color: rgba(100,100,100,0.75);
-}
-
-#controls div.otherOptionsContainer {
-	display: none;
-	background: #454545;
-	margin: 10px 0;
-    transition: background-color 0.5s ease-in;
-	-moz-transition: background-color 0.5s ease-in;
-	-webkit-transition: background-color 0.5s ease-in;
-	border-radius: 10px;
-}
-
-#controls div.autofill {
-	padding: 10px 5px 0px 5px;
-    transition: background-color, 0.3s ease-in;
-	-moz-transition: background-color, 0.3s ease-in;
-	-webkit-transition: background-color, 0.3s ease-in;
-	border-radius: 10px;
-}
-
-#controls div.autofill .on {
-	display: none;
-}
-
-#controls div.autofill.enabled .on {
-	display: block;
-}
-
-#controls div.autofill.enabled .off {
-	display: none;
-}
-
-#controls div .expandable {
-    transition: opacity 0.3s, padding 0.3s, font-size 0.3s;
-	-moz-transition: opacity 0.3s, padding 0.3s, font-size 0.3s;
-	-webkit-transition:  opacity 0.3s, padding 0.3s, font-size 0.3s;
-	font-size: 1px;
-	opacity: 0;
-	padding-bottom: 0;
-}
-
-
-#controls div:hover > .expandable {
-	font-size: 1em;
-	opacity: 1;
-	padding-bottom: 5px;
-}
-
-#controls div.autofill div.overlay div.list {
-  max-height: 300px;
-  overflow: auto;
-}
-
-#controls div.autofill div.overlay div.list > div {
-  padding-left: 20px;
-  cursor: pointer;
-}
-
-#controls div.autofill div.overlay div.list  > div.checked {
-  background-image: url("16x16/actions/dialog-ok.png");
-  background-repeat: no-repeat;
-  background-position: left center;
-  color: #BF9730;
-}
-
-#controls div.autofill div.overlay div.list  > div:hover {
-  background-color: #454545;
-}
-
-
-#controls .audioFade {
-	padding: 0px 5px 0px 5px;
-    transition: background-color 0.3s;
-	-moz-transition: background-color 0.3s;
-	-webkit-transition: background-color 0.3s; 
-	border-radius: 10px;
-}
-
-#controls .audioFade input {
-	width: auto;
-	height: 1px;
-	vertical-align:middle;
-    transition: height 0.3s, color 0.3s;
-	-moz-transition: height 0.3s, color 0.3s;
-}
-#controls .audioFade:hover input {
-	height: auto;
-}
-*/
-
 #controls .options { margin: 10px 0 0 0 }
 
 #controls .optionsTab {
@@ -1897,6 +1785,11 @@ body.wide #controls {
 #controls div.autofill div.yellowOverlay div.list  > div:hover {
   background-color: #454545;
 }
+
+#controls .preloaded { margin: 0 5px  }
+#controls .preloaded button { float: right; margin-top: -2px;  }
+#controls .preloaded select { width: 170px; margin-left: 6px; }
+#controls .description { margin: 10px 5px 5px 5px; background: #676767; padding: 5px; border-radius: 6px; border: 2px solid #232323;}
 
 #reviewReminder {
   background-color:rgb(191,151,48);

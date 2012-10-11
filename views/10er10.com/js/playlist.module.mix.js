@@ -7,14 +7,150 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   var uiTimeout = null;
   var ui = $("#controls div.mixControl"),
       select = ui.find("select"),
+       description = ui.find(".description"),
       button = ui.find("button"),
-      statusUi = ui.find(".mixStatus"),
-      readyUi = statusUi.find("div").eq(0),
       notPreloaded = ui.find(".notPreloaded"),
       preloaded = ui.find(".preloaded");
 
   var currentMix;
   var mixes = [];
+  
+  mixes.push (
+    {
+      label: "Very fast fade",
+      description: "Very fast fade out/in (3 secs)",
+      builder: function() {
+        var steps = [];
+        steps.push(
+          new d10mix.mixStep(
+            "currentTrack",
+            0,
+            3,
+            "volume",
+            0,
+            {stopPlaybackOnEnd: true}
+          )
+        );
+        steps.push(
+          new d10mix.mixStep(
+            "nextTrack",
+            0,
+            3,
+            "volume",
+            d10mix.mixStep.PROPERTY_VALUE_CURRENT_VOLUME,
+            {
+              propertyStartValue: 0,
+              startPlaybackOnBegin: true
+            }
+          )
+        );
+        return new d10mix.mix([], steps);
+      }
+    }
+  );
+  
+  mixes.push (
+    {
+      label: "Fast fade",
+      description: "Fast fade out/in (5 secs)",
+      builder: function() {
+        var steps = [];
+        steps.push(
+          new d10mix.mixStep(
+            "currentTrack",
+            0,
+            4,
+            "volume",
+            0,
+            {stopPlaybackOnEnd: true}
+          )
+        );
+        steps.push(
+          new d10mix.mixStep(
+            "nextTrack",
+            1,
+            5,
+            "volume",
+            d10mix.mixStep.PROPERTY_VALUE_CURRENT_VOLUME,
+            {
+              propertyStartValue: 0,
+              startPlaybackOnBegin: true
+            }
+          )
+        );
+        return new d10mix.mix([], steps);
+      }
+    }
+  );
+  
+  mixes.push (
+    {
+      label: "Medium fade",
+      description: "Medium fade out/in (10 secs)",
+      builder: function() {
+        var steps = [];
+        steps.push(
+          new d10mix.mixStep(
+            "currentTrack",
+            0,
+            9,
+            "volume",
+            0,
+            {stopPlaybackOnEnd: true}
+          )
+        );
+        steps.push(
+          new d10mix.mixStep(
+            "nextTrack",
+            1,
+            10,
+            "volume",
+            d10mix.mixStep.PROPERTY_VALUE_CURRENT_VOLUME,
+            {
+              propertyStartValue: 0,
+              startPlaybackOnBegin: true
+            }
+          )
+        );
+        return new d10mix.mix([], steps);
+      }
+    }
+  );
+  
+  mixes.push (
+    {
+      label: "Long fade",
+      description: "Long fade out/in (15 secs)",
+      builder: function() {
+        var steps = [];
+        steps.push(
+          new d10mix.mixStep(
+            "currentTrack",
+            0,
+            13,
+            "volume",
+            0,
+            {stopPlaybackOnEnd: true}
+          )
+        );
+        steps.push(
+          new d10mix.mixStep(
+            "nextTrack",
+            1.7,
+            15,
+            "volume",
+            d10mix.mixStep.PROPERTY_VALUE_CURRENT_VOLUME,
+            {
+              propertyStartValue: 0,
+              startPlaybackOnBegin: true
+            }
+          )
+        );
+        return new d10mix.mix([], steps);
+      }
+    }
+  );
+  
   mixes.push (
     {
       label: "explosion",
@@ -40,13 +176,13 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
             0.1,
             "volume",
             0,
-            {stopstopPlaybackOnEnd: true}
+            {stopPlaybackOnEnd: true}
           )
         );
         steps.push(
           new d10mix.mixStep(
             "nextTrack",
-            4,
+            3,
             1,
             "volume",
             d10mix.mixStep.PROPERTY_VALUE_CURRENT_VOLUME,
@@ -153,25 +289,33 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   };
   
   var statusNone = function() {
-    readyUi.text("");
+    button.text("<< Choose");
   };
   
   var statusLoading = function() {
-    readyUi.text("Loading");
+    button.text("Loading");
   };
   
   var statusError = function() {
-    readyUi.text("Error");
+    button.text("Error");
   };
   
   var statusOk = function() {
-    readyUi.text("Ready !");
+    button.text("Fire !");
   };
   
   var getMix = function(label) {
     for ( var i in mixes ) {
       if ( mixes[i].label == label ) {
         return mixes[i].builder();
+      }
+    }
+  };
+  
+  var getMixDescription = function(label) {
+    for ( var i in mixes ) {
+      if ( mixes[i].label == label ) {
+        return mixes[i].description;
       }
     }
   };
@@ -183,13 +327,26 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
     }
   };
   
+  var resetSelect = function () {
+    select.get(0).selectedIndex = 0;
+    setDescription("");
+  };
+  
   var startMix = function() {
     playlist.driver().launchMix(currentMix);
-    select.get(0).selectedIndex = 0;
+    resetSelect();
     button.attr("disabled","true");
     statusNone();
   };
   
+  var setDescription = function(text) {
+    if ( !text ) {
+      description.slideUp("fast");
+    } else if ( description.text().length == 0 ) {
+      description.slideDown("fast");
+    }
+    description.text(text);
+  };
   button.bind("click",startMix);
   
   select.bind("change",function() {
@@ -198,8 +355,10 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
     button.attr("disabled",true);
     if ( val == "none" ) {
       statusNone();
+      setDescription("");
       return ;
     }
+    setDescription(getMixDescription(val));
     var mix = getMix(val);
     statusLoading();
     currentMix = mix;
@@ -208,6 +367,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
     });
   });
   playlist.modules[module.name] = module;
+  statusNone();
   return module;
 });
 

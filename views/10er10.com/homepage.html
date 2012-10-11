@@ -127,16 +127,10 @@
               <div class="label">Choose your mix</div>
               <div class="center expandable">
                 <div class="notPreloaded">Waiting for the next song to be ready</div>
-                <div class="preloaded" style="display: none">
-                  <div>
-                    <select name="mixType" style="width: auto;"><option value="none">--</option></select>
-                  </div>
-                  <div class="mixStatus">
-                    <div style="width: 100px; float: left">-</div> 
-                    <div style="margin-left: 105px" class="left">
-                      <button disabled="true">fire</button>
-                    </div>
-                  </div>
+                <div class="preloaded hidden left">
+                    <button disabled="true">fire</button>
+                    <select name="mixType"><option value="none">--</option></select>
+                    <div class="description hidden"></div>
                 </div>
               </div>
           </div>
