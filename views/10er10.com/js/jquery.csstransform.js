@@ -27,7 +27,6 @@ $.fn.cssTransform = function(things, css, next, options) {
   while ( step = things.shift() ) {
     steps = getSteps(step.from, step.to,step.duration,timeUnit,css).concat( steps );
   }
-//   console.log(steps);  
   var ival = setInterval(function() {
     var cur = steps.pop();
     node.css({

@@ -75,7 +75,6 @@ define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolb
             rest.genre.genreResume(genre, {
               load: function(err,data) {
                 if ( err ) { return }
-                console.log(data);
                 var widget = topicdiv.find(".subtitle");
                 widget.find(".songs").text( data.songs.count );
                 widget.find(".artists").text( data.artists );

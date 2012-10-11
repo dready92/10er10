@@ -59,7 +59,6 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest"], func
 		function handleFiles (files) {
 			for (var i = 0; i < files.length; i++) {  
 			var file = files[i];
-		//       console.log(file.name, file.size, file.type);
 			var widget = $( tpl.mustacheView("upload.file.widget") );
 			$("div.head span.name",widget).text(file.name);
 			$("div.head span.size",widget).text(file.size);
@@ -123,7 +122,6 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest"], func
 			}
 
 			this.checkForUpload = function () {
-		//       console.log("check for upload", uploadCandidates);
 			if ( !uploadCandidates.length ) {
 				clearInterval( intervalID );
 				intervalId = null;

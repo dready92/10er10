@@ -26,7 +26,6 @@ define(["js/d10.templates", "js/d10.events"], function(tpl, pubsub) {
 
 
 		var send = function (type,message) {
-		//     console.log("OSD send method begins : ",type,message);
 			var w_width = $(document).width();
 			var width = default_width;
 			if ( w_width < default_width ) {
