@@ -147,7 +147,8 @@ define(["js/d10.toolbox"], function(toolbox) {
       }
     };
     
-    var onFrame = function() {
+    var onFrame = function(e) {
+      if (e && e.type == "timeupdate" && e.target.currentTime == 0 ) { return ; }
       var currentDuration = toolbox.microtime() - startTime;
       
       //special End of work case
