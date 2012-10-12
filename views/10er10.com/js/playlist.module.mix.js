@@ -289,7 +289,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   };
   
   var statusNone = function() {
-    button.text("<< Choose");
+    button.text("<< Choose").attr("disabled","true");
   };
   
   var statusLoading = function() {
@@ -352,7 +352,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   select.bind("change",function() {
     var val = select.val();
     debug("val",val);
-    button.attr("disabled",true);
+    button.attr("disabled","true");
     if ( val == "none" ) {
       statusNone();
       setDescription("");
@@ -362,10 +362,9 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
     var mix = getMix(val);
     statusLoading();
     currentMix = mix;
-    mix.load(function() {
-      onMixLoaded(mix);
-    });
+    mix.load(function() { onMixLoaded(mix); });
   });
+  
   playlist.modules[module.name] = module;
   statusNone();
   return module;
