@@ -64,15 +64,6 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	var currentLoadProgressEnded = false;
 	var cache = {};
     var inTheMix = false;
-	this.fadeSettings = {
-		source_duration: settings.fade(),
-		source_startup:  - settings.fade(),
-		target_duration: 10,
-		target_startup: - 10,
-		target_starttime: 0
-	};
-//	var events = {};
-// 	var modules = [];
 	var trackEvents = this.trackEvents = {
 						"progressUpdate": function(e) {
 							if ( currentLoadProgressEnded ) return ;
@@ -140,17 +131,6 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	var unbind = this.unbind = eventEmitter.unbind;
 	var unbindAll = this.unbindAll = eventEmitter.unbindAll;
 
-	/*
-	 * called when this class is the driver , "this" = <audio> element, e = event
-	 */
-	/*
-	var handleEvent = this.handleEvent = function(e) {
-		if ( trackEvents[e.type] ) {
-			trackEvents[e.type].apply(this,arguments);
-		}
-	};
-	*/
-
 	var updatePrefetchStartupTime = function() {
 		settings.prefectchMinStartupTime = settings.fade() + 2;
 	};
@@ -198,8 +178,6 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
             };
             debug(infos);
 			createTrack.apply(this,infos);
-// 			next = cache[infos[0]];
-// 			debug("starting prefetch of "+infos[0]+" at "+current.audio.currentTime+" s");
 		}
 	}
 	
@@ -272,7 +250,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
         current = next;
         next = null;
         trigger("currentSongChanged",{previous: previous, current: current});
-	updatePrefetchStartupTime();
+        updatePrefetchStartupTime();
       } else {
         inTheMix = false;
         return false;
