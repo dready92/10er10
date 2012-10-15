@@ -494,6 +494,7 @@ exports.api = function(app) {
 					run: function(then) {
 						
 						var resp = this.tasks.oggLength.response, duration = 0;
+                        var sha1 = this.tasks.sha1File.response;
 						if ( 
 							Object.prototype.toString.call(resp) === '[object Array]' &&
 							resp.length > 2 && 
@@ -508,7 +509,7 @@ exports.api = function(app) {
 						var doc = {
 							_id: this.id,
 							filename: request.query.filename,
-							sha1: this.tasks.sha1File.response,
+							sha1: sha1,
 							user: request.ctx.user._id,
 							reviewed: false,
 							valid: false,
@@ -542,16 +543,24 @@ exports.api = function(app) {
 							}
 						}
 						
-						
 //  						return then(null,doc);
 						var recordDoc = function() {
-							d10.couch.d10.storeDoc(doc,function(err,resp) {
-								if ( err ) { then(err); }
-								else {
-									doc._rev = resp.rev;
-									then(null,doc);
-								}
-							});
+                          d10.couch.d10.view("song/sha1",{key: sha1}, function(err,resp) {
+                              if ( err ) {
+                                  then(501);
+                              } else if (!resp.rows || resp.rows.length) {
+                                  then(433);
+                              } else {
+                                d10.couch.d10.storeDoc(doc,function(err,resp) {
+                                  if ( err ) { then(err); }
+                                  else {
+                                    doc._rev = resp.rev;
+                                    then(null,doc);
+                                  }
+                                });
+                              }
+                          });
+							
 						};
 
 						if ( this.tasks.fileMeta.response && this.tasks.fileMeta.response.PICTURES && this.tasks.fileMeta.response.PICTURES.length ) {
@@ -747,8 +756,13 @@ exports.api = function(app) {
 		});
 		
 		job.complete("createDocument",function(err,resp) {
-			d10.log("debug",jobid,"db document recorded, sending success");
-			safeSuccessResp(resp,request.ctx);
+          if ( err ) {
+            safeErrResp(432,err,request.ctx);
+            cleanupFileSystem();
+            return;
+          }
+          d10.log("debug",jobid,"db document recorded, sending success");
+          safeSuccessResp(resp,request.ctx);
 		});
 		
 		
