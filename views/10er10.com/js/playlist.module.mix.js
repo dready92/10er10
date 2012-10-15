@@ -14,8 +14,114 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
 
   var currentMix;
   var mixes = [];
+    
+  var nextSongPreloaded = false;
+  pubsub.topic("playlist:currentSongChanged").subscribe(function() {
+    debug("currentSongChanged: ",playlist.driver().isNextPreloaded());
+    nextSongPreloaded = playlist.driver().isNextPreloaded(); 
+    updatePreloadState();
+  });
+  pubsub.topic("nextSongPreloaded").subscribe(function() { 
+    debug("nextSongPreloaded: ",playlist.driver().isNextPreloaded());
+    nextSongPreloaded = true; 
+    updatePreloadState();
+  });
+
+  var updatePreloadState = function() {
+    if ( nextSongPreloaded == true ) {
+      notPreloaded.hide();
+      preloaded.show();
+    } else {
+      preloaded.hide();
+      notPreloaded.show();
+    }
+  };
   
-  mixes.push (
+  var statusNone = function() {
+    button.text("< Choose").attr("disabled","true");
+  };
+  
+  var statusLoading = function() {
+    button.text("Loading").attr("disabled","true");
+  };
+  
+  var statusError = function() {
+    button.text("Error").attr("disabled","true");
+  };
+  
+  var statusOk = function() {
+    button.text("Fire !").removeAttr("disabled");
+  };
+  
+  var getMix = function(label) {
+    for ( var i in mixes ) {
+      if ( mixes[i].label == label ) {
+        return mixes[i].builder();
+      }
+    }
+  };
+    
+  var onMixLoaded = function(mix) {
+    if ( mix === currentMix ) {
+      statusOk();
+    }
+  };
+  
+  var resetSelect = function () {
+    setDescription("");
+    select.get(0).selectedIndex = 0;
+  };
+  
+  var startMix = function() {
+    playlist.driver().launchMix(currentMix);
+    resetSelect();
+    statusNone();
+    setDescription("");
+  };
+  
+  var setDescription = function(text) {
+    if ( !text ) {
+      if ( description.is(":visible") ) {
+        description.slideUp("fast");
+      } else {
+        description.hide();
+      }
+    } else if ( description.text().length == 0 ) {
+      description.slideDown("fast");
+    }
+    description.text(text);
+  };
+  
+  button.bind("click",startMix);
+  
+  select.bind("change",function() {
+    var val = select.val();
+    debug("val",val);
+    if ( val == "none" ) {
+      statusNone();
+      setDescription("");
+      return ;
+    }
+    statusLoading();
+    setDescription(select.children(":selected").attr("data-description"));
+    var mix = getMix(val);
+    currentMix = mix;
+    mix.load(function() { onMixLoaded(mix); });
+  });
+  
+  playlist.modules[module.name] = module;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    mixes.push (
     {
       label: "Very fast fade",
       description: "Very fast fade out/in (3 secs)",
@@ -261,112 +367,12 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   
   mixes.forEach(function(mix) {
     var option = $("<option/>");
-    option.attr("value",mix.label);
-    option.text(mix.label);
-    select.append(option);
+    option.attr("value",mix.label)
+          .attr("data-description", mix.description)
+          .text(mix.label)
+          .appendTo(select);
   });
-  
-  var nextSongPreloaded = false;
-  pubsub.topic("playlist:currentSongChanged").subscribe(function() {
-    debug("currentSongChanged: ",playlist.driver().isNextPreloaded());
-    nextSongPreloaded = playlist.driver().isNextPreloaded(); 
-    updatePreloadState();
-  });
-  pubsub.topic("nextSongPreloaded").subscribe(function() { 
-    debug("nextSongPreloaded: ",playlist.driver().isNextPreloaded());
-    nextSongPreloaded = true; 
-    updatePreloadState();
-  });
-
-  var updatePreloadState = function() {
-    if ( nextSongPreloaded == true ) {
-      notPreloaded.hide();
-      preloaded.show();
-    } else {
-      preloaded.hide();
-      notPreloaded.show();
-    }
-  };
-  
-  var statusNone = function() {
-    button.text("<< Choose").attr("disabled","true");
-  };
-  
-  var statusLoading = function() {
-    button.text("Loading");
-  };
-  
-  var statusError = function() {
-    button.text("Error");
-  };
-  
-  var statusOk = function() {
-    button.text("Fire !");
-  };
-  
-  var getMix = function(label) {
-    for ( var i in mixes ) {
-      if ( mixes[i].label == label ) {
-        return mixes[i].builder();
-      }
-    }
-  };
-  
-  var getMixDescription = function(label) {
-    for ( var i in mixes ) {
-      if ( mixes[i].label == label ) {
-        return mixes[i].description;
-      }
-    }
-  };
-  
-  var onMixLoaded = function(mix) {
-    if ( mix === currentMix ) {
-      statusOk();
-      button.removeAttr("disabled");
-    }
-  };
-  
-  var resetSelect = function () {
-    select.get(0).selectedIndex = 0;
-    setDescription("");
-  };
-  
-  var startMix = function() {
-    playlist.driver().launchMix(currentMix);
-    resetSelect();
-    button.attr("disabled","true");
-    statusNone();
-  };
-  
-  var setDescription = function(text) {
-    if ( !text ) {
-      description.slideUp("fast");
-    } else if ( description.text().length == 0 ) {
-      description.slideDown("fast");
-    }
-    description.text(text);
-  };
-  button.bind("click",startMix);
-  
-  select.bind("change",function() {
-    var val = select.val();
-    debug("val",val);
-    button.attr("disabled","true");
-    if ( val == "none" ) {
-      statusNone();
-      setDescription("");
-      return ;
-    }
-    setDescription(getMixDescription(val));
-    var mix = getMix(val);
-    statusLoading();
-    currentMix = mix;
-    mix.load(function() { onMixLoaded(mix); });
-  });
-  
-  playlist.modules[module.name] = module;
-  statusNone();
+  statusNone();  
   return module;
 });
 
