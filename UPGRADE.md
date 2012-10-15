@@ -14,6 +14,7 @@ Upgrade from 0.13 to 0.14
 - reworked UI for player options (radio mode, fade, spectrum on FF)
 - drag'n'drop an image in single album view to set image to all album songs
 - use nodemailer instead of node-mailer npm module to send invites emails
+- new mix playlist module
 
 Upgrade from 0.12 to 0.13
 =========================
