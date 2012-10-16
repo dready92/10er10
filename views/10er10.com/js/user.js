@@ -76,6 +76,17 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
 			return true;
 		}
 
+		this.get_volume = function() {
+          var default_volume = 0.5;
+          if ( infos == null || !infos.preferences  )   return default_volume;
+          if ( ! "volume" in infos.preferences )        return default_volume;
+          var volume = parseFloat(infos.preferences.volume);
+          if ( isNaN(volume) || volume < 0 || volume > 1 ) {
+            return default_volume;
+          }
+          return volume;
+        };
+		
 		this.get_preferences = function () {
 			if ( infos == null || !infos.preferences  )	return false;
 			return infos.preferences;
