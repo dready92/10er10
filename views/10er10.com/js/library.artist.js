@@ -70,8 +70,8 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
       var songs = $(this).closest("article").find(".all div.song").clone();
       playlist.append(songs);
     });
-	template.find(".link.artistGenre").click(function() {
-		router.navigateTo(["library","artists", category, "genre", $(this).html()]);
+	template.find(".link[data-genre]").click(function() {
+		router.navigateTo(["library","artists", category, "genre", $(this).attr("data-genre")]);
 	});
 	template.find(".link.artistAllGenres").click(function() {
 		router.navigateTo(["library","artists", category]);

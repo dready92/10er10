@@ -6,7 +6,7 @@
 {{#notFull}}
 <div class="airin">
   <div class="infoBar">
-((nofullgenre_infobar_summary)) ((nofullgenre_infobar_othergenres))<span>{{#genres}}<span class="artistGenre link linkHover">{{genre}}</span> {{/genres}}</span>.
+((nofullgenre_infobar_summary)) ((nofullgenre_infobar_othergenres))<span>{{#genres}}<span class="artistGenre link linkHover" data-genre="{{genre_e}}">{{genre}}</span> {{/genres}}</span>.
 ((nofullgenre_infobar_seeall_summary)) <span class="link linkHover artistAllGenres">((nofullgenre_infobar_seeall_link))</span>.
   </div>
 </div>
@@ -26,7 +26,7 @@
 			<button name="loadAll"><img src="css/16x16/actions/favorite-genres-amarok.png" class="middle"> ((add_all_to_player))</button>
 {{#full}}
 			<br>&nbsp;<br>
-			  ((fullgenre_filter_summary)) {{#genres}}<span class="link artistGenre linkHover">{{genre}}</span> {{/genres}}.
+			  ((fullgenre_filter_summary)) {{#genres}}<span class="link artistGenre linkHover" data-genre="{{genre_e}}">{{genre}}</span> {{/genres}}.
 			
 {{/full}}
 
