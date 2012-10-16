@@ -9,6 +9,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
 	* - options : object. Supported options :
 	* 		onprogressUpdate: song availability, fired when something changed in the song loading infos
     *       onCreated: if this callback is set, the track will start buffering and then call the callback
+    *       volume: set the default volume of the audio file
 	* 
 	* public properties
 	* - id : id of the wrapper
@@ -244,7 +245,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
 
 		this.fadeIn = function (secs,callback,opts) {
 			var config = $.extend({
-				target_volume: $("body").data("volume"),
+				target_volume: 0.5,
 				startTime: 0
 			},opts ? opts: {});
 			if ( fadeInterval ) {
@@ -329,7 +330,9 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
 		for ( var index in allEvents ) { ael(allEvents[index]); }
 		audio.id = id;
 		audio.last_secs_update = -1;
-		audio.volume=$("body").data("volume");
+        if ( "volume" in settings ) {
+          audio.volume=settings.volume;
+        }
 		audio.autobuffer = true;
 		audio.preload = "auto";
 	

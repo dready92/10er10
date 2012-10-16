@@ -86,6 +86,24 @@ define(["js/d10.rest", "js/d10.events"],function(rest, pubsub) {
           }
           return volume;
         };
+        
+        var volumeTimeout = null;
+        
+        this.set_volume = function(volume) {
+          if ( infos == null || !infos.preferences  )   return false;
+          volume = parseFloat(volume);
+          if ( isNaN(volume) || volume < 0 || volume > 1 ) {
+            return false;
+          }
+          infos.preferences.volume = volume;
+          if ( volumeTimeout ) {
+            clearTimeout(volumeTimeout);
+          }
+          volumeTimeout = setTimeout(function() {
+            rest.user.storeVolume(volume, {});
+            volumeTimeout = null;
+          },10000);
+        };
 		
 		this.get_preferences = function () {
 			if ( infos == null || !infos.preferences  )	return false;

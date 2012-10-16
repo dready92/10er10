@@ -143,6 +143,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	
 	var createTrack = function(id,url,duration,options) {
 		options = options || {};
+        options.volume = user.get_volume();
 		$.each(allEvents,function(i,e) {
 			debug("binding track evt on topic ",e);
 			options[e] = pubsub.topic(e).publish;
@@ -325,7 +326,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 				return false;
 			}
 		}
-		current.audio.volume = $('body').data('volume');
+		current.audio.volume = user.get_volume();
 		current.audio.play();
 		debug("playlistDriverDefault:play called play() on audio element : ",current.audio);
 		

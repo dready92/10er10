@@ -284,29 +284,17 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			if ( arguments.length ) {
 				//controls.volumeBar.adjustBar(vol);
 // 				debug ("playlist : should adjust volume to "+vol);
-				$('body').data('volume',vol);
-
 				if ( !fromPrefs ) {  
-					if ( volumeUpdateTimeout ) {
-						clearTimeout(volumeUpdateTimeout);
-					}
-					volumeUpdateTimeout = setTimeout(function() {
-						rest.user.storeVolume($('body').data('volume'), {});
-						volumeUpdateTimeout = null;
-					},10000);
+					user.set_volume(vol);
 				}
 				pubsub.topic("playlist:volumeChanged").publish({volume: vol});
 				return driver ? driver.volume(vol) : true;
 			}
-			return $('body').data('volume');
+			return user.get_volume();
 		};
 		
 		pubsub.topic("user.infos").one(function() {
-			if ( user.get_preferences().volume ) {
-				volume(user.get_preferences().volume,true);
-			} else {
-				volume(0.5,true);
-			}
+          volume(user.get_volume(),true);
 		});
 		
 		var seek = this.seek = function(secs) {

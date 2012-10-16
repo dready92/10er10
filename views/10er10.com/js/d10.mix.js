@@ -1,5 +1,5 @@
 "use strict";
-define(["js/d10.toolbox"], function(toolbox) {
+define(["js/d10.toolbox", "js/user"], function(toolbox, user) {
 
   var  requestAnimationFrame = function(cb) {setTimeout(cb,30);};
   // opts.propertyStartValue , opts.stopPlaybackOnEnd, opts.startPlaybackOnBegin
@@ -63,7 +63,7 @@ define(["js/d10.toolbox"], function(toolbox) {
         debug("Creating audio asset",assets[i].label);
         toLoad++;
         var audio  = document.createElement('audio');
-        audio.volume=body.data("volume");
+        audio.volume=user.get_volume();
         audio.autobuffer = true;
         audio.preload = "auto";
         audio.addEventListener("canplaythrough", onCanPlayThrough, true);
@@ -105,7 +105,7 @@ define(["js/d10.toolbox"], function(toolbox) {
       }
       debug("step audio:",audio);
       if ( "propertyStartValue" in step.opts ) {
-        var propertyStartValue = step.opts.propertyStartValue == mixStep.PROPERTY_VALUE_CURRENT_VOLUME ? body.data("volume") : step.opts.propertyStartValue;
+        var propertyStartValue = step.opts.propertyStartValue == mixStep.PROPERTY_VALUE_CURRENT_VOLUME ? user.get_volume() : step.opts.propertyStartValue;
 //         debug("setting propertyStartValue ",step.property,"to",propertyStartValue);
         audio[step.property] = propertyStartValue;
       }
@@ -122,7 +122,7 @@ define(["js/d10.toolbox"], function(toolbox) {
     var processStepFrame = function(step, currentDuration) {
       var audio = media[step.target];
       var stepCurrentDuration = currentDuration - step.__startTime;
-      var propertyValue = (step.propertyValue == mixStep.PROPERTY_VALUE_CURRENT_VOLUME) ? body.data("volume") 
+      var propertyValue = (step.propertyValue == mixStep.PROPERTY_VALUE_CURRENT_VOLUME) ? user.get_volume() 
                                                                                         : step.propertyValue;
       //check if we are stopped
       if ( stepCurrentDuration > step.duration ) {

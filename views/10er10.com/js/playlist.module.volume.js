@@ -1,17 +1,18 @@
-define(["js/domReady","js/d10.playlistModule", "js/playlist"], function(foo, playlistModule, playlist) {
+define(["js/domReady",
+       "js/d10.playlistModule", 
+       "js/playlist",
+       "js/user"
+       ], function(foo, playlistModule, playlist, user) {
 
 
 	var module = new playlistModule("volume",{
 			"playlist:volumeChanged": function() {
 				debug("volume playlist event");
-				bar.adjustBar($('body').data('volume'));
+				bar.adjustBar(user.get_volume());
 			}},
 			{
 				enable: function() {
-					var vol = $("body").data("volume");
-					if ( vol ) {
-						bar.adjustBar(vol);
-					}
+                  bar.adjustBar(user.get_volume());
 				}
 			}
 	);
@@ -55,11 +56,9 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"], function(foo, pla
 	
 	var ui = $("#controls div[name=volume]");
 	var bar = new volumebar(ui,1);
-	bar.adjustBar($('body').data('volume') ? $('body').data('volume') : 0.5);
+	bar.adjustBar(user.get_volume());
 	playlist.modules[module.name] = module;
-
 	return module;
-	
 });
 
 

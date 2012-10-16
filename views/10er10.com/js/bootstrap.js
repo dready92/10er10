@@ -182,11 +182,6 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		$('aside .table[name=controls] img, aside div.manager button, #modeSwitcher').tooltip({
 			"predelay": 1000
 		}).dynamic({ bottom: { direction: 'down', bounce: true } });
-
-		//
-		// variables par defaut
-		//
-		$('body').data('volume',0.5);
 		
 		$("footer a.logout").click(function() {
 			$("footer .loggedin").hide();
