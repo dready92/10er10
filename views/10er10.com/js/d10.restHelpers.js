@@ -9,16 +9,16 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 		var mergedRpp = 10;
 
 		var innerCursorFetchUntilRpp = function(then) {
+            if (buffer.length && !innerCursor.hasMoreResults()) {
+              merged.push(buffer);
+              buffer = [];
+            }
 			if ( !innerCursor.hasMoreResults() || merged.length >= mergedRpp ) {
 				var back = merged.splice(0,mergedRpp);
-				if (buffer.length && !innerCursor.hasMoreResults()) {
-				  back.push(buffer);
-				}
 				return then(back);
 			} else {
 				innerCursorFetch(function(err,resp) {
 					if ( err ) {
-						debug("ERROR returning ",err,merged, buffer);
 						return then([]);
 					} else {
 						return innerCursorFetchUntilRpp(then);
@@ -184,9 +184,7 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 					}
 					settings.onFirstContent.call(widget, resp.length);
 				} else {
-// 					debug("cursor have results ? ", cursor.hasMoreResults());
 					if ( !cursor.hasMoreResults() ) {
-// 						debug("cursor doesn't have results, unbinding scroll");
 						widget.unbind("scroll",onScroll);
 					}
 				}
