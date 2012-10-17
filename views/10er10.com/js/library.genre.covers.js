@@ -7,55 +7,22 @@ define([
   "js/d10.events", 
   "js/d10.router",
   "js/d10.restHelpers",
-  "js/d10.dataParsers"
+  "js/d10.dataParsers",
+  "js/d10.widgetHelpers"
        ], 
-       function(rest, localcache, tpl, libraryScope, events, router, restHelpers, dataParsers) {
+       function(rest, localcache, tpl, libraryScope, events, router, restHelpers, dataParsers, widgetHelpers) {
     
     
     var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {
       var template_data = {
-        genre: category
+        genre: category,
+        genre_e: encodeURIComponent(category)
       };
       categorydiv.html(tpl.mustacheView("library.content.genre.covers", template_data));
-      var currentOpenedPopin = null;
-      categorydiv.delegate(".albumMini img","mouseenter",function() {
-            var container = $(this).closest(".albumMini");
-            $(this).data("popupTimeout", setTimeout(function() {
-                var widget = $( tpl.mustacheView("library.content.album.all.popover", container.data("albumDetails") ) )
-                .css({
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    visibility: "hidden"
-                }).delegate("a","click",function() {
-                    $(this).closest(".popover").remove();
-                });
-                ;
-                if ( currentOpenedPopin ) {
-                  currentOpenedPopin.remove();
-                }
-                currentOpenedPopin = widget;
-                $("body").append(widget);
-                var srcpos = container.offset(),
-                srcsize = { width: container.outerWidth(), height: container.outerHeight() },
-                widgetsize = { width: widget.outerWidth(), height: widget.outerHeight() },
-                widgetOuter = Math.round( (widgetsize.height - widget.height()) / 2),
-                leftoffset = Math.round((widgetsize.width - srcsize.width) / 2),
-                left = srcpos.left - leftoffset;
-                if ( left < 0 ) { left = 0 ; }
-                widget.css({
-                    top: srcpos.top - widgetOuter,
-                    left: left,
-                    visibility: "visible"
-                }).mouseleave(function() {$(this).remove();}).addClass("on");
-            },10));
-        })
-        .delegate(".albumMini img","mouseleave",function() {
-            var tid = $(this).data("popupTimeout");
-            if(tid) {
-                clearTimeout(tid);
-            }
-        })
+      widgetHelpers.bindAlbumCoverPopin(categorydiv);
+      categorydiv.find(".link[name=all]").click(function() {
+        router.navigateTo(["library","genres"]);
+      });
       //rest.genre.albumsSongs(genre, query, options)
       var restWrapper = function(query, options) {
         return rest.genre.albumsSongs(category, query, options);

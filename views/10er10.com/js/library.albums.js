@@ -1,52 +1,13 @@
 define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router", 
-	   "js/d10.events", "js/d10.libraryScope", "js/d10.rest", "js/d10.toolbox", "js/d10.restHelpers"],
-	   function(dataParsers, tpl, router, events, libraryScope, rest, toolbox, restHelpers) {
+	   "js/d10.events", "js/d10.libraryScope", "js/d10.rest", "js/d10.toolbox", "js/d10.restHelpers",
+       "js/d10.widgetHelpers"
+       ],
+	   function(dataParsers, tpl, router, events, libraryScope, rest, toolbox, restHelpers, widgetHelpers) {
 	"use strict";
-	var currentOpenedPopin = null;
 	var bindAllAlbums = function(topicdiv, categorydiv, topic, category, letter) {
 		categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all"));
-		categorydiv.delegate(".albumMini img","mouseenter",function() {
-			var container = $(this).closest(".albumMini");
-			$(this).data("popupTimeout", setTimeout(function() {
-				var widget = $( tpl.mustacheView("library.content.album.all.popover", container.data("albumDetails") ) )
-				.css({
-					position: "absolute",
-					top: 0,
-					left: 0,
-					visibility: "hidden"
-				}).delegate("a","click",function() {
-					$(this).closest(".popover").remove();
-				});
-				;
-				if ( currentOpenedPopin ) {
-				  currentOpenedPopin.remove();
-				}
-				currentOpenedPopin = widget;
-				$("body").append(widget);
-				var srcpos = container.offset(),
-				srcsize = { width: container.outerWidth(), height: container.outerHeight() },
-				widgetsize = { width: widget.outerWidth(), height: widget.outerHeight() },
-				widgetOuter = Math.round( (widgetsize.height - widget.height()) / 2),
-				leftoffset = Math.round((widgetsize.width - srcsize.width) / 2),
-				left = srcpos.left - leftoffset;
-				if ( left < 0 ) { left = 0 ; }
-				widget.css({
-					top: srcpos.top - widgetOuter,
-					left: left,
-					visibility: "visible"
-					
-				}).mouseleave(function() {$(this).remove();}).addClass("on");
-				
-				
-			},100));
-		})
-		.delegate(".albumMini img","mouseleave",function() {
-			var tid = $(this).data("popupTimeout");
-			if(tid) {
-				clearTimeout(tid);
-			}
-		})
-		.delegate(".letter","click", function() {
+        widgetHelpers.bindAlbumCoverPopin(categorydiv);
+		categorydiv.delegate(".letter","click", function() {
 			var letter = $(this);
 			if ( letter.hasClass("active") ) {
 				return;
@@ -156,7 +117,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 			$.each(resp,function(k,songs) {
 				var albumData = dataParsers.singleAlbumParser(songs);
 				var html = $( tpl.albumMini(albumData) ).data("albumDetails",albumData);
-                return html;
+                contentDiv.append(html);
 			});
 		};
 		if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
