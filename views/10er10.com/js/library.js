@@ -92,6 +92,9 @@ define(["js/domReady", "js/d10.dnd", "js/playlist", "js/d10.router", "js/d10.eve
 			}
 			
 			if ( ( topic == "genres" || topic == "artists" || topic == "albums" ) && !category ) { category = "<all>"; }
+			if ( topic == "genres" && category != "<all>" && !param ) {
+              param = "albums";
+            }
 			var categoryKey = category ? category : "<all>";
 			if ( param ) {
 				categoryKey += "::"+param;
