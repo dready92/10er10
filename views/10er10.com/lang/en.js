@@ -175,7 +175,8 @@ exports.server = {
     "html/library/content_genre_covers.html": {
       loading: "Loading...",
       no_song: "No song",
-      all_genres: "Genres"
+      all_genres: "Genres",
+      albums: "albums"
     },
     "html/library/content_artist.html": {
 		no_song: "No song found",
