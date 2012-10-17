@@ -24,6 +24,8 @@ define([
       var cursor = new restHelpers.couchMapMergedCursor(restWrapper, {}, "album");
       var section = categorydiv.find("section");
       var scrollOpts = {
+        pxMin: 150,
+        fetchToFill: true,
         parseResults: function(rows) {
           var albums = null;
           rows.forEach(function(row) {
@@ -35,7 +37,6 @@ define([
               albums = albums.add(html);
             }
           });
-          debug("gonna insert: ",albums);
           return albums;
         }
       };

@@ -139,6 +139,7 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 		options = options || {};
 		var widget = this;
 		var settings = {
+            fetchToFill: false,
 			pxMin: 50,
 			onContent: function() {},
 			onEnd: function() {},
@@ -152,6 +153,7 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 			}
 		};
 		$.extend(settings,options);
+        var initialLoad = true;
 		var ajaxRunning = false;
 		var firstRun = true;
 		var pxToBottom = function() {
@@ -190,6 +192,13 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 				}
 				settings.onContent.call(widget,resp);
 				ajaxRunning = false;
+                if ( cursor.hasMoreResults() && settings.fetchToFill && initialLoad ) {
+                  if ( pxToBottom() < settings.pxMin ) {
+                    onScroll();
+                  } else {
+                    initialLoad = false;
+                  }
+                }
 			});
 		};
 		
