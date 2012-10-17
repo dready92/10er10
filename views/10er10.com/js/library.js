@@ -111,7 +111,7 @@ define(["js/domReady", "js/d10.dnd", "js/playlist", "js/d10.router", "js/d10.eve
 				categoryModuleName = "js/library.albums";
 			} else if ( topic == "albums" && category !="<all>" ) {
 				categoryModuleName = "js/library.album";
-            } else if ( topic == "genres" && param == "<covers>" ) {
+            } else if ( topic == "genres" && param == "albums" ) {
                 categoryModuleName = "js/library.genre.covers";
             } else if ( topic == "genres" && category == "<all>" ) {
 				categoryModuleName = "js/library.genres";
