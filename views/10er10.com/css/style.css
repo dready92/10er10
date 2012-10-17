@@ -1131,11 +1131,11 @@ article div.refreshList {
 .popover {
 	position: absolute;
 	background-color: #232323;
-    transform: scale(0.0001);
+    transform: scale(0.6);
     transform-origin: center;
-	-webkit-transform: scale(0.0001);
+	-webkit-transform: scale(0.6);
 	-webkit-transform-origin: center;
-	-moz-transform: scale(0.0001);
+	-moz-transform: scale(0.6);
 	-moz-transform-origin: center;
 	opacity: 0;
 	padding: 10px;
