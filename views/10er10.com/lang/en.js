@@ -171,8 +171,12 @@ exports.server = {
 		extended_show_less: "Hide infos...",
 		extended_loading: "Loading...",
 		select_visible: "Select only visible songs"
-
 	},
+    "html/library/content_genre_covers.html": {
+      loading: "Loading...",
+      no_song: "No song",
+      all_genres: "Genres"
+    },
     "html/library/content_artist.html": {
 		no_song: "No song found",
 		all_artists: "Artists",

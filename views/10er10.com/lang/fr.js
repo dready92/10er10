@@ -172,6 +172,11 @@ exports.server = {
 		extended_loading: "Chargement en cours...",
 		select_visible: "Sélectionner les morceaux visibles"
 	},
+    "html/library/content_genre_covers.html": {
+      loading: "Chargement en cours...",
+      no_song: "Aucun morceau trouvé",
+      all_genres: "Genres"
+    },
     "html/library/content_artist.html": {
 		no_song: "Aucun morceau trouvé",
 		all_artists: "Artistes",

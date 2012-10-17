@@ -154,6 +154,7 @@ define(["js/playlist", "js/d10.events", "js/d10.rest", "js/d10.restHelpers", "js
 			categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.genre"));
 			categorydiv.find("article h1").text(category);
 			categorydiv.find("article .link[name=all]").click(function() { router.navigateTo(["library","genres"]); });
+            categorydiv.find("a[data-link=albumCovers]").attr("href", "#library/genres/"+encodeURIComponent(category)+"/albums");
 		} else {
 			categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.simple"));
 			if ( topic == "albums" ) {
