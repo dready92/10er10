@@ -291,6 +291,7 @@ exports.templates.clientList = {
     'library.content.artist': 'html/library/content_artist.html',
 	'library.content.album': 'html/library/content_album.html',
 	'library.content.genre': 'html/library/content_genre.html',
+    'library.content.genre.covers': 'html/library/content_genre_covers.html',
     'library.content.none':'html/library/content_none.html',
 	'library.content.album.artists': 'html/library/content_album_artists.html',
 	'library.content.album.widget':'html/library/content_album_widget.html',
