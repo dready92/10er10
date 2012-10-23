@@ -349,11 +349,23 @@ exports.api = function(app) {
 	app.get("/api/list/genres/artists/:genre",function(request,response) {
 		_genreArtists("genre/artists",request,response);
 	});
-	var _genreArtists = function(view, request,response) {
+	var _genreArtists = function(view, request, response) {
 		if ( !request.params.genre || !validGenre(request.params.genre) ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
-		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
+		var query = {
+          startkey: [request.params.genre], 
+          endkey: [request.params.genre,[]], 
+          group: true, 
+          group_level: 2
+        };
+        if ( request.query.startkey ) {
+          query.startkey = JSON.parse(request.query.startkey);
+          if ( request.query.startkey_docid ) {
+            query.startkey_docid = request.query.startkey_docid;
+          }
+        }
+        d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
 	};
 	
 	app.get("/api/own/list/genres/albums/:genre",function(request,response) {
