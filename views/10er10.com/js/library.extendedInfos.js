@@ -90,7 +90,7 @@ define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolb
 			var infos = topicdiv.find(".extendedInfos");
 			When({
 				artists: function(then) {
-					rest.genre.artists(genre, {
+					rest.genre.artists(genre, {}, {
 						load: function(err, data) {
 							if ( err )	return then(err);
 							var back = {title:tpl.mustacheView("library.extendedInfos.genre.artists"), data: []};

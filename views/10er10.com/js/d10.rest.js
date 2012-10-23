@@ -587,8 +587,12 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 		 * 
 		 * @return [ {key: [genre, "artist 1"], value: 4}, ...], 
 		 */
-		artists: function(genre, options) {
-			restQuery("genre.artists","GET",config.site_url+"/api/list/genres/artists/"+encodeURIComponent(genre),options);
+		artists: function(genre, query, options) {
+          options.data = {};
+          if ( query.startkey && query.startkey_docid ) {
+            options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+          }
+          restQuery("genre.artists","GET",config.site_url+"/api/list/genres/artists/"+encodeURIComponent(genre),options);
 		},
 		/*
 		 * @param genre String genre the genre we check if albums exists
