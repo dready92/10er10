@@ -1,6 +1,6 @@
 define(["js/playlist", "js/d10.events", "js/d10.rest", "js/d10.restHelpers", "js/d10.libraryScope", "js/d10.dataParsers", 
-	   "js/d10.templates", "js/d10.router", "js/d10.albumCoverUploader"], 
-	   function(playlist, pubsub, rest, restHelpers, libraryScope, dataParsers, tpl, router, albumCoverUploader) {
+	   "js/d10.templates", "js/d10.router", "js/d10.albumCoverUploader", "js/d10.widgetHelpers"], 
+	   function(playlist, pubsub, rest, restHelpers, libraryScope, dataParsers, tpl, router, albumCoverUploader, widgetHelpers) {
 	
 	var albumResultsParser = function(rows) { //[ [ {key:.., doc: song}, ...], ... ]
 		var html=null ;
@@ -20,7 +20,6 @@ define(["js/playlist", "js/d10.events", "js/d10.rest", "js/d10.restHelpers", "js
 	};
 	
 	var createInfiniteScroll = function(categorydiv, topic, category) {
-		var section = categorydiv.find("section");
 		var restBase = (topic == "hits" || libraryScope.current == "full") ? rest.song.list : rest.user.song.list;
 		var data = {}, endpoint = restBase[topic];
 		if ( topic == "genres" ) {
@@ -28,69 +27,34 @@ define(["js/playlist", "js/d10.events", "js/d10.rest", "js/d10.restHelpers", "js
 		} else if ( topic != "albums" && topic != "artists" && topic != "titles" && topic != "creations" && topic != "hits" ) {
 			return false;
 		}
-		var loadTimeout = null, 
-			innerLoading = categorydiv.find(".innerLoading"), cursor;
-		
-		var isOpts = 
-		{
-			onFirstContent: function(length) {
-				categorydiv.find(".pleaseWait").hide();
-				categorydiv.find("article").show();
-				if ( !length ) {
-					categorydiv.find("article").hide();
-					categorydiv.find(".noResult").show();
-					return ;
-				}
-				
-				var list = categorydiv.find(".list");
-				section.next(".grippie").show();
-				section.makeResizable(
-					{
-						vertical: true,
-						minHeight: 100,
-						maxHeight: function() {
-							// always the scrollHeight
-							var sh = list.prop("scrollHeight");
-							if ( sh ) {
-								return sh -10;
-							}
-							return 0;
-						},
-						grippie: $(categorydiv).find(".grippie")
-					}
-				);
-				require(["js/library.extendedInfos"], function(extendedInfos) {
-					if ( extendedInfos[topic] ) {
-						extendedInfos[topic](category,categorydiv);
-					}
-				});
-			},
-			onQuery: function() {
-				loadTimeout = setTimeout(function() {
-					loadTimeout = null;
-// 						debug("Loading...");
-					innerLoading.css("top", section.height() - 32).removeClass("hidden");
-				},500);
-			},
-			onContent: function() {
-				if ( loadTimeout ) {
-					clearTimeout(loadTimeout);
-				} else {
-					innerLoading.addClass("hidden");
-				}
-			}
-		};
+
+        var opts = {
+          onFirstContentPreCallback: function(length) {
+            categorydiv.find(".pleaseWait").hide();
+            if ( length ) {
+              categorydiv.find("article").show();
+            } else {
+              categorydiv.find("article").hide();
+              categorydiv.find(".noResult").show();
+              return false;
+            }
+          },
+          onFirstContentPostCallback: function(length) {
+            require(["js/library.extendedInfos"], function(extendedInfos) {
+              if ( extendedInfos[topic] ) {
+                extendedInfos[topic](category,categorydiv);
+              }
+            });
+          }
+        };
 
 		if ( topic == "albums" ) {
 			cursor = new restHelpers.couchMapMergedCursor(restBase.albums,{},"album");
-			isOpts.parseResults = albumResultsParser;
+			opts.parseResults = albumResultsParser;
 		} else {
 			cursor = new restHelpers.couchMapCursor(endpoint, data);
 		}
-
-		section.data("infiniteScroll",
-			section.d10scroll(cursor,section.find(".list"),isOpts)
-		);
+        categorydiv.find("section").data("infiniteScroll", widgetHelpers.createInfiniteScroll(categorydiv, cursor, opts) );
 	};
 	
 	
