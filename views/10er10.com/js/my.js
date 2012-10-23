@@ -1,6 +1,6 @@
 define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/d10.dnd", "js/playlist", "js/d10.restHelpers", 
-	   "js/d10.router", "js/d10.toolbox", "js/d10.osd", "js/d10.imageUtils", "js/config", "js/d10.events"],
-	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils, config, pubsub) {
+	   "js/d10.router", "js/d10.toolbox", "js/d10.osd", "js/d10.imageUtils", "js/config", "js/d10.events", "js/d10.widgetHelpers"],
+	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils, config, pubsub, widgetHelpers) {
 
 function myCtrl (ui) {
     //
@@ -89,7 +89,7 @@ function myCtrl (ui) {
 	};
   
   
-	var bindControls = function(endpoint, topicdiv, section, list, parseResults) {
+	var bindControls = function(endpoint, topicdiv, section, parseResults) {
 		
 		topicdiv.find(".pushAll").click(function() {
 			playlist.append(topicdiv.find(".song").clone().removeClass("selected"));
@@ -103,70 +103,25 @@ function myCtrl (ui) {
 			if ( is && "remove" in is ) {
 				is.remove();
 			}
-			createInfiniteScroll(endpoint, topicdiv, section, list, parseResults);
+			createInfiniteScroll(endpoint, topicdiv, section, parseResults);
 		});
 	};
 
-	var createInfiniteScroll = function(endpoint, topicdiv, section, list, parseResults) {
-		var loadTimeout = null, 
-			innerLoading = topicdiv.find(".innerLoading"),
-			cursor = new restHelpers.couchMapCursor(endpoint);
-		
-		var callbacks = {
-			onFirstContent: function(length) {
-				topicdiv.find(".pleaseWait").remove();
-				topicdiv.find(".songlist").removeClass("hidden");
-				if ( !length ) {
-					topicdiv.find("article").hide();
-					topicdiv.find(".noResult").removeClass("hidden");
-					return ;
-				}
-				// list of items < section height
-				if ( list.height() < section.height() )  {
-					section.height(list.height()+10);
-					section.next(".grippie").hide();
-				} else {
-					section.makeResizable(
-						{
-							vertical: true,
-							minHeight: 100,
-							maxHeight: function() {
-								// always the scrollHeight
-								var sh = list.prop("scrollHeight");
-								if ( sh ) {
-									return sh -10;
-								}
-								return 0;
-							},
-							grippie: $(topicdiv).find(".grippie")
-						}
-												);
-				}
-			},
-			onQuery: function() {
-				loadTimeout = setTimeout(function() {
-					loadTimeout = null;
-					debug("Loading...");
-					innerLoading.css("top", section.height() - 32).removeClass("hidden");
-				},500);
-			},
-			onContent: function() {
-				if ( loadTimeout ) {
-					clearTimeout(loadTimeout);
-				} else {
-					innerLoading.addClass("hidden");
-				}
-			}
-		};
+	var createInfiniteScroll = function(endpoint, topicdiv, section, parseResults) {
+        var cursor = new restHelpers.couchMapCursor(endpoint);
+        var callbacks = {
+          onFirstContentPreCallback: function(length) {
+            topicdiv.find(".pleaseWait").remove();
+            topicdiv.find(".songlist").removeClass("hidden");
+            if ( !length ) {
+              topicdiv.find("article").hide();
+              topicdiv.find(".noResult").removeClass("hidden");
+              return false;
+            }
+          }
+        };
 		if ( parseResults ) { callbacks.parseResults = parseResults; }
-			
-		section.data("infiniteScroll",
-			section.d10scroll(
-				cursor,
-				list,
-				callbacks
-			)
-		);
+        section.data("infiniteScroll", widgetHelpers.createInfiniteScroll(topicdiv, cursor, callbacks) );
 	};
 	
 	var init_topic_likes = function(topicdiv,args) {
@@ -180,8 +135,8 @@ function myCtrl (ui) {
 				router.navigateTo(["my","review",$(this).closest('.song').attr('name')]);
 				return false;
 			});
-			bindControls (endpoint, topicdiv, section, list);
-			createInfiniteScroll(endpoint, topicdiv, section, list);
+			bindControls (endpoint, topicdiv, section);
+			createInfiniteScroll(endpoint, topicdiv, section);
 		}
 	};
 
@@ -213,8 +168,8 @@ function myCtrl (ui) {
 // 				window.location.hash = "#/my/review/"+encodeURIComponent($(this).closest('.song').attr('name'));
 				return false;
 			});
-			bindControls (endpoint, topicdiv, section, list, parseResults);
-			createInfiniteScroll(endpoint,topicdiv,section,list,parseResults);
+			bindControls (endpoint, topicdiv, section, parseResults);
+			createInfiniteScroll(endpoint,topicdiv,section,parseResults);
 			
 			
 		}
