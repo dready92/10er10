@@ -29,8 +29,6 @@ define([
       };
       var cursor = new restHelpers.couchMapMergedCursor(restWrapper, {}, "album");
       var section = categorydiv.find("section");
-      var loadTimeout = null;
-      var innerLoading = categorydiv.find(".innerLoading");
       var scrollOpts = {
         pxMin: 150,
         fetchToFill: true,
@@ -46,45 +44,9 @@ define([
             }
           });
           return albums;
-        },
-        onFirstContent: function() {
-          var list = categorydiv.find(".list");
-          var grippie = section.next(".grippie");
-          grippie.show();
-          section.makeResizable(
-            {
-              vertical: true,
-              minHeight: 100,
-              maxHeight: function() {
-                  // always the scrollHeight
-                  var sh = list.prop("scrollHeight");
-                  if ( sh ) {
-                      return sh -10;
-                  }
-                  return 0;
-              },
-              grippie: grippie
-            }
-          );
-        },
-       onQuery: function() {
-          loadTimeout = setTimeout(function() {
-            loadTimeout = null;
-            innerLoading.css("top", section.height() - 32).removeClass("hidden");
-          },500);
-        },
-        onContent: function() {
-          if ( loadTimeout ) {
-            clearTimeout(loadTimeout);
-          } else {
-            innerLoading.addClass("hidden");
-          }
         }
       };
-      section.data("infiniteScroll",
-            section.d10scroll(cursor,section.find(".list"),scrollOpts)
-        );
-      
+      widgetHelpers.createInfiniteScroll(section, cursor, scrollOpts);
     };
     
     var onRoute = function(topicdiv, categorydiv, topic, category, param) {
