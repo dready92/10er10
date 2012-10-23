@@ -44,10 +44,60 @@ define(["js/d10.templates"], function(templates) {
     });
   };
   
-  
+  var createInfiniteScroll = function(widget, cursor, opts) {
+    var loadTimeout = null;
+    var section = widget.find("section");
+    var list = widget.find(".list");
+    var innerLoading = widget.find(".innerLoading");
+    var settings = {
+      onFirstContent: function(length) {
+        if ( settings.onFirstContentPreCallback ) {
+          var goOn = settings.onFirstContentPreCallback(length);
+          if ( goOn === false ) { return ; }
+        }
+        var grippie = section.next(".grippie");
+        grippie.show();
+        section.makeResizable(
+          {
+            vertical: true,
+            minHeight: 100,
+            maxHeight: function() {
+              // always the scrollHeight
+              var sh = list.prop("scrollHeight");
+              if ( sh ) {
+                return sh -10;
+              }
+              return 0;
+            },
+            grippie: grippie
+          }
+        );
+        if ( settings.onFirstContentPostCallback ) {
+          settings.onFirstContentPostCallback(length);
+        }
+      },
+      onQuery: function() {
+        loadTimeout = setTimeout(function() {
+          loadTimeout = null;
+          innerLoading.css("top", section.height() - 32).removeClass("hidden");
+        },500);
+      },
+      onContent: function() {
+        if ( loadTimeout ) {
+          clearTimeout(loadTimeout);
+        } else {
+          innerLoading.addClass("hidden");
+        }
+      }
+    };
+    opts = opts || {};
+    $.extend(settings, opts);
+    return section.d10scroll(cursor,list,settings);
+  };
   
   return {
-    bindAlbumCoverPopin: bindAlbumCoverPopin
+    bindAlbumCoverPopin: bindAlbumCoverPopin,
+    createInfiniteScroll: createInfiniteScroll
   };
   
   
