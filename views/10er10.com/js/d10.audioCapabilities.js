@@ -34,10 +34,12 @@ define([], function() {
     var defaultResult = {};
     for (var type in audioTypes) {
       if ( type == "audio/ogg" ) {
-        defaultResult[type] = audioTypes[type];
+        defaultResult.type = type;
+        defaultResult.url = audioTypes[type];
       } else {
         if ( canPlayType(type) ) {
-          result[type] = audioTypes[type];
+          result.type = type;
+          result.url = audioTypes[type];
           return result;
         }
       }
