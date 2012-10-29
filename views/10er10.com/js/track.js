@@ -1,4 +1,5 @@
-define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, config, pubsub) {
+define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilities"],
+       function(toolbox, config, pubsub, audioCapabilities) {
 
 	/**
 	* <audio> wrapper
@@ -323,9 +324,12 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
             then(self);
           },10);
         };
+
+        // choose best audio type
+        var bestType = audioCapabilities.chooseBestType(url);
         
 		// create song
-		audio  = document.createElement('audio');
+		audio  = new Audio(bestType.url);
 		this.audio = audio;
 		for ( var index in allEvents ) { ael(allEvents[index]); }
 		audio.id = id;
@@ -335,17 +339,6 @@ define(["js/d10.toolbox", "js/config", "js/d10.events"], function(toolbox, confi
         }
 		audio.autobuffer = true;
 		audio.preload = "auto";
-	
-	
-		for ( var index in url ) {
-			
-			var s = document.createElement("source");
-			s.setAttribute("src", url[index]);
-			s.setAttribute("type", index);
-			audio.appendChild(s);
-			
-			//audio.setAttribute('src',url[index]);
-		}
 		
 		audio.load();
         if ( settings.onCreated ) {
