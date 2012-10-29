@@ -29,9 +29,26 @@ define([], function() {
     return false;
   };
 
+  var chooseBestType = function(audioTypes) {
+    var result = {};
+    var defaultResult = {};
+    for (var type in audioTypes) {
+      if ( type == "audio/ogg" ) {
+        defaultResult[type] = audioTypes[type];
+      } else {
+        if ( canPlayType(type) ) {
+          result[type] = audioTypes[type];
+          return result;
+        }
+      }
+    };
+    return defaultResult;
+  };
+  
   return {
     setCapabilities: setCapabilities,
-    canPlaytype: canPlayType
+    canPlaytype: canPlayType,
+    chooseBestType: chooseBestType
   };
   
 });
