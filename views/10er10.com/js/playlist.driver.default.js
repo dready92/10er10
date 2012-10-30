@@ -115,11 +115,10 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                                 if ( nextWidget.length ) {
                                         play(playlist.getTrackParameters(nextWidget));
                                 } else {
-                                        current = null;
-                                        next = null;
-                                        currentLoadProgressEnded = false;
-                                        trigger("ended",{});
-                                        debug("playlistDriverDefault:onended playlist: ",playlist);
+                                  flipNextToCurrent();
+                                  currentLoadProgressEnded = false;
+                                  trigger("ended",{});
+                                  debug("playlistDriverDefault:onended playlist: ",playlist);
                                 }
                         }
                 };
@@ -231,11 +230,8 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       inTheMix = fadeMix;
       
       if ( fadeMix.start(current.audio, next.audio, function() { inTheMix = false; onFadeEnded();}) ) {
-        destroyLast();
-        last = current;
         var previous = current;
-        current = next;
-        next = null;
+        flipNextToCurrent();
         trigger("currentSongChanged",{previous: previous, current: current});
         updatePrefetchStartupTime();
       } else {
@@ -274,24 +270,16 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		debug("playlistDriverDefault:play",arguments);
 		if ( !current || current.id != id ) {
           if ( next && next.id == id ) {
-            if ( current ) {
-              destroyLast();
-              last = current;
-            }
-            current = next;
-            next = null;
+            flipNextToCurrent();
             return play(id,url,duration,options);
           } else {
             if ( current ) {
-              destroyLast();
-              last = current;
-              current = null;
+              flipNextToCurrent();
             }
             options = options || {};
             options.onCreated = function(track) {
               if ( current ) {
-                destroyLast();
-                last = current;
+                flipCurrentToLast();
               }
               current = track;
               play(id,url,duration,options);
@@ -359,11 +347,23 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       last.destroy();
     }
   };
-    
+
+  var flipNextToCurrent = function() {
+    flipCurrentToLast();
+    current = next;
+    next = null;
+  };
+
+  var flipCurrentToLast = function() {
+    destroyLast();
+    last = current;
+    current = null;
+  };
+  
+  
 	this.current = function(track) { 
 		if ( arguments.length ) {
-            destroyLast();
-            last = current;
+            flipCurrentToLast();
 			current = track;
 			return this;
 		}
@@ -405,8 +405,8 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 			var track = previousDriver.current();
 // 			debug("driver try to get back current song : ",track);
 			if ( track && track.audio && track.audio.paused === false ) {
-// 				debug("driver setting track to current");
-				current = track;
+              flipCurrentToLast();
+              current = track;
 			}
 		}
 		playlist.title(settings.title);
@@ -455,9 +455,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		var widget = playlist.current();
 		if ( !widget.length ) {
 			pause();
-            destroyLast();
-            last = current;
-			current = null;
+            flipCurrentToLast();
             if ( next ) {
               next.destroy();
             }
@@ -468,9 +466,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		if ( current ) {
 			if ( uid != current.id ) {
 				pause();
-                destroyLast();
-                last = current;
-				current = null;
+                flipCurrentToLast();
 				play.apply(this, playlist.getTrackParameters(widget));
 			}
 		} else {
