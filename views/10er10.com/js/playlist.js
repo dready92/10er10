@@ -158,7 +158,6 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
             
 			
             urls["audio/ogg"] = url(song.attr('name'),"ogg");
-            debug("playlist::getUrl returns: ",urls);
 			return urls;
 		};
 		var getTrackParameters = this.getTrackParameters = function(song) {
