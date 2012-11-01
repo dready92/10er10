@@ -61,18 +61,11 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	},options);
 	var current = null; // current playing track
 	var next = null; // next track
-	var currentLoadProgressEnded = false;
 	var last = null;
     var inTheMix = false;
 	var trackEvents = this.trackEvents = {
 						"progressUpdate": function(e) {
-							if ( currentLoadProgressEnded ) return ;
 							if ( current && this === current.audio ) {
-								if ( this.networkState == this.NETWORK_IDLE && this.readyState == this.HAVE_ENOUGH_DATA )  {
-									currentLoadProgressEnded = true;
-									//                                                      $(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 1, 'loaded':1}  }  );
-									//                                                      return ;
-								}
 								trigger("currentLoadProgress", {track:current});
 								
 								//                                              $(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 100, 'loaded': getAudio(this.id).track.getProgressPC()} }  );
@@ -103,8 +96,6 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                         "canplaythrough":function() {
                                 if ( current && this === current.audio ) {
                                         trigger("currentLoadProgress", {track:current});
-                                        currentLoadProgressEnded = true;
-                                        //                                              $(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 1, 'loaded':1}  }  );
                                 }
                         },
                         "ended": function() {
@@ -116,7 +107,6 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                                         play(playlist.getTrackParameters(nextWidget));
                                 } else {
                                   flipNextToCurrent();
-                                  currentLoadProgressEnded = false;
                                   trigger("ended",{});
                                   debug("playlistDriverDefault:onended playlist: ",playlist);
                                 }
@@ -300,7 +290,6 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
           current.destroy();
           var widget = playlist.songWidget(current.id);
           current = null;
-          currentLoadProgressEnded = false;
           if( widget.length ) {
             return play.apply(this, playlist.getTrackParameters(widget));
           }
@@ -377,10 +366,10 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       }
 	};
 
-	var currentLoadProgress = this.currentLoadProgress = function() {
-		if ( currentLoadProgressEnded )	return 100;
-		else	return current.getProgressPC();
-	};
+    var currentLoadProgress = this.currentLoadProgress = function() {
+        return current.getProgressPC();
+    };
+    
 	var volume = this.volume = function(vol) {
       if ( vol < 0 || vol > 1 ) 	return false;
       [last, current, next].forEach(function(track) {

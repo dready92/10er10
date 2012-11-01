@@ -52,7 +52,20 @@ var onConfig = function(isProduction) {
 	};
 
 	function staticAudio (app) {
-		app.get("/audio/*",httpHelper.localPathServer("/audio",config.audio.dir,{bypass: true}));
+// 		app.get("/audio/*",httpHelper.localPathServer("/audio",config.audio.dir,{bypass: true}));
+      console.log(config.audio.dir);
+      var connectStatic = connect.static(config.audio.dir);
+      app.get("/audio/*",function(req,res,next) {
+        req.on("close",function() {
+          console.log("Audio connection req closed",req.url);
+        });
+        res.on("close",function() {
+          console.log("Audio connection res closed",req.url);
+        });
+        req.url = req.url.replace("/audio","");
+        connectStatic(req,res,next);
+      }
+      );
 	};
 
 	function staticImages (app) {
