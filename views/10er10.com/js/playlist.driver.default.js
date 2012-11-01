@@ -92,7 +92,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 											optimistPrefetch();
 											this.prefetchStart = secs + settings.prefetchInterval;
 										}
-//                                         if ( secs > settings. prefectchMinStartupTime && secs % 8 == 0 ) { optimistPrefetch(); }
+
 										var fade = settings.fade();
                                         if ( fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == fade && !inTheMix ) {
                                                 beginFade(createDefaultMix());
@@ -262,58 +262,60 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       });
       return true;
     };
-	
-	var play = this.play = function(id,url,duration,options) {
-		if ( id && $.isArray(id) ) {
-          return play(id.shift(),id.shift(),id.shift(),id.shift());
-		}
-		debug("playlistDriverDefault:play",arguments);
-		if ( !current || current.id != id ) {
-          if ( next && next.id == id ) {
-            flipNextToCurrent();
-            return play(id,url,duration,options);
-          } else {
-            if ( current ) {
-              flipNextToCurrent();
-            }
-            options = options || {};
-            options.onCreated = function(track) {
-              if ( current ) {
-                flipCurrentToLast();
-              }
-              current = track;
-              play(id,url,duration,options);
-            };
-            return createTrack(id,url,duration,options);
+
+    var play = this.play = function(id,url,duration,options) {
+      if ( id && $.isArray(id) ) {
+        return play(id.shift(),id.shift(),id.shift(),id.shift());
+      }
+      if ( next && next.id == id ) {
+        current.audio.pause();
+        flipNextToCurrent();
+      } else if ( !current || current.id != id ) {
+        options = options || {};
+        options.onCreated = function(track) {
+          if ( current ) {
+            flipCurrentToLast();
           }
+          current = track;
+          play(id,url,duration,options);
+        };
+        return createTrack(id,url,duration,options);
+      }
+      
+      // we got current and current is our song
+      _playCurrentFromStart();
+      trigger("currentSongChanged",{current: current});
+      updatePrefetchStartupTime();
+      return true;
+
+    };
+
+    var _playCurrentFromStart = function() {
+      if ( !current ) { return false; }
+      if ( current.audio.currentTime != 0 ) {
+        try {
+          current.audio.pause();
+          current.audio.currentTime=0;
+        } catch (e) {
+          current.destroy();
+          var widget = playlist.songWidget(current.id);
+          current = null;
+          currentLoadProgressEnded = false;
+          if( widget.length ) {
+            return play.apply(this, playlist.getTrackParameters(widget));
+          }
+          return false;
         }
-		debug("playlistDriverDefault:play track",current);
-		current.audio.pause();
-		if ( current.audio.currentTime != 0 ) {
-          try {
-            current.audio.currentTime=0;
-          } catch (e) {
-            current.destroy();
-            var widget = playlist.songWidget(current.id);
-            current = null;
-            currentLoadProgressEnded = false;
-            if( widget.length ) {
-              return play.apply(this, playlist.getTrackParameters(widget));
-            }
-            return false;
-          }
-		}
-		current.audio.volume = user.get_volume();
-		current.audio.play();
-		debug("playlistDriverDefault:play called play() on audio element : ",current.audio);
-		
-		// FF bug: sometimes audio play again and have audio/paused == true...
-        if ( next ) { next.audio.pause(); }
-        if ( last ) { last.audio.pause(); }
-		trigger("currentSongChanged",{current: current});
-		updatePrefetchStartupTime();
-		return true;
-	};
+      }
+      current.audio.volume = user.get_volume();
+      current.audio.play();
+      debug("playlistDriverDefault:play called play() on audio element : ",current.audio);
+
+      // FF bug: sometimes audio play again and have audio/paused == true...
+      if ( next ) { next.audio.pause(); }
+      if ( last ) { last.audio.pause(); }
+      return true;
+    };
 
 	var pause = this.pause = function() {
       [last, current, next].forEach(function(track) {
