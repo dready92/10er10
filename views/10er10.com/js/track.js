@@ -86,6 +86,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 			},
 			"onerror": function(e) {
 				debug("ERROR !",audio,e);
+                return true;
 			},
 			"oncanplaythrough": function(e) {
 				debug(this.id,"can play through");
@@ -133,10 +134,10 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 				dumpEvents();
 			},
 			"oncanplay": function(e) {
-				if ( this.networkState == this.NETWORK_IDLE && this.readyState == this.HAVE_ENOUGH_DATA ) {
-					state.progressPC = 100;
-					settings.onprogressUpdate.call(audio,{type: "progressUpdate"});
-				}
+// 				if ( this.networkState == this.NETWORK_IDLE && this.readyState == this.HAVE_ENOUGH_DATA ) {
+// 					state.progressPC = 100;
+// 					settings.onprogressUpdate.call(audio,{type: "progressUpdate"});
+// 				}
 			},
 			"onprogress": function(e) {
 				var progressPC = state.progressPC;
@@ -297,22 +298,23 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 								"duration": seconds
 								});
 		};
-	
+        
 		var ael = function(evt) {
+          var evtName = evt.replace(/^on/,'');
 			if ( evt != "ontimeupdate" && config.debug && config.debug_options.audio ) {
-				audio.addEventListener(evt.replace(/^on/,''),function(e) {
-					debug("audio event: ",this.id,e.type,e);
-				},false);
+              var fn = function(e) { debug("audio event: ",this.id,e.type,e); };
+              audio.addEventListener(evtName,fn,false);
 			}
 			if ( privateEvents[evt] ) {
-				audio.addEventListener(evt.replace(/^on/,''),privateEvents[evt],false);
+              audio.addEventListener(evtName,privateEvents[evt],false);
 			}
 			if ( settings[evt] ) {
-				audio.addEventListener(evt.replace(/^on/,''),settings[evt],false);
-			}		
+              audio.addEventListener(evtName,settings[evt],false);
+			}
 		};
         
         var preloadHack = function(then) {
+          return then(this);
           var self = this;
           var initialVolume = audio.volume;
           audio.volume = 0;
@@ -339,8 +341,8 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
         }
 		audio.autobuffer = true;
 		audio.preload = "auto";
-		
-		audio.load();
+
+        audio.load();
         if ( settings.onCreated ) {
           preloadHack.call(this, settings.onCreated);
         }
