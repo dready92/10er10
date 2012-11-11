@@ -28,7 +28,6 @@ define([
         return rest.genre.albumsSongs(category, query, options);
       };
       var cursor = new restHelpers.couchMapMergedCursor(restWrapper, {}, "album");
-      var section = categorydiv.find("section");
       var scrollOpts = {
         pxMin: 150,
         fetchToFill: true,
@@ -46,7 +45,7 @@ define([
           return albums;
         }
       };
-      widgetHelpers.createInfiniteScroll(section, cursor, scrollOpts);
+      widgetHelpers.createInfiniteScroll(categorydiv, cursor, scrollOpts);
     };
     
     var onRoute = function(topicdiv, categorydiv, topic, category, param) {
