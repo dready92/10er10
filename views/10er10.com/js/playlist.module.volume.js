@@ -54,7 +54,7 @@ define(["js/domReady",
 		this.setMax(maxi);
 	};
 	
-	var ui = $("#controls div[name=volume]");
+	var ui = $("#player div[name=volume]");
 	var bar = new volumebar(ui,1);
 	bar.adjustBar(user.get_volume());
 	playlist.modules[module.name] = module;
