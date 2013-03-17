@@ -45,7 +45,7 @@ var createInstance = function(container) {
 	ui = container.find("div[name=progression]");
 	bar = new progressbar();
 	total = container.find(".totalTime");
-	current = container.find(".currentTimeContainer");
+	current = container.find(".currentTime");
 // 	debug("documentReady",ui,bar,total,current);
 // 	if ( module.enabled ) {
 // 		binder.bind();d
@@ -116,11 +116,16 @@ var createInstance = function(container) {
 			pmax=parseInt(num);
 			punit=ui.width() / pmax;
 		}
-
+        this.lastSet = null;
 		this.setBar = function(data) {
+          var width = Math.floor(punit*data);
 //                         debug("setBar:",ui,data,ui.width(),punit,punit*data);
 //                         $('div.timer',ui).stop(true,true).animate({width: Math.floor(punit*data)},1000);
-			resized.css({width: Math.floor(punit*data)});
+          if ( this.lastSet === width ) {
+            return ;
+          }
+          resized.animate({width: width}, 980 );
+          this.lastSet = width;
 		}
 
 
