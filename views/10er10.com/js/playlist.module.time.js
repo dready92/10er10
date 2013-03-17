@@ -26,6 +26,7 @@ var createInstance = function(container) {
 				current.empty();
 			},
 			"playlist:currentTimeUpdate": function(e) {
+              debug("timeUpdate ! ");
 				bar.setBar(e.currentTime);
 // 				var d = new Date(1970,1,1,0,0,e.currentTime);
 				current.html(seconds2display(e.currentTime));
@@ -41,10 +42,10 @@ var createInstance = function(container) {
 // 	binder.addBindings(module.events);
 
 	var ui, bar, total, current ;
-	ui = container.find('div[name=progression]');
+	ui = container.find("div[name=progression]");
 	bar = new progressbar();
-	total = container.find("div[name=progressbar] span[name=total]");
-	current = container.find('span[name=secs]');
+	total = container.find(".totalTime");
+	current = container.find(".currentTimeContainer");
 // 	debug("documentReady",ui,bar,total,current);
 // 	if ( module.enabled ) {
 // 		binder.bind();d
@@ -73,10 +74,10 @@ var createInstance = function(container) {
           var pix = e.pageX-offset.left;
           var secs = Math.floor(pix/punit);
           if ( !timeOverlay ) {
-            timeOverlay = $("<div class=\"yellowOverlay currentTime downArrow\">"+seconds2display(secs)+"</div>")
+            timeOverlay = $("<div class=\"yellowOverlay currentTimeContainer upArrow\">"+seconds2display(secs)+"</div>")
                             .data("seconds",secs)
                             .css("visibility","hidden")
-                            .appendTo($("body"));
+                            .prependTo($("#player"));
             timeOverlaySize =  {width: timeOverlay.outerWidth() / 2 - 1, height: timeOverlay.outerHeight() +10};
             timeOverlay.css("visibility","visible");
             timeOverlayElem = timeOverlay.get(0);
@@ -87,7 +88,7 @@ var createInstance = function(container) {
           }
           timeOverlay.css({
             left: (e.pageX - timeOverlaySize.width) +"px",
-            top: (offset.top - timeOverlaySize.height) +"px"
+            top: (ui.outerHeight() + ui.offset().top+10) +"px"
           });
         };
         
@@ -141,7 +142,7 @@ var createInstance = function(container) {
 };
 
 
-var mod = createInstance($("#controls"));
+var mod = createInstance($("#player"));
 
 playlist.modules[mod.name] = mod;
 return mod;
