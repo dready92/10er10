@@ -137,7 +137,7 @@ var createModule = function(ui) {
 };
 
 
-	var mod = createModule($("#controls"));
+	var mod = createModule($("#player"));
 
 	playlist.modules[mod.name] = mod;
 	
