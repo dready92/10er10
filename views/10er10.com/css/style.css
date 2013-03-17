@@ -2933,13 +2933,14 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   padding: 1px 2px;
 }
 
-.yellowOverlay.currentTime {
+.yellowOverlay.currentTime, .yellowOverlay.currentTimeContainer {
   width: 50px;
   height: 1.2em;
   position: absolute;
   text-align: center;
   z-index: 1;
 }
+
 
 .yellowOverlay.currentTime.downArrow:after {
        content: " ";
@@ -2949,6 +2950,19 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
        left: 15px;
        border: 10px solid transparent;
        border-top-color: rgb(191, 151, 48);
+       position:absolute;
+       
+}
+
+.yellowOverlay.currentTimeContainer.upArrow:after {
+       content: " ";
+       height:0;
+       width:0;
+       top: -21px;
+       left: 25%;
+/*        margin-left:  -15px; */
+       border: 10px solid transparent;
+       border-bottom-color: rgb(191, 151, 48);
        position:absolute;
        
 }
@@ -2964,21 +2978,21 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
 }
 
 #player > div.side {
-  width: 300px;
+  width: 150px;
   float: left;
 }
 
 #player div.player {
-  margin-left: 305px;
+  margin-left: 155px;
 }
 
 #player div.mainScreen {
-  margin-right: 200px;
+  margin-right: 300px;
   position: relative;
   
 }
 
-#player .currentTime, #player .totalTime, #player .currentTitle {
+#player .currentTime, #player .totalTime, #player .currentTitle, #player .otherSongFields {
   height: 18px;
   padding-top: 2px;
   padding-bottom: 2px;
@@ -3006,15 +3020,32 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   text-align: center;
 }
 
+#player .otherSongFields {
+  overflow: hidden;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
 #player div[name=progression] {
   background-color: #466777;
   border: 1px solid #9F9F9F;
   height: 10px;
+  z-index: 3;
+}
+
+#player div[name=progression] .netload{
+  background-color: #AFAFAF;
+}
+
+#player div[name=progression] .timer{
+  background-color: #BF9730;
 }
 
 #player div.controls {
   float: right;
-  width: 200px;
+  width: 300px;
   padding: 0;
   height: 60px;
 }
@@ -3025,5 +3056,36 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
 
 #player div.playerControls img {
   vertical-align: middle;
+}
+
+#player .volumeAndStarringControl {
+  position: absolute;
+  top: 4px;
+  right: 0;
+  width: 150px;
+  height: 30px;
+  overflow: hidden;
+}
+
+#player div[name=volume] {
+    width: 60px;
+    height: 25px;
+    border-bottom: 1px solid #232323;
+    background: url(volumedark.png);
+}
+
+#player div[name=volume] > div{
+    background: url(volume.png);
+}
+
+#player img[name=likes]{
+  position: absolute;
+  top: 6px;
+  right: 20px;
+}
+#player img[name=dislikes]{
+  position: absolute;
+  top: 6px;
+  right: 50px;
 }
 /* http://colorschemedesigner.com/#3s31Tw0w0w0w0 */
