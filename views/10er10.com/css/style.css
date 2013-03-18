@@ -1812,6 +1812,7 @@ body.wide #controls {
   right: 2px;
   top: -10px;
   box-shadow: 0 0 10px rgba(200,0,0,0.6);
+  z-index: 3;
 }
 
 #reviewReminder:hover {
