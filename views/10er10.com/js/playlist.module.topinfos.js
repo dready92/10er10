@@ -14,27 +14,14 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"], function(foo, pla
 		debug("topInfos: ", titleWidget, artistWidget);
 		titleWidget.html(song.find(".title").html());
         artistWidget.html(song.find(".artist").html());
-        albumWidget.html(song.find(".album").html());
+        var album = song.find(".album").html();
+        if ( album ) {
+          albumWidget.insertAfter(artistWidget);
+        } else {
+          albumWidget.detach();
+        }
+        albumWidget.html(album);
         return ;
-		var s = song.clone();
-		    if ( $("html").hasClass("csstransitions") && widget.is(":visible") ) {
-		            debug("trying css transform trick");
-		            var buffer = $("<div></div>");
-		            buffer.html($(".title",s)).append(" (").append($(".length",s)).append(")")
-		            .append("<br>").append($(".artist",s)).append("<span class=\"separator\">&nbsp;-&nbsp;</span>").append($(".album",s))
-		            widget.addClass("small");
-		            setTimeout(function() {
-		                    widget.html(buffer.html())
-		                    .removeClass("small");
-		            }, 500);
-		            return ;
-		    }
-
-		widget.html($(".title",s)).append(" (").append($(".length",s)).append(")")
-		  .append("<br>").append($(".artist",s)).append("<span class=\"separator\">&nbsp;-&nbsp;</span>").append($(".album",s));
-		if ( widget.not(":visible") ) {
-		  widget.fadeIn("fast");
-		}
 	  };
 
 	var module = new playlistModule("topinfos",{
