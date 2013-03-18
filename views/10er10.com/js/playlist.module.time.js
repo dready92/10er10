@@ -86,10 +86,11 @@ var createInstance = function(container) {
           if ( timeOverlay.data("seconds") != secs ) {
             timeOverlay.html(seconds2display(secs));
           }
-          timeOverlay.css({
+          var cssPosition = {
             left: (e.pageX - timeOverlaySize.width) +"px",
-            top: (ui.outerHeight() + ui.offset().top+10) +"px"
-          });
+            top: (ui.outerHeight() + ui.offset().top - container.offset().top +10) +"px"
+          };
+          timeOverlay.css(cssPosition);
         };
         
 		ui.click(function(e) {
