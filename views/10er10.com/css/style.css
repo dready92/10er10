@@ -2971,6 +2971,7 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   position: fixed;
   top: 0px;
   width: 100%;
+  min-width: 1024px;
   height: 60px;
   background-color: #121212;
   z-index: 2;
@@ -2980,6 +2981,7 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
 #player > div.side {
   width: 150px;
   float: left;
+  text-align: center;
 }
 
 #player div.player {
@@ -2992,7 +2994,7 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   
 }
 
-#player .currentTime, #player .totalTime, #player .currentTitle, #player .otherSongFields {
+#player .currentTime, #player .totalTime, #player .songTitle, #player .otherSongFields {
   height: 18px;
   padding-top: 2px;
   padding-bottom: 2px;
@@ -3012,7 +3014,7 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   max-width: 40px;
 }
 
-#player .currentTitle {
+#player .songTitle {
   margin: 0 40px;
   white-space: nowrap;
   overflow: hidden;
@@ -3026,6 +3028,10 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: center;
+}
+
+#player .otherSongFields span:not(:last-child):after {
+    content: " - ";
 }
 
 #player div[name=progression] {
@@ -3088,4 +3094,72 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   top: 6px;
   right: 50px;
 }
+
+#player div.logo {
+    font-family: Cartoon;
+    font-size: 24px;
+    padding: 3px 0 0 0;
+    max-width: 300px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+#player div.logo > span {
+    padding: 0;
+    margin: 0;
+    display: inline-block; /*or chrome does not transform*/
+    vertical-align: middle;
+}
+/*  */
+#player div.logo > .d1 {
+    transform: rotate(-30deg) translateY(5px);
+    -moz-transform: rotate(-30deg) translateY(5px);
+    -webkit-transform: rotate(-30deg) translateY(5px);
+    color: #C8A64E;
+}
+#player div.logo > .d0 {
+    color: #C8A64E;
+    transform: rotate(-15deg) translateY(2px);
+    -moz-transform: rotate(-15deg) translateY(2px);
+    -webkit-transform: rotate(-15deg) translateY(2px);
+
+}
+#player div.logo > .e3 {
+    color: #c53229;
+    transform: scale(2);
+    -moz-transform: scale(2);
+    -webkit-transform: scale(2);
+}
+#player div.logo > .r {
+    transform: scale(1.5);
+    -moz-transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    color: #c53229;
+}
+#player div.logo > .n1 {
+    transform: rotate(15deg) scale(0.8);
+    -moz-transform: rotate(15deg) scale(0.8);
+    -webkit-transform: rotate(15deg) scale(0.8);
+    color: #C8A64E;
+}
+#player div.logo > .n0 {
+    color: #C8A64E;
+    transform: rotate(30deg) translateY(5px);
+    -moz-transform: rotate(30deg) translateY(5px);
+    -webkit-transform: rotate(30deg) translateY(5px);
+}
+
+
+
+#player div.teaser {
+  font-family: Cartoon;
+  padding: 0;
+  font-size: 1.2em;
+  letter-spacing: 2px;
+  color: #62C361;
+  text-shadow: 0 0 1px #121212, 0 0 5px #9F9F9F;
+  max-width: 300px;
+  cursor: pointer;
+}
+
 /* http://colorschemedesigner.com/#3s31Tw0w0w0w0 */
