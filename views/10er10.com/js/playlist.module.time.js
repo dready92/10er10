@@ -26,7 +26,6 @@ var createInstance = function(container) {
 				current.empty();
 			},
 			"playlist:currentTimeUpdate": function(e) {
-              debug("timeUpdate ! ");
 				bar.setBar(e.currentTime);
 // 				var d = new Date(1970,1,1,0,0,e.currentTime);
 				current.html(seconds2display(e.currentTime));
