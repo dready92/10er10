@@ -1416,7 +1416,7 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 #playlist .song.current .artist:after { content: " -"; }
 
 #controls {
-  margin: 5px 10px 0 10px;
+  margin: 0px 10px 0 10px;
   border-radius: 5px;
   padding: 5px;
   color: #121212;
@@ -1424,81 +1424,6 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 
 body.wide #controls {
 	margin-top: 0px;
-}
-
-#controls div[name=progressbar] span {
-	font-size: 0.85em;
-}
-
-#controls div[name=progressbar] {
-	width:100%;
-	height: 20px;
-}
-
-#controls div[name=progressbar] div.cell:first-child {
-	width: 35px;
-	overflow:  hidden;
-	color: #9A9A9A;
-}
-
-#controls div[name=progressbar] div.cell:last-child {
-	overflow:  hidden;
-	width: 35px;
-	text-align: right;
-	color: #9A9A9A;
-}
-
-#controls div[name=progression] {
-	border:1px solid #000000;
-	width: 200px;
-	height: 5px;
-	line-height: 20px;
-	text-align: center;
-	background-color:#121212;
-    z-index: 2;
-}
-
-#controls div[name=progression] > div.timer {
-	background-color: #A67800;
-}
-
-#controls div[name=progression] > div.netload {
-	background-color: #AAA;
-}
-
-
-#controls div.table[name=controls] {
-	text-align:center;
-	width:100%;
-}
-
-#controls div.table[name=controls], #controls div.table[name=controls] img, #controls div.table[name=controls] .cell{
-	vertical-align:middle;
-}
-
-#controls div[name=controls] div.cell:first-child {
-	width: 82px;
-	overflow:  hidden;
-	padding-left: 8px;
-}
-
-#controls div[name=controls] div.cell:last-child {
-	overflow:  hidden;
-	padding-left: 10px;
-	width: 80px;
-}
-
-#controls div.table[name=controls] img { cursor: pointer; }
-
-#controls div[name=volume] {
-	width: 60px;
-	height: 25px;
-	border-bottom: 1px solid #232323;
-	background: url(volumedark.png);
-}
-
-#controls div[name=volume] > div{
-	background: url(volume.png);
 }
 
 #controls div.spectrum canvas{
@@ -1510,7 +1435,7 @@ body.wide #controls {
 		height: 100px;
 }
 
-#controls .options { margin: 10px 0 0 0 }
+
 
 #controls .optionsTab {
   padding: 0 0 2px 0;
@@ -2889,6 +2814,7 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
 
 #player div.playerControls img {
   vertical-align: middle;
+  cursor: pointer;
 }
 
 #player .volumeAndStarringControl {
@@ -2899,6 +2825,8 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   height: 30px;
   overflow: hidden;
 }
+
+#player .volumeAndStarringControl img { cursor: pointer; }
 
 #player div[name=volume] {
     width: 60px;
