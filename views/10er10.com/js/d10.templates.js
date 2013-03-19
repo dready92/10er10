@@ -1,4 +1,4 @@
-define(["js/user", "js/d10.localcache"],function(user, localcache) {
+define(["js/user", "js/d10.localcache", "js/d10.artistTokenizer"],function(user, localcache, artistTokenizer) {
 	function mustacheView (a,b,c) {
 		return Mustache.to_html( localcache.getTemplate(a), b, c );
 	};
@@ -36,7 +36,13 @@ define(["js/user", "js/d10.localcache"],function(user, localcache) {
 		if ( doc.sourceFile && doc.sourceFile.type && doc.sourceFile.extension ) {
           doc.originalFile = [ doc.sourceFile ];
         }
-		
+		var tokens = artistTokenizer(doc,true);
+        var artists = tokens[0];
+        doc.title = tokens[1];
+        doc.artist = artists.shift();
+        doc.gotFeaturing = artists.length ? true : false;
+        doc.artists = artists;
+        
 		return mustacheView('song_template',doc);
 	};
 	
