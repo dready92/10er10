@@ -2424,7 +2424,7 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 .songMenuOverlay {
   height: 200px;
   width: 600px;
-  z-index: 1;
+  z-index: 3;
   padding: 5px;
   transform: scale(0.01);
   transition: transform 0.2s;
@@ -2469,7 +2469,9 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 .songMenuOverlay .actionSide {float: left; width: 244px; padding-left: 5px; overflow: hidden;}
 .songMenuOverlay .floarightArrow {float: right}
 .songMenuOverlay .rightArrow {float: right}
-
+.songMenuOverlay .secondaryArtist:not(:last-child):after {
+  content: ", ";
+}
 
 .songMenuOverlay .categoryButton {
   background: #232323;
