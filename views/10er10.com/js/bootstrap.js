@@ -71,6 +71,9 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		
 		$(window).resize(onWindowResize);
 		onWindowResize();
+        setTimeout(function() {
+        wsjob(config);
+        },3000);
 	};
 		
 		
@@ -241,5 +244,22 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 			step2();
 		}
 	});
+    
+    
+    function wsjob(config) {
+      var url = location.host + config.site_url+"/websocket/test";
+      debug("ws url: ",url);
+      var exampleSocket = new WebSocket("ws://"+url, "protocolOne");
+      exampleSocket.onclose = function() {debug("websocket close",arguments);};
+      exampleSocket.onopen = function() {
+        debug("websocket open",arguments);
+        
+        exampleSocket.send(JSON.stringify({test: true}));
+        
+      };
+      exampleSocket.onmessage = function() {debug("websocket message",arguments);};
+    }
+    
+    
 	return {bootstrap: true};
 });

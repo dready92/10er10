@@ -154,15 +154,58 @@ var onConfig = function(isProduction) {
         ;
 		
 
-
 		var globalSrv = connect()
 			// 10er10 vhosts
 			.use(connect.vhost(config.invites.domain,invitesServer))
 		// 	defaultServer
 			.use(d10Server)
 		;
-		globalSrv.listen(config.port);
-		
+		var nodeHTTPServer = globalSrv.listen(config.port);
+        /*
+        nodeHTTPServer.on("upgrade",function(request, socket, buffer) {
+          console.log(request.url);
+//           console.log("upgrade on d10server",arguments);
+          var crypto = require('crypto');
+          var sha1 = crypto.createHash('sha1');
+          sha1.update(arguments[0].headers["sec-websocket-key"] + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
+          var acceptKey = sha1.digest('base64');
+          
+          var response = "HTTP/1.1 101 Switching Protocols\r\n" +
+            "Upgrade: websocket\r\n" +
+            "Connection: Upgrade\r\n" +
+            "Sec-WebSocket-Accept: " + acceptKey + "\r\n";
+          response += "\r\n";
+          console.log(response);
+          socket.setEncoding("utf8");
+          socket.on("data", function(buffer) {
+            console.log("browser wrote ",buffer);
+            socket.write("{response: true}");
+          });
+          try {
+            arguments[1].write(response, 'ascii');
+          }
+          catch(e) {
+            console.log("ws response write failed");
+          }
+        });
+		*/
+        
+        var wsServer = require('ws').Server;
+        
+        var d10wsServer = new wsServer({server: nodeHTTPServer});
+        d10wsServer.on('connection'+"/sdfsdfwebsocket/test", function(ws) {
+          var id = setInterval(function() {
+            ws.send(JSON.stringify(process.memoryUsage()), function() { /* ignore errors */ });
+          }, 10000);
+          console.log('started client interval');
+          ws.on('close', function() {
+            console.log('stopping client interval');
+            clearInterval(id);
+          });
+          ws.on('message', function(message) {
+            console.log('received: %s', message);
+          });
+        });
 		
 		d10Server.on("clientError",function() {
 			console.log("CLIENT ERROR");
