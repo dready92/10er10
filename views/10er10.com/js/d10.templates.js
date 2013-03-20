@@ -11,7 +11,7 @@ define(["js/user", "js/d10.localcache", "js/d10.artistTokenizer"],function(user,
 			}
 			return html;
 		}
-                doc = JSON.parse(JSON.stringify(doc));
+        doc = JSON.parse(JSON.stringify(doc));
 		var d = new Date(1970,1,1,0,0,doc.duration),
 	    m = d.getMinutes(), s = d.getSeconds();
 		m = m < 10 ? "0"+m : m;
@@ -36,7 +36,12 @@ define(["js/user", "js/d10.localcache", "js/d10.artistTokenizer"],function(user,
 		if ( doc.sourceFile && doc.sourceFile.type && doc.sourceFile.extension ) {
           doc.originalFile = [ doc.sourceFile ];
         }
-		var tokens = artistTokenizer(doc,true);
+        var tokens ;
+        if ( doc.artistsToken ) {
+          tokens = doc.artistsToken;
+        } else {
+          tokens = artistTokenizer(doc,true);
+        }
         var artists = tokens[0];
         doc.title = tokens[1];
         doc.artist = artists.shift();

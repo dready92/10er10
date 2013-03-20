@@ -161,8 +161,11 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
         //
 		require(["js/main.songpopin"]);
 		
-		$("#main").delegate("div.song > span.artist","click",function(e) {
-			router.navigateTo(["library","artists",$(this).text()]);
+		$("#main").delegate("div.song > span.artist > span.mainArtist, "+
+                            "div.song > span.artist > span.secondaryArtist",
+                            "click",
+                            function(e) {
+          router.navigateTo(["library","artists",$(this).text()]);
 		});
 
 		$("#main").delegate("div.song > span.album","click",function(e) {
