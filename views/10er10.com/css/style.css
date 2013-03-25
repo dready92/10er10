@@ -1588,6 +1588,9 @@ body.wide #controls {
 	-moz-transition-duration: 0.6s;
 	-webkit-transition-property: opacity, width;
 	-webkit-transition-duration: 0.6s;
+    position: absolute;
+    right: 14px;
+    top: 10px;
 }
 
 #search.active img {
@@ -1597,25 +1600,24 @@ body.wide #controls {
 
 #search  input {
 	border: 0;
-	padding:0;
-	border-radius: 3px;
-	background: rgba(23,23,23,0.2);
-	width: 250px;
+	padding:0 0 0 4px;
+	border-radius: 6px;
+	background-color: rgba(23,23,23,0.8);
+    background-image: none;
+	width: 196px;
 	font-size: 1.4em;
-    transform: rotate(0deg);
-    transition-property: padding transform;
-    transition-duration: 0.6s 0.6s;
-	-moz-transform: rotate(0deg);
-	-webkit-transform: rotate(0deg);
-	-moz-transition-property: padding -moz-transform;
-	-moz-transition-duration: 0.6s 0.6s;
-	-webkit-transition-property: padding -webkit-transform;
-	-webkit-transition-duration: 0.6s 0.6s;
+    transition-property: padding transform background-color;
+    transition-duration: 0.6s 0.6s 0.6s;
+	-moz-transition-property: padding -moz-transform background-color;
+	-moz-transition-duration: 0.6s 0.6s 0.6s;
+	-webkit-transition-property: padding -webkit-transform background-color;
+	-webkit-transition-duration: 0.6s 0.6s 0.6s;
 }
 
 #search.active input,#search.active input:hover {
 	padding: 4px 8px;
-	color: #121212;
+	color: #9F9F9F;
+    background-color: rgba(23,23,23,0.3);
 }
 
 #search div.label {
@@ -1637,7 +1639,7 @@ body.wide #controls {
 
 
 #search.active div.label{
-	width: 200px;
+	width: 250px;
 	height: 30px;
 	opacity: 1;
     transform: translate(-260px, -15px);
