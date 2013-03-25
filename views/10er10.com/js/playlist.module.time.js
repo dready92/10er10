@@ -120,12 +120,10 @@ var createInstance = function(container) {
 		this.setBar = function(data) {
           punit=ui.width() / pmax;
           var width = Math.floor(punit*data);
-//                         debug("setBar:",ui,data,ui.width(),punit,punit*data);
-//                         $('div.timer',ui).stop(true,true).animate({width: Math.floor(punit*data)},1000);
           if ( this.lastSet === width ) {
             return ;
           }
-          resized.animate({width: width}, 980 );
+          resized.css({width: width});
           this.lastSet = width;
 		}
 

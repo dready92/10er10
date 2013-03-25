@@ -2799,6 +2799,9 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
 
 #player div[name=progression] .timer{
   background-color: #BF9730;
+/*   sadly this eats up CPU */
+/*   -webkit-transition: width 1s; */
+/*   transition: width 1s; */
 }
 
 #player div.controls {
