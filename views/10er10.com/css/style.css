@@ -1024,7 +1024,6 @@ article div.refreshList {
 	background: #343434; padding: 0; font-size:0.85em;
 }
 
-/*#my .plm-content-container { margin-left: 113px; margin-right: 1px; }*/
 #my .plm-content-container { 
   margin-left: 112px; 
   margin-right: 1px; 
@@ -1128,10 +1127,6 @@ article div.refreshList {
 	cursor: pointer;
 }
 
-/*#my div.uploadDropBox .imageReview img {
-	vertical-align: middle;
-}*/
-
 #my div.uploadDropBox .imageReview:hover .remove { 
 	display: block;
 }
@@ -1153,22 +1148,11 @@ article div.refreshList {
 	padding: 10px 5px;
 }
 
-/* #my div.uploadDropBox:hover { border: 2px solid rgba(200,200,200,1); } */
-
 /* playlist */
 
 aside {
   width: 300px;
   background-color: #343434;
-/*  background: linear-gradient(top,  
-                rgb(100,100,100) 0%,
-                rgb(52,52,52) 10px);
-	background: -moz-linear-gradient(top,  
-                rgb(100,100,100) 0%,
-                rgb(52,52,52) 10px);
-	background: -webkit-linear-gradient(top,  
-                rgb(100,100,100) 0%,
-                rgb(52,52,52) 10px);*/
   float: right;
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
