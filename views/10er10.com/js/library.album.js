@@ -3,23 +3,6 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
   
   "use strict";
   
-
-  var getAlbumArtists = function(album, then) {
-	rest.album.artists(album,{
-		load: function(err, data) {
-			if ( err ) { return then(); }
-			var back = [];
-			for ( var i in data ) {
-				back.push({artist: data[i].key[1], artist_e: data[i].key[1].replace('"','&quot;') });
-			}
-			if ( back.length == 1 ) {
-				return then();
-			}
-			return then(back);
-		}
-	});
-  };
-
   var getSongs = function(album, then) {
 	rest.song.list.albums(
 	  {
@@ -43,15 +26,14 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
 	});
   };
   
-  var addExtendedData = function(album, template) {
-	getAlbumArtists(album,function(artists) {
-	  if ( !artists ) return;
-	  var artistsTemplate = $(tpl.mustacheView("library.content.album.artists",{artists: artists}));
-	  artistsTemplate.find(".artistLink").click(function() {
-          router.navigateTo(["library","artists",$(this).attr("name")]);
-        });
-	  template.find(".relatedArtists").html(artistsTemplate);
-	});
+  var addExtendedData = function(artists, template) {
+
+    if ( !artists ) return;
+    var artistsTemplate = $(tpl.mustacheView("library.content.album.artists",{artists: artists}));
+    artistsTemplate.find(".artistLink").click(function() {
+        router.navigateTo("library/artists/"+$(this).attr("name"));
+      });
+    template.find(".relatedArtists").html(artistsTemplate);
   };
   
   var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {
@@ -61,7 +43,7 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
         template_data.layoutClass = "mediumImage";
       }
 	  var template = $(tpl.mustacheView("library.content.album",template_data));
-	  addExtendedData(category,template);
+	  addExtendedData(template_data.artists,template);
 	  template.find("span[name=all]").click(function() {
 		router.navigateTo(["library","albums", "<all>"]);
 	  });
