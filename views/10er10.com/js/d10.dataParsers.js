@@ -31,12 +31,12 @@ define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils"], function(tpl
 		for ( var k in artists ) {
 			var e = encodeURIComponent(k);
 			albumData.artists.push({name: k, encoded: e});
-			albumData.e_artists.push( encodeURIComponent( k ) );
+			albumData.e_artists.push( e );
 		}
 		for ( var k in genres ) {
 			var e = encodeURIComponent(k);
 			albumData.genres.push({name: k, encoded: e}); 
-			albumData.e_genres.push( encodeURIComponent( k ) );
+			albumData.e_genres.push( e );
 		}
 		var d = new Date(1970,1,1,0,0,albumData.duration),
 			h = d.getHours(),
