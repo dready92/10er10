@@ -67,11 +67,9 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
            playlist.append(song.clone());
        });
 
-
-       overlay.find("[data-action=libraryArtist]").click(function() {
-           var name = $(this).attr("data-name");
-           overlay.ovlay().close();
-           router.navigateTo(["library","artists",name]);
+       overlay.find("span.mainArtist, span.secondaryArtist").click(function() {
+          overlay.ovlay().close();
+          router.navigateTo(["library","artists",$(this).text()]);
        });
        overlay.find("[data-action=libraryAlbum]").click(function() {
            var name = $(this).attr("data-name");
@@ -195,7 +193,6 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
            .css({visibility: "hidden"})
            .addClass("leftArrow")
            .appendTo($("body"));
-
        addEventsBinding(overlay,id, song);
 
        overlay.ovlay(
@@ -219,6 +216,7 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
                }
            }
        );
+       return overlay;
    };
 
    var buildContentPlaylist = function(plus, song, id) {
@@ -269,6 +267,7 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
                }
            }
        );
+       return overlay;
    };
 
   $("#main").delegate('.song .add','click',function  (e) {
@@ -276,7 +275,8 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
 	var song = $(this).closest('.song');
 	var id=song.attr('name');
 
-    buildContentMain(plus, song, id);
+    var overlay = buildContentMain(plus, song, id);
+    overlay.find(".mainArtist, .secondaryArtist").addClass("link");
 	return false;
   });
 
@@ -285,7 +285,8 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
       var song = $(this).closest('.song');
       var id=song.attr('name');
 
-      buildContentPlaylist(song, song, id);
+      var overlay = buildContentPlaylist(song, song, id);
+      overlay.find(".mainArtist, .secondaryArtist").addClass("link");
       return false;
   });
 

@@ -7,7 +7,10 @@ data-images="{{images}}"{{#owner}} data-owner="true"{{/owner}}
 		<img src="css/16x16/actions/list-add.png" name="plmadd" class="plmadd middle">
 	</span>
 	<span class="title">{{title}}</span>
-	<span class="artist">{{artist}}</span>
+	<span class="artist">
+      <span class="mainArtist">{{artist}}</span>
+      {{#gotFeaturing}} feat. {{/gotFeaturing}}
+      {{#artists}}<span class="secondaryArtist">{{.}}</span>{{/artists}}</span>
 	<span class="album">{{album}}</span>
 	<span class="length" seconds="{{duration}}">{{human_length}}</span>
 	<span class="options hidden pointer"><img src="css/12x12/actions/list-add.png" class="middle"></span>

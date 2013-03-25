@@ -431,11 +431,6 @@ border: 9px solid  #393939;
 border-radius: 5px;
 }
 
-#main .song > span.artist:hover {
-	cursor: pointer;
-	color: #BF9730;
-}
-
 body.noplaylist #main {
 	margin-right: 0px;
     transform: margin-right 0.5s;
@@ -529,6 +524,15 @@ article.review .form_error {
 	border-radius: 10px;
 }
 #library .list, #my .list { display: table; width: 100%; margin: 0;}
+
+#main .song > span.artist > span:hover {
+    cursor: pointer;
+    color: #BF9730;
+}
+
+#main .song > span.artist > span.secondaryArtist:not(:last-child):after {
+  content: ", ";
+}
 
 #my article.review.empty, #library .list.empty, #my .list.empty { padding: 20px 0 20px 10px; font-size: 1.2em;} 
 #library .song, #my .song, #results .song { display: table-row; }
@@ -2372,7 +2376,7 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 .songMenuOverlay {
   height: 200px;
   width: 600px;
-  z-index: 1;
+  z-index: 3;
   padding: 5px;
   transform: scale(0.01);
   transition: transform 0.2s;
@@ -2417,7 +2421,9 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 .songMenuOverlay .actionSide {float: left; width: 244px; padding-left: 5px; overflow: hidden;}
 .songMenuOverlay .floarightArrow {float: right}
 .songMenuOverlay .rightArrow {float: right}
-
+.songMenuOverlay .secondaryArtist:not(:last-child):after {
+  content: ", ";
+}
 
 .songMenuOverlay .categoryButton {
   background: #232323;
