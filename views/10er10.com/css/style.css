@@ -1174,23 +1174,20 @@ aside {
   border-bottom-left-radius: 3px;
   padding: 10px 1px 10px 1px;
   margin: -20px 1px 10px 0;
-  transition: box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s, background 0.3s;
-  -webkit-transition: box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s, background 0.3s;
-  -moz-transition: -moz-box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s, background 0.3s;
+  transition: box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s;
+  -webkit-transition: box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s;
+  -moz-transition: -moz-box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s;
   position: relative;
   top: 0px;
 }
 
 body.wide aside {
-    background: linear-gradient(top,rgba(52,52,52,0) 0%, rgba(52,52,52,0) 20px, rgb(52,52,52) 30px);
-	background: -moz-linear-gradient(top,rgba(52,52,52,0) 0%, rgba(52,52,52,0) 20px, rgb(52,52,52) 30px);
-	background: -webkit-linear-gradient(top,rgba(52,52,52,0) 0%, rgba(52,52,52,0) 20px, rgb(52,52,52) 30px);
 	top: -70px;
 	padding-top: 0px;
     margin-top: 0px;
-    transition: box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s, background 0.3s,  padding 0.5s;
-	-webkit-transition: box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s, background 0.3s, padding 0.5s;
-	-moz-transition: -moz-box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s, background 0.3s,  padding 0.5s;
+    transition: box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s, padding 0.5s;
+	-webkit-transition: box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s, padding 0.5s;
+	-moz-transition: -moz-box-shadow 0.5s ease-out, opacity 0.5s, top 0.3s, padding 0.5s;
 }
 
 
