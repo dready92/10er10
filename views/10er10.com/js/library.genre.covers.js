@@ -3,14 +3,12 @@ define([
   "js/d10.rest", 
   "js/d10.localcache", 
   "js/d10.templates", 
-  "js/d10.libraryScope", 
-  "js/d10.events", 
   "js/d10.router",
   "js/d10.restHelpers",
   "js/d10.dataParsers",
   "js/d10.widgetHelpers"
        ], 
-       function(rest, localcache, tpl, libraryScope, events, router, restHelpers, dataParsers, widgetHelpers) {
+       function(rest, localcache, tpl, router, restHelpers, dataParsers, widgetHelpers) {
     
     
     var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {

@@ -1,8 +1,8 @@
 define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router", 
-	   "js/d10.events", "js/d10.libraryScope", "js/d10.rest", "js/d10.toolbox", "js/d10.restHelpers",
+	   "js/d10.rest", "js/d10.toolbox", "js/d10.restHelpers",
        "js/d10.widgetHelpers"
        ],
-	   function(dataParsers, tpl, router, events, libraryScope, rest, toolbox, restHelpers, widgetHelpers) {
+	   function(dataParsers, tpl, router, rest, toolbox, restHelpers, widgetHelpers) {
 	"use strict";
 	var bindAllAlbums = function(topicdiv, categorydiv, topic, category, letter) {
 		categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all"));
@@ -24,23 +24,13 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 		  router.navigateTo( [ "library","albums",$(this).closest(".albumMini").data("albumDetails").album ] );
 		});
 		
-		events.topic("libraryScopeChange").subscribe(function() {
-			for ( var i in allAlbumsContents ) {
-				allAlbumsContents[i].remove();
-			}
-			allAlbumsContents = {};
-			categorydiv.removeData("toc-loaded").find(".toc").empty();
-			categorydiv.find(".tocAll").hide();
-			allAlbums(topicdiv, categorydiv);
-		});
 	};
 
 	var allAlbumsContents = {};
 	
 	var allAlbums = function(topicdiv,categorydiv, topic, category, letter) {
 		if ( !categorydiv.data("toc-loaded") ) {
-			var restBase = libraryScope.current == "full" ? rest.album : rest.user.album;
-			restBase.firstLetter({
+			rest.album.firstLetter({
 				load: function(err,resp) {
 					if ( err ) {
 						return ;
@@ -101,8 +91,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 	};
 	
 	var loadContentDiv = function( contentDiv, letter) {
-		var restBase = libraryScope.current == "full" ? rest.song.list : rest.user.song.list;
-		var endPoint = restBase.albums;
+		var endPoint = rest.song.list.albums;
 		var options = {};
 		if ( letter ) { 
 			options.startkey = JSON.stringify([letter]);

@@ -1,6 +1,6 @@
 define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", "js/playlist.driver.default", "js/d10.templates", 
-	   "js/d10.libraryScope", "js/config", "js/d10.events"], 
-	   function(foo, user, rest, dnd, router, defaultDriver, tpl, libraryScope, config, pubsub) {
+	   "js/config", "js/d10.events"], 
+	   function(foo, user, rest, dnd, router, defaultDriver, tpl, config, pubsub) {
 	
 	/*
 	 * playlist
@@ -321,11 +321,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			};
 			for ( var index in user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
 			if ( genres && genres.length )  opts.data["name[]"] = genres;
-			if ( libraryScope.current == "full" ) {
-				rest.song.random(opts);
-			} else {
-				rest.user.song.random(opts);
-			}
+            rest.song.random(opts);
 		};
 		
 		

@@ -1,6 +1,6 @@
-define(["js/playlist", "js/d10.events", "js/d10.rest", "js/d10.restHelpers", "js/d10.libraryScope", "js/d10.dataParsers", 
+define(["js/playlist", "js/d10.rest", "js/d10.restHelpers", "js/d10.dataParsers", 
 	   "js/d10.templates", "js/d10.router", "js/d10.albumCoverUploader", "js/d10.widgetHelpers"], 
-	   function(playlist, pubsub, rest, restHelpers, libraryScope, dataParsers, tpl, router, albumCoverUploader, widgetHelpers) {
+	   function(playlist, rest, restHelpers, dataParsers, tpl, router, albumCoverUploader, widgetHelpers) {
 	
 	var albumResultsParser = function(rows) { //[ [ {key:.., doc: song}, ...], ... ]
 		var html=null ;
@@ -20,8 +20,7 @@ define(["js/playlist", "js/d10.events", "js/d10.rest", "js/d10.restHelpers", "js
 	};
 	
 	var createInfiniteScroll = function(categorydiv, topic, category) {
-		var restBase = (topic == "hits" || libraryScope.current == "full") ? rest.song.list : rest.user.song.list;
-		var data = {}, endpoint = restBase[topic];
+		var data = {}, endpoint = rest.song.list[topic];
 		if ( topic == "genres" ) {
 			data.genre = category;
 		} else if ( topic != "albums" && topic != "artists" && topic != "titles" && topic != "creations" && topic != "hits" ) {
@@ -49,7 +48,7 @@ define(["js/playlist", "js/d10.events", "js/d10.rest", "js/d10.restHelpers", "js
         };
 
 		if ( topic == "albums" ) {
-			cursor = new restHelpers.couchMapMergedCursor(restBase.albums,{},"album");
+			cursor = new restHelpers.couchMapMergedCursor(rest.song.list.albums,{},"album");
 			opts.parseResults = albumResultsParser;
 		} else {
 			cursor = new restHelpers.couchMapCursor(endpoint, data);
@@ -104,9 +103,6 @@ define(["js/playlist", "js/d10.events", "js/d10.rest", "js/d10.restHelpers", "js
 		};
 		
 		categorydiv.find(".refresh").click(function() {
-			refresh();
-		});
-		pubsub.topic("libraryScopeChange").subscribe(function() {
 			refresh();
 		});
 	};

@@ -1,5 +1,5 @@
-define(["js/domReady", "js/d10.rest", "js/d10.router", "js/d10.templates", "js/d10.dnd", "js/playlist", "js/d10.restHelpers", "js/d10.events", "js/d10.libraryScope"],
-	   function(foo, rest, router, tpl, dnd, playlist, restHelpers, events, libraryScope) {
+define(["js/domReady", "js/d10.rest", "js/d10.router", "js/d10.templates", "js/d10.dnd", "js/playlist", "js/d10.restHelpers"],
+	   function(foo, rest, router, tpl, dnd, playlist, restHelpers) {
 	
 var results = function (search,mainUi) {
 	var ui = null;
@@ -24,7 +24,6 @@ var results = function (search,mainUi) {
 			startAnim();
 		}
 	},
-	restEndPoint = rest.search.all,
 	pagers = [],
 	uiReset = function() {
 		$("div.rBox.songs div.list",ui).empty();
@@ -367,7 +366,7 @@ var results = function (search,mainUi) {
 					if ( token != lastRoute ) {
 						return ;
 					}
-					restEndPoint(token,{
+					rest.search.all(token,{
 						load: function(err,resp) { displayAjaxResponse(err, resp, token); }
 					});
 					startAnimated();
@@ -378,23 +377,10 @@ var results = function (search,mainUi) {
 		}
 		
 	};
-	
-	events.topic("libraryScopeChange").subscribe(function(current) {
-		uiReset();
-		query = lastRoute;
-		lastRoute = "";
-		if ( current == "full" ) {
-			restEndPoint = rest.search.all;
-		} else {
-			restEndPoint = rest.user.search.all;
-		}
-		display(query);
-	});
-	
 	load();
-	
-	return { display: display };
-	
+
+    return { display: display };
+
 };
 
 	var controller = new results($("#search input"),$("#results"));

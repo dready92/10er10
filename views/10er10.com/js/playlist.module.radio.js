@@ -1,9 +1,9 @@
 "use strict";
 
-define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/d10.templates", "js/user", "js/d10.libraryScope", "js/d10.rest",
-   "js/d10.localcache"
+define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/d10.templates",
+       "js/user", "js/d10.rest", "js/d10.localcache"
 ], 
-	   function(foo, playlistModule, playlist, tpl, user, libraryScope, rest, localcache) {
+	   function(foo, playlistModule, playlist, tpl, user, rest, localcache) {
 
 var module = null;
 var createModule= function (ui) {
@@ -73,11 +73,7 @@ var createModule= function (ui) {
 		for ( var index in user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
 		if ( genres && genres.length )  opts.data["name[]"] = genres;
 				
-		if ( libraryScope.current == "full" ) {
-			rest.song.random(opts);
-		} else {
-			rest.user.song.random(opts);
-		}
+		rest.song.random(opts);
 	};
 
 	var appendSongs = function(count) {

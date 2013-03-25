@@ -1,11 +1,10 @@
-define(["js/d10.rest", "js/d10.events", "js/d10.templates","js/d10.router", "js/d10.libraryScope", "js/d10.restHelpers"], 
-		function(rest,events, tpl, router, libraryScope, restHelpers) {
+define(["js/d10.rest", "js/d10.templates","js/d10.router", "js/d10.restHelpers"], 
+		function(rest, tpl, router, restHelpers) {
     var letter = '', letter_container = null, endOfCursor = false;;
 	var cache_ttl = 1800000; //half an hour
 	var lastUpdate = 0;
 	
 	var allArtists = function (container) {
-		var restEndPoint = libraryScope.current == "full" ? rest.artist.allByName : rest.user.artist.allByName;
 		var now = new Date().getTime();
 		var cacheExpired = now - lastUpdate - cache_ttl ;
 		if ( cacheExpired < 0 ) { debug("allArtists cache still valid"); return ; }
@@ -13,7 +12,7 @@ define(["js/d10.rest", "js/d10.events", "js/d10.templates","js/d10.router", "js/
 		container.html(tpl.mustacheView("library.listing.artist.loading", {}));
         letter = '';
         letter_container = null;
-        var cursor = new restHelpers.couchMapCursor(restEndPoint, {limit: 100});
+        var cursor = new restHelpers.couchMapCursor(rest.artist.allByName, {limit: 100});
         var fetchFromCursor = function() {
           if ( !cursor.hasMoreResults() ) {
 			endOfCursor = true;
@@ -55,10 +54,6 @@ define(["js/d10.rest", "js/d10.events", "js/d10.templates","js/d10.router", "js/
         categorydiv.delegate("span.link","click", function() {
             router.navigateTo(["library","artists",$(this).text()]);
         });
-		events.topic("libraryScopeChange").subscribe(function() {
-			lastUpdate = 0;
-			allArtists(categorydiv);
-		});
 	};
 	
 	var onRoute = function(topicdiv, categorydiv, topic, category, param) {

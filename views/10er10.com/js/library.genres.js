@@ -1,13 +1,12 @@
-define(["js/d10.rest", "js/d10.localcache", "js/d10.templates", "js/d10.libraryScope", "js/d10.events", "js/d10.router"], 
-	   function(rest, localcache, tpl, libraryScope, events, router) {
+define(["js/d10.rest", "js/d10.localcache", "js/d10.templates", "js/d10.router"], 
+	   function(rest, localcache, tpl, router) {
 	
 	var displayGenres = function(categorydiv) {
 		var cacheNotExpired = localcache.getJSON("genres.index");
 		if ( cacheNotExpired ) {
 			return ;
 		}
-		var restEndPoint = libraryScope.current == "full" ? rest.genre.resume : rest.user.genre.resume;
-		restEndPoint({
+		rest.genre.resume({
 			load: function(err, data) {
 				if ( err ) {
 					return ;
@@ -40,10 +39,6 @@ define(["js/d10.rest", "js/d10.localcache", "js/d10.templates", "js/d10.libraryS
 	};
 	
 	var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {
-		events.topic("libraryScopeChange").subscribe(function() {
-			localcache.unsetJSON("genres.index");
-			displayGenres(categorydiv);
-		});
 		categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.control.genre"));
 	};
 	

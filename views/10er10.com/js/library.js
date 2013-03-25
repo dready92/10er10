@@ -1,7 +1,7 @@
-define(["js/domReady", "js/d10.dnd", "js/playlist", "js/d10.router", "js/d10.events", "js/d10.libraryScope", 
+define(["js/domReady", "js/d10.dnd", "js/playlist", "js/d10.router",
 	   "js/d10.templates", "js/d10.rest", 
 	   "js/d10.osd", "js/d10.imageUtils", "js/user", "js/d10.when", "js/d10.toolbox", "js/d10.restHelpers", "js/config"],
-	   function(foo, dnd, playlist, router, events, libraryScope, tpl,
+	   function(foo, dnd, playlist, router, tpl,
 				rest, osd, imageUtils, user, When, toolbox, restHelpers, config) {
 	
 	"use strict";
@@ -47,33 +47,6 @@ define(["js/domReady", "js/d10.dnd", "js/playlist", "js/d10.router", "js/d10.eve
 		})
 		;
 			
-		events.topic("libraryScopeChange").subscribe(function(current) {
-			var hitsTab = ui.children("nav").find("li[action=hits]");
-			if ( hitsTab.hasClass("active") ) {
-				router.navigateTo(["library","genres"]);
-			}
-			if ( current == "full" ) {
-				hitsTab.fadeIn();
-			} else {
-				hitsTab.fadeOut();
-			}
-		});
-		
-		ui.children("nav").find(".libraryMenuButton").click(function() {
-            var button = $(this);
-            var scope = ( libraryScope.current == "full" ) ? tpl.mustacheView("library.scope.toggle.user",{}) : tpl.mustacheView("library.scope.toggle.full",{}) ;
-            var overlay = $(tpl.mustacheView("hoverbox.library.scope", {scope: scope})).appendTo("body");
-            overlay.click(function() {
-                overlay.ovlay().close();
-                libraryScope.toggle();
-            });
-            button.addClass("active");
-            overlay.ovlay({
-                onClose: function() {this.getOverlay().remove(); button.removeClass("active");},
-                closeOnMouseOut: true,
-                align:{position: "bottomright", reference: button, leftOffset: 20, topOffset: 15}
-            });
-		});
 		var currentCategory = {}, categories = {};
 		var init_topic = function (topic,category, param) {
 			debug("library.display start",topic,category, param);
