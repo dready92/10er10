@@ -1,11 +1,16 @@
-define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils"], function(tpl, toolbox, imageUtils) {
+define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils", "js/d10.artistTokenizer"], 
+       function(tpl, toolbox, imageUtils, artistTokenizer) {
 	function singleAlbumParser(songs) {
 		var albumData = {duration: 0, songsNb: songs.length, artists: [], genres: [], image_class: [], songs: "", e_artists: [], e_genres: [], image_url: null, album: "", date: []}, 
 			artists = {}, genres = {}, images = {};
         var imageAlternatives = {};
 		songs.forEach(function(row) {
 			albumData.album = row.doc.album || "";
-			artists[row.doc.artist] = 1;
+            row.doc.artistsToken = artistTokenizer(row.doc);
+            row.doc.title = row.doc.artistsToken[1];
+            row.doc.artistsToken[0].forEach(function(a) {
+              artists[a] = 1;
+            });
 			if ( row.doc.genre ) {
 				genres[row.doc.genre] = 1;
 			}
