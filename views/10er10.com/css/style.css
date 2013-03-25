@@ -266,7 +266,7 @@ div.tooltip > p {
 
 #container > nav {
 	margin-bottom: 20px;
-	background: #343434 url(littletile.png) 0% 0% repeat-x;
+	background: #343434;
   border-bottom-right-radius: 5px;
   border-bottom-left-radius: 5px;
   position: relative;
@@ -295,14 +295,14 @@ div.tooltip > p {
 }
 
 #container > nav > ul > li:hover {
-	background: #494949 url(littletile.png) 0% 0% repeat-x;
+	background: #494949;
 	border-bottom-right-radius: 5px;
 	border-bottom-left-radius: 5px;
 }
 
 #container > nav > ul > li.active {
 	cursor: auto;
-	background: #BF9730 url(littletile.png) 0% 0% repeat-x;
+	background: #BF9730;
 	color: #343434;
 	border-bottom-right-radius: 5px;
 	border-bottom-left-radius: 5px;
@@ -2727,7 +2727,7 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   height: 60px;
   background-color: #121212;
   z-index: 2;
-  box-shadow: 0px 0px 8px 0px #121212;
+  box-shadow: 0px 0px 8px 0px #121212, 0px -1px -1px 1px rgba(191, 151, 48,0.7) inset;
 }
 
 #player > div.side {
