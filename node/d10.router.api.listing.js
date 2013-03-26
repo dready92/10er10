@@ -8,9 +8,6 @@ var validGenre = function(genre) {
 }
 exports.api = function(app) {
 	
-	app.get("/api/own/title",function(request,response) {
-		_titleSearch("title/search/"+request.ctx.user._id+"/title_search",request,response);
-	});
 	app.get("/api/title",function(request,response) {
 		_titleSearch("title/search/search",request,response);
 	});
@@ -30,9 +27,6 @@ exports.api = function(app) {
 		});
 	};
 	
-	app.get("/api/own/artist",function(request,response) {
-		_artistSearch(request.ctx.user._id+"/artist_search",request,response);
-	});
 	app.get("/api/artist",function(request,response) {
 		_artistSearch("artist/search",request,response);
 	});
@@ -60,9 +54,6 @@ exports.api = function(app) {
 		});
 	};
 	
-	app.get("/api/own/album",function(request,response) {
-		_albumSearch("album/search/"+request.ctx.user._id+"/album_search",request,response);
-	});
 	app.get("/api/album",function(request,response) {
 		_albumSearch("album/search/search",request,response);
 	});
@@ -96,9 +87,6 @@ exports.api = function(app) {
 		}
 	});
 	
-	app.get("/api/own/artistsListing",function(request,response) {
-		_artistTokenized(request.ctx.user._id+"/artist_tokenized",request,response);
-	});
 	app.get("/api/artistsListing",function(request,response) {
 		_artistTokenized("artist/tokenized",request,response);
 	});
@@ -119,9 +107,6 @@ exports.api = function(app) {
 		d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
 	};
 	
-	app.get("/api/own/genresResume",function(request,response) {
-		_genreArtist(request.ctx.user._id+"/genre_artist",request,response);
-	});
 	app.get("/api/genresResume",function(request,response) {
 		_genreArtist("genre/artist",request,response);
 	});
@@ -129,9 +114,6 @@ exports.api = function(app) {
 		d10.couch.d10.view(view, {group:true, group_level: 1}, listDefaultCallback.bind(request.ctx));
 	};
 	
-	app.get("/api/own/list/artists",function(request,response) {
-		_artistBaseName(request.ctx.user._id+"/artist_",request,response);
-	});
 	app.get("/api/list/artists",function(request,response) {
 		_artistBaseName("artist/",request,response);
 	});
@@ -154,9 +136,6 @@ exports.api = function(app) {
 		d10.couch.d10.view(view+viewPart,query,listDefaultCallback.bind(request.ctx));
 	};
 	
-	app.get("/api/own/list/creations",function(request,response) {
-		_ts_creationName(request.ctx.user._id+"/ts_creation_name",request,response);
-	});
 	app.get("/api/list/creations",function(request,response) {
 		
 		if ( request.query.genre ) {
@@ -224,9 +203,6 @@ exports.api = function(app) {
 		});
 	});
 	
-	app.get("/api/own/list/genres",function(request,response) {
-		_genreName(request.ctx.user._id+"/genre_name",request,response);
-	});
 	app.get("/api/list/genres",function(request,response) {
 		_genreName("genre/name",request,response);
 	});
@@ -270,9 +246,6 @@ exports.api = function(app) {
 		d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
 	};
 
-	app.get("/api/own/list/albums",function(request,response) {
-		_albumName(request.ctx.user._id+"/album_name",request,response);
-	});
 	app.get("/api/list/albums",function(request,response) {
 		_albumName("album/name",request,response);
 	});
@@ -343,9 +316,6 @@ exports.api = function(app) {
 		});
 	});
 	
-	app.get("/api/own/list/genres/artists/:genre",function(request,response) {
-		_genreArtists(request.ctx.user._id+"/genre_artists",request,response);
-	});
 	app.get("/api/list/genres/artists/:genre",function(request,response) {
 		_genreArtists("genre/artists",request,response);
 	});
@@ -368,9 +338,6 @@ exports.api = function(app) {
         d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
 	};
 	
-	app.get("/api/own/list/genres/albums/:genre",function(request,response) {
-		_genreAlbums(request.ctx.user._id+"/genre_albums",request,response);
-	});
 	app.get("/api/list/genres/albums/:genre",function(request,response) {
 		_genreAlbums("genre/albums",request,response);
 	});
@@ -381,9 +348,6 @@ exports.api = function(app) {
 		d10.couch.d10.view(view,{startkey: [request.params.genre], endkey: [request.params.genre,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
 	};
 	
-	app.get("/api/own/list/genres/albumsSongs/:genre",function(request,response) {
-		_genreAlbumsSongs(request.ctx.user._id+"/genre_albums",request,response);
-	});
 	app.get("/api/list/genres/albumsSongs/:genre",function(request,response) {
 		_genreAlbumsSongs("genre/albums",request,response);
 	});
@@ -410,9 +374,6 @@ exports.api = function(app) {
 		d10.couch.d10.view(view, opts, listDefaultCallback.bind(request.ctx));
 	};
 	
-	app.get("/api/own/list/artists/albums/:artist",function(request,response) {
-		_artistAlbums(request.ctx.user._id+"/artist_albums",request,response);
-	});
 	app.get("/api/list/artists/albums/:artist",function(request,response) {
 		_artistAlbums("artist/albums",request,response);
 	});
@@ -423,9 +384,6 @@ exports.api = function(app) {
 		d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
 	};
 	
-    app.get("/api/own/list/artists/songsByAlbum/:artist",function(request,response) {
-        _artistSongsOrderedByAlbums(request.ctx.user._id+"/artist_songsOrderedByAlbums",request,response);
-    });
     app.get("/api/list/artists/songsByAlbum/:artist",function(request,response) {
         _artistSongsOrderedByAlbums("artist/songsOrderedByAlbums",request,response);
     });
@@ -437,9 +395,6 @@ exports.api = function(app) {
         d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], include_docs: true},listDefaultCallback.bind(request.ctx));
     };
     
-	app.get("/api/own/list/artists/genres/:artist",function(request,response) {
-		_artistGenres(request.ctx.user._id+"/artist_genres",request,response);
-	});
 	app.get("/api/list/artists/genres/:artist",function(request,response) {
 		_artistGenres("artist/genres",request,response);
 	});
@@ -450,9 +405,6 @@ exports.api = function(app) {
 		d10.couch.d10.view(view,{startkey: [request.params.artist], endkey: [request.params.artist,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
 	};
 	
-	app.get("/api/own/list/albums/artists/:album",function(request,response) {
-		_albumArtists(request.ctx.user._id+"/album_artists", request, response);
-	});
 	app.get("/api/list/albums/artists/:album",function(request,response) {
 		_albumArtists("album/artists", request, response);
 	});

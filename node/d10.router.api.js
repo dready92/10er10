@@ -282,9 +282,6 @@ exports.api = function(app) {
 	
 	});
 
-	app.post("/api/own/random",function(request,response) {
-		_random( request.ctx.user._id +"/genre_unsorted", request, response);
-	});
 	app.post("/api/random",function(request,response) {
 		_random("genre/unsorted", request, response);
 	});
@@ -495,9 +492,6 @@ exports.api = function(app) {
 		});
 	});
 	
-	app.get("/api/own/search",function(request,response) {
-		_songSearch(request.ctx.user._id+"/song_search", request, response);
-	});
 	app.get("/api/search",function(request,response) {
 		_songSearch("song/search", request, response);
 	});
@@ -909,9 +903,6 @@ exports.api = function(app) {
 		
 	});
 	
-	app.get("/api/own/album/firstLetter",function(request,response) {
-		_albumsFirstLetter(request.ctx.user._id+"/album_firstLetter",request,response);
-	});
 	app.get("/api/album/firstLetter",function(request,response) {
 		_albumsFirstLetter("album/firstLetter",request,response);
 	});

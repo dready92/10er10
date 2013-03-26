@@ -2653,7 +2653,7 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   height: 60px;
   background-color: #121212;
   z-index: 2;
-  box-shadow: 0px 0px 8px 0px #121212, 0px -1px -1px 1px rgba(191, 151, 48,0.7) inset;
+  box-shadow: 0px 0px 8px 0px #121212, 0px -1px 1px 0px rgba(191, 151, 48,0.7) inset;
 }
 
 #player > div.side {
