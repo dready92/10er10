@@ -22,6 +22,9 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			if ( options.contentType ) {
 				query.contentType = options.contentType;
 			}
+			if ( method == "GET" ) {
+              query.ws = true;
+            }
 			bghttp.request(query);
 			emitter.topic("whenRestBegin").publish({ endpoint: endpoint });
 	};
