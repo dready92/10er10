@@ -87,6 +87,7 @@ exports.javascript = {
 		"jquery.resizer.js",
 		"jquery.image.js",
 		"jquery.d10param.js",
+        "jquery.cookie.js",
 		"require.js",
 		"mustache.js"
 	]
