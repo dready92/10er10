@@ -25,6 +25,7 @@ exports.homepage = function(app) {
 			genres: genres,
 			langs: [],
 			invites_ttl: d10.config.invites.ttl,
+            cookieName: d10.config.cookieName,
 			libraryDefaultTab: d10.config.library.defaultTab
 		};
 		if ( request.query.o && request.query.o.indexOf("a") >= 0 ) {
