@@ -1,8 +1,10 @@
 "use strict";
-define( ["js/config", "js/d10.toolbox", "js/d10.events"], function(config, toolbox, pubsub) {
-
-
-
+define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket",
+          "js/d10.websocket.protocol.wrest"
+        ], 
+        function(config, toolbox, pubsub, websocket, websocketProtocolWrest) {
+    websocket.addProtocol(websocketProtocolWrest.name, websocketProtocolWrest.onmessage);
+    
 	function httpmanager ( domainUrl ) {
 		// 	debug("worker base_url: ", domainUrl);
 		var worker = new Worker(domainUrl+'js/httpworker.js');
@@ -100,10 +102,10 @@ define( ["js/config", "js/d10.toolbox", "js/d10.events"], function(config, toolb
 
 
 	function httpbroker (num) {
-		var http = {};
-			var cache = [];
-			var loop  = null;
-			var requests_count = 0;
+        var http = {};
+        var cache = [];
+        var loop  = null;
+        var requests_count = 0;
 
 		this.init = function (base_url) {
 		// 	  var url = window.location.href.replace( new RegExp(base_url+"$","") , base_url);
@@ -136,8 +138,24 @@ define( ["js/config", "js/d10.toolbox", "js/d10.events"], function(config, toolb
 		this.request = function ( options ) {
 			this.run(options);
 		}
-
+		
+		this.sendViaWebSocket = function(options) {
+          if ( !websocket.socketReady() ) {
+            return false;
+          }
+          if ( 
+            websocket.send(websocketProtocolWrest.name,
+                              websocketProtocolWrest.prepare(options)) 
+             ) {
+            return true;
+          }
+          return false;
+        };
+		
 		this.run  = function ( options, fipo ) {
+          if ( options.ws && this.sendViaWebSocket(options) ) {
+            return ;
+          }
 			if ( typeof options == 'object' ) {
 				if ( fipo ) { cache.push(options); } 
 				else { cache.unshift(options); }
