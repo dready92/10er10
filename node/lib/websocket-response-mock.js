@@ -2,9 +2,10 @@ var debug = require("debug")("websocket-response-mock");
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
-function response(uuid) {
+function response(uuid,callback) {
   EventEmitter.call(this);
   this.uuid = uuid;
+  this.callback = callback;
 };
 
 util.inherits(response, EventEmitter);
@@ -37,6 +38,7 @@ response.prototype.end = function(chunk) {
     debug("should send websocket response");
     debug("response code: "+this.statusCode);
     debug("response body: "+this.body);
+    this.callback(this.statusCode, this.statusMessage, this.body);
   };
 response.prototype.setHeader = function(name, value) {
     debug("setting header "+name+" to "+value);

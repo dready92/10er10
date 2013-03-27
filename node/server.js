@@ -34,8 +34,9 @@ var onConfig = function(isProduction) {
 		invitesRouter = require(__dirname+"/invites.router"),
 		lang = require(__dirname+"/lang"),
 		contextMiddleware = require(__dirname+"/contextMiddleware").context,
+		webSocketServer = require(__dirname+"/lib/websocket-server"),
 		nodeVersion = require(__dirname+"/nodeVersion");
-		;
+
 
 	process.chdir(__dirname);
 	
@@ -161,6 +162,7 @@ var onConfig = function(isProduction) {
 			.use(d10Server)
 		;
 		var nodeHTTPServer = globalSrv.listen(config.port);
+        var wsServer = new webSocketServer(nodeHTTPServer, d10Server);
         /*
         nodeHTTPServer.on("upgrade",function(request, socket, buffer) {
           console.log(request.url);
@@ -189,13 +191,13 @@ var onConfig = function(isProduction) {
           }
         });
 		*/
-        
+        /*
         var wsServer = require('ws').Server;
         
         var d10wsServer = new wsServer({server: nodeHTTPServer});
         d10wsServer.on('connection'+"/sdfsdfwebsocket/test", function(ws) {
           var id = setInterval(function() {
-            ws.send(JSON.stringify(process.memoryUsage()), function() { /* ignore errors */ });
+            ws.send(JSON.stringify(process.memoryUsage()), function() {  });
           }, 10000);
           console.log('started client interval');
           ws.on('close', function() {
@@ -206,7 +208,7 @@ var onConfig = function(isProduction) {
             console.log('received: %s', message);
           });
         });
-		
+		*/
 		d10Server.on("clientError",function() {
 			console.log("CLIENT ERROR");
 			console.log(arguments);
