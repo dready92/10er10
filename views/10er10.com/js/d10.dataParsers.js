@@ -6,7 +6,7 @@ define(["js/d10.templates", "js/d10.toolbox", "js/d10.imageUtils", "js/d10.artis
         var imageAlternatives = {};
 		songs.forEach(function(row) {
 			albumData.album = row.doc.album || "";
-            row.doc.artistsToken = artistTokenizer(row.doc);
+            row.doc.artistsToken = artistTokenizer(row.doc,true);
             row.doc.title = row.doc.artistsToken[1];
             row.doc.artistsToken[0].forEach(function(a) {
               artists[a] = 1;
