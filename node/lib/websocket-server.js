@@ -7,6 +7,7 @@ function websocketServer ( httpServer, d10Server ) {
   var d10wsServer = new wsServer({server: httpServer});
   this.createRouter();
   this.registerProtocols(httpServer, d10Server);
+  var self = this;
   d10wsServer.on('connection', function(ws) {
     ws.d10id = wsId++;
     sockets[ws.d10id] = ws;
@@ -15,8 +16,8 @@ function websocketServer ( httpServer, d10Server ) {
       debug("socket close");
     });
     ws.on('message', function(message) {
-      this.router.route(message,ws);
-    }.bind(this));
+      self.router.route(message,ws);
+    });
   });
 };
 
