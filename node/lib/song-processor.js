@@ -1,12 +1,37 @@
+var d10 = require ("../d10"),
+    querystring = require("querystring"),
+    fs = require("fs"),
+    files = require("../files"),
+    when = require("../when"),
+    audioUtils = require("../audioFileUtils"),
+    gu = require("../graphicsUtils"),
+    spawn = require('child_process').spawn,
+    exec = require('child_process').exec,
+    EventEmitter = require("events").EventEmitter,
+    dbg = require("debug")("d10:song-processor"),
+    supportedAudioTypes = [ "audio/mpeg", "audio/mp4", "application/ogg", "audio/x-flac" ];
 
-function processSong(songId, songFilename, songFilesize, userId readableStream, emitter) {
+function debug() {
+  var str = "";
+  for ( var i in arguments ) {
+    if(typeof arguments[i] === "object" ) {
+      str+=JSON.stringify(arguments[i]);
+    } else {
+      str+=arguments[i];
+    }
+    str += " ";
+  }
+  dbg(str);
+};
+
+function processSong(songId, songFilename, songFilesize, userId, readableStream, emitter) {
   
   /* do we already sent back a songProcessor:end event */
   var answered = false;
   var safeErrResp = function(code,data) {
       printEncodingFailure();
-      d10.log("debug",songId," sending errorResponse ",code);
-      d10.log("debug",songId,data);
+      debug(songId," sending errorResponse ",code);
+      debug(songId,data);
       if ( answered ) { return false;}
       answered = true;
       if ( job.requestEnd ) {_sendErr(code,data);}
@@ -14,7 +39,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
   };
   
   var _sendErr = function(code, data) {
-    emitter.emit(songId+":songProcessor:end",
+    emitter.emit("end",
                  {
                    status: "error",
                    code: code,
@@ -26,7 +51,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
   var safeSuccessResp = function(data) {
     if ( answered ) { return false;}
     answered = true;
-    emitter.emit(songId+":songProcessor:end",
+    emitter.emit("end",
                   {
                     status: "success",
                     data: data
@@ -36,7 +61,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
 
   var bytesCheck = function() {
       var min = 5000;
-      d10.log("debug",songId,job.fileWriter.bytesWritten());
+      debug(songId,job.fileWriter.bytesWritten());
       if ( job.fileWriter.bytesWritten() > min ) {
           clearInterval(bytesIval);
           bytesIval = null;
@@ -45,7 +70,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
   };
 
   var uploadComplete = false, // the flag telling if the data uploaded is complete
-      bytesIval = null,   // bytes checker interval
+      bytesIval = null   // bytes checker interval
       ; 
   var internalEmitter = new EventEmitter();
   var job = {
@@ -66,11 +91,12 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
           oggEncode: {
               status: null, // null (rien), true (running) or false (stopped)
               run: function(then) {
-                  d10.log("debug",songId,"-----------------------------------------------");
-                  d10.log("debug",songId,"-------      Create OGG encoding        -------");
-                  d10.log("debug",songId,"-----------------------------------------------");
+                  var oggWriterError=false;
+                  debug(songId,"-----------------------------------------------");
+                  debug(songId,"-------      Create OGG encoding        -------");
+                  debug(songId,"-----------------------------------------------");
                   if ( !job.decoder ) {
-                      d10.log("debug",songId,"error: job.decoder not set");
+                      debug(songId,"error: job.decoder not set");
                       then({message: "decoder not initialized"});
                       return ;
                   }
@@ -79,26 +105,30 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
 
                   job.oggWriter = spawn(d10.config.cmds.oggenc, args);
                   job.oggWriter.on("exit",function(code) {
-                      d10.log("debug",songId,"launching oggWriter end of operation callback");
-                      then(code ? code : null,null);
+                      debug(songId,"launching oggWriter end of operation callback");
+                      var error = oggWriterError ? true : null;
+                      if ( !error ) {
+                        erro = code ? code : null;
+                      }
+                      then(error,null);
                   });
-                  job.decoder.on("exit",function() { d10.log("debug","job.decoder exited"); });
-                  job.oggWriter.stdin.on("error",function(err) {console.log("Oggwriter error",err);});
+                  job.decoder.on("exit",function() { debug("job.decoder exited"); });
+                  job.oggWriter.stdin.on("error",function(err) {debug(songId,"Oggwriter error",err);oggWriterError=true;});
                   job.decoder.stdout.pipe(job.oggWriter.stdin);
                   function writeBuffer() {
                       if ( ! job.inputFileBuffer.buffer.length ) {
                           if ( job.requestEnd ) {
                               job.decoder.stdin.end();
                           } else {
-                              d10.log("debug",songId,"================= Decoder pumping from request ===============");
-                              readableStream.on("error",function(err) {console.log("request error", err);});
+                              debug(songId,"================= Decoder pumping from request ===============");
+                              readableStream.on("error",function(err) {debug(songId,"request error", err);});
                               request.pipe(job.decoder.stdin);
                               job.inputFileBuffer.status = false;
                           }
                           return ;
                       }
                       
-                      d10.log("debug",songId,"Size: ",job.inputFileBuffer.buffer.length," bufferJoin: ",job.bufferJoin);
+                      debug(songId,"Size: ",job.inputFileBuffer.buffer.length," bufferJoin: ",job.bufferJoin);
                       var buffer = files.bufferSum(
                           job.inputFileBuffer.buffer.splice(0, job.inputFileBuffer.buffer.length <= job.bufferJoin ? job.inputFileBuffer.buffer.length : job.bufferJoin)
                       );
@@ -118,12 +148,14 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
               run: function(then) {
                   if ( songFilename.match(/mp3$/i) ) {
                       job.fileType = "audio/mpeg";
+                      debug(songId, "fileType task returns", job.fileType);
                       return then(null,"audio/mpeg");
                   }
                   d10.fileType(d10.config.audio.tmpdir+"/"+this.fileName, function(err,type) {
                           if ( !err ) {
                               job.fileType = type;
                           }
+                          debug(songId, "fileType task returns", job.fileType);
                           then(err,type);
                       }
                   );
@@ -228,7 +260,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
               id = this.id,
               fileType = this.tasks.fileType.response,
               alternativeExtension = null;
-              d10.log("debug",songId,"file type : ",fileType);
+              debug(songId,"file type : ",fileType);
               if ( fileType == "audio/mpeg" ) {
                 alternativeExtension = "mp3";
               } else if ( fileType == "audio/mp4" ) {
@@ -238,7 +270,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
                 return then();
               }
               var targetFile = d10.config.audio.dir+"/"+id[2]+"/"+id+"."+alternativeExtension;
-              d10.log("debug",songId,"moveAlternativeFile : ",tmpFile," -> ",targetFile);
+              debug(songId,"moveAlternativeFile : ",tmpFile," -> ",targetFile);
               fs.rename(
                 tmpFile,
                 targetFile,
@@ -260,7 +292,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
                       id = this.id,
                       sourceFile = d10.config.audio.tmpdir+"/";
                       sourceFile+= (this.tasks.fileType.response == "application/ogg" ) ? this.fileName : this.oggName ;
-                  d10.log("debug",songId,"moveFile : ",sourceFile," -> ",d10.config.audio.dir+"/"+c+"/"+filename);
+                  debug(songId,"moveFile : ",sourceFile," -> ",d10.config.audio.dir+"/"+c+"/"+filename);
                   var moveFile = function() {
                       fs.rename(
                           sourceFile,
@@ -280,7 +312,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
                   
                   fs.stat(d10.config.audio.dir+"/"+c,function(err,stat) {
                       if ( err ) {
-                          d10.log("debug",songId,"moveFile", err);
+                          debug(songId,"moveFile", err);
                       }
                       if ( err && err.errno != 2 && err.code != "ENOENT" ) { // err.code == ENOENT = no such file on node > 0.5.10
                           then(err);
@@ -383,7 +415,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
 
                   if ( this.tasks.fileMeta.response && this.tasks.fileMeta.response.PICTURES && this.tasks.fileMeta.response.PICTURES.length ) {
                       gu.imageFromMeta(this.tasks.fileMeta.response,function(err,resp) {
-                          d10.log("debug",songId,"imageFromMeta response",err,resp);
+                          debug(songId,"imageFromMeta response",err,resp);
                           if ( !err ) {
                               doc.images = [ resp ];
                           }
@@ -399,15 +431,15 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
       run: function(taskName) {
           if ( this.tasks[taskName] && this.tasks[taskName].status === null &&  this.queue.indexOf(taskName) < 0 ) {
               this.queue.push(taskName);
-              d10.log("debug",songId,"Launch task ", taskName);
+              debug(songId,"Launch task ", taskName);
               this.tasks[taskName].run.call(this, function(err,resp) { job.endOfTask.call(job,taskName,err,resp); });
           }
       },
       endOfTask: function(taskName, err,resp) {
           if ( err ) {
-            d10.log("debug",songId, "End of task ",taskName," in error:", err);
+            debug(songId, "End of task ",taskName," in error:", err);
           } else {
-            d10.log("debug",songId, "End of task ",taskName," without error:");
+            debug(songId, "End of task ",taskName," without error");
           }
           var i = this.queue.indexOf(taskName);
           if ( i >= 0 ) {
@@ -416,7 +448,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
           this.tasks[taskName].status = false;
           this.tasks[taskName].err = err;
           this.tasks[taskName].response = resp;
-          internalEmitter.emit(taskName+":complete",[err,resp]);
+          internalEmitter.emit(taskName+":complete",err,resp);
           if ( this.allCompleteCallbacks.length && !this.running() ) {
               while ( cb = this.allCompleteCallbacks.shift() ) {
                   cb.call(this);
@@ -429,7 +461,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
           if ( this.tasks[task].status === false ) {
               cb.call(this,this.tasks[task].err, this.tasks[task].response);
           }
-          internalEmitter.on(task+":complete",cb);
+          internalEmitter.on(task+":complete",cb.bind(this));
       },
       running: function() {
           var count = 0;
@@ -449,25 +481,24 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
   };
 
   var printEncodingFailure = function() {
-      d10.log("debug",songId,"--------- Encoding failure ----------");
+      debug(songId,"--------- Encoding failure ----------");
       for ( var i in job.tasks ) {
-          d10.log("debug", songId, i, job.tasks[i].err ? job.tasks[i].err : "");
+          debug(songId, i, job.tasks[i].err ? job.tasks[i].err : "");
       }
-      d10.log("debug",songId,"-------------------------------------");
+      debug(songId,"-------------------------------------");
 
   };
 
-  //      d10.log("debug","filename : ",job.fileName,"ogg name : ",job.oggName);
   job.complete("oggEncode",function(err,resp) {
       if ( err ) {
-          d10.log("debug",songId,"SEVERE: error on oggEncode task",err);
+          debug(songId,"SEVERE: error on oggEncode task",err);
           job.allComplete(function() { safeErrResp(422,err); });
       } else {
           internalEmitter.emit("oggAvailable",[]);
       }
   });
   job.complete("fileType",function(err,resp) {
-      d10.log("debug",songId,"filetype complete : ",resp);
+      debug(songId,"filetype complete : ",resp);
       if ( err ) {
           job.allComplete(function() { safeErrResp(421,err); });
       }
@@ -481,7 +512,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
           job.spawns.push(job.decoder);
           job.run("oggEncode");
       } else if ( resp == "audio/mp4" ) {
-          d10.log("debug",songId, "It's m4a, will launch decoder later");
+          debug(songId, "It's m4a, will launch decoder later");
       } else {
           job.inputFileBuffer.status = false;
           job.inputFileBuffer.buffer = [];
@@ -497,7 +528,7 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
           args.push(d10.config.audio.tmpdir+"/"+job.fileName);
           job.decoder = spawn(d10.config.cmds.faad, args);
           job.decoder.stderr.on('data', function (data) {
-              d10.log("debug",songId,'stderr: ' + data);
+              debug(songId,'stderr: ' + data);
           });
           job.spawns.push(job.decoder);
           job.run("oggEncode");
@@ -523,12 +554,11 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
       }
   });
   job.complete("moveFile",function(err,resp) {
-  //          d10.log("debug","moveFile finished");
       if ( err ) {
           return safeErrResp(432,err);
       }
       if ( job.tasks.fileType.response != "application/ogg" ) { // if the file is not an ogg we move it
-          d10.log("debug",songId, "unlink file ",d10.config.audio.tmpdir+"/"+job.fileName);
+          debug(songId, "unlink file ",d10.config.audio.tmpdir+"/"+job.fileName);
           fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName,function()  {});
       }
       if ( job.tasks.fileMeta.status === null ) {
@@ -549,13 +579,13 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
       cleanupFileSystem();
       return;
     }
-    d10.log("debug",songId,"db document recorded, sending success");
+    debug(songId,"db document recorded, sending success");
     safeSuccessResp(resp);
   });
 
 
   internalEmitter.once("oggAvailable",function() {
-      d10.log("debug",songId,"OGG FILE IS AVAILABLE ! ");
+      debug(songId,"OGG FILE IS AVAILABLE ! ");
       job.run("oggLength");
       var steps = ["oggLength","sha1File","fileMeta"],
           complete = 0,
@@ -565,10 +595,10 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
               } else if ( job.tasks.oggLength.err || job.tasks.oggLength.response == 0 ) {
                   safeErrResp(436,job.tasks.oggLength.err);
               } else {
-                  d10.log("debug",songId,"GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG");
+                  debug(songId,"GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG");
                   
                   job.complete("sha1Check",function(err,resp) {
-                      d10.log("debug",songId,"sha1check is complete, let's go recording the song !");
+                      debug(songId,"sha1check is complete, let's go recording the song !");
                       if ( !err ){
                           job.run("moveFile");
                       }
@@ -598,24 +628,16 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
   });
 
   readableStream.on("error",function(){
-      d10.log("debug",songId,"request ERROR !");
-      d10.log("debug",songId,arguments);
+      debug(songId,"request ERROR !");
       cleanupFileSystem();
   });
 
   readableStream.on("close",function(){
-      d10.log("debug",songId,"request CLOSE !");
-      d10.log("debug",songId);
+      debug(songId,"request CLOSE !");
       if ( ! job.requestEnd ) {
         cleanupFileSystem();
       }
   });
-/*
-  request.connection.on("error",function(){
-      d10.log("debug",songId,"request connection ERROR !");
-      d10.log("debug",songId,arguments);
-  });
-*/
   var cleanupFileSystem = function() {
       if ( job.spawns.length ) {
           var j;
@@ -632,25 +654,15 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
       fs.unlink(d10.config.audio.tmpdir+"/"+job.oggName);
       fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName);
   };
-  /*
-  request.connection.on("close",function(err){
-      d10.log("debug",songId,"request connection CLOSE !");
-      d10.log("debug",songId,arguments);
-      d10.log("debug",songId,"requestEnd",job.requestEnd);
-      if ( job.requestEnd === false ) {
-          // client connection failed to send us the complete data
-          cleanupFileSystem();
-      }
-  });
-  */
+
   readableStream.on("end",function() {
       job.requestEnd = true;
-      d10.log("debug",songId,"got request end");
+      debug(songId,"got readableStream end");
       if ( bytesIval ) { clearInterval(bytesIval); }
       if ( job.fileWriter  ) {
           if ( job.tasks.fileType.status === null ) {
               job.fileWriter.close(function() {
-                  d10.log("debug",songId,"launching fileType job after filewriter close");
+                  debug(songId,"launching fileType job after filewriter close");
                   job.run("fileType");
               });
           } else {
@@ -662,17 +674,17 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
   });
 
   readableStream.on("data",function(chunk) {
-      
       if ( !job.fileWriter  ) {
           
-          d10.log("debug",songId,"creating fileWriter");
+          debug(songId,"creating fileWriter");
           job.fileWriter  = new files.fileWriter(d10.config.audio.tmpdir+"/"+job.fileName);
-          d10.log("debug",songId,"settings bytescheck interval");
+          debug(songId,"settings bytescheck interval");
           bytesIval = setInterval(bytesCheck,500);
-          d10.log("debug",songId,"interval = ", bytesIval);
+          debug(songId,"interval = ", bytesIval);
           job.fileWriter.open();
 
           job.fileWriter.on("end", function() {
+              debug(songId,"fileWriter end event");
               if ( parseInt(songFilesize) != job.fileWriter.bytesWritten() ) {
                   return safeErrResp(421, songFilesize+" != "+n);
               }
@@ -698,9 +710,11 @@ function processSong(songId, songFilename, songFilesize, userId readableStream, 
                   }
                   internalEmitter.emit("uploadCompleteAndFileTypeAvailable");
               }
-              d10.log("debug",songId,"fileWriter end event");
           });
       }
       if ( job.inputFileBuffer.status ) { job.inputFileBuffer.buffer.push(chunk); }
       job.fileWriter.write(chunk);
   });
+};
+
+exports = module.exports = processSong;

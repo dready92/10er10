@@ -7,7 +7,9 @@ var d10 = require ("./d10"),
 	gu = require("./graphicsUtils"),
 	spawn = require('child_process').spawn,
 	exec = require('child_process').exec,
-	supportedAudioTypes = [ "audio/mpeg", "audio/mp4", "application/ogg", "audio/x-flac" ];
+	supportedAudioTypes = [ "audio/mpeg", "audio/mp4", "application/ogg", "audio/x-flac" ],
+    EventEmitter = require("events").EventEmitter,
+    songProcessor = require("./lib/song-processor");
 
 exports.api = function(app) {
 	app.get("/api/review/list", function(request, response) {
@@ -184,7 +186,23 @@ exports.api = function(app) {
       var songId = "aa"+d10.uid();
       var proxyRequestEvents = ["data", "end", "error", "close"];
       var proxyConnectionEvents = ["error"];
-
+      var emitter = new EventEmitter();
+      emitter.once("end",function(data) {
+        if ( data.status == "error" ) {
+          d10.realrest.err(data.code, data.data, request.ctx);
+        } else if ( data.status == "success" ) {
+          d10.realrest.success(data.data, request.ctx);
+        }
+        emitter.removeAllListeners();
+      });
+      songProcessor(
+        songId,
+        request.query.filename,
+        request.query.filesize,
+        request.ctx.user._id,
+        request,
+        emitter
+      );
 	});
 };
 
