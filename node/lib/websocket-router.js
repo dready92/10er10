@@ -24,8 +24,11 @@ router.prototype.route = function(line, socket) {
       response = response+"";
     }
     var line = protocol.formatMessage({type: message.type, payload: response});
-    socket.send(line, function() {});
-    return;
+    try {
+      socket.send(line, function() {});
+    } catch (e) {
+      debug("error while sending response");
+    }
   });
 
   if ( onClose ) {
