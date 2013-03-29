@@ -98,22 +98,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           },
           sha1Check: {
               status: null,
-              run: function(then) {
-                  if ( this.tasks.sha1File.err ) {
-                      return then(err);
-                  } else if ( !this.tasks.sha1File.response || !this.tasks.sha1File.response.length ) {
-                      return then("Sha1 not available");
-                  }
-                  d10.couch.d10.view("song/sha1",{key: this.tasks.sha1File.response}, function(err,resp) {
-                      if ( err ) {
-                          then(501);
-                      } else if (!resp.rows || resp.rows.length) {
-                          then(433);
-                      } else {
-                          then(null,null);
-                      }
-                  });
-              }
+              run: require("./song-processor/task-sha1-check")
           },
           cleanupTags: {
               status: null,
