@@ -106,40 +106,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           },
           moveAlternativeFile: {
             status: null,
-            run: function(then) {
-              
-              if ( !d10.config.audio.keepOriginalFile ) {
-                return then();
-              }
-              
-              var c = this.id[2],
-              filename = this.oggName,
-              tmpFile = d10.config.audio.tmpdir+"/"+this.fileName,
-              id = this.id,
-              fileType = this.tasks.fileType.response,
-              alternativeExtension = null;
-              debug(songId,"file type : ",fileType);
-              if ( fileType == "audio/mpeg" ) {
-                alternativeExtension = "mp3";
-              } else if ( fileType == "audio/mp4" ) {
-                alternativeExtension = "m4a";
-              }
-              if ( !alternativeExtension ) {
-                return then();
-              }
-              var targetFile = d10.config.audio.dir+"/"+id[2]+"/"+id+"."+alternativeExtension;
-              debug(songId,"moveAlternativeFile : ",tmpFile," -> ",targetFile);
-              fs.rename(
-                tmpFile,
-                targetFile,
-                function(err,resp) {
-                  if ( err ) {
-                    return then(err);
-                  }
-                  return then(null, {type: fileType, extension: alternativeExtension});
-                }
-              );
-            }
+            run: require("./song-processor/task-move-alternative-file")
           },
           moveFile: {
               status: null,

@@ -6,8 +6,9 @@ exports = module.exports = function fileTypeTask (then) {
     debug(this.id, "fileType task returns",  "audio/mpeg");
     return then(null,"audio/mpeg");
   }
+  var songId = this.id;
   d10.fileType(d10.config.audio.tmpdir+"/"+this.fileName, function(err,type) {
-    debug(this.id, "fileType task returns", type);
+    debug(songId, "fileType task returns", type);
     then(err,type);
   });
 };
