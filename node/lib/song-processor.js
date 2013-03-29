@@ -114,12 +114,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           },
           applyTagsToFile: {
               status: null,
-              run: function(then) {
-                  var c = this.id[2];
-                  audioUtils.setOggtags(d10.config.audio.dir+"/"+c+"/"+this.oggName,this.tasks.cleanupTags.response,function(err,cb) {
-                      then(err,cb);
-                  });
-              }
+              run: require("./song-processor/task-apply-tags-to-file")
           },
           createDocument: {
               status: null,
