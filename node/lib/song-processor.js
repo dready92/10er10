@@ -144,14 +144,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           },
           sha1File: {
               status: null,
-              run: function(then) {
-                  files.sha1_file(d10.config.audio.tmpdir+"/"+this.fileName, function(err,resp) {
-                      if ( !err ) {
-                          resp = resp.split(" ",2).shift();
-                      }
-                      then(err,resp);
-                  });
-              }
+              run: require("./song-processor/task-sha1-file")
           },
           sha1Check: {
               status: null,
