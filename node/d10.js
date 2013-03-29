@@ -1,6 +1,7 @@
 process.env.MAGIC = process.env.MAGIC || __dirname+"/magic/magic.mgc";
 
 var fs = require("fs"),
+    debug = require("debug"),
 	ncouch = require("./ncouch"),
 	files = require("./files"),
 	mmmagic = require("mmmagic"),
@@ -403,3 +404,18 @@ exports.saveUserPrivate = function(doc,deleteIt) {
 	}
 };
 
+exports.debug = function (identifier) {
+  var dbg = debug(identifier);
+  return function () {
+    var str = "";
+    for ( var i in arguments ) {
+      if(typeof arguments[i] === "object" ) {
+        str+=JSON.stringify(arguments[i]);
+      } else {
+        str+=arguments[i];
+      }
+      str += " ";
+    }
+    dbg(str);
+  };
+};
