@@ -8,21 +8,8 @@ var d10 = require ("../d10"),
     spawn = require('child_process').spawn,
     exec = require('child_process').exec,
     EventEmitter = require("events").EventEmitter,
-    dbg = require("debug")("d10:song-processor"),
+    debug = d10.debug("d10:song-processor"),
     supportedAudioTypes = [ "audio/mpeg", "audio/mp4", "application/ogg", "audio/x-flac" ];
-
-function debug() {
-  var str = "";
-  for ( var i in arguments ) {
-    if(typeof arguments[i] === "object" ) {
-      str+=JSON.stringify(arguments[i]);
-    } else {
-      str+=arguments[i];
-    }
-    str += " ";
-  }
-  dbg(str);
-};
 
 function processSong(songId, songFilename, songFilesize, userId, readableStream, emitter) {
   
@@ -75,8 +62,8 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
   var internalEmitter = new EventEmitter();
   var job = {
       id: songId,
+      songFilename: songFilename,
       fileName: songId+".mp3",
-      fileType: null,
       fileSha1: null,
       oggName: songId+".ogg",
       oggLength: null,
@@ -145,29 +132,11 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           },
           fileType: {
               status: null,
-              run: function(then) {
-                  if ( songFilename.match(/mp3$/i) ) {
-                      job.fileType = "audio/mpeg";
-                      debug(songId, "fileType task returns", job.fileType);
-                      return then(null,"audio/mpeg");
-                  }
-                  d10.fileType(d10.config.audio.tmpdir+"/"+this.fileName, function(err,type) {
-                          if ( !err ) {
-                              job.fileType = type;
-                          }
-                          debug(songId, "fileType task returns", job.fileType);
-                          then(err,type);
-                      }
-                  );
-              }
+              run: require("./song-processor/task-file-type")
           },
           fileMeta: {
               status: null,
-              run: function(then) {
-                  audioUtils.extractTags(d10.config.audio.tmpdir+"/"+this.fileName,function(err,cb) {
-                      then(err,cb);
-                  });
-              }
+              run: require("./song-processor/task-file-meta")
           },
           oggLength: {
               status: null,
@@ -358,7 +327,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
                   
                   var doc = {
                       _id: this.id,
-                      filename: songFilename,
+                      filename: this.songFilename,
                       sha1: sha1,
                       user: userId,
                       reviewed: false,
