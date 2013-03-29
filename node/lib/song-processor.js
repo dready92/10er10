@@ -110,50 +110,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           },
           moveFile: {
               status: null,
-              run: function(then) {
-                  var c = this.id[2],
-                      filename = this.oggName,
-                      tmpFile = d10.config.audio.tmpdir+"/"+this.fileName,
-                      id = this.id,
-                      sourceFile = d10.config.audio.tmpdir+"/";
-                      sourceFile+= (this.tasks.fileType.response == "application/ogg" ) ? this.fileName : this.oggName ;
-                  debug(songId,"moveFile : ",sourceFile," -> ",d10.config.audio.dir+"/"+c+"/"+filename);
-                  var moveFile = function() {
-                      fs.rename(
-                          sourceFile,
-                          d10.config.audio.dir+"/"+c+"/"+filename,
-                          function(err,resp) {
-                            if ( err ) {
-                              return then(err);
-                            }
-                            job.complete("moveAlternativeFile",function() {
-                              then(err,resp);
-                            });
-                            job.run("moveAlternativeFile");
-                          }
-                      );
-                      
-                  };
-                  
-                  fs.stat(d10.config.audio.dir+"/"+c,function(err,stat) {
-                      if ( err ) {
-                          debug(songId,"moveFile", err);
-                      }
-                      if ( err && err.errno != 2 && err.code != "ENOENT" ) { // err.code == ENOENT = no such file on node > 0.5.10
-                          then(err);
-                      } else if ( err ) {
-                          fs.mkdir(d10.config.audio.dir+"/"+c,0775, function(err,stat) {
-                              if ( err ) {
-                                  then(err);
-                              } else {
-                                  moveFile();
-                              }
-                          });
-                      } else {
-                          moveFile();
-                      }
-                  });
-              }
+              run: require("./song-processor/task-move-file")
           },
           applyTagsToFile: {
               status: null,
