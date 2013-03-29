@@ -19,8 +19,18 @@ router.prototype.route = function(line, socket) {
     debug("unknown protocol type "+message.type+" is ignored");
     return ;
   }
-  var onClose = this.types[message.type](message, function(response) {
-    if (response !== null && typeof response != "undefined" && typeof response != "string" ) {
+  var onClose = this.sendToProtocolHandler(message, socket);
+
+  if ( onClose ) {
+    socket.on('close', onClose);
+  }
+};
+
+router.prototype.sendToProtocolHandler = function(message, socket) {
+  return this.types[message.type](message, socket, function(response) {
+    if (response !== null 
+        && typeof response != "undefined" 
+        && typeof response != "string" ) {
       response = response+"";
     }
     var line = protocol.formatMessage({type: message.type, payload: response});
@@ -30,10 +40,6 @@ router.prototype.route = function(line, socket) {
       debug("error while sending response");
     }
   });
-
-  if ( onClose ) {
-    socket.on('close', onClose);
-  }
 };
 
 exports=module.exports = router;

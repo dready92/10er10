@@ -2,7 +2,7 @@ var debug = require("debug")("d10:websocket-protocol-wrest");
 var httpRequest = require("./websocket-request-mock");
 var httpResponse = require("./websocket-response-mock");
 
-function onMessage(message, callback) {
+function onMessage(message, socket, callback) {
   try {
     var query = JSON.parse(message.payload);
   } catch (e) {
