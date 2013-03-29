@@ -217,7 +217,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       }
   });
 
-  readableStream.on("uploadCompleteAndFileTypeAvailable", function() {
+  internalEmitter.on("uploadCompleteAndFileTypeAvailable", function() {
       if ( job.tasks.fileType.response == "audio/mp4" ) {
           var args = d10.config.cmds.faad_opts.join("\n").split("\n");
           args.push(d10.config.audio.tmpdir+"/"+job.fileName);
