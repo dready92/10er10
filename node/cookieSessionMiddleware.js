@@ -109,6 +109,21 @@ exports.cookieSession = function ( req,res,next) {
 	checkAuth(req.ctx,passTheCoochie);
 };
 
+exports.getUser = function(sessionId, then) {
+  for (var i in sessionCache ) {
+    if ( sessionCache[i].se && sessionCache[i].se._id == 'se'+sessionId ) {
+      return then ( null, sessionCache[cookieData.user].us._id );
+    }
+  }
+  
+  d10.couch.auth.getDoc("se"+sessionId, function(err,resp) {
+    if ( err ) {
+      return then(err,resp);
+    }
+    return then(null,"us"+resp.userid);
+  });
+  
+};
 
 // cache invalidation
 setInterval ( function() {sessionCache = {};},1000*60*30);
