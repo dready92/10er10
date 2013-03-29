@@ -61,6 +61,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       ; 
   var internalEmitter = new EventEmitter();
   var job = {
+      readableStream: readableStream,
       id: songId,
       songFilename: songFilename,
       fileName: songId+".mp3",
@@ -77,58 +78,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       tasks: {
           oggEncode: {
               status: null, // null (rien), true (running) or false (stopped)
-              run: function(then) {
-                  var oggWriterError=false;
-                  debug(songId,"-----------------------------------------------");
-                  debug(songId,"-------      Create OGG encoding        -------");
-                  debug(songId,"-----------------------------------------------");
-                  if ( !job.decoder ) {
-                      debug(songId,"error: job.decoder not set");
-                      then({message: "decoder not initialized"});
-                      return ;
-                  }
-                  var args = d10.config.cmds.oggenc_opts.slice();
-                  args.push(d10.config.audio.tmpdir+"/"+this.oggName,"-");
-
-                  job.oggWriter = spawn(d10.config.cmds.oggenc, args);
-                  job.oggWriter.on("exit",function(code) {
-                      debug(songId,"launching oggWriter end of operation callback");
-                      var error = oggWriterError ? true : null;
-                      if ( !error ) {
-                        erro = code ? code : null;
-                      }
-                      then(error,null);
-                  });
-                  job.decoder.on("exit",function() { debug("job.decoder exited"); });
-                  job.oggWriter.stdin.on("error",function(err) {debug(songId,"Oggwriter error",err);oggWriterError=true;});
-                  job.decoder.stdout.pipe(job.oggWriter.stdin);
-                  function writeBuffer() {
-                      if ( ! job.inputFileBuffer.buffer.length ) {
-                          if ( job.requestEnd ) {
-                              job.decoder.stdin.end();
-                          } else {
-                              debug(songId,"================= Decoder pumping from request ===============");
-                              readableStream.on("error",function(err) {debug(songId,"request error", err);});
-                              request.pipe(job.decoder.stdin);
-                              job.inputFileBuffer.status = false;
-                          }
-                          return ;
-                      }
-                      
-                      debug(songId,"Size: ",job.inputFileBuffer.buffer.length," bufferJoin: ",job.bufferJoin);
-                      var buffer = files.bufferSum(
-                          job.inputFileBuffer.buffer.splice(0, job.inputFileBuffer.buffer.length <= job.bufferJoin ? job.inputFileBuffer.buffer.length : job.bufferJoin)
-                      );
-                      var writeOk = job.decoder.stdin.write(buffer);
-                      if ( writeOk ) { writeBuffer(); } 
-                      else {
-                          job.decoder.stdin.once("drain",function() {writeBuffer();});
-                      }
-                  };
-                  if ( job.tasks.fileType.response != "audio/mp4" ) {// faad does not support stdin streaming
-                      writeBuffer();
-                  }
-              }
+              run: require("./song-processor/task-ogg-encode")
           },
           fileType: {
               status: null,
