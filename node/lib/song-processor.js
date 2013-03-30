@@ -28,6 +28,8 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
   var _sendErr = function(code, data) {
     emitter.emit("end",
                  {
+                   userId: userId,
+                   songId: songId,
                    status: "error",
                    code: code,
                    data: data
@@ -40,6 +42,8 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
     answered = true;
     emitter.emit("end",
                   {
+                    userId: userId,
+                    songId: songId,
                     status: "success",
                     data: data
                   }
