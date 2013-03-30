@@ -1,5 +1,5 @@
 var debug = require("debug")("d10:websocket-protocol-pevts");
-var emitter = require("./websocket-events");
+var emitter = require("./song-processor/song-processor-events");
 var sessionMiddleware = require("../cookieSessionMiddleware");
 var protocol = require("./websocket-protocol");
 
@@ -36,7 +36,7 @@ websocketProtocolPevts.prototype.handler = function() {};
 
 websocketProtocolPevts.prototype.listenServerEvents = function(socket, userId) {
   var events = {
-    "song-processor:progress": function(data) {
+    "progress": function(data) {
       if ( data.userId == userId ) {
         data.event = "song-processor:progress";
         sendProgressEvent(socket, data);
