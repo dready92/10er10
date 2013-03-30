@@ -41,6 +41,12 @@ websocketProtocolPevts.prototype.listenServerEvents = function(socket, userId) {
         data.event = "song-processor:progress";
         sendProgressEvent(socket, data);
       }
+    },
+    "end": function(data) {
+      if ( data.userId == userId ) {
+        data.event = "song-processor:end";
+        sendProgressEvent(socket, data);
+      }
     }
   };
   for (var i in events ) {
