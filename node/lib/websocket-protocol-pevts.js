@@ -22,9 +22,8 @@ function onMessage(message, socket, callback) {
       return ;
     }
     debug("userId = "+userId);
-    
+    this.listenServerEvents(socket, userId);
   });
-  
 };
 
 function websocketProtocolPevts (httpServer, d10Server) {
