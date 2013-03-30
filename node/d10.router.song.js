@@ -9,6 +9,7 @@ var d10 = require ("./d10"),
 	exec = require('child_process').exec,
 	supportedAudioTypes = [ "audio/mpeg", "audio/mp4", "application/ogg", "audio/x-flac" ],
     EventEmitter = require("events").EventEmitter,
+    songProcessorEmitter = require("./lib/song-processor/song-processor-events"),
     songProcessor = require("./lib/song-processor");
 
 exports.api = function(app) {
@@ -184,24 +185,27 @@ exports.api = function(app) {
 			return d10.realrest.err(427,"filename and filesize arguments required",request.ctx);
 		}
       var songId = "aa"+d10.uid();
+      var userId = request.ctx.user._id;
       var proxyRequestEvents = ["data", "end", "error", "close"];
       var proxyConnectionEvents = ["error"];
-      var emitter = new EventEmitter();
-      emitter.once("end",function(data) {
+      songProcessorEmitter.once("end",function(data) {
+        if ( data.userId != userId || data.songId != songId ) {
+          return;
+        }
         if ( data.status == "error" ) {
           d10.realrest.err(data.code, data.data, request.ctx);
         } else if ( data.status == "success" ) {
           d10.realrest.success(data.data, request.ctx);
         }
-        emitter.removeAllListeners();
+        songProcessorEmitter.removeAllListeners();
       });
       songProcessor(
         songId,
         request.query.filename,
         request.query.filesize,
-        request.ctx.user._id,
+        userId,
         request,
-        emitter
+        songProcessorEmitter
       );
 	});
 };
