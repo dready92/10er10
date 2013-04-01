@@ -112,7 +112,7 @@ exports.cookieSession = function ( req,res,next) {
 exports.getUser = function(sessionId, then) {
   for (var i in sessionCache ) {
     if ( sessionCache[i].se && sessionCache[i].se._id == 'se'+sessionId ) {
-      return then ( null, sessionCache[cookieData.user].us._id );
+      return then ( null, sessionCache[i].us._id );
     }
   }
   

@@ -10,6 +10,7 @@ function onMessage(message, socket, callback) {
     var query = JSON.parse(message.payload);
   } catch (e) {
     debug("Badly formatted JSON payload");
+    console.log(message);
     return ;
   }
   if ( !query.session ) {
@@ -23,7 +24,7 @@ function onMessage(message, socket, callback) {
     }
     debug("userId = "+userId);
     this.listenServerEvents(socket, userId);
-  });
+  }.bind(this));
 };
 
 function websocketProtocolPevts (httpServer, d10Server) {
@@ -36,6 +37,7 @@ websocketProtocolPevts.prototype.handler = function() {};
 websocketProtocolPevts.prototype.listenServerEvents = function(socket, userId) {
   var events = {
     "progress": function(data) {
+      debug("received data: ",data);
       if ( data.userId == userId ) {
         data.event = "song-processor:progress";
         sendProgressEvent(socket, data);

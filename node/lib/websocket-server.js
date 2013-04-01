@@ -22,12 +22,19 @@ websocketServer.prototype.createRouter = function() {
 
 websocketServer.prototype.registerProtocols = function(httpServer, d10Server) {
   this.registerWrestProtocol(httpServer, d10Server);
+  this.registerPevtsProtocol(httpServer, d10Server);
 };
 
 websocketServer.prototype.registerWrestProtocol = function(httpServer, d10Server) {
   var wrestProtocol = require("./websocket-protocol-wrest");
   var wrestProtocolInstance = new wrestProtocol(httpServer, d10Server);
   this.router.addType(wrestProtocolInstance.name, wrestProtocolInstance.handler);
+};
+
+websocketServer.prototype.registerPevtsProtocol = function(httpServer, d10Server) {
+  var pevtsProtocol = require("./websocket-protocol-pevts");
+  var pevtsProtocolInstance = new pevtsProtocol(httpServer, d10Server);
+  this.router.addType(pevtsProtocolInstance.name, pevtsProtocolInstance.handler);
 };
 
 websocketServer.prototype.bindWebSocketListeners = function(ws, sockets) {
