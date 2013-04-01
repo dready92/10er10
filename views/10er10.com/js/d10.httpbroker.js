@@ -153,7 +153,7 @@ define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket",
         };
 		
 		this.run  = function ( options, fipo ) {
-          if ( options.ws && this.sendViaWebSocket(options) ) {
+          if ( options && options.ws && this.sendViaWebSocket(options) ) {
             return ;
           }
 			if ( typeof options == 'object' ) {
