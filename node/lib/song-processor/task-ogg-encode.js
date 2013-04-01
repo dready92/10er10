@@ -6,6 +6,7 @@ var d10 = require ("../../d10"),
 exports = module.exports = function oggEncodeTask(then) {
   var job = this;
   var oggWriterError=false;
+  var bytesEncodedCount = 0;
   debug(job.id,"-----------------------------------------------");
   debug(job.id,"-------      Create OGG encoding        -------");
   debug(job.id,"-----------------------------------------------");
@@ -37,6 +38,16 @@ exports = module.exports = function oggEncodeTask(then) {
     writeBuffer();
   }
   
+  function sendProgressEvent() {
+    debug("Encoded: ",bytesEncodedCount," out of ",job.songFilesize);
+    job.emitter.emit("progress",{
+      userId: job.userId,
+      songId: job.id,
+      total: job.songFilesize,
+      complete: bytesEncodedCount
+    });
+  };
+  
   function writeBuffer() {
     if ( ! job.inputFileBuffer.buffer.length ) {
       if ( job.requestEnd ) {
@@ -49,15 +60,22 @@ exports = module.exports = function oggEncodeTask(then) {
       }
       return ;
     }
-    
+        
     debug(job.id,"Size: ",job.inputFileBuffer.buffer.length," bufferJoin: ",job.bufferJoin);
     var buffer = files.bufferSum(
       job.inputFileBuffer.buffer.splice(0, job.inputFileBuffer.buffer.length <= job.bufferJoin ? job.inputFileBuffer.buffer.length : job.bufferJoin)
     );
+    bytesEncodedCount+=buffer.length;
     var writeOk = job.decoder.stdin.write(buffer);
-    if ( writeOk ) { writeBuffer(); } 
+    if ( writeOk ) { 
+      writeBuffer(); 
+      sendProgressEvent();
+    } 
     else {
-      job.decoder.stdin.once("drain",function() {writeBuffer();});
+      job.decoder.stdin.once("drain",function() {
+        writeBuffer();
+        sendProgressEvent();
+      });
     }
   };
 
