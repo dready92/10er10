@@ -188,17 +188,20 @@ exports.api = function(app) {
       var userId = request.ctx.user._id;
       var proxyRequestEvents = ["data", "end", "error", "close"];
       var proxyConnectionEvents = ["error"];
-      songProcessorEmitter.once("end",function(data) {
+      var onend = function(data) {
         if ( data.userId != userId || data.songId != songId ) {
           return;
         }
+        songProcessorEmitter.removeListener("end",onend);
         if ( data.status == "error" ) {
           d10.realrest.err(data.code, data.data, request.ctx);
         } else if ( data.status == "success" ) {
           d10.realrest.success(data.data, request.ctx);
         }
         songProcessorEmitter.removeAllListeners();
-      });
+      };
+      
+      songProcessorEmitter.on("end",onend);
       songProcessor(
         songId,
         request.query.filename,
