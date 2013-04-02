@@ -184,6 +184,10 @@ exports.api = function(app) {
 			|| !request.query.filesize || !request.query.filesize.length ) {
 			return d10.realrest.err(427,"filename and filesize arguments required",request.ctx);
 		}
+      var bgencoding = false;
+      if ( request.query.bgencoding ) {
+        bgencoding = true;
+      }
       var songId = "aa"+d10.uid();
       var userId = request.ctx.user._id;
       var proxyRequestEvents = ["data", "end", "error", "close"];
@@ -198,18 +202,26 @@ exports.api = function(app) {
         } else if ( data.status == "success" ) {
           d10.realrest.success(data.data, request.ctx);
         }
-        songProcessorEmitter.removeAllListeners();
       };
-      
-      songProcessorEmitter.on("end",onend);
-      songProcessor(
-        songId,
-        request.query.filename,
-        request.query.filesize,
-        userId,
-        request,
-        songProcessorEmitter
-      );
+      var onuploadend = function(data) {
+        if ( data.userId != userId || data.songId != songId ) {
+          return;
+        }
+        songProcessorEmitter.removeListener("uploadEnd",onuploadend);
+        d10.realrest.success({id: songId}, request.ctx);
+      };
+      if ( bgencoding ) {
+      } else {
+        songProcessorEmitter.on("end",onend);
+        songProcessor(
+          songId,
+          request.query.filename,
+          request.query.filesize,
+          userId,
+          request,
+          songProcessorEmitter
+        );
+      }
 	});
 };
 
