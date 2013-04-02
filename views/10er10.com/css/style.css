@@ -530,7 +530,8 @@ article.review .form_error {
     color: #BF9730;
 }
 
-#main .song > span.artist > span.secondaryArtist:not(:last-child):after {
+#main .song > span.artist > span.secondaryArtist:not(:last-child):after,
+#playlist .song > span.artist > span.secondaryArtist:not(:last-child):after{
   content: ", ";
 }
 

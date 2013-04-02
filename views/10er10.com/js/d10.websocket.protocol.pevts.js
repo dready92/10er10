@@ -1,5 +1,8 @@
-define(["js/config"], function(config) {
+define(["js/config", "js/d10.events"], function(config, pubsub) {
   var name = "pevts";
+  
+  var songProcessorRegexp = /^song-processor:/;
+  var songProcessorTopic = pubsub.topic("song-processor");
   
   function onmessage (wsMessage) {
     try {
@@ -9,6 +12,12 @@ define(["js/config"], function(config) {
       return ;
     }
     debug(data);
+    if ( !("event" in data) ) {
+      debug("Bad pevts message ignored: no event attribute");
+    }
+    if ( songProcessorRegexp.test(data.event) ) {
+      songProcessorTopic.publish(data);
+    }
   };
   
   function prepare(options) {

@@ -1,4 +1,5 @@
-define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest"], function(foo, tpl, router, rest) {
+define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", "js/d10.events"], 
+       function(foo, tpl, router, rest, pubsub) {
 
 	function uploadCtrl (ui) {
 		var that = this;
@@ -10,6 +11,7 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest"], func
 		var uploader = new uploadManager();
 		var uploadCandidates = [];
 		var intervalID = null;
+        var songProcessorTopic = pubsub.topic("song-processor");
 		//   ui.prepend($dropbox);
 		//   $('#main').append(ui);
 		
@@ -139,7 +141,7 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest"], func
 				$("span.progress",widget).show();
 			
 				rest.song.upload(file, file.name, file.size, {
-					progress: function(e) { 
+					progress: function(e) {
 				// 		  debug("progress",e);
 						if (e.lengthComputable) {
 							var percentage = Math.round((e.loaded * 100) / e.total);
@@ -169,23 +171,11 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest"], func
 							back = {'status': 'error'};
 						}
 						$("button.close",widget).show();
-						if ( code == 200 ) {
-							$("div.controls span.status",widget).html(tpl.mustacheView("upload.song.success"));
-							$("button.review",widget).click(function() {
-								var route = ["my", "review", back._id];
-								router.navigateTo( route );
-							}).show();
-
-						} else if ( code == 433 ) {
-							$("div.controls span.progress",widget).hide();
-							$("div.controls span.status",widget).html(tpl.mustacheView("upload.song.alreadyindb"));
-						} else {
-							if ( body.message ) {
-								$("div.controls span.progress",widget).hide();
-								$("div.controls span.status",widget).html(body.message);
-							} else {
-								$("div.controls span.status",widget).html(tpl.mustacheView("upload.song.serverError"));
-							}
+						if ( code == 200 &&
+                            back.status && back.status == "uploadEnd" ) {
+                          songUploadEnd(widget, back);
+                        } else {
+                          songEncodingEnd(widget, code, back);
 						}
 					},
 					error: function() {
@@ -194,9 +184,36 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest"], func
 						$("div.controls span.status",widget).html(tpl.mustacheView("upload.song.serverError"));
 					}
 				}, function(){}); 
-				$("div.controls span.status",widget).html(tpl.mustacheView("upload.song.uploading"));
-				}
+                $("div.controls span.status",widget).html(tpl.mustacheView("upload.song.uploading"));
+                
+                
+            }
 		}
+		
+        function songEncodingEnd(widget, code, response) {
+          widget.find("div.controls span.progress").hide();
+          if ( code == 200 ) {
+            widget.find("div.controls span.status").html(tpl.mustacheView("upload.song.success"));
+            widget.find("button.review").click(function() {
+                var route = ["my", "review", response._id];
+                router.navigateTo( route );
+            }).show();
+          } else if ( code == 433 ) {
+            widget.find("div.controls span.status").html(tpl.mustacheView("upload.song.alreadyindb"));
+          } else {
+            if ( response.message ) {
+              widget.find("div.controls span.status").html(response.message);
+            } else {
+              widget.find("div.controls span.status").html(tpl.mustacheView("upload.song.serverError"));
+            }
+          }
+        };
+        
+        function songUploadEnd(widget, response) {
+          widget.attr("name",response.id);
+          widget.find("div.controls span.progress").empty().show();
+          widget.find("div.controls span.status").html("Encoding... ");
+        };
 
 		function launchVideo () {
 			var container = $("div.center",ui).last();
@@ -229,6 +246,25 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest"], func
 			$("div.control",container).show();
 			$("div.video",container).hide().find("video").remove();
 		};
+        songProcessorTopic.subscribe("song-processor",function(message) {
+          if ( !("songId" in message) ) {
+            debug("no songId in message",message);
+            return ;
+          }
+          var widget = ui.find(".fileWidget[name="+message.songId+"]");
+          if ( ! widget.length ) {
+            debug("songId widget not found",message.songId);
+            return ;
+          }
+          if ( message.event == "song-processor:progress" ) {
+            var pct = parseInt( 100/message.total*message.complete, 10);
+            widget.find("div.controls span.progress").html(pct+'%');
+            return ;
+          }
+          if ( message.event == "song-processor:end" ) {
+            songEncodingEnd(widget, message.code, message.data);
+          }
+        });
 	};
 
 	var uploadRouteHandler = function() { this._activate("main","upload",this.switchMainContainer); };
