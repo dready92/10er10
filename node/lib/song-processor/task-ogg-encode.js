@@ -23,7 +23,7 @@ exports = module.exports = function oggEncodeTask(then) {
     debug(job.id,"launching oggWriter end of operation callback");
     var error = oggWriterError ? true : null;
     if ( !error ) {
-      erro = code ? code : null;
+      error = code ? code : null;
     }
     then(error,null);
   });
