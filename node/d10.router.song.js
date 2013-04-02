@@ -208,7 +208,7 @@ exports.api = function(app) {
           return;
         }
         songProcessorEmitter.removeListener("uploadEnd",onuploadend);
-        d10.realrest.success({id: songId}, request.ctx);
+        d10.realrest.success({id: songId, status: "uploadEnd"}, request.ctx);
       };
       
       if ( bgencoding ) {
@@ -220,7 +220,7 @@ exports.api = function(app) {
       songProcessor(
         songId,
         request.query.filename,
-        request.query.filesize,
+        parseInt(request.query.filesize,10),
         userId,
         request,
         songProcessorEmitter
