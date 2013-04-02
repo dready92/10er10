@@ -369,6 +369,12 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           } else {
               job.fileWriter.close();
           }
+          emitter.emit("uploadEnd",
+                {
+                  userId: userId,
+                  songId: songId
+                }
+          );
       } else {
         safeErrResp(400, "Nothing sent");
       }
