@@ -210,18 +210,22 @@ exports.api = function(app) {
         songProcessorEmitter.removeListener("uploadEnd",onuploadend);
         d10.realrest.success({id: songId}, request.ctx);
       };
+      
       if ( bgencoding ) {
+        songProcessorEmitter.on("uploadEnd",onuploadend);
       } else {
         songProcessorEmitter.on("end",onend);
-        songProcessor(
-          songId,
-          request.query.filename,
-          request.query.filesize,
-          userId,
-          request,
-          songProcessorEmitter
-        );
       }
+      
+      songProcessor(
+        songId,
+        request.query.filename,
+        request.query.filesize,
+        userId,
+        request,
+        songProcessorEmitter
+      );
+
 	});
 };
 
