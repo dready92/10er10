@@ -45,7 +45,8 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
                     userId: userId,
                     songId: songId,
                     status: "success",
-                    data: data
+                    data: data,
+                    code: 200
                   }
             );
   };
