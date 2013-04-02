@@ -37,7 +37,6 @@ websocketProtocolPevts.prototype.handler = function() {};
 websocketProtocolPevts.prototype.listenServerEvents = function(socket, userId) {
   var events = {
     "progress": function(data) {
-      debug("received data: ",data);
       if ( data.userId == userId ) {
         data.event = "song-processor:progress";
         sendProgressEvent(socket, data);
@@ -46,6 +45,12 @@ websocketProtocolPevts.prototype.listenServerEvents = function(socket, userId) {
     "end": function(data) {
       if ( data.userId == userId ) {
         data.event = "song-processor:end";
+        sendProgressEvent(socket, data);
+      }
+    },
+    "uploadEnd": function(data) {
+      if ( data.userId == userId ) {
+        data.event = "song-processor:uploadEnd";
         sendProgressEvent(socket, data);
       }
     }
