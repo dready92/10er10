@@ -1,77 +1,98 @@
 define(["js/domReady","js/d10.playlistModule", "js/playlist"], 
 	   function(foo, playlistModule, playlist) {
 
-	
+    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ;
+    var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame ;
+    var animationFrameId = null;
+    var push = 0;
+    var lastPaint = 0;
+    var currentDataCounter = 0;
+    var onAnimationFrame = function() {
+      animationFrameId = requestAnimationFrame(onAnimationFrame);
+      if ( !fft || !fft.fft ) {
+        debug("fft or fft.fft is not defined",fft);
+        return ;
+      }
+      if ( !fft.fb ) {
+        debug("ftt.fb is not defined");
+        return ;
+      }
+      
+      if ( currentDataCounter == lastPaint ) {
+        return ;
+      }
+      
+      if ( push ) {
+        push--;
+        return ;
+      }
+      push=5;
+      lastPaint = currentDataCounter;
+      var signal = new Float32Array(fft.fb.length / fft.channels);
+      var magnitude, lastMagnitude;
+      for (var i = 0, fbl = fft.frameBufferLength / 16; i < fbl; i++ ) {
+        // Assuming interlaced stereo channels,
+        // need to split and merge into a stero-mix mono signal
+        signal[i] = (fft.fb[2*i] + fft.fb[2*i+1]) / 2;
+      }
+
+      fft.fft.forward(signal);
+      // Clear the canvas before drawing spectrum
+      var ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0, canvas.width, canvas.height);
+      var baseColor = [70,103,155];
+      var widthLimit = canvas.width / 2;
+      for (var  i = 0; i < widthLimit; i++ ) {
+        // multiply spectrum by a zoom value
+        magnitude = fft.fft.spectrum[i] * 4000;
+        ctx.fillStyle = 'rgb('+ baseColor.join(",")+')';
+        baseColor[0] += 1;
+        baseColor[1] += 1;
+        baseColor[2] -= 1;
+        var i2 = i*2;
+        // Draw rectangle bars for each frequency bin
+        ctx.fillRect(i2, canvas.height, 1, -magnitude);
+        if ( i > 0 ) {
+          ctx.fillRect(i2-1, canvas.height, 1, -(lastMagnitude + magnitude)/2);
+        }
+        lastMagnitude = magnitude;
+      }
+    };
+    
 	var ffSpectrum = function(audio,canvas) {
-		var fft,
-			ctx = canvas.getContext('2d'),
-			widthLimit = canvas.width / 2,
-			channels,
-			rate,
-			frameBufferLength;
+		var fft, rate;
+        currentDataCounter = 0;
+        var api = {
+          removeListeners: function() {
+            audio.removeEventListener('MozAudioAvailable', audioAvailable, false);
+            audio.removeEventListener('loadedmetadata', loadedMetadata, false);
+          },
+          fft: null,
+          channels: null,
+          frameBufferLength: null,
+          fb: null
+        };
 	// 	ctx.fillStyle = '#9A9A9A';
 	// 	ctx.fillStyle = '#466777';
 		function loadedMetadata() {
-			channels          = audio.mozChannels;
+			api.channels          = audio.mozChannels;
 			rate              = audio.mozSampleRate;
-			frameBufferLength = audio.mozFrameBufferLength;
-			fft = new FFT(frameBufferLength / channels, rate);
+			api.frameBufferLength = audio.mozFrameBufferLength;
+			api.fft = new FFT(api.frameBufferLength / api.channels, rate);
 		}
 
-		var push = 0;
-
 		function audioAvailable(event) {
-			if ( !channels ) {
-	// 			debug("loading metadata");
+			if ( !api.channels ) {
 				loadedMetadata();
 				return ;
 			}
-			if ( push ) {
-				push -= 1;
-				return ;
-			}
-			push = 3;
-
-			var fb = event.frameBuffer,
-				//t  = event.time, /* unused, but it's there */
-				signal = new Float32Array(fb.length / channels),
-				magnitude, lastMagnitude;
-			for (var i = 0, fbl = frameBufferLength / 16; i < fbl; i++ ) {
-				// Assuming interlaced stereo channels,
-				// need to split and merge into a stero-mix mono signal
-				signal[i] = (fb[2*i] + fb[2*i+1]) / 2;
-			}
-
-			fft.forward(signal);
-			// Clear the canvas before drawing spectrum
-			ctx.clearRect(0,0, canvas.width, canvas.height);
-			var baseColor = [70,103,155];
-			for (var  i = 0; i < widthLimit; i++ ) {
-				// multiply spectrum by a zoom value
-				magnitude = fft.spectrum[i] * 4000;
-				ctx.fillStyle = 'rgb('+ baseColor.join(",")+')';
-				baseColor[0] += 1;
-				baseColor[1] += 1;
-				baseColor[2] -= 1;
-				var i2 = i*2;
-				// Draw rectangle bars for each frequency bin
-				ctx.fillRect(i2, canvas.height, 1, -magnitude);
-				if ( i > 0 ) {
-					ctx.fillRect(i2-1, canvas.height, 1, -(lastMagnitude + magnitude)/2);
-				}
-				lastMagnitude = magnitude;
-			}
+            currentDataCounter++;
+			api.fb = event.frameBuffer;
 		}
 
-	// 	var audio = document.getElementById('audio-element');
 		audio.addEventListener('MozAudioAvailable', audioAvailable, false);
 		audio.addEventListener('loadedmetadata', loadedMetadata, false);
-		return {
-			removeListeners: function() {
-				audio.removeEventListener('MozAudioAvailable', audioAvailable, false);
-				audio.removeEventListener('loadedmetadata', loadedMetadata, false);
-			}
-		};
+		return api;
 	};
 
 	// FFT from dsp.js, see below
@@ -192,6 +213,10 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"],
 		return ;
 	}
 	
+	if ( !requestAnimationFrame ) {
+      return ;
+    }
+	
 	$("#controls div[data-target=spectrumOption]").removeClass("hidden");
 	
 	$("#side div.spectrumOption").find("div.link").bind("click",function() {
@@ -209,10 +234,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"],
 			}catch(e) {debug("unable to get current song",e);}
 		} else {
 			enabled = false;
-			if ( fft ) {
-				fft.removeListeners();
-				fft = null;
-			}
+            clearFFT();
 			that.siblings(".off").slideDown("fast");
 			that.slideUp("fast");
 			$("#side div.spectrum").slideUp("fast");
@@ -225,13 +247,23 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"],
 	var fft = null;
 	
 	var newFFT = function(audio) {
-		if ( fft ) {
-			fft.removeListeners();
-			fft = null;
-		}
+		clearFFT();
 		fft = new ffSpectrum(audio, canvas);
+        animationFrameId = requestAnimationFrame(onAnimationFrame);
 	};
 	
+    var clearFFT = function() {
+      if ( fft ) {
+        fft.removeListeners();
+        fft = null;
+      }
+      if ( animationFrameId ) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      var ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0, canvas.width, canvas.height);
+    };
 	
 	var module = new playlistModule("spectrum",{
 		"playlist:currentSongChanged": function() {
@@ -239,8 +271,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"],
 			newFFT(playlist.driver().current().audio);
 		},
 		"playlist:ended": function() {
-			fft && fft.removeListeners();
-			fft = null;
+			clearFFT();
 		}
 	},{});
 
