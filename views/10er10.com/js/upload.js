@@ -163,7 +163,6 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", "js/d
 						} catch (e) {
 							back = {'status': 'error'};
 						}
-						$("button.close",widget).show();
 						if ( code == 200 &&
                             back.status && back.status == "uploadEnd" ) {
                           songUploadEnd(widget, back);
@@ -185,6 +184,7 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", "js/d
 		
         function songEncodingEnd(widget, code, response) {
           widget.data("status",2);
+          widget.find("button.close").show();
           widget.find("div.controls span.progress").hide();
           if ( code == 200 ) {
             widget.find("div.controls span.status").html(tpl.mustacheView("upload.song.success"));
