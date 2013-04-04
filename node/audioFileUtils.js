@@ -1,6 +1,7 @@
 var d10 = require("./d10"),
 	exec = require('child_process').exec,
 	fs = require("fs"),
+	debug = d10.debug("d10:audioFileUtils"),
 	musicmetadata = require("musicmetadata");
 
 exports.oggLength = function(file,cb) {
@@ -28,21 +29,21 @@ exports.extractTags = function(file,cb) {
 	var back = { ALBUM: "", ARTIST: "", TRACKNUMBER: "", TITLE: "", GENRE: "", DATE: "", PICTURES: [] };
 	var cbCalled = false;
 	stream.on("end",function() {
-		console.log("["+file+"] debug id3tags : end of stream ");
+		debug("["+file+"] debug id3tags : end of stream ");
 		if ( !cbCalled ) {
 			return cb(null,back);
 		}
 	});
 	var parser = new musicmetadata(stream);
 	parser.on('metadata', function(result) {
-		console.log("["+file+"] debug id3tags: ");
+		debug("["+file+"] debug id3tags: ");
 		for ( var i in result ) {
 			if ( i != "picture" ) {
-				console.log(i,result[i]);
+				debug(i,result[i]);
 			}
 		}
 		if ( result.picture && Array.isArray(result.picture) && result.picture.length ) {
-			console.log("this song got picture");
+			debug("this song got picture");
 		}
 		
 		if ( result.artist && Array.isArray(result.artist) && result.artist.length ) {
@@ -70,9 +71,9 @@ exports.extractTags = function(file,cb) {
 		return cb(null,back);
 	});
 	parser.on('done', function(err) {
-		console.log("["+file+"] debug id3tags done: ",err);
+		debug("["+file+"] debug id3tags done: ",err);
 		if (err) {
-			console.log("Got error decoding metadata: ",err);
+			debug("Got error decoding metadata: ",err);
 			cbCalled = true;
 			cb(err);
 		}
