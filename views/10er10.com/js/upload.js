@@ -142,19 +142,13 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", "js/d
 			
 				rest.song.upload(file, file.name, file.size, {
 					progress: function(e) {
-				// 		  debug("progress",e);
 						if (e.lengthComputable) {
 							var percentage = Math.round((e.loaded * 100) / e.total);
-			// 				if ( percentage < 99 ) {
 							$("div.controls span.progress",widget).html(percentage+'%');
 							if ( percentage == 100 ) {
 								$("div.controls span.progress",widget).hide();
 								$("div.controls span.status",widget).html(waitText);
 							}
-			// 				} else {
-			// 					$("div.controls span.progress",widget).hide();
-			// 					$("div.controls span.status",widget).html(waitText);
-			// 				}
 						}  
 					},
 					end: function(e) {  
