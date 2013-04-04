@@ -4,16 +4,12 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", "js/d
 	function uploadCtrl (ui) {
 		var that = this;
 		
-		// load template
-		//   var ui=$('#upload');
 		var $dropbox = $('div.uploadDropBox',ui);
 		var audioTypes = ["audio/mp3","audio/ogg","video/ogg","audio/mpeg", "audio/x-flac","audio/flac", "audio/x-m4a"];
 		var uploader = new uploadManager();
 		var uploadCandidates = [];
 		var intervalID = null;
         var songProcessorTopic = pubsub.topic("song-processor");
-		//   ui.prepend($dropbox);
-		//   $('#main').append(ui);
 		
 		$("div.filesQueue",ui).delegate("button.close","click",function() {
 			$(this).closest("div.fileWidget").remove();
@@ -82,8 +78,6 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", "js/d
 					return false;
 				});
 			widget.data('file',file);
-			//debug("file type: ",file.type);
-			//debug("file",file);
 			var typeOK = false;
 			for ( var index in audioTypes ) {
 				if ( audioTypes[index] == file.type ) {
