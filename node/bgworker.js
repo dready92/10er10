@@ -3,6 +3,7 @@ var config,
 	d10 = null,
 	messageQueue = [],
 	working = false,
+    debug = function() {console.log.apply(console, arguments);},
 	jobs = {};
 
 	jobs.updateSongsHits = require(__dirname+"/jobs/updateSongsHits");
@@ -36,7 +37,6 @@ var consumeQueue = function() {
 		//we search the message telling us the configuration we are in
 		for ( var i in messageQueue ) {
 			if ( messageQueue[i].type == "configuration" ) {
-				console.log("background worker: configuration",messageQueue[i]);
 				// cool we can configure in production or development mode
 				if ( messageQueue[i].production ) {
 					configParser.switchProd();
@@ -44,6 +44,7 @@ var consumeQueue = function() {
 					configParser.switchDev();
 				}
 				d10 = require(__dirname+"/d10");
+                debug = d10.debug("d10:bgworker");
 				d10.setConfig(config);
 				messageQueue.splice(i,1);
                 enableReccurrentJobs();
