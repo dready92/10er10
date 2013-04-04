@@ -163,7 +163,6 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", "js/d
 						$("div.controls span.status",widget).html(waitText);
 					},
 					load: function(code,headers,body) {
-						widget.data("status",2);
 						var back = null;
 						try {
 							back = JSON.parse(body);
@@ -191,6 +190,7 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", "js/d
 		}
 		
         function songEncodingEnd(widget, code, response) {
+          widget.data("status",2);
           widget.find("div.controls span.progress").hide();
           if ( code == 200 ) {
             widget.find("div.controls span.status").html(tpl.mustacheView("upload.song.success"));
