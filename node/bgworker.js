@@ -9,7 +9,6 @@ var config,
 	jobs.updateSongsHits = require(__dirname+"/jobs/updateSongsHits");
 	jobs.updateAlbumHits = require(__dirname+"/jobs/updateAlbumHits");
 	jobs.updateArtistHits = require(__dirname+"/jobs/updateArtistHits");
-	console.log(jobs);
 
 configParser.getConfig(function(foo,cfg) {
 	config = cfg;
@@ -60,15 +59,15 @@ var consumeQueue = function() {
 	var next = function(err) {
 		working = false;
         if ( err ) {
-            console.log("background worker: got an error on previous job: ",err);
+            debug("got an error on previous job: ",err);
         }
 		if ( messageQueue.length ) {
 			var job = messageQueue.splice(0,1)[0];
 			if ( ! job.type in jobs ) {
-				console.log("background worker: unknown job ",job);
+				debug("unknown job ",job);
 				return next();
 			}
-			console.log("background worker: launching ",job);
+			debug("launching ",job);
 			working = true;
 			jobs[job.type](next);
 		}

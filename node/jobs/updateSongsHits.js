@@ -1,4 +1,5 @@
 var d10 = require("../d10");
+var debug = d10.debug("d10:updateSongsHits");
 
 
 var getSongs = function(data, then) {
@@ -50,7 +51,7 @@ var processAndRecordDocs = function(data, then) {
 	}
 	d10.couch.d10.storeDocs(docs,function(err,resp) {
 		if ( err ) { return then(err) }
-        console.log("updateSongsHits: updated "+docs.length+" doc(s)");
+        debug("updated "+docs.length+" doc(s)");
 		return then();
 	});
 };
@@ -58,12 +59,12 @@ var processAndRecordDocs = function(data, then) {
 var pump = function(data, callback) {
 	getSongs(data,function(err,docs,nextData) {
 		if ( err ) {
-			console.log("updateSongsHits: error: ",err);
+			debug("error: ",err);
 			return callback(err);
 		}
 		processAndRecordDocs(docs,function(err) {
 			if ( err ) {
-				console.log("updateSongsHits: error: ",err);
+				debug("error: ",err);
 				return callback(err);
 			}
 			if ( nextData ) {

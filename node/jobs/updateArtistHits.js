@@ -1,4 +1,5 @@
 var d10 = require("../d10");
+var debug = d10.debug("d10:updateArtistHits");
 var tokenizer = require("../artistToken").tokenize;
 
 var getSongs = function(data, then) {
@@ -30,7 +31,7 @@ var pump = function(data, callback) {
 	
 	var processSongs = function(err,rows,nextData) {
 		if ( err ) {
-			console.log("updateArtistHits: error: ",err);
+			debug("error: ",err);
 			return callback(err);
 		}
 		
@@ -41,7 +42,7 @@ var pump = function(data, callback) {
 			var artists = tokenizer(row.doc).artists;
 			artists.forEach(function(artist) {
 				if ( !  (row.doc.genre in artistDoc.artistsGenres) ) {
-					console.log("creating genre ",row.doc.genre);
+					debug("creating genre ",row.doc.genre);
 					artistDoc.artistsGenres[row.doc.genre] = {};
 				}
 				if ( artist in artistDoc.artistsGenres[row.doc.genre] ) {
@@ -51,15 +52,15 @@ var pump = function(data, callback) {
 				}
 			});
 		});
-		console.log("parsed ",rows.length, "nextData: ",nextData);
+		debug("parsed ",rows.length, "nextData: ",nextData);
 		
 		if ( nextData ) {
 			return getSongs(nextData,processSongs);
 		}
 		
-		console.dir(artistDoc);
+		debug(artistDoc);
 		d10.couch.d10.overwriteDoc(artistDoc, function(err,resp) {
-			if ( err ) 	console.log(err);
+			if ( err ) 	debug(err);
 			callback();
 		});
 	};

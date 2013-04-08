@@ -1,5 +1,6 @@
 var d10 = require("./d10"),
-	utils = require("connect").utils;
+  debug = d10.debug("d10:cookieSessionMiddleware"),
+  utils = require("connect").utils;
 
 	/*
 	 * {
@@ -55,7 +56,7 @@ var checkAuth = function (ctx,passTheCoochie) {
 			try {
 				cookieData = JSON.parse(unescape(cookies[d10.config.cookieName]));
 			} catch (e) { 
-				d10.log("cookie read failed", unescape(cookies[d10.config.cookieName])); 
+				debug("cookie read failed", unescape(cookies[d10.config.cookieName])); 
 				return passTheCoochie(); 
 				
 			};

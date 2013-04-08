@@ -1,4 +1,5 @@
 var d10 = require("../d10");
+var debug= d10.debug("d10:updateAlbumHits");
 
 var getSongs = function(data, then) {
 	var rpp = 100;
@@ -29,7 +30,7 @@ var pump = function(data, callback) {
 	
 	var processSongs = function(err,rows,nextData) {
 		if ( err ) {
-			console.log("updateArtistHits: error: ",err);
+			debug("error: ",err);
 			return callback(err);
 		}
 		
@@ -38,7 +39,7 @@ var pump = function(data, callback) {
 				return;
 			}
 			if ( !  (row.doc.genre in albumDoc.albumsGenres) ) {
-				console.log("creating genre ",row.doc.genre);
+				debug("creating genre ",row.doc.genre);
 				albumDoc.albumsGenres[row.doc.genre] = {};
 			}
 			if ( row.doc.album in albumDoc.albumsGenres[row.doc.genre] ) {
@@ -47,15 +48,15 @@ var pump = function(data, callback) {
 				albumDoc.albumsGenres[row.doc.genre][row.doc.album]=row.doc.hits;
 			}
 		});
-		console.log("parsed ",rows.length, "nextData: ",nextData);
+		debug("parsed ",rows.length, "nextData: ",nextData);
 		
 		if ( nextData ) {
 			return getSongs(nextData,processSongs);
 		}
 		
-		console.dir(albumDoc);
+		debug(albumDoc);
 		d10.couch.d10.overwriteDoc(albumDoc, function(err,resp) {
-			if( err ) console.log(err);
+			if( err ) debug(err);
 			callback();
 		});
 	};
