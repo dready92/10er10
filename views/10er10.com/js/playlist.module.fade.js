@@ -3,7 +3,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
 
 	var module = new playlistModule("fade",{},{});
 	var uiTimeout = null;
-	var ui = $("#controls div.audioFade");
+	var ui = $("#container div.fading");
     
     var getAudioFade = function() {
       var af = user.get_preferences().audioFade;

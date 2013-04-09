@@ -178,6 +178,11 @@
         <img src="/css/32x32/actions/player_end.png" name="next" title="((side_next_title))"> 
       </div>
     </div>
+    <div class="playlistOptions">
+      <span data-target="radio">Radio ▾</span>
+      <span data-target="fading">Fading ▾</span>
+      <span data-target="mix">Mix ▾</span>
+    </div>
     <div class="mainScreen">
       <div class="currentTime"></div>
       <div class="totalTime"></div>
@@ -193,6 +198,25 @@
     </div>
   </div>
 </div>
+<div class="fading yellowOverlay controlOverlay">
+    <div class="label">(({side_options_audiofade_title}))</div>
+    <div class="rangeSelector center expandable">
+      <input type="range" name="fade" min="0" max="60" value="15" size="3"/>
+      <span class="fadeValue"></span> ((side_options_audiofade_seconds))
+    </div>
+</div>
+<div class="mix yellowOverlay controlOverlay">
+    <div class="label center">Choose your mix</div>
+    <div class="center expandable">
+      <div class="notPreloaded">Waiting for the next song to be ready</div>
+      <div class="preloaded hidden center airin">
+          <select name="mixType"><option value="none">--</option></select>
+          <button disabled="true">fire</button>
+          <div class="description hidden"></div>
+      </div>
+    </div>
+</div>
+
 </div></div> 
 <div class="hidden" id="songitem"><img src="/css/22x22/apps/amarok.png"></div> 
 <div class="hidden" id="waititem"><img src="/css/plsmall.gif"></div>

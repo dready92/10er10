@@ -2847,4 +2847,76 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   cursor: pointer;
 }
 
+#player .playlistOptions {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  padding-right: 2px;
+}
+
+#player .playlistOptions > span {
+  padding: 1px 3px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  color: #7F7F7F;
+  border-radius: 3px;
+}
+
+#player .playlistOptions > span:hover,
+#player .playlistOptions > span.active
+{
+  border: 1px solid #343434;
+  background-color: #232323;
+}
+
+#player .playlistOptions > span.active {
+  color: #BF9730;
+}
+
+#container > .controlOverlay {
+  position: fixed;
+  transition: all 1s;
+  -webkit-transition: all 1s;
+}
+
+#container > .controlOverlay.active {
+  transform: translateY(0px);
+  -webkit-transform: translateY(0px);
+}
+#container > .controlOverlay .label{
+  text-align: center;
+  padding: 15px 0;
+}
+
+#container > .controlOverlay input {
+  width: 100px;
+  vertical-align: middle;
+}
+
+#container > .controlOverlay select {
+  width: 150px;
+  vertical-align: middle;
+}
+
+#container > .fading {
+  top: 56px;
+  right: 10px;
+  height: 100px;
+  width: 220px;
+  transform: translateY(-120px);
+  -webkit-transform: translateY(-120px);
+}
+
+#container > .mix {
+  top: 56px;
+  right: 4px;
+  height: 200px;
+  width: 270px;
+  transform: translateY(-220px);
+  -webkit-transform: translateY(-220px);
+}
+
+#container > .mix .description{
+  padding-top: 30px;
+}
 /* http://colorschemedesigner.com/#3s31Tw0w0w0w0 */

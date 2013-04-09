@@ -5,7 +5,7 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
 
   var module = new playlistModule("mix",{},{});
   var uiTimeout = null;
-  var ui = $("#controls div.mixControl"),
+  var ui = $("#container > .mix"),
       select = ui.find("select"),
        description = ui.find(".description"),
       button = ui.find("button"),

@@ -14,6 +14,7 @@ define([
 ], function() {
   
   var controls = $("#controls");
+  var container = $("#container");
   
   var disableAll = function() {
     controls.find(".optionsTab > div.on").each(function() {
@@ -37,6 +38,30 @@ define([
     }
   });
   
+  function bindTabs() {
+    var tabContainer = $("#player .playlistOptions");
+    var disableAll = function() {
+      tabContainer.children(".active").each(function() {
+        var targetName = $(this).removeClass("active").attr("data-target");
+        var target = container.children("."+targetName);
+        target.removeClass("active");
+      });
+    };
+    
+    tabContainer.delegate("span","click",function() {
+      var self = $(this);
+      var enabled = $(this).hasClass("active");
+      var targetName = $(this).attr("data-target");
+      disableAll();
+      if ( !enabled ) {
+        self.addClass("active");
+        var target = container.children("."+targetName);
+        target.addClass("active");
+      }
+    });
+  };
+    
+  bindTabs();
   
   
 	debug("playlist modules loaded ! ");
