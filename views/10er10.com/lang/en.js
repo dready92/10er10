@@ -38,7 +38,7 @@ exports.server = {
 		side_options_radiomode_title: "Radio mode: add songs at the end of the playlist",
 		side_options_radiomode_disabled: "<strong>Radio mode</strong>: off",
 		side_options_radiomode_enable: "Enable radio mode",
-		side_options_radiomode_enabled: "<strong>Radio</strong>: on",
+		side_options_radiomode_enabled: "<strong>Radio mode</strong>: on",
 		side_options_radiomode_options: "Radio mode options",
 		side_radiomode_genre_selector_title: "Only add songs of following genres :",
 		side_radiomode_close: "close window",

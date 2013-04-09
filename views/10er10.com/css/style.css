@@ -2875,14 +2875,10 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
 
 #container > .controlOverlay {
   position: fixed;
-  transition: all 1s;
-  -webkit-transition: all 1s;
+  transition: transform 0.7s;
+  -webkit-transition: -webkit-transform 0.7s;
 }
 
-#container > .controlOverlay.active {
-  transform: translateY(0px);
-  -webkit-transform: translateY(0px);
-}
 #container > .controlOverlay .label{
   text-align: center;
   padding: 15px 0;
@@ -2919,4 +2915,60 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
 #container > .mix .description{
   padding-top: 30px;
 }
+
+#container > .radio {
+  top: 56px;
+  right: 110px;
+  height: 100px;
+  width: 270px;
+  transform: translateY(-110px);
+  -webkit-transform: translateY(-110px);
+}
+
+#container > .radio.enabled {
+  height: 300px;
+  transform: translateY(-310px);
+  -webkit-transform: translateY(-310px);
+}
+
+#container > .radio .on{
+  display: none;
+}
+
+#container > .radio.enabled .on{
+  display: block;
+}
+#container > .radio.enabled .off{
+  display: none;
+}
+
+#container > .radio .list {
+  height: 200px;
+  overflow-y: auto;
+  overflow-x: none;
+  width: 170px;
+  margin: auto;
+}
+
+#container > .radio div.list > div {
+  padding-left: 20px;
+  cursor: pointer;
+  color: #9F9F9F;
+}
+
+#container > .radio div.list  > div.checked {
+  background-image: url("16x16/actions/dialog-ok.png");
+  background-repeat: no-repeat;
+  background-position: left center;
+  color: #BF9730;
+}
+
+#container > .radio div.list  > div:hover {
+  background-color: #454545;
+}
+#container > .controlOverlay.active {
+  transform: translateY(0px);
+  -webkit-transform: translateY(0px);
+}
+
 /* http://colorschemedesigner.com/#3s31Tw0w0w0w0 */

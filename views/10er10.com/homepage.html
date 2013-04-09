@@ -216,6 +216,18 @@
       </div>
     </div>
 </div>
+<div class="radio yellowOverlay controlOverlay" title="((side_options_radiomode_title))"> 
+  <div class="off">
+    <div class="label">(({side_options_radiomode_disabled}))</div>
+    <div class="link center expandable">((side_options_radiomode_enable))</div>
+  </div> 
+  <div class="on"> 
+    <div class="label">(({side_options_radiomode_enabled}))</div>
+    <div class="disable center"><span class="link">((side_radiomode_disable))</span></div>
+    <div class="center vertical-air">((side_radiomode_genre_selector_title))</div>
+    <div class="list">{{#genres}}<div name="{{.}}">{{.}}</div>{{/genres}}</div>
+  </div> 
+</div>
 
 </div></div> 
 <div class="hidden" id="songitem"><img src="/css/22x22/apps/amarok.png"></div> 
