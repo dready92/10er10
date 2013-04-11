@@ -1157,6 +1157,19 @@ body.noplaylist aside {
 	
 }
 
+aside .spectrumControl {
+  width: 150px;
+  margin: 0 auto;
+  text-align: center;
+  background-color: #121212;
+  padding: 3px 0;  
+}
+aside .spectrumControl > input{
+  vertical-align: middle;
+  font-size: 0.8em;
+  margin-right: 10px;
+}
+
 aside.highlighted {
 	box-shadow: inset 0 0 10px #F9C53E;
     transition: box-shadow 0.5s ease-in;

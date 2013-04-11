@@ -217,30 +217,31 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"],
       return ;
     }
 	
-	$("#controls div[data-target=spectrumOption]").removeClass("hidden");
+	var spectrumUI = $("#side .spectrumControl").removeClass("hidden");
+    var spectrumCB = spectrumUI.find("input");
+    if ( spectrumCB.prop("checked") ) {
+      spectrumCB.removeProp("checked");
+    }
 	
-	$("#side div.spectrumOption").find("div.link").bind("click",function() {
-		var that = $(this);
-		if ( that.hasClass("off") ) {
-			enabled = true;
-			$("#side div.spectrum").slideDown("fast");
-			that.siblings(".on").slideDown("fast");
-			that.slideUp("fast");
-			try {
-				var a = playlist.driver().current().audio;
-				if ( a ) {
-					newFFT(a);
-				}
-			}catch(e) {debug("unable to get current song",e);}
-		} else {
-			enabled = false;
-            clearFFT();
-			that.siblings(".off").slideDown("fast");
-			that.slideUp("fast");
-			$("#side div.spectrum").slideUp("fast");
-		}
-	});
+	spectrumCB.bind("change",function() {
 	
+      $("#controls div[data-target=spectrumOption]").removeClass("hidden");
+      var that = $(this);
+      if ( enabled ) {
+        enabled = false;
+        clearFFT();
+        $("#side div.spectrum").slideUp("fast");
+      } else {
+        enabled = true;
+        $("#side div.spectrum").slideDown("fast");
+        try {
+          var a = playlist.driver().current().audio;
+          if ( a ) {
+            newFFT(a);
+          }
+        }catch(e) {debug("unable to get current song",e);}
+      }
+    });	
 	
 	var canvas = $("#side div.spectrum").find("canvas").get(0);
 	var enabled = false;
