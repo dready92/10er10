@@ -50,59 +50,13 @@
  
 <aside id="side"> 
   <div class="spectrumControl hidden">
-    <input type="checkbox" name="enable" id="spectrumCheck"/>
-    <label for="spectrumCheck">Spectrum</label>
-  </div>
-  <div id="controls"> 
-	<div class="spectrum hidden center">
-		<canvas/>
-	</div>
-    <div class="options">
-      <div class="optionsTab">
-        <div data-target="autofill">Radio</div><div class="hidden" data-target="spectrumOption">Spectrum</div><div data-target="audioFade">Fading</div><div data-target="mixControl">Mix</div>
-      </div>
-      <div class="optionsPanel">
-          <div class="autofill hidden" title="((side_options_radiomode_title))"> 
-              <div class="off">
-                  <div class="label">(({side_options_radiomode_disabled}))</div>
-                  <div class="link center expandable">((side_options_radiomode_enable))</div>
-              </div> 
-              <div class="on hidden">
-                  <div class="label">(({side_options_radiomode_enabled}))</div>
-                  <div class="link center expandable">((side_options_radiomode_options))</div>
-              </div> 
-              <div class="yellowOverlay fluidRightArrow hidden"> 
-                  <div class="center vertical-air"><strong>((side_radiomode_genre_selector_title))</strong></div>
-                  <div class="list">{{#genres}}<div name="{{.}}">{{.}}</div>{{/genres}}</div>
-                  <div class="closeWindow center vertical-little-air"><span class="link">((side_radiomode_close))</span></div> 
-                  <div class="disable center vertical-little-air"><span class="link">((side_radiomode_disable))</span></div> 
-              </div> 
-          </div>
-          <div class="audioFade hidden">
-              <div class="label">(({side_options_audiofade_title}))</div>
-              <div class="rangeSelector center expandable"><input type="range" name="fade" min="0" max="60" value="15" size="3"/> <span class="fadeValue"></span> ((side_options_audiofade_seconds))</div>
-          </div>
-          <div class="spectrumOption hidden">
-              <div class="label">(({side_options_spectrum_title}))</div>
-              <div class="center expandable">
-                  <div class="off link center">((side_options_spectrum_enable))</div>
-                  <div class="on link center hidden">((side_options_spectrum_disable))</div>
-              </div>
-          </div>
-          <div class="mixControl hidden">
-              <div class="label">Choose your mix</div>
-              <div class="center expandable">
-                <div class="notPreloaded">Waiting for the next song to be ready</div>
-                <div class="preloaded hidden left">
-                    <button disabled="true">fire</button>
-                    <select name="mixType"><option value="none">--</option></select>
-                    <div class="description hidden"></div>
-                </div>
-              </div>
-          </div>
-      </div>
+    <div class="controls">
+      <input type="checkbox" name="enable" id="spectrumCheck"/>
+      <label for="spectrumCheck">Spectrum</label>
     </div>
-  </div> 
+    <canvas class="hidden"/>
+  </div>
+
   <div class="audioImage center"></div>
   <div class="playlisttitle"><span></span></div> 
   <div id="playlist"></div>

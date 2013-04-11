@@ -223,17 +223,14 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"],
       spectrumCB.removeProp("checked");
     }
 	
-	spectrumCB.bind("change",function() {
-	
-      $("#controls div[data-target=spectrumOption]").removeClass("hidden");
-      var that = $(this);
+	spectrumCB.bind("change",function() {	
       if ( enabled ) {
         enabled = false;
         clearFFT();
-        $("#side div.spectrum").slideUp("fast");
+        $canvas.slideUp("fast");
       } else {
         enabled = true;
-        $("#side div.spectrum").slideDown("fast");
+        $canvas.slideDown("fast");
         try {
           var a = playlist.driver().current().audio;
           if ( a ) {
@@ -243,7 +240,8 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"],
       }
     });	
 	
-	var canvas = $("#side div.spectrum").find("canvas").get(0);
+    var $canvas = spectrumUI.find("canvas");
+	var canvas = $canvas.get(0);
 	var enabled = false;
 	var fft = null;
 	

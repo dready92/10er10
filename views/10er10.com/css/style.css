@@ -1157,19 +1157,6 @@ body.noplaylist aside {
 	
 }
 
-aside .spectrumControl {
-  width: 150px;
-  margin: 0 auto;
-  text-align: center;
-  background-color: #121212;
-  padding: 3px 0;  
-}
-aside .spectrumControl > input{
-  vertical-align: middle;
-  font-size: 0.8em;
-  margin-right: 10px;
-}
-
 aside.highlighted {
 	box-shadow: inset 0 0 10px #F9C53E;
     transition: box-shadow 0.5s ease-in;
@@ -1370,140 +1357,35 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
 #playlist .song.current .title:after { content: ""; }
 #playlist .song.current .artist:after { content: " -"; }
 
-#controls {
-  margin: 0px 10px 0 10px;
-  border-radius: 5px;
-  padding: 5px;
-  color: #121212;
-}
 
-body.wide #controls {
-	margin-top: 0px;
-}
-
-#controls div.spectrum canvas{
-		background-color: #232323;
-		-moz-box-shadow: 0 0 6px #232323;
-		box-shadow: 0 0 6px #232323;
-		margin: 5px 0;
-		width: 270px;
-		height: 100px;
-}
-
-
-
-#controls .optionsTab {
-  padding: 0 0 2px 0;
+aside .spectrumControl {
+  margin: 0 auto 5px auto;
   text-align: center;
-}
-#controls .optionsTab > div {
-  display: inline;
-  padding: 2px 5px;
-  font-size: 0.9em;
-  color: #454545;
-  background-color: #121212;
-  cursor: pointer;
-  -webkit-transition: all 0.3s;
-  -moz-transition: all 0.3s;
-  transition: all 0.3s;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
+  position: relative;
+  min-height: 2em;
 }
 
-#controls .optionsTab > div.hidden {display: none;}
-
-#controls .optionsTab > div:hover {
-  color: #BF9730;
-  background-color: #555;
+aside .spectrumControl .controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding-top: 5px;
 }
 
-#controls .optionsTab > div:first-child {
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
+aside .spectrumControl > input{
+  vertical-align: middle;
+  font-size: 0.8em;
+  margin-right: 10px;
 }
 
-#controls .optionsTab > div:last-child {
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
+aside .spectrumControl canvas{
+  background-color: #232323;
+  -moz-box-shadow: 0 0 6px #232323;
+  box-shadow: 0 0 6px #232323;
+  width: 270px;
+  height: 100px;
 }
-
-#controls .optionsTab > div.on {
-  background-color: #454545;
-  color: #121212;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 0px;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 0px;
-}
-
-
-#controls .optionsPanel > div {
-  background-color: #454545;
-  border-radius: 5px;
-  padding-bottom: 5px;
-}
-
-#controls .optionsPanel div.label {
-  text-align: center;
-  padding: 10px 0;
-}
-
-#controls .optionsPanel input[type=range] {
-  width: auto;
-    vertical-align:middle;
-}
-
-#controls div.autofill.enabled .on {
-    display: block;
-}
-
-#controls div.autofill.enabled .off {
-    display: none;
-}
-
-#controls div.autofill div.yellowOverlay {
-  z-index: 3;
-}
-
-#controls div.autofill div.yellowOverlay div.list {
-  max-height: 300px;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.1);
-  margin: 0 20px;
-  border-radius: 6px;
-}
-
-#controls div.autofill div.yellowOverlay div.list > div {
-  padding-left: 20px;
-  cursor: pointer;
-  color: #9F9F9F;
-}
-
-#controls div.autofill div.yellowOverlay div.list  > div.checked {
-  background-image: url("16x16/actions/dialog-ok.png");
-  background-repeat: no-repeat;
-  background-position: left center;
-  color: #BF9730;
-}
-
-#controls div.autofill div.yellowOverlay div.list  > div:hover {
-  background-color: #454545;
-}
-
-#controls .preloaded { margin: 0 5px  }
-#controls .preloaded button { float: right; margin-top: -2px;  }
-#controls .preloaded button[disabled] { font-size:0.85em;  }
-#controls .preloaded select { width: 170px; margin-left: 6px; }
-#controls .description { 
-  margin: 10px 5px 5px 5px; 
-  background-color: #676767; 
-  background-image: linear-gradient(50deg,  #676767 50%,  #969696 80%, #676767 100%);
-  background-image: -moz-linear-gradient(50deg,  #676767 50%,  #969696 80%, #676767 100%);
-  background-image: -webkit-linear-gradient(50deg,  #676767 50%,  #969696 80%, #676767 100%);
-  padding: 5px; 
-  border-radius: 6px; 
-  border: 2px solid #232323;}
 
 #reviewReminder {
   background-color:rgb(191,151,48);
