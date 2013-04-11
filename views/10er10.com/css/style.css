@@ -1387,6 +1387,10 @@ aside .spectrumControl canvas{
   height: 100px;
 }
 
+aside .audioImage img {
+  border: 1px solid #121212;
+}
+
 #reviewReminder {
   background-color:rgb(191,151,48);
   text-align: center;
