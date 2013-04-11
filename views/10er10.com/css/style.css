@@ -2239,6 +2239,7 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
   height: 2em;
   width: 160px;
   text-align: center;
+  z-index: 2;
 }
 
 .songMenuOverlay {
