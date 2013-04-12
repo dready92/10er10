@@ -25,7 +25,6 @@ exports.api = function(app) {
         subject: d10.config.invites.subject,
         text: body
       }, function(err,resp) {
-        console.log("email response: ",err,resp);
         then(err,resp);
       });
 	};

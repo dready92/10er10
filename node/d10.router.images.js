@@ -1,4 +1,5 @@
 var d10 = require("./d10"),
+    debug = d10.debug("d10:d10.router.images"),
 			fs = require("fs"),
 			files = require("./files"),
 			when = require("./when"),
@@ -24,8 +25,6 @@ exports.api = function(app) {
 				}
 			},
 			function(errs,responses) {
-				
-				console.log("when backs : ",responses.used  );
 				
 				if ( errs ) {
 					return d10.realrest.err(423,errs,request.ctx);
@@ -84,7 +83,6 @@ exports.api = function(app) {
 	});
 
     app.post("/api/songImage/:id",function(request,response) {
-		console.log(request.url,"START of process");
 		if ( !request.query.filename || !request.query.filename.length 
 			|| !request.query.filesize || !request.query.filesize.length ) {
 			return d10.realrest.err(427,"filename and filesize arguments required",request.ctx);
@@ -97,11 +95,11 @@ exports.api = function(app) {
 				docs: function(cb) {
 					d10.couch.d10.getDoc(request.params.id, function(err,doc) {
 						if ( err ) { 
-							console.log("Image upload: error in CouchDB docs retrieval");
+							debug("Image upload: error in CouchDB docs retrieval");
 							return cb({code: 423, message: err}); 
 						}
 						if ( doc.user != request.ctx.user._id && !request.ctx.user.superman ) {
-							console.log("Image upload: no doc to update");
+							debug("Image upload: no doc to update");
 							return cb({code: 403, message: "You're not allowed to edit this document"}); 
 						}
 						return cb(null, [ doc ]);
@@ -115,7 +113,7 @@ exports.api = function(app) {
 	});
 	
 	app.post("/api/songImage",function(request,response) {
-		console.log(request.url,"START of process");
+		debug(request.url,"START of process");
 		if ( !request.query.filename || !request.query.filename.length 
 			|| !request.query.filesize || !request.query.filesize.length || !request.query.ids || !Array.isArray(request.query.ids) || !request.query.ids.length ) {
 			return d10.realrest.err(427,"filename, filesize and ids arguments required",request.ctx);
@@ -129,7 +127,7 @@ exports.api = function(app) {
 				docs: function(cb) {
 					d10.couch.d10.getAllDocs({keys: request.query.ids, include_docs: true}, function(err,resp) {
 						if ( err ) { 
-							console.log("Image upload: error in CouchDB docs retrieval");
+							debug("Image upload: error in CouchDB docs retrieval");
 							return cb({code: 423, message: err}); 
 						}
 						var docs = [];
@@ -137,7 +135,7 @@ exports.api = function(app) {
 							if ( v.doc.user == request.ctx.user._id || request.ctx.user.superman ) { docs.push(v.doc); }
 						});
 						if ( ! docs.length ) { 
-							console.log("Image upload: no doc to update");
+							debug("Image upload: no doc to update");
 							return cb({code: 403, message: "You're not allowed to edit those documents"}); 
 						}
 						return cb(null, docs);
@@ -152,7 +150,7 @@ exports.api = function(app) {
 
     var sendUpdateDocsError = function (errs, responses, request) {
       for ( var  i in errs ) {
-        console.log("Got an error ",i, errs[i]);
+        debug("Got an error ",i, errs[i]);
       }
       
       if ( errs.docs && !errs.image && responses.image.isNew ) {
@@ -173,7 +171,7 @@ exports.api = function(app) {
           }
           return ;
         }
-        console.log(rs);
+        debug(rs);
         responses.image.docs = [];
         for ( var i in rs ) {
           responses.image.docs.push(rs[i]);
