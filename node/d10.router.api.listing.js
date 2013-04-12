@@ -1,4 +1,5 @@
 var d10 = require ("./d10"),
+    debug = d10.debug("d10:d10.router.api.listing"),
     artists = require ("./d10.artists"),
     users = require("./d10.users"),
 	qs = require("qs");
@@ -410,7 +411,7 @@ exports.api = function(app) {
 	});
 	var _albumArtists = function(view,request,response) {
 		if ( !request.params.album ) {
-			console.log("no album");
+			debug("no album");
 			return d10.realrest.err(428, request.params.album, request.ctx);
 		}
 		d10.couch.d10.view(view,{startkey: [request.params.album], endkey: [request.params.album,[]], group: true, group_level: 2},listDefaultCallback.bind(request.ctx));
@@ -419,7 +420,7 @@ exports.api = function(app) {
     
     var listDefaultCallback = function(err,resp) {
       if ( err ) {
-        console.log("error: ",err);
+        debug("error: ",err);
         return d10.realrest.err(423, err, this);
       }
       d10.realrest.success(resp.rows, this);
@@ -436,7 +437,7 @@ exports.api = function(app) {
 	  }
 	  
       if ( !request.query.artist ) {
-        console.log("no artist");
+        debug("no artist");
         return d10.realrest.err(428, request.query.artist, request.ctx);
       }
       artist = request.query.artist;
@@ -490,7 +491,7 @@ exports.api = function(app) {
 			var albumSongs = {};
 			var keys = [];
 			list.rows.forEach(function(row) {albumSongs[row.key[2]] = []; row.value = albumSongs[row.key[2]]; keys.push(row.key[2])});
-			console.log("going to second view", {reduce: false, include_docs: true, keys: keys});
+			debug("going to second view", {reduce: false, include_docs: true, keys: keys});
 			d10.couch.d10.view("album/album", {reduce:false, include_docs: true, keys: keys}, function(err,docs) {
 				if ( err ) {
 					return listDefaultCallback.call(request.ctx, err, docs);
@@ -537,7 +538,6 @@ exports.api = function(app) {
 		
 		var fetchLastPlayed = function() {
 			users.getListenedSongsByDate(request.ctx.user._id, opts, function(err, hits) {
-// 				console.log(opts, err,hits);
 				if ( err ) {
 					return d10.realrest.err(423, err, request.ctx);
 				}
@@ -554,7 +554,6 @@ exports.api = function(app) {
 					for ( var  i in hits.rows ) {
 					  if ( hits.rows[i].value in docHash && docHash[hits.rows[i].value].genre == request.params.genre ) {
 						  responses.push({doc: docHash[hits.rows[i].value], id: hits.rows[i].id, key: hits.rows[i].key, value: hits.rows[i].value});
-// 						  console.log("got",responses.length , "responses", responses);
 						  if ( responses.length == responseLength ) {
 							  return d10.realrest.success(responses, request.ctx);
 						  }
@@ -565,7 +564,6 @@ exports.api = function(app) {
 						return d10.realrest.success(responses, request.ctx);
 					}
 					
-// 					console.log(hits.rows, hits.rows[ (hits.rows.length -1) ].startkey);
 					opts.startkey = hits.rows[ (hits.rows.length -1) ].key;
 					opts.startkey_docid = hits.rows[ (hits.rows.length -1) ].id;
 					fetchLastPlayed();

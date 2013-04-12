@@ -1,6 +1,7 @@
 //router-api.js
 
 var d10 = require ("./d10"),
+    debug = d10.debug("d10:d10.router.api"),
 	bodyDecoder = require("connect").bodyParser,
 	querystring = require("querystring"),
 	qs = require("qs"),
@@ -15,7 +16,6 @@ exports.api = function(app) {
 	app.post("/api/songs",function(request,response) {
 		bodyDecoder()(request, response,function() {
 			request.ctx.headers["Content-type"] = "application/json";
-// 			console.log("/api/songs",request.body);
 			if ( ! request.body["ids"] || 
 				Object.prototype.toString.call(request.body["ids"]) !== '[object Array]' ||
 				!request.body["ids"].length ) {
@@ -61,9 +61,7 @@ exports.api = function(app) {
 					d10.couch.d10.view("user/all_infos",{key: [request.ctx.user._id.replace(/^us/,""), "pl"],include_docs: true},
 						function(err,data,meta) {
 							if ( err ) return cb(err);
-							console.log(data);
 							var back = [];
-// 							console.log(arguments);
 							data.rows.forEach(function(v) { back.push(v.doc); });
 							cb(null,back);
 						}
@@ -699,19 +697,19 @@ exports.api = function(app) {
 					{
 						d10: function(cb) {
 							d10.couch.d10.view("references/songs",{key: id, include_docs: true},function(err,resp) {
-								if ( err ) { console.log("findAllSongReferences error",err,resp); return  cb(err); }
+								if ( err ) { debug("findAllSongReferences error",err,resp); return  cb(err); }
 								cb(null, resp.rows);
 							});
 						},
 						d10wi: function(cb) {
 							d10.couch.d10wi.view("references/songs",{key: id, include_docs: true},function(err,resp) {
-								if ( err ) { console.log("findAllSongReferences error",err,resp); return  cb(err); }
+								if ( err ) { debug("findAllSongReferences error",err,resp); return  cb(err); }
 								cb(null, resp.rows);
 							});
 						},
 						track: function(cb) {
 							d10.couch.track.view("references/songs",{key: id, include_docs: true},function(err,resp) {
-								if ( err ) {  console.log("findAllSongReferences error",err,resp);return  cb(err); }
+								if ( err ) {  debug("findAllSongReferences error",err,resp);return  cb(err); }
 								cb(null, resp.rows);
 							});
 						}
@@ -790,7 +788,7 @@ exports.api = function(app) {
 				then(null,modifiedDocs);
 			},
 			recordModifiedDocs = function(modifiedDocs,then) {
-				console.log("recordModifiedDocs recording: ",modifiedDocs);
+				debug("recordModifiedDocs recording: ",modifiedDocs);
 				var actions = {};
 				if ( modifiedDocs.d10.length ) {
 					actions.d10 = function(cb) {
@@ -829,13 +827,11 @@ exports.api = function(app) {
 					return then(null,[]);
 				}
 				d10.couch.d10.view("images/sha1",{keys: keys}, function(err,resp) {
-					console.log(resp);
 					if ( err ) return then(err);
 					resp.rows.forEach(function(v) {
 						if  ( usage[v.key] )	usage[v.key]++;
 						else					usage[v.key]=1;
 					});
-					console.log(usage);
 					var back = [];
 					keys.forEach(function(v) { 
 						if ( !usage[v] || usage[v]<2 ) {
@@ -876,18 +872,18 @@ exports.api = function(app) {
 			
 			findAllSongReferences(doc._id,
 				function(errs,references) {
-					if ( errs ) { console.log("error on findAllSongReferences"); return d10.realrest.err(423,errs,request.ctx); }
+					if ( errs ) { debug("error on findAllSongReferences"); return d10.realrest.err(423,errs,request.ctx); }
 					getUnusedImages(doc,function(errs,images) {
-						if ( errs ) { console.log("error on getUnusedImages"); return d10.realrest.err(423,errs,request.ctx); }
+						if ( errs ) { debug("error on getUnusedImages"); return d10.realrest.err(423,errs,request.ctx); }
 						removeSongReferences(doc._id, errs, references, function(errs, modifiedDocs) {
-							if ( errs ) { console.log("error on removeSongReferences"); return d10.realrest.err(423,errs,request.ctx); }
+							if ( errs ) { debug("error on removeSongReferences"); return d10.realrest.err(423,errs,request.ctx); }
 							recordModifiedDocs(modifiedDocs,function(err,resp) {
 								if ( err ) {
-									console.log("error on recordModifiedDocs",err); return d10.realrest.err(423,err,request.ctx);
+									debug("error on recordModifiedDocs",err); return d10.realrest.err(423,err,request.ctx);
 								} else {
 									d10.realrest.success([],request.ctx);
-									removeSongFile(doc._id, function(err) { if ( err ) console.log("removeSongFile error",err); });
-									removeUnusedImages(images,function(err){ if ( err ) console.log("removeUnusedImages error",err); });
+									removeSongFile(doc._id, function(err) { if ( err ) debug("removeSongFile error",err); });
+									removeUnusedImages(images,function(err){ if ( err ) debug("removeUnusedImages error",err); });
 									return ;
 								}
 							});
@@ -911,7 +907,7 @@ exports.api = function(app) {
 		var query = {group: true, group_level: 1};
 		d10.couch.d10.view(viewName,query,function(err,resp) {
 			if( err ) {
-				console.log(err);
+				debug(err);
 				return d10.realrest.err(423, request.params.sort, request.ctx);
 			}
 			d10.realrest.success(resp.rows,request.ctx);
@@ -924,7 +920,7 @@ exports.api = function(app) {
         group_level: 1,
       }, function(err,resp) {
         if( err ) {
-          console.log(err);
+          debug(err);
           return d10.realrest.err(423, null, request.ctx);
         }
         d10.realrest.success(resp.rows,request.ctx);
@@ -942,9 +938,9 @@ exports.api = function(app) {
 			startkey: [request.params.genre],
 			endkey: [request.params.genre,[]]
 		}, function(err,resp) {
-			console.log(err,resp);
+			debug(err,resp);
 			if( err ) {
-				console.log(err);
+				debug(err);
 				return d10.realrest.err(423, request.params.genre, request.ctx);
 			}
 			d10.realrest.success({albums: resp.rows.length ? true : false},request.ctx);
