@@ -137,11 +137,6 @@ var	httpStatusCodes = {
 	505: "HTTP Version Not Supported"
 };
 
-
-exports.log = function() {
-  debug(arguments);
-};
-
 exports.uid = function() {
 // 	return ((0x100000000 * Math.random()).toString(32) + "" + (0x100000000 * Math.random()).toString(32));
 	return (
