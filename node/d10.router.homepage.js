@@ -115,7 +115,6 @@ exports.homepage = function(app) {
 				display10er10(request,response,next);
 			}
 		} else {
-			d10.log("debug","sending login");
 			request.ctx.langUtils.parseServerTemplate(request,"login.html",function(err,html) {
 				response.end(html);
 			});
