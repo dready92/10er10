@@ -21,7 +21,6 @@ var configCheck = function() {
 
 var createDatabase = function(type, client, infos,then) {
 	client.createDatabase(infos.database,function(err,resp) {
-		console.log(err,resp);
 		if ( err ) {
 			console.log("Oh no ! Something went wrong when creating database",infos,err);
 			return then(new Error("Database transaction failed"));
@@ -57,9 +56,6 @@ var populateDatabase = function(type, client,infos,then) {
 			var doc = design.pop();
 			console.log("Storing "+infos.database+":"+doc._id);
 			db.deleteDoc(doc._id,function(err,resp,m) {
-// 				if ( err ) {
-// 					console.log(err,resp,m);
-// 				}
 				db.storeDoc(doc,function(err,resp) {
 					if ( err ) {
 						console.log("Oh no ! Something went wrong when storing "+infos.database+": "+design._id);

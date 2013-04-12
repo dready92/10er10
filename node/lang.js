@@ -1,5 +1,6 @@
 var fs = require("fs"),
 	d10 = require("./d10"),
+	debug = d10.debug("d10:lang"),
 	mustache = require("./mustache"),
 	when = require("./when"),
 	utils = require("connect").utils;
@@ -17,13 +18,11 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 	* parse Accept-Language headers & returns the available matching language or the default language
 	*/
 	var getHeadersLang = function(request,cb) {
-	// 	console.log("getHeadersLang: ",request.headers);
 		var accepted = request.headers["accept-language"] ? request.headers["accept-language"].split(",") : null;
 		if ( accepted === null || !accepted.length ) {
 			return cb(d10.config.templates.defaultLang);
 		}
 		var chosen = null;
-	// 	console.log("getHeadersLang: testing",accepted);
 		var checkNext = function() {
 			if ( accepted.length ==  0 ) {
 				return cb(d10.config.templates.defaultLang);
@@ -41,9 +40,7 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 	};
 
 	var loadLangFiles = function(cb) {
-		console.log("typeof langs ? ", typeof langs);
 		if ( langs !== false ) {
-	// 		console.log("LANG: loadLangFiles langs is already set ",langs);
 			return cb() ;
 		}
 		loadingLangsCb.push(cb);
@@ -52,19 +49,15 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 			return ;
 		}
 		loadingLangs = true;
-		console.log("LANG: launching readdir");
 		fs.readdir(langRoot,function(err,files) {
-			console.log("LANG: loadLangFiles reading directory ");
 			langs = {};
-			if ( err ) { console.log("LANG readdir failed: ",err); return cb(); }
 			for ( var i in files ) {
 				var f = files[i];
 				if ( f.match(/\.js$/) ) {
-					console.log("LANG: including "+langRoot+"/"+f);
+					debug("LANG: including "+langRoot+"/"+f);
 					langs[ f.replace(/\.js$/,"") ] = require(langRoot+"/"+f);
 				}
 			}
-	// 		console.log("LANG langs: ", langs);
 			loadingLangs = false;
 			loadingLangsCb.forEach(function(cb) { cb()});
 		});
@@ -90,14 +83,12 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 	* 
 	*/
 	var loadLang = function ( lng, type, cb ) {
-	// 	console.log("LANG loadLang: ",lng,type);
-	// 		console.log("loadLangFiles returns");
 		if ( ! lng in langs ) {
-			console.log("LANG unknown : ",lng);
+			debug("LANG unknown : ",lng);
 			return cb(new Error("lang not found: "+lng));
 		}
 		if ( ! type in langs[lng] ) {
-			console.log("LANG type unknown : ",type,lng);
+			debug("LANG type unknown : ",type,lng);
 			return cb(new Error("lang type not found: "+lng+"."+type));
 		}
 		return cb(null,langs[lng][type]);
@@ -112,20 +103,15 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 	// 	getHeadersLang(request,function(lng) {
 	// 	var lng = request.ctx.lang ? request.ctx.lang : d10.config.templates.defaultLang;
 	// 	var lng = 
-		console.log("LANG parseServerTemplate: ",tpl,request.url,request.ctx.lang);
+		debug("LANG parseServerTemplate: ",tpl,request.url,request.ctx.lang);
 		loadLang(request.ctx.lang,"server",function(err,hash) {
-	// 			console.log("hash",hash);
 			if ( err ) {
 				return cb(err);
 			}
-	// 		console.log("reading ",d10.config.templates.node+"/"+tpl);
 			fs.readFile(tplRoot+"/"+tpl, function(err,template) {
-	// 			console.log("reading ",d10.config.templates.node+"/"+tpl);
 				template = template.toString();
-	// 				console.log(template);
 				if ( err ) { return cb(err); }
 				if ( ! tpl in hash ) { return cb(null,template); }
-	// 				console.log("sending to mustache", typeof template, hash[tpl]);
 				return cb(null,mustache.lang_to_html(template, hash[tpl]));
 			});
 		});
@@ -140,7 +126,7 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 	// 			back[i] = langs[i].langName;
 		}
 		keys.sort();
-		console.log("keys: ",keys);
+		debug("lang keys: ",keys);
 		for (var k in keys ) {
 			i = keys[k];
 			back[i] = langs[i].langName;
@@ -157,7 +143,6 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 	
 	
 		var fetchFromBrowser = function() {
-	// 		console.log("LANG middleware: set from browser");
 			var passTheCoochie = function() {
 				pause.end();
 				next();
@@ -165,13 +150,12 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 			};
 			var pause = utils.pause(req);
 			getHeadersLang(req,function(lng) {
-				console.log("LANG middleware: browser sniff: ",lng);
+				debug("LANG middleware: browser sniff: ",lng);
 				req.ctx.lang = lng;
 				if ( req.ctx.session && req.ctx.session._id ) {
-	// 				console.log("LANG session: ",req.ctx.session);
 					req.ctx.session.lang = lng;
 					d10.couch.auth.storeDoc(req.ctx.session, function(err,resp) {
-						if ( err ) {console.log("LANG : session storage failed: ",err,resp);}
+						if ( err ) {debug("LANG : session storage failed: ",err,resp);}
 						passTheCoochie();
 					});
 				} else {
@@ -192,11 +176,11 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 	// 		return next();
 	// 	}
 		if ( req.ctx.user && req.ctx.user.lang ) {
-	// 		console.log("LANG middleware: set from user");
+			debug("LANG middleware: set from user");
 			req.ctx.lang = req.ctx.user.lang;
 			return next();
 		} else if ( req.ctx.session && req.ctx.session.lang ) {
-	// 		console.log("LANG middleware: set from session");
+			debug("LANG middleware: set from session");
 			req.ctx.lang = req.ctx.session.lang;
 			return next();
 		}
