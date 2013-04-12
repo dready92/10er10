@@ -36,7 +36,6 @@ exports = module.exports = function gzip(options) {
   flags = flags.split(' ');
   
   return function gzip(req, res, next) {
-// 	  console.log("USING GZIP");
     var writeHead = res.writeHead,
         defaults = {};
     
@@ -66,12 +65,10 @@ exports = module.exports = function gzip(options) {
       accept = req.headers['accept-encoding'] || '';
       type = res.getHeader('content-type') || '';
       encoding = res.getHeader('content-encoding');
-//       console.log(type, matchType);
       if (code !== 200 || !~accept.indexOf('gzip') ||
           !matchType.test(type) || encoding) {
         res.write = write;
         res.end = end;
-// 	        console.log("not using gzip", code, accept, encoding, type, matchType);
         return finish();
       }
       
@@ -80,28 +77,12 @@ exports = module.exports = function gzip(options) {
       res.removeHeader('Content-Length');
 	       
 	
-// 		var gzipper = 
-		
-// 		gzipper.pipe(response);
-		/*
-		res.write = function(chunk, encoding) {
-			gzipper.write(chunk, encoding);
-		};
-		res.end = function(chunk, encoding) {
-			if (chunk) {
-				gzipper.write(chunk, encoding);
-			}
-			gzipper.end();
-		};
-		*/
 
       var gzip = zlib.createGzip();
       
       
       
-// 		raw.pipe(zlib.createGzip()).pipe(response);      
       res.write = function(chunk, encoding) {
-// 		          console.log("calling write on gzip");
         gzip.write(chunk, encoding);
       };
 
@@ -109,17 +90,14 @@ exports = module.exports = function gzip(options) {
         if (chunk) {
           res.write(chunk, encoding);
         }
-//         console.log("calling end on gzip");
         gzip.end();
       };
 
       gzip.addListener('data', function(chunk) {
-// 		  console.log("got gzip data event");
         write.call(res, chunk);
       });
 
       gzip.addListener('end', function(code) {
-// 		  		  console.log("got gzip end event");
         res.write = write;
         res.end = end;
         res.end();

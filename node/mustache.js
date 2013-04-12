@@ -684,7 +684,5 @@ var Mustache = (function(undefined) {
 	});
 })();
 
-// console.log(Mustache);
-
 exports.to_html = Mustache.to_html;
 exports.lang_to_html = Mustache.lang_to_html;
