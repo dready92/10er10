@@ -175,5 +175,6 @@ var onConfig = function(isProduction) {
 		});
 		*/
 		console.log("Production mode ? ",config.production);
+        console.log("Server listening on port", config.port);
 	};
 };
