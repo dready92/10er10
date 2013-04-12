@@ -1,6 +1,7 @@
 "use strict";
-define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10.events", "js/d10.mix"], 
-       function(foo, playlistModule, playlist, user, pubsub, d10mix) {
+define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user",
+       "js/d10.events", "js/d10.mix", "js/d10.templates"], 
+       function(foo, playlistModule, playlist, user, pubsub, d10mix, templates) {
 
 
   var module = new playlistModule("mix",{},{});
@@ -38,7 +39,8 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   };
   
   var statusNone = function() {
-    button.text("< Choose").attr("disabled","true");
+    button.text(templates.mustacheView("playlist.module.mix.choose"))
+      .attr("disabled","true");
   };
   
   var statusLoading = function() {
@@ -50,7 +52,8 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
   };
   
   var statusOk = function() {
-    button.text("Fire !").removeAttr("disabled");
+    button.text(templates.mustacheView("playlist.module.mix.launch"))
+      .removeAttr("disabled");
   };
   
   var getMix = function(label) {
@@ -372,7 +375,6 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/user", "js/d10
           .text(mix.label)
           .appendTo(select);
   });
-  statusNone();  
   return module;
 });
 

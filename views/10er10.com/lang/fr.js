@@ -45,9 +45,10 @@ exports.server = {
 		side_radiomode_disable: "Désactiver le mode radio",
 		side_options_audiofade_title: "<strong>Fondu</strong> entre les morceaux",
 		side_options_audiofade_seconds: "seconde(s)",
-		side_options_spectrum_title: "<strong>Spectre</strong> des fréquences",
-		side_options_spectrum_enable: "Activer",
-		side_options_spectrum_disable: "Désactiver",
+		side_options_spectrum_title: "Spectre des fréquences",
+        side_options_mix_title: "Mixer le prochain morceau",
+        side_options_mix_waiting_preload: "En attente de disponibilité du prochain morceau",
+        side_options_mix_choose: "< Choisir",
 		side_playlistloader: "Chargement de la dernière liste de lecture",
 		side_playlist_empty: "Votre liste de lecture est vide.",
 		side_playlist_fill: "Remplis-la !",
@@ -439,5 +440,7 @@ exports.client = {
 	"library.extendedInfos.album.artists": "Artistes",
 	"library.scope.toggle.full": "Afficher l'ensemble du catalogue",
 	"library.scope.toggle.user": "Afficher uniquement mes morceaux",
-	"side.review_reminder": "Vous avez {{count}} morceaux à valider !"
+	"side.review_reminder": "Vous avez {{count}} morceaux à valider !",
+    "playlist.module.mix.choose": "< Choisir",
+    "playlist.module.mix.launch": "Lancer"
 };

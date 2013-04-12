@@ -45,9 +45,10 @@ exports.server = {
 		side_radiomode_disable: "Disable radio mode",
 		side_options_audiofade_title: "<strong>Fade</strong> between songs",
 		side_options_audiofade_seconds: "second(s)",
-		side_options_spectrum_title: "<strong>Spectrum</strong>",
-		side_options_spectrum_enable: "enable",
-		side_options_spectrum_disable: "disable",
+		side_options_spectrum_title: "Spectrum",
+        side_options_mix_title: "Mix de next song",
+        side_options_mix_waiting_preload: "Waiting for the next song to be ready",
+        side_options_mix_choose: "< Choose",
 		side_playlistloader: "Loading last playlist...",
 		side_playlist_empty: "Your playlist is empty.",
 		side_playlist_fill: "Put songs !",
@@ -438,5 +439,7 @@ exports.client = {
 	"library.extendedInfos.album.artists": "Artists",
 	"library.scope.toggle.full": "Show full catalog",
 	"library.scope.toggle.user": "Only show my own songs",
-	"side.review_reminder": "You got {{count}} song(s) to review !"
+	"side.review_reminder": "You got {{count}} song(s) to review !",
+    "playlist.module.mix.choose": "< Choose",
+    "playlist.module.mix.launch": "Fire"
 };
