@@ -32,7 +32,7 @@ exports.api = function(app) {
 				
 				var doc = responses.doc;
 				if ( doc.user != request.ctx.user._id && !request.ctx.user.superman ) {
-					d10.log("debug",request.ctx.user._id,"Not allowed to edit", doc._id);
+					debug("DELETE",request.url,request.ctx.user._id,"Not allowed to edit", doc._id);
 					d10.realrest.err(403, "Forbidden", request.ctx);
 					return ;
 				}
@@ -51,7 +51,7 @@ exports.api = function(app) {
 					return true;
 				});
 				
-				d10.log("Image found in ",responses.used);
+				debug("Image found in ",responses.used);
 				
 				d10.couch.d10.storeDoc(doc,function(err,resp) {
 					if ( err ) {
@@ -62,16 +62,16 @@ exports.api = function(app) {
 						// I can remove the image
 						fs.unlink(d10.config.images.dir+"/"+request.params.filename,function(err) {
 							if ( err ) {
-								d10.log("image unlink failed",d10.config.images.dir+"/"+request.params.filename);
+								debug("image unlink failed",d10.config.images.dir+"/"+request.params.filename);
 							}
 						});
                         if ( removedImageDef && removedImageDef.alternatives) {
                           for ( var i in removedImageDef.alternatives ) {
                             var imgName = gu.getAlternateFileName(removedImageDef.filename, removedImageDef.alternatives[i]);
-                            d10.log("unlink ",imgName);
+                            debug("unlink ",imgName);
                             fs.unlink(d10.config.images.dir+"/"+imgName,function(err) {
                               if ( err ) {
-                                d10.log("image unlink failed",d10.config.images.dir+"/"+imgName);
+                                debug("image unlink failed",d10.config.images.dir+"/"+imgName);
                               }
                             });
                           }

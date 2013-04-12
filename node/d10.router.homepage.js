@@ -91,9 +91,9 @@ exports.homepage = function(app) {
 	
 	var displayHomepage = function(request,response,next) {
 		if ( request.ctx.session && "_id" in request.ctx.session && request.ctx.user) {
-			d10.log("debug","LOGGED");
+			debug("homepage router: LOGGED");
 		} else {
-			d10.log("debug","NOT LOGGED");
+			debug("homepage router: NOT LOGGED");
 		}
 		request.ctx.headers["Content-Type"] = "text/html";
 		response.writeHead(200, request.ctx.headers );
@@ -138,7 +138,7 @@ exports.homepage = function(app) {
 					return displayHomepage(request,response,next);
 				}
 				
-				d10.log("debug","user logged with login/password: ",uid);
+				debug("POST/: user logged with login/password:",uid);
 				users.makeSession(uid, function(err,sessionDoc) {
 					if ( !err ) {
 						d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
@@ -159,7 +159,7 @@ exports.homepage = function(app) {
 		bodyDecoder()(request, response,function() {
 			if ( request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length ) {
 				// get uid with login
-				d10.log("debug","got a username & password : try to find uid with username");
+				debug("got a username & password : try to find uid with username");
 				checkPass();
 			} else {
 				displayHomepage(request,response,next);
@@ -176,7 +176,7 @@ exports.homepage = function(app) {
 				if ( !uid ) {
 					return d10.realrest.err(500,{error: "login failed",reason: "invalid credentials"},request.ctx);
 				}
-				d10.log("debug","user logged with login/password: ",uid);
+				debug("POST /api/session: user logged with login/password: ",uid);
 				users.makeSession(uid, function(err,sessionDoc) {
 					if ( !err ) {
 						d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
@@ -197,7 +197,7 @@ exports.homepage = function(app) {
 		bodyDecoder()(request, response,function() {
 			if ( request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length ) {
 				// get uid with login
-				d10.log("debug","got a username & password : try to find uid with username");
+				debug("got a username & password : try to find uid with username");
 				checkPass();
 			} else {
 				return d10.realrest.err(500,{error: "login failed",reason: "invalid parameters"},request.ctx);

@@ -42,7 +42,6 @@ exports.api = function(app) {
 			if ( err ) {
 				d10.realrest.success([], request.ctx);
 			} else {
-				d10.log(resp);
 				var buffer = {}, back = [];
 				// remote doubles
 				resp.rows.forEach(function(row) {

@@ -24,7 +24,6 @@ exports.api = function(app) {
 		request.on("data",function(chunk) { body+=chunk; });
 		request.on("end",function() {
 			request.body = querystring.parse(body)
-			d10.log("debug",request.body,"after decode");
 			if ( !request.body.playlist ) {
 				return d10.realrest.err(427,"playlist parameter is empty",request.ctx);
 			}
@@ -53,7 +52,6 @@ exports.api = function(app) {
 	
 	app.put("/api/plm/append/pl:id",function(request,response) {
 		bodyDecoder()(request, response,function() {
-			d10.log("debug",request.body,"after decode");
 			if ( !request.body.song ) {
 				return d10.realrest.err(427,"song parameter is empty",request.ctx);
 			}
