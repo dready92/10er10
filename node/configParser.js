@@ -51,10 +51,8 @@ exports.getConfig = function(callback) {
 	fs.stat("./config.local.js",function(err,resp) {
 		if ( err ) {
 			mergedConfig = true;
-// 			console.log("mergedconfig = config");
 		} else {
 			var localConfig = require("./config.local");
-// 			console.log("doing a deep merge");
 			deepMerge(config,localConfig);
 			mergedConfig = true;
 		}
