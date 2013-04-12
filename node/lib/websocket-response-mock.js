@@ -1,4 +1,4 @@
-var debug = require("debug")("websocket-response-mock");
+var debug = require("debug")("d10:websocket-response-mock");
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
