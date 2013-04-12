@@ -25,7 +25,6 @@ exports.localPathServer = function ( uri, localuri, cacheSettings ) {
 	if ( !d10.config.production && ! "bypass" in cacheSettings  )	cacheSettings.bypass = true;
 	var cache = new files.fileCache(cacheSettings) ;
 	return  function ( request, response, next ) {
-		d10.log("debug","static cache request",request.url);
 		if ( ! request.ctx ) { request.ctx = {request: request, response: response}; }
 		if ( ! request.ctx.headers ) { request.ctx.headers = {}; }
 		request.ctx.headers["Accept-Ranges"] = "bytes";
