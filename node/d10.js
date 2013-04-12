@@ -1,18 +1,33 @@
 process.env.MAGIC = process.env.MAGIC || __dirname+"/magic/magic.mgc";
 
 var fs = require("fs"),
-    debug = require("debug"),
+    debugModule = require("debug"),
 	ncouch = require("./ncouch"),
 	files = require("./files"),
 	mmmagic = require("mmmagic"),
 	Magic = mmmagic.Magic,
 	exec = require('child_process').exec;
-	
+
+exports.debug = function (identifier) {
+  var dbg = debugModule(identifier);
+  return function () {
+    var str = "";
+    for ( var i in arguments ) {
+      if(typeof arguments[i] === "object" ) {
+        str+=JSON.stringify(arguments[i]);
+      } else {
+        str+=arguments[i];
+      }
+      str += " ";
+    }
+    dbg(str);
+  };
+};
+var debug = exports.debug("d10:d10");
 exports.mustache = require("./mustache");
 var config, fileCache;
 exports.setConfig = function(cfg) {
 	config = exports.config = cfg;
-//  	console.log(config.couch);
 	fileCache = files.fileCache( config.production ? null : {bypass: true} );
 	exports.couch = {
 		d10: ncouch.server(config.couch.d10.dsn).debug(false).database(config.couch.d10.database),
@@ -61,12 +76,6 @@ exports.db.d10Infos = function (login, cb, ecb) {
 		}
 	});
 };
-
-// console.log("Server debug state : ", ncouch.server(config.couch.d10.dsn).debug());
-
-// exports.couch.d10.debug(true);
-// exports.couch.auth.debug(true);
-// exports.couch.track.debug(true);
 
 var	httpStatusCodes = {
 	100: "Continue",
@@ -130,7 +139,7 @@ var	httpStatusCodes = {
 
 
 exports.log = function() {
-	console.log.apply(console,arguments);
+  debug(arguments);
 };
 
 exports.uid = function() {
@@ -158,8 +167,8 @@ exports.http.statusMessage = function(code) {
 };
 
 exports.view = function(n,d,p,cb) {
-	console.log("view");
-	console.log(d,p);
+	debug("view");
+	debug(d,p);
 	if ( !cb && p ) {
 		cb = p;
 		p = null;
@@ -174,9 +183,6 @@ exports.view = function(n,d,p,cb) {
 };
 
 exports.lngView = function(request, n, d, p, cb) {
-// 	console.log("lngView, request.ctx: ",request);
-// 	console.log("view");
-// 	console.log(d,p);
 	if ( !cb && p ) {
 		cb = p;
 		p = null;
@@ -255,7 +261,7 @@ exports.fillUserCtx = function (ctx,response,session) {
 	ctx.session = session;
 	response.rows.forEach(function(v,k) {
 		if ( v.doc._id.indexOf("se") === 0 && v.doc._id != session._id ) {
-			exports.log("debug","deleting session ",v.doc._id);
+			debug("deleting session ",v.doc._id);
 			exports.saveSession(v.doc,true);
 		} else if ( v.doc._id.indexOf("us") === 0 ) {
 			ctx.user = v.doc;
@@ -269,8 +275,8 @@ exports.fillUserCtx = function (ctx,response,session) {
 exports.fileType = function(file,cb) {
   var magic = new Magic(mmmagic.MAGIC_MIME_TYPE);
   magic.detectFile(file, function(err, result) {
-    exports.log("debug","fileType : ",result);
-    exports.log("debug","fileType error ?",err);
+    debug("fileType : ",result);
+    debug("fileType error ?",err);
     cb(err,result);
   });
 };
@@ -344,7 +350,7 @@ exports.realrest = {
 			ctx = data;
 			data = null;
 		}
-		console.log("response : ",code, exports.http.statusMessage(code), ctx.headers,data);
+		debug("response : ",code, exports.http.statusMessage(code), ctx.headers,data);
 		ctx.headers["Content-Type"] = "application/json";
 		ctx.response.writeHead(code, exports.http.statusMessage(code), ctx.headers);
 		ctx.response.end(data ? JSON.stringify(data) : null);
@@ -404,18 +410,3 @@ exports.saveUserPrivate = function(doc,deleteIt) {
 	}
 };
 
-exports.debug = function (identifier) {
-  var dbg = debug(identifier);
-  return function () {
-    var str = "";
-    for ( var i in arguments ) {
-      if(typeof arguments[i] === "object" ) {
-        str+=JSON.stringify(arguments[i]);
-      } else {
-        str+=arguments[i];
-      }
-      str += " ";
-    }
-    dbg(str);
-  };
-};
