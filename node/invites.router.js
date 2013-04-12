@@ -2,6 +2,7 @@ var bodyDecoder = require("connect").bodyParser,
 	hash = require("./hash"),
 	fs=require("fs"),
 	d10 = require("./d10"),
+	debug = d10.debug("d10:invites-router"),
 	when = require("./when"),
 	users = require("./d10.users");
 
@@ -71,7 +72,6 @@ var createAccount = function(request,response,invite) {
 		
 exports.api = function(app) {
 	app.post("/code/checkLogin",function(request,response,next) {
-		console.log("par ici");
 		bodyDecoder()(request, response,function() {
 			var db;
 			isValidCode( request.body.code,function(err,doc) {
@@ -147,7 +147,6 @@ exports.api = function(app) {
 		});
 	});
 	app.get("/code/:id",function(request,response,next) {
-		console.log("par ici !");
 		isValidCode( request.params.id, function(err,doc) {
 			if ( err ) { return next(); }
 			var headers = {
@@ -180,16 +179,14 @@ exports.api = function(app) {
 						}
 					},
 					function(errs, partials) {
-// 						console.log(errs,partials);
 						if ( errs ) {
-							console.log("ERROR: for lang "+request.ctx.lang,errs);
+							debug("ERROR: for lang "+request.ctx.lang,errs);
 							response.writeHead(500,headers);
 							return response.end("The website got an error trying to fetch the page.");
 						}
-// 						response.end(d10.mustache.to_html(html,{site_url: "/", code: request.params.id}));
 						var data = request.ctx.langUtils.loadLang(lang,"server",function(err, hash) {
 							if ( err ) {
-								console.log("ERROR: for lang "+request.ctx.lang,err);
+								debug("ERROR: for lang "+request.ctx.lang,err);
 								response.writeHead(500,headers);
 								return response.end("The website got an error trying to fetch the page.");
 							}
@@ -198,9 +195,6 @@ exports.api = function(app) {
 							delete partials.homepage;
 							partials.step1 = partials.step1.toString();
 							partials.step2 = partials.step2.toString();
-// 							hash["homepage.html"].creation_success = hash["homepage.html"].creation_success
-// 															.replace(/{{websiteUrl/g, d10.config.invites.websiteUrl);
-							// 							console.log(typeof homepage.toString());
 							response.end(
 								d10.mustache.to_html(
 									d10.mustache.lang_to_html(homepage, hash["homepage.html"],partials),

@@ -1,4 +1,4 @@
-var debug = require("debug")("d10:websocket-protocol-pevts");
+var debug = require("../d10").debug("d10:websocket-protocol-pevts");
 var emitter = require("./song-processor/song-processor-events");
 var sessionMiddleware = require("../cookieSessionMiddleware");
 var protocol = require("./websocket-protocol");
@@ -10,7 +10,7 @@ function onMessage(message, socket, callback) {
     var query = JSON.parse(message.payload);
   } catch (e) {
     debug("Badly formatted JSON payload");
-    console.log(message);
+    debug(message);
     return ;
   }
   if ( !query.session ) {
