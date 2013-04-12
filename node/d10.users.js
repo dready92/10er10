@@ -46,7 +46,6 @@ var isValidPassword = function(password, callback) {
 		var c = password.charCodeAt(i);
 		if ( hash.indexOf(c) < 0 )	hash.push(c);
 	}
-	console.log(hash);
 	if ( hash.length < 4 ) {
 		return callback(441);
 	}
@@ -111,7 +110,6 @@ var createUser = function(login,password,opts) {
 				auth: function(cb) {
 					d10.couch.auth.storeDocs( [ authUserDoc, authPrivDoc ], function(err,resp) {
 						if ( err ) {
-							console.log(err,resp);
 							cb(500,err);
 						} else {
 							cb();
@@ -121,7 +119,6 @@ var createUser = function(login,password,opts) {
 				d10wi: function(cb) {
 					d10.couch.d10wi.storeDocs( [ d10PreferencesDoc, d10PrivateDoc ], function(err,resp) {
 						if ( err ) {
-							console.log(err,resp);
 							cb(500,err);
 						} else {
 							cb();

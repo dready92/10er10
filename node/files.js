@@ -166,7 +166,6 @@ exports.fileCache = function(options) {
 		return { data: data, timestamp: new Date().getTime()
 		};
 	};
-	console.log("Bypass : ",settings.bypass);
 	var cachedReadStream = function(data) {
 		var pause = true;
 		var d = data.slice();
@@ -205,7 +204,6 @@ exports.fileCache = function(options) {
 			if ( options.start ) {key+= "^s"+options.start;}
 			if ( options.end ) {key+= "^e"+options.end;}
 			if ( cache.files[key] ) {
-				console.log("file ",key," served from cache",settings.bypass);
 				return new cachedReadStream(cache.files[key].data);
 			}	else {
 				return dupReadStream(file,key,options);
@@ -233,7 +231,6 @@ exports.fileCache = function(options) {
 						callback.call(this,err,data);
 					});
 					if ( !settings.bypass ) {
-						console.log("setting cache for ",file);
 						cache.files[file] = cacheEntry({data: data, err: err});
 					}
 					
@@ -242,7 +239,6 @@ exports.fileCache = function(options) {
 				else		fs.readFile(file,then);
 			} else {
 				process.nextTick(function() {
-					console.log("file served from cache");
 					callback.call(this,cache.files[file].data.err, cache.files[file].data.data);
 				});
 			}
