@@ -48,15 +48,12 @@ var recordAlternateSizes = function (tmpfile, targetdir, targetfile, size, onOth
         (function(newSize, step) {
           return function(then) {
             var targetfileName = exports.getAlternateFileName(targetfile, newSize);
-            console.log("will record image ",targetfileName);
             gm(tmpfile)
               .resize(newSize.width,newSize.height)
               .write(targetdir+"/"+targetfileName,function(err) {
                   if ( err ) {
-                      console.log("record image failed ",targetfileName);
                       return then("image manipulation error (writing modified image)");
                   }
-                  console.log("will record image success ",targetfileName);
                   then(null, newSize, step);
               });
           };
@@ -122,7 +119,6 @@ exports.resizeImage = function (tmpfile, targetdir, targetfile, cb) {
 		if ( !newH || !newW ) {
 			cb("image manipulation error (new image size returns null)");
 		}
-// 						console.log("resizing image to ",newW,newH);
 
         var onOtherSizesWritten = function(err, sizes) {
           gm(tmpfile)
@@ -131,7 +127,6 @@ exports.resizeImage = function (tmpfile, targetdir, targetfile, cb) {
               if ( err ) {
                   return cb("image manipulation error (writing modified image)");
               }
-  // 							console.log("image written to disk");
               cb(null, sizes);
           });
         };

@@ -17,7 +17,6 @@ exports.statusCode = function (code) {
 
 
 exports.localPathServer = function ( uri, localuri, cacheSettings ) {
-	console.log("create localPathServer for ",uri);
 	uri = uri.replace(/\/$/,"");
 	if ( !uri.length )	return false;
 	localuri = localuri.replace(/\/$/,"");
@@ -25,7 +24,6 @@ exports.localPathServer = function ( uri, localuri, cacheSettings ) {
 	cacheSettings = cacheSettings || {};
 	if ( !d10.config.production && ! "bypass" in cacheSettings  )	cacheSettings.bypass = true;
 	var cache = new files.fileCache(cacheSettings) ;
-// 	setInterval(function() { d10.log("FileCache ",uri,d10.count( cache.getCache().files ), d10.count( cache.getCache().stats ))  },1000);
 	return  function ( request, response, next ) {
 		d10.log("debug","static cache request",request.url);
 		if ( ! request.ctx ) { request.ctx = {request: request, response: response}; }
@@ -99,8 +97,6 @@ function sendStatic(staticFile, stats, ctx,cache) {
 				ctx.headers['Content-Length'] = stats.size;
 				stream = cache.createReadStream(staticFile);
 			}
-// 			console.log("creating readstream",staticFile,range);
-// 			stream.on("data",function(c) {console.log("writing ",c.length,"bytes to browser");});
 			ctx.response.writeHead(ctx.status, ctx.headers);
 			if(ctx.request.method == 'GET') {
 				util.pump(stream, ctx.response);
