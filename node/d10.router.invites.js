@@ -36,14 +36,12 @@ exports.api = function(app) {
 		},{
 			url: d10.mustache.to_html(d10.config.invites.url,{id: invite._id.replace(/^in/,"")})
 		});
-		d10.log("debug",body);
 		reallySendMail(email,body,then);
 	};
 	
 	app.post("/api/sendInvite",function(request,response) {
 		//should have email...?
 		bodyDecoder()(request, response,function() {
-			d10.log("debug",request.body,"after decode");
 			if ( !request.ctx.user.invites ) {
 				return d10.realrest.err(431,{invites: request.ctx.user.invites}, request.ctx);
 			}

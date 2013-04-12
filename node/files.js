@@ -21,7 +21,6 @@ var fileWriter = exports.fileWriter = function(path) {
 	this.open = function() {
 		fs.open(path, "w" , "0644", function(err,fd) {
 			if ( err ) {
-// 				d10.log("debug","fileWriter::open - got an error");
 				return ;
 			}
 			descriptor = fd;
@@ -57,7 +56,6 @@ var fileWriter = exports.fileWriter = function(path) {
 				var offset = 0;
 				
 				buf.forEach(function(v,k) {
-// 					d10.log("debug","buffer ? ", v instanceof Buffer );
 					v.copy(b,offset,0,v.length);
 					offset +=v.length;
 				});
@@ -65,7 +63,6 @@ var fileWriter = exports.fileWriter = function(path) {
 				inWrite = true;
 				fs.write(descriptor,b,0,b.length,null,function(e,bc) {
 					if ( e ) {
-// 						d10.log("debug","fileWriter::write - got an error",e);
 						inWrite = false;
 						return ;
 					}
@@ -75,7 +72,6 @@ var fileWriter = exports.fileWriter = function(path) {
 				});
 			} else if (  close ) {
 				fs.close(descriptor, function() { 
-// 					d10.log("debug","write fd is closed"); 
 					if ( closeCallback ) { closeCallback.call(this, bytesWritten); }
 					clearInterval(ival);
 					that.emit("end");
@@ -142,7 +138,6 @@ var sha1_file_spawn = function ( file, callback ) {
 	sha1    = spawn('sha1sum', [file]);
 	
 	sha1.stdout.on('data', function (data) { out+=data; });
-// 	sha1.stderr.on('data', function (data) { d10.log("debug",'stderr: ' + data); });
 	sha1.on('exit', function (code) {  callback(code,out.replace(/\s+$/,"")); });
 };
 
@@ -211,7 +206,6 @@ exports.fileCache = function(options) {
 		},
 		stat: function(file,then) {
 			if ( cache.stats[file] ) {
-// 				d10.log("filestat ",file," served from cache");
 				then.apply(this,cache.stats[file].data);
 				return ;
 			}

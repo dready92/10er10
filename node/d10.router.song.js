@@ -1,4 +1,5 @@
 var d10 = require ("./d10"),
+    debug = d10.debug("d10:d10.router.song"),
 	querystring = require("querystring"),
 	fs = require("fs"),
 	files = require("./files"),
@@ -50,11 +51,9 @@ exports.api = function(app) {
 	});
 	
 	app.put("/api/meta/:id",function(request,response,next) {
-// 		d10.log("debug","Taking");
 		if ( request.params.id.substr(0,2) != "aa" ) {
 			return next();
 		}
-		d10.log("debug","Still here");
 		var body = "";
 		request.setEncoding("utf8");
 		request.on("data",function(chunk) {
@@ -145,13 +144,12 @@ exports.api = function(app) {
 				
 					d10.couch.d10.getDoc(request.params.id,function(err,doc) {
 						if ( err ) {
-							d10.log("debug","getDoc error");
 							d10.realrest.err(err.statusCode, err.statusMessage, request.ctx);
 							return ;
 						}
 						
 						if ( doc.user != request.ctx.user._id && !request.ctx.user.superman ) {
-							d10.log("debug",request.ctx.user._id,"Not allowed to edit", doc._id);
+							debug("debug",request.ctx.user._id,"Not allowed to edit", doc._id);
 							d10.realrest.err(403, "Forbidden", request.ctx);
 							return ;
 							
@@ -162,10 +160,10 @@ exports.api = function(app) {
 						}
 						d10.couch.d10.storeDoc(doc, function(err,resp) {
 							if ( err ) {
-								d10.log("debug","storeDoc error");
+								debug("debug","storeDoc error");
 								d10.realrest.err(err.statusCode, err.statusMessage, request.ctx);
 							}else {
-								d10.log("debug","storeDoc success");
+								debug("debug","storeDoc success");
 								d10.realrest.success(doc,request.ctx);
 								d10.couch.d10wi.storeDoc({_id: doc._id, hits: 0});
 							}

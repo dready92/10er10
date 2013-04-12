@@ -45,7 +45,7 @@ exports.update = function(playlist, songs, then) {
 	var save = function() {
 		playlist.songs = songs;
 		d10.couch.d10.storeDoc(playlist,function(err,resp) {
-			if ( err ) {  d10.log("debug",err);return then(4); }
+			if ( err ) { return then(4); }
 			then(null,{playlist: playlist,songs: songsDetail});
 			
 		});

@@ -195,10 +195,8 @@ var makeSession = function(uid, cb ) {
 	};
 	d10.couch.auth.storeDoc(doc,function(err,storeResponse) {
 		if ( err ) {
-			d10.log("debug","error on session recording",err);
 			return cb(new Error("Session recording error"));
 		}
-		d10.log("debug","session recorded : ",storeResponse);
 		return cb(null,doc);
 	});
 };
