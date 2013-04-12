@@ -8,7 +8,6 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"], function(foo, pla
     return m+':'+s;
   };
 var createInstance = function(container) {
-// 	debug(binder);
 	var module = new playlistModule("time",
 		{
 			"playlist:currentSongChanged": function() {
@@ -97,7 +96,6 @@ var createInstance = function(container) {
 			var offset = ui.offset();
 			var pix = e.pageX-offset.left;
 			playlist.seek(Math.floor(pix/punit));
-			debug(pix+' = '+pix/punit+' secs');
 		})
         .mousemove(onMouseMove)
         .mouseenter(onMouseMove)
@@ -112,7 +110,6 @@ var createInstance = function(container) {
 
 		// in seconds
 		this.setMax = function(num) {
-			debug("setMax",ui,num,ui.width());
 			pmax=parseInt(num);
 			punit=ui.width() / pmax;
 		}
@@ -129,17 +126,16 @@ var createInstance = function(container) {
 
 
 		this.setNetloadMax = function (num) {
-			netload_pmax=parseInt(num);
+			netload_pmax=parseInt(num, 10);
 			netload_punit=ui.width() / netload_pmax;
 		}
 		this.setNetloadMax(100); // percentile
 
 		this.setNetloadBar = function(data) {
-//                      this.setNetloadMax(data.total);
-			//     debug("loaded: ",data.loaded," total: ",data.total); 
-			$('div.netload',ui).css({
-				width: Math.floor(netload_punit*data)
-			});
+          this.setNetloadMax(100);
+          ui.find('div.netload').css({
+              width: Math.floor(netload_punit*data)
+          });
 		}
 	}
 	return module;
