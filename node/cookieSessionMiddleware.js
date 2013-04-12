@@ -31,7 +31,6 @@ d10.couch.auth.on("delete",function(err,doc) {
 		if ( type == "se" || type == "pr" || type == "us" ) {
 			for ( var i in sessionCache ) {
 				if ( sessionCache[i][type] && sessionCache[i][type]._id == doc._id ) {
-// 					d10.log("debug","sessionCache delete for ",i);
 					delete sessionCache[i];
 					break;
 				}
@@ -79,7 +78,6 @@ var checkAuth = function (ctx,passTheCoochie) {
 							if ( !found && v.doc._id == "se"+cookieData.session ) {
 								d10.fillUserCtx(ctx,response,v.doc);
 								sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session);
-// 								d10.log("debug",ctx.request.url+": "+ctx.user.login," is now logged from sessionCache");
 								found = true;
 							}
 						});

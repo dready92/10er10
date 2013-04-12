@@ -70,7 +70,7 @@ exports.api = function(app) {
 			},
 			function(errors,responses) {
 				if ( errors ) {
-					d10.log("debug",errors);
+					debug(errors);
 					d10.realrest.err(423,null,request.ctx);
 				} else {
 					responses.user = request.ctx.user;
@@ -96,10 +96,9 @@ exports.api = function(app) {
 			jobs,
 			function(e,responses) {
 				if ( e ) {
-					d10.log("error");d10.log(e);
+					debug("/api/htmlElements error(s):",e);
 					d10.realrest.err(500,e,request.ctx);
 				} else {
-					d10.log("success");
 					var dynamic = responses.dynamic;
 					delete responses.dynamic;
 					for ( var i in dynamic ) {
@@ -203,12 +202,9 @@ exports.api = function(app) {
 	);
 	
 	app.post("/api/ping",function(request,response) {
-		d10.log("debug","router:","POST /api/ping");
-		request.on("data",function() {d10.log("debug","ping data reached");});
-		request.on("end",function() {d10.log("debug","ping end reached");});
 		var updateAliveDoc = function() {
 			d10.couch.track.updateDoc("tracking/ping/"+request.ctx.user._id.replace(/^us/,"pi"),function(err,resp) {
-				if ( err ) d10.log(err);
+				if ( err ) debug("/api/ping error on db request:",err);
 			});
 		};
 
@@ -230,7 +226,7 @@ exports.api = function(app) {
 					}
 					if ( doc.hits ) doc.hits++;
 					else			doc.hits = 1;
-					d10.couch.d10wi.storeDoc(doc,function(err,resp) {if ( !err )	d10.log("debug","hitcount updated");});
+					d10.couch.d10wi.storeDoc(doc,function(err,resp) {});
 				});
 			};
 			
@@ -265,13 +261,12 @@ exports.api = function(app) {
 			request.ctx.session.ts_last_usage = new Date().getTime();
 			d10.couch.auth.storeDoc(request.ctx.session, function(err) {
 				if ( err ) {
-					d10.log("debug","Session timestamp updated, error: ",err);
+					debug("Session timestamp updated, error:",err);
 				}
 			});
 		};
 		
 		bodyDecoder()(request, response,function() {
-			d10.log("debug",request.body,"after decode");
 			updateAliveDoc();
 			parsePlayerInfos();
 			d10.realrest.success( [], request.ctx );
@@ -331,7 +326,6 @@ exports.api = function(app) {
 		request.on("data",function(chunk) { body+=chunk; });
 		request.on("end",function() {
 			request.body = qs.parse(body);
-			d10.log("request.body: ",request.body);
 			var count = parseInt(request.body.count);
 			if ( isNaN(count) || count < 1 ){
 				return d10.realrest.err(427,"count",request.ctx);
@@ -494,19 +488,14 @@ exports.api = function(app) {
 		_songSearch("song/search", request, response);
 	});
 	var _songSearch = function(view, request,response) {
-// 		var db = d10.db.db("d10");
 		var options = {include_docs: true};
 		if ( request.query.start ) {
 			var start = d10.ucwords( request.query.start.replace(/^\s+/,"").replace(/\s+$/,"") );
 			var end = d10.nextWord(start);
-// 			d10.log("debug","startkey",start,"endkey",end,"next",next);
 			options.startkey = start;
 			options.endkey = end;
 			options.inclusive_end = false;
-// 			db.startkey(start).endkey(end).inclusive_end(false);
 		}
-// 		db.include_docs(true).getView({
-// 			success: function(resp) {
 		d10.couch.d10.view(view, options, function(err,resp) {
 			if ( err ) { return d10.realrest.err(423,err,request.ctx); }
 			var results = {title: [], artist: [], album: []};
@@ -568,7 +557,6 @@ exports.api = function(app) {
 	app.post("/api/details",function(request,response) {
 		bodyDecoder()(request, response,function() {
 			
-			d10.log("debug","body decoded",request.body);
 			var artists = [], albums = [], jobs = {};
 			if ( request.body.artists ) {
 				if ( Object.prototype.toString.call(request.body.artists) === '[object Array]' ) {
@@ -586,7 +574,6 @@ exports.api = function(app) {
 			}
 			if ( artists.length ) {
 				jobs.artists=function(cb) {
-					d10.log("launching artists details");
 					d10.couch.d10.view("artist/artist",{reduce: false, include_docs: true, keys: artists}, function(err,resp) {
 						if ( err )	{cb(err);}
 						else	cb(null,resp.rows);
@@ -594,8 +581,6 @@ exports.api = function(app) {
 				};
 			}
 			if ( albums.length ) {
-				d10.log("launching albums details");
-				
 				jobs.albums=function(cb) {
 					d10.couch.d10.view("album/album",{reduce: false, include_docs:true,keys: albums}, function(err,resp) {
 						if ( err )	{cb(err);}
