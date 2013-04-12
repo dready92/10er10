@@ -1,4 +1,5 @@
-define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", "js/d10.events"], 
+define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", 
+       "js/d10.events"], 
        function(foo, tpl, router, rest, pubsub) {
 
 	function uploadCtrl (ui) {
@@ -200,7 +201,7 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest", "js/d
         function songUploadEnd(widget, response) {
           widget.attr("name",response.id);
           widget.find("div.controls span.progress").empty().show();
-          widget.find("div.controls span.status").html("Encoding... ");
+          widget.find("div.controls span.status").html(tpl.mustacheView("upload.server.encoding"));
         };
 
 		function launchVideo () {

@@ -431,6 +431,7 @@ exports.client = {
 	"upload.song.success": "Success",
 	"upload.song.alreadyindb": "This song is already available",
 	"upload.song.serverError": "Server failure... Please retry",
+    "upload.server.encoding": "Encoding... ",
 	"library.extendedInfos.artist.albums": "This artist albums",
 	"library.extendedInfos.artist.artists": "Artists you might like",
 	"library.extendedInfos.genre.artists": "Artists",
