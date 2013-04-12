@@ -32,8 +32,6 @@ for ( var i in config.couch_prod ) {
 				 );
 }
 
-// console.log(couchServers);
-
 for ( var i in config.couch_dev ) {
 	var url = config.couch_prod[i].dsn;
 	var parsed = Url.parse(url);
@@ -114,7 +112,6 @@ checks.push(
 				})(opts);
 		}
 		when(whenTests,function(errs,resp) {
-// 			console.log("responses on when");
 			if ( errs ) {
 				console.log("Configured CouchDB Server unreachable error : ");
 				for ( var i in errs ) {
@@ -146,14 +143,9 @@ exports.check = function(result) {
 			result();
 			return ;
 		}
-// 		console.log("next check");
 		// next check
 		checks[i](then);
 	};
-// 	console.log("launching first check");
-// 	for ( var  i in checks ) {
-// 		console.log(checks[i]);
-// 	}
 	checks[0](then);
 };
 
