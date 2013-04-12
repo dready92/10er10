@@ -1,3 +1,21 @@
+Upgrade from 0.14 to 0.2
+=========================
+
+- install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
+
+- install the node **ws** and **debug** modules : from the UNIX user you setup node & npm, run
+
+    npm install ws debug
+
+- restart the node 10er10 server
+
+**What changed ?**
+
+- UI refresh : less gradient, fixed top bar
+- use websockets. This leads to a better user experience when uploading songs: the user get the encoding progress
+- also parse artists client-side: when displayed the songs title don't contains artists, and artists are independently clickable
+- use animation frames feature for spectrum
+
 Upgrade from 0.13 to 0.14
 =========================
 
