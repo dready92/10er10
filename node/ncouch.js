@@ -1,6 +1,7 @@
 var http = require("http"),
 	querystring = require("querystring"),
 	Url = require("url"),
+	debug = require("debug")("ncouch"),
 	events = require("events");
 
 var CONNECTION_DEFAULTS = {
@@ -70,9 +71,7 @@ function ncouch (url) {
 
 	var debug=false;
 	var requestsCount = 0;
-	
-// 	console.log(uri);
-	
+		
 	var serverQuery = this.query = function (options) {
 		var settings = {
 			type: "GET",
@@ -103,56 +102,13 @@ function ncouch (url) {
 		if ( settings.body ) {
 			settings.headers["Content-Length"] = Buffer.byteLength(settings.body);
 		}
-		/*
-		var client = http.createClient(uri.port ? uri.port : 80, uri.hostname);
-		if ( debug ) {
-			console.log("request",settings.type,settings.url);
-		}
-// 		console.log("request",settings);
-		var request = client.request(settings.type,settings.url ? settings.url : "",settings.headers);
-		request.on("response",function(resp) {
-			if ( debug ) {
-				console.log(ruid,"request response: ",resp.statusCode);
-			}
-			resp.setEncoding("utf8");
-			var body = "";
-			resp.on("data",function(d) { body+=d;});
-			resp.on("error", function() {
-				settings.complete(resp.statusCode,null,
-						 {
-							statusCode: resp.statusCode,
-							headers: JSON.parse(JSON.stringify(resp.headers)),
-							query: options
-						 }
-				);
-			});
-			resp.on("end",function() {
-				if ( body.length && resp.headers["content-type"] == "application/json" ) {
-					try {
-						var b = JSON.parse(body);
-						body = b;
-					} catch (e) {
-					}
-				}
-				if ( debug ) {
-					console.log(ruid,"request body: ",body);
-				}
-				settings.complete(null,body,
-						 {
-							statusCode: resp.statusCode,
-							headers: JSON.parse(JSON.stringify(resp.headers)),
-							query: options
-						 }
-				);
-			});
-		});
-		*/
+		
 		var request = httpRequest(
 			uri, 
 			settings,
 			function(resp) {
 				if ( debug ) {
-					console.log(ruid,"request response: ",resp.statusCode);
+					debug(ruid,"request response: ",resp.statusCode);
 				}
 				resp.setEncoding("utf8");
 				var body = "";
@@ -174,7 +130,7 @@ function ncouch (url) {
 						} catch (e) {}
 					}
 					if ( debug ) {
-						console.log(ruid,"request body: ",body);
+						debug(ruid,"request body: ",body);
 					}
 					settings.complete(null,body,
 						{
@@ -189,7 +145,7 @@ function ncouch (url) {
         try {
           request.end( settings.body ? settings.body : null );
         } catch(e) {
-          console.log("############## ncouch can't write ##################");
+          debug("############## ncouch can't write ##################");
           throw e;
         }
 	};
@@ -231,7 +187,7 @@ function ncouch (url) {
 			settings.body = JSON.stringify( settings.body );
 		}
 		if ( debug ) {
-			console.log("request body",settings.body);
+			debug("request body",settings.body);
 		}
 		return settings;
 	};
@@ -257,7 +213,6 @@ function ncouch (url) {
 				callback(err,body,meta);
 			}
 		};
-// 		console.log(query);
 		return serverQuery(query);
 	}
 	
