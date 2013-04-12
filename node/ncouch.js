@@ -1,7 +1,7 @@
 var http = require("http"),
 	querystring = require("querystring"),
 	Url = require("url"),
-	debug = require("debug")("ncouch"),
+	dbg = require("debug")("ncouch"),
 	events = require("events");
 
 var CONNECTION_DEFAULTS = {
@@ -108,7 +108,7 @@ function ncouch (url) {
 			settings,
 			function(resp) {
 				if ( debug ) {
-					debug(ruid,"request response: ",resp.statusCode);
+					dbg(ruid+"request response: "+resp.statusCode);
 				}
 				resp.setEncoding("utf8");
 				var body = "";
@@ -130,7 +130,7 @@ function ncouch (url) {
 						} catch (e) {}
 					}
 					if ( debug ) {
-						debug(ruid,"request body: ",body);
+						dbg(ruid+"request body: "+JSON.stringify(body));
 					}
 					settings.complete(null,body,
 						{
@@ -145,7 +145,7 @@ function ncouch (url) {
         try {
           request.end( settings.body ? settings.body : null );
         } catch(e) {
-          debug("############## ncouch can't write ##################");
+          dbg("############## ncouch can't write ##################");
           throw e;
         }
 	};
@@ -187,7 +187,7 @@ function ncouch (url) {
 			settings.body = JSON.stringify( settings.body );
 		}
 		if ( debug ) {
-			debug("request body",settings.body);
+			dbg("request body"+settings.body);
 		}
 		return settings;
 	};
