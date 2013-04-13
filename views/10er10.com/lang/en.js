@@ -46,7 +46,7 @@ exports.server = {
 		side_options_audiofade_title: "<strong>Fade</strong> between songs",
 		side_options_audiofade_seconds: "second(s)",
 		side_options_spectrum_title: "Spectrum",
-        side_options_mix_title: "Mix de next song",
+        side_options_mix_title: "Mix the next song",
         side_options_mix_waiting_preload: "Waiting for the next song to be ready",
         side_options_mix_choose: "< Choose",
 		side_playlistloader: "Loading last playlist...",
