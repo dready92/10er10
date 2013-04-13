@@ -95,7 +95,7 @@ exports.homepage = function(app) {
 		} else {
 			debug("homepage router: NOT LOGGED");
 		}
-		request.ctx.headers["Content-Type"] = "text/html";
+		request.ctx.headers["Content-Type"] = "text/html; charset=utf-8";
 		response.writeHead(200, request.ctx.headers );
 		
 		if ( request.ctx.session && "_id" in request.ctx.session && request.ctx.user ) {

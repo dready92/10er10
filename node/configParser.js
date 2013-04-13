@@ -48,11 +48,12 @@ exports.getConfig = function(callback) {
 	if ( mergedConfig ) {
 		return callback(null,config);
 	}
-	fs.stat("./config.local.js",function(err,resp) {
+	var localConfigFile = __dirname+"/config.local.js";
+	fs.stat(localConfigFile,function(err,resp) {
 		if ( err ) {
 			mergedConfig = true;
 		} else {
-			var localConfig = require("./config.local");
+			var localConfig = require(localConfigFile);
 			deepMerge(config,localConfig);
 			mergedConfig = true;
 		}

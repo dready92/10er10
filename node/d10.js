@@ -368,9 +368,9 @@ exports.saveSession = function(doc,deleteIt) {
 	if ( deleteIt ) {
 		exports.couch.auth.deleteDoc(doc,function(err) {
 			if ( err ) {
-				exports.log("failed to delete session "+doc._id);
+				debug("failed to delete session "+doc._id);
 			} else {
-				exports.log("session deleted "+doc._id);
+				debug("session deleted "+doc._id);
 			}
 		});
 	} else {
@@ -385,9 +385,9 @@ exports.saveUser = function(doc,deleteIt) {
 	if ( deleteIt ) {
 		exports.couch.auth.deleteDoc(doc,function(err) {
 			if ( err ) {
-				exports.log("failed to delete user "+doc._id);
+				debug("failed to delete user "+doc._id);
 			} else {
-				exports.log("user deleted "+doc._id);
+				debug("user deleted "+doc._id);
 			}
 		});
 	}
@@ -397,9 +397,9 @@ exports.saveUserPrivate = function(doc,deleteIt) {
 	if ( deleteIt ) {
 		exports.couch.auth.deleteDoc(doc,function(err) {
 			if ( err ) {
-				exports.log("failed to delete user private infos "+doc._id);
+				debug("failed to delete user private infos "+doc._id);
 			} else {
-				exports.log("user private infos deleted "+doc._id);
+				debug("user private infos deleted "+doc._id);
 			}
 		});
 	}

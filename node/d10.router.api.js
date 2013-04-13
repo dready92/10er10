@@ -91,7 +91,6 @@ exports.api = function(app) {
 							})(d10.config.templates.clientList[jobname],jobname);
 		}
 		jobs.dynamic = function(cb) { request.ctx.langUtils.loadLang(request.ctx.lang, "client",cb); };
-		request.ctx.headers["Content-type"] = "application/json";
 		when(
 			jobs,
 			function(e,responses) {
