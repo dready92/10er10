@@ -4,6 +4,7 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 	   function(bghttp, When, rest, user, localcache, tpl, router,
                 playlist, jobs, bgtask, plmCtlr, pubsub, config, audioCapabilities) {
 		   
+    var startupTime = new Date().getTime();
 		   
 	var onWindowResize = function() {
 		var body = $("body"),
@@ -107,6 +108,12 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 			if ( ! elem.hasClass("active") ) { router.navigate(action,true); }
 		});
 		
+        var diffUntilStartup = (new Date().getTime() - startupTime );
+        if ( diffUntilStartup < 1000 ) {
+          $('#container').css({"opacity": 1, "display": "block"});
+          $('#beautyFade').hide();
+          return visibleBaby();
+        }
 		$('#container').css("display","block").animate({"opacity": 1}, 400,visibleBaby);
 		$('#initialLoading').html(tpl.mustacheView("landing.letsgo"));
 		$('#beautyFade').fadeOut(700);
