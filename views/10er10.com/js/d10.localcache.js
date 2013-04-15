@@ -13,19 +13,24 @@ pubsub.topic("server.load").subscribe(function(load) {
 });
   
 var storagebase = {
+  templates: {},
   getTemplate: function (key) {
-    var obj = this.getJSON('site.templates');
-    if ( !obj )	obj = {};
-    return obj[key];
+//     var obj = this.getJSON('site.templates');
+//     if ( !obj )	obj = {};
+//     return obj[key];
+    return this.templates[key];
   },
   setTemplate: function (key,val) {
-    var obj = this.getJSON('site.templates');
-    if ( !obj )	obj = {};
-    obj[key] = val;
-    return this.setJSON('site.templates',obj);
+//     var obj = this.getJSON('site.templates');
+//     if ( !obj )	obj = {};
+//     obj[key] = val;
+//     return this.setJSON('site.templates',obj);
+    this.templates[key] = val;
+    return true;
   },
   unsetTemplates: function () {
-    return this.unset('site.templates');
+    this.templates = {};
+    return true;
   },
 
   getJSON: function (key) {
