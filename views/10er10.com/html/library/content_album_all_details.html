@@ -1,5 +1,27 @@
 <div class="albumDetails">
   <div class="head">
-    dd
+    <img src="{{image_url}}">
+    <div class="infos">
+      <div class="albumTitle pointer" data-target="#library/abums/{{e_album}}">{{album}}</div>
+      <div class="albumArtists">
+        {{#artists}}
+        <span class="albumArtist pointer" data-target="#library/artists/{{encoded}}">
+          {{name}}
+        </span>
+        {{/artists}}
+      </div>
+      <div class="controls">
+        <span class="pointer">
+          Ajouter à la lecture en cours
+        </span>
+      </div>
+      <div class="songsList">
+        <ol class="songs">
+          {{#songs}}
+            <li> {{title}}</li>
+          {{/songs}}
+        </ol>
+      </div>
+    </div>
   </div>
 </div>

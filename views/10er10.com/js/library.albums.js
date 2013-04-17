@@ -42,10 +42,12 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
       albumCoversContent.find(".albumMini.opened").each(function() {
         closeAlbumDetails($(this));
       });
+      var albumDetails = miniWidget.data("albumDetails");
+      debug(albumDetails);
       var row = miniWidget.closest(".albumrow");
       var arrow = miniWidget.find(".arrow");
       var arrow2 = miniWidget.find(".arrow2");
-      var albumDetailsContainer = $(tpl.mustacheView("library.content.album.all.details"));
+      var albumDetailsContainer = $(tpl.mustacheView("library.content.album.all.details", albumDetails));
       var albumDetailsHeadContainer = albumDetailsContainer.find(".head");
       row.after(albumDetailsContainer);
       var colors = thief.getColors(miniWidget.find("img").get(0));
@@ -61,7 +63,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
       arrow2.css({"border-bottom-color": bgColor});
       miniWidget.data("albumDetailsContainer",albumDetailsContainer);
       miniWidget.addClass("opened");
-      albumDetailsHeadContainer.append(JSON.stringify( miniWidget.data("albumDetails") ));
+      albumDetailsHeadContainer.append(JSON.stringify(  ));
     };
     
     var closeAlbumDetails = function(miniWidget) {
@@ -156,6 +158,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
             if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
 			$.each(resp,function(k,songs) {
 				var albumData = dataParsers.singleAlbumParser(songs);
+                albumData.songs = songs.map(function(row) { return row.doc ? row.doc : row });
 				var html = $( tpl.albumMini(albumData) ).data("albumDetails",albumData);
                 if ( cols == 4 ){
                   currentAlbumRow = $(albumRowTemplate);

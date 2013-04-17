@@ -948,10 +948,43 @@ article div.refreshList {
   margin-top: 10px;
   margin-bottom: 10px;
   padding: 2px;
+
 }
 
 #library .albumCoversContent .albumDetails .head {
   padding: 10px;
+  min-height: 128px;
+}
+
+#library .albumCoversContent .albumDetails .head > img {
+  float: right;
+  border: 1px solid #121212;
+}
+
+#library .albumCoversContent .albumDetails .head .infos{
+  margin-right: 130px; 
+}
+#library .albumCoversContent .albumDetails .albumTitle{
+  font-size: 1.4em;
+  padding-bottom: 5px;
+  font-weight: bold;
+}
+
+#library .albumCoversContent .albumDetails .albumArtist:not(:last-child):after{
+  content: ",";
+}
+
+#library .albumCoversContent .albumDetails .controls{
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+#library .albumCoversContent .albumDetails .controls > span:hover{
+  font-weight: bold;
+}
+
+#library .albumCoversContent .albumDetails .songsList{
+  margin-left: 20px;
 }
 
 .popover {
