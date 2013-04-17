@@ -57,10 +57,11 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
       
       albumDetailsContainer.css({"background-color": primaryColor});
       arrow.css({"border-bottom-color": primaryColor});
-      albumDetailsHeadContainer.css({"background-color": bgColor});
+      albumDetailsHeadContainer.css({"background-color": bgColor, color: primaryColor});
       arrow2.css({"border-bottom-color": bgColor});
       miniWidget.data("albumDetailsContainer",albumDetailsContainer);
       miniWidget.addClass("opened");
+      albumDetailsHeadContainer.append(JSON.stringify( miniWidget.data("albumDetails") ));
     };
     
     var closeAlbumDetails = function(miniWidget) {
