@@ -1,8 +1,8 @@
 define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router", 
 	   "js/d10.rest", "js/d10.toolbox", "js/d10.restHelpers",
-       "js/d10.widgetHelpers"
+       "js/d10.widgetHelpers", "js/color-manipulation.thief"
        ],
-	   function(dataParsers, tpl, router, rest, toolbox, restHelpers, widgetHelpers) {
+	   function(dataParsers, tpl, router, rest, toolbox, restHelpers, widgetHelpers, thief) {
 	"use strict";
 	var bindAllAlbums = function(topicdiv, categorydiv, topic, category, letter) {
 		categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all"));
@@ -24,9 +24,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 		  router.navigateTo( [ "library","albums",$(this).closest(".albumMini").data("albumDetails").album ] );
 		});
         categorydiv.delegate(".albumMini", "click", function() {
-          $(this).toggleClass("opened");
-          var row = $(this).closest(".albumrow");
-          row.after('<div class="albumDetails">GREAT THING ARE COMING</div>');
+          toggleAlbumDetails($(this));
         });
 		
 	};
@@ -40,14 +38,39 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
     };
     
     var openAlbumDetails = function(miniWidget) {
-      var albumCoversContent = miniWidget.closest("albumCoversContent");
+      var albumCoversContent = miniWidget.closest(".albumCoversContent");
       albumCoversContent.find(".albumMini.opened").each(function() {
         closeAlbumDetails($(this));
       });
+      var row = miniWidget.closest(".albumrow");
+      var arrow = miniWidget.find(".arrow");
+      var arrow2 = miniWidget.find(".arrow2");
+      var albumDetailsContainer = $('<div class="albumDetails"><div class="head">GREAT THING ARE COMING</div></div>');
+      var albumDetailsHeadContainer = albumDetailsContainer.find(".head");
+      row.after(albumDetailsContainer);
+      var colors = thief.getColors(miniWidget.find("img").get(0));
+      var bgColor = "rgb("+colors[1].join(',')+")";
+      var fgColors = thief.inverseColors(colors[1], colors[0]);
       
+      var primaryColor = "rgb("+fgColors[0].join(',')+")";
+      var secondaryColor = "rgb("+fgColors[1].join(',')+")";
+      
+      albumDetailsContainer.css({"background-color": primaryColor});
+      arrow.css({"border-bottom-color": primaryColor});
+      albumDetailsHeadContainer.css({"background-color": bgColor});
+      arrow2.css({"border-bottom-color": bgColor});
+      miniWidget.data("albumDetailsContainer",albumDetailsContainer);
+      miniWidget.addClass("opened");
     };
     
-    
+    var closeAlbumDetails = function(miniWidget) {
+      var albumDetailsContainer = miniWidget.data("albumDetailsContainer");
+      if ( albumDetailsContainer ) {
+        albumDetailsContainer.remove();
+        miniWidget.removeData("albumDetailsContainer");
+      }
+      miniWidget.removeClass("opened");
+    };
     
 	var allAlbumsContents = {};
 	

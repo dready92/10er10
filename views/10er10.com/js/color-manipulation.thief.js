@@ -1,5 +1,5 @@
 
-define(["js/color-manipulation.quantize"], function() {
+define(["js/color-manipulation.quantize"], function(MMCQ) {
 /*
  * Color Thief v1.0
  * Originally by Lokesh Dhakar - http://www.lokeshdhakar.com

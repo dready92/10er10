@@ -472,4 +472,4 @@ var MMCQ = (function() {
     }
 })();
   return MMCQ;
-}):
+});

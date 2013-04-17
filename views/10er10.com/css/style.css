@@ -865,15 +865,31 @@ article div.refreshList {
   white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
 }
 
-#library .albumMini.opened::before {
+#library .albumMini .arrow { 
+  display: none;
   position: absolute;
-  content: '';
   margin-left: -7px;
   border-left: 12px solid transparent;
   border-right: 12px solid transparent;
   border-bottom: 12px solid blue;
-  bottom: -12px;
+  bottom: -13px;
+  left: 50%;}
+
+#library .albumMini .arrow2 {
+  display: none;
+  position: absolute;
+  margin-left: -7px;
+  content: '';
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 12px solid #FFFFFF;
+  bottom: -15px;
   left: 50%;
+}
+  
+#library .albumMini.opened .arrow,
+#library .albumMini.opened .arrow2 {
+  display: block;
 }
 
 #library .albumsLanding menu {
@@ -923,9 +939,19 @@ article div.refreshList {
     box-shadow: 0 0 1px rgba(0,0,0,1);
 }
 
-#library .albumCoversContent .albumrow {
+#library .albumCoversContent .albumrow, #library .albumCoversContent .albumDetails {
   width: 670px;
   margin: auto;
+}
+
+#library .albumCoversContent .albumDetails {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 2px;
+}
+
+#library .albumCoversContent .albumDetails .head {
+  padding: 10px;
 }
 
 .popover {
