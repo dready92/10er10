@@ -6,7 +6,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 	"use strict";
 	var bindAllAlbums = function(topicdiv, categorydiv, topic, category, letter) {
 		categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all"));
-        widgetHelpers.bindAlbumCoverPopin(categorydiv);
+        //widgetHelpers.bindAlbumCoverPopin(categorydiv);
 		categorydiv.delegate(".letter","click", function() {
 			var letter = $(this);
 			if ( letter.hasClass("active") ) {
@@ -23,9 +23,32 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 		.delegate(".albumMini .albumTitle","click",function() {
 		  router.navigateTo( [ "library","albums",$(this).closest(".albumMini").data("albumDetails").album ] );
 		});
+        categorydiv.delegate(".albumMini", "click", function() {
+          $(this).toggleClass("opened");
+          var row = $(this).closest(".albumrow");
+          row.after('<div class="albumDetails">GREAT THING ARE COMING</div>');
+        });
 		
 	};
 
+    var toggleAlbumDetails = function(miniWidget) {
+      if ( miniWidget.hasClass("opened") ) {
+        closeAlbumDetails(miniWidget);
+      } else {
+        openAlbumDetails(miniWidget);
+      }
+    };
+    
+    var openAlbumDetails = function(miniWidget) {
+      var albumCoversContent = miniWidget.closest("albumCoversContent");
+      albumCoversContent.find(".albumMini.opened").each(function() {
+        closeAlbumDetails($(this));
+      });
+      
+    };
+    
+    
+    
 	var allAlbumsContents = {};
 	
 	var allAlbums = function(topicdiv,categorydiv, topic, category, letter) {
@@ -90,6 +113,8 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 		categorydiv.append(contentDiv);
 	};
 	
+    var albumRowTemplate = '<div class="albumrow"></div>';
+    
 	var loadContentDiv = function( contentDiv, letter) {
 		var endPoint = rest.song.list.albums;
 		var options = {};
@@ -99,14 +124,22 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 		}
 
 		var cursor = new restHelpers.couchMapMergedCursor(endPoint,options,"album");
-		var rows = null;
+		var cols = 0;
+        var currentAlbumRow = $(albumRowTemplate);
+        contentDiv.append(currentAlbumRow);
 		var fetchAll = function(err,resp) {
 			if ( err ) { return ; }
             if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
 			$.each(resp,function(k,songs) {
 				var albumData = dataParsers.singleAlbumParser(songs);
 				var html = $( tpl.albumMini(albumData) ).data("albumDetails",albumData);
-                contentDiv.append(html);
+                if ( cols == 4 ){
+                  currentAlbumRow = $(albumRowTemplate);
+                  contentDiv.append(currentAlbumRow);
+                  cols=0;
+                }
+                cols++;
+                currentAlbumRow.append(html);
 			});
 		};
 		if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }

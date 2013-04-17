@@ -865,6 +865,17 @@ article div.refreshList {
   white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
 }
 
+#library .albumMini.opened::before {
+  position: absolute;
+  content: '';
+  margin-left: -7px;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 12px solid blue;
+  bottom: -12px;
+  left: 50%;
+}
+
 #library .albumsLanding menu {
 	padding: 10px 0;
 }
@@ -910,6 +921,11 @@ article div.refreshList {
 	background: -webkit-linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
 	background: -moz-linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
     box-shadow: 0 0 1px rgba(0,0,0,1);
+}
+
+#library .albumCoversContent .albumrow {
+  width: 670px;
+  margin: auto;
 }
 
 .popover {
