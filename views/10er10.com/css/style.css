@@ -838,7 +838,8 @@ article div.refreshList {
 /* 	vertical-align: middle; */
 }
 #library .albumMini img{
- 	-webkit-transform: scale(0.8); 
+    -webkit-transition: -webkit-transform 0.3s;
+	-webkit-transform: scale(0.8); 
 	-webkit-transform-origin: center;
     transform: scale(0.8);
     transform-origin: center center;
@@ -848,6 +849,10 @@ article div.refreshList {
 	box-shadow: -2px 2px 3px rgba(255,255,255,0.1), 2px -2px 3px rgba(0,0,0,0.15);
 }
 
+#library .albumMini.opened img{
+  -webkit-transform: scale(1);
+  transform: scale(1);
+}
 
 #library .albumMini img:hover{
 	box-shadow: 0 0 4px rgba(150,150,150,0.6);
@@ -866,30 +871,39 @@ article div.refreshList {
 }
 
 #library .albumMini .arrow { 
-  display: none;
+  opacity: 0;
   position: absolute;
   margin-left: -7px;
   border-left: 12px solid transparent;
   border-right: 12px solid transparent;
   border-bottom: 12px solid blue;
-  bottom: -13px;
-  left: 50%;}
+  bottom: 0px;
+  left: 50%;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
 
 #library .albumMini .arrow2 {
-  display: none;
+  opacity: 0;
   position: absolute;
   margin-left: -7px;
   content: '';
   border-left: 12px solid transparent;
   border-right: 12px solid transparent;
   border-bottom: 12px solid #FFFFFF;
-  bottom: -15px;
+  bottom: 0px;
   left: 50%;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
 }
   
-#library .albumMini.opened .arrow,
+#library .albumMini.opened .arrow {
+  opacity: 1;
+  bottom: -13px;
+}
 #library .albumMini.opened .arrow2 {
-  display: block;
+  opacity: 1;
+  bottom: -15px;
 }
 
 #library .albumsLanding menu {
@@ -948,7 +962,7 @@ article div.refreshList {
   margin-top: 10px;
   margin-bottom: 10px;
   padding: 2px;
-
+  display: none;
 }
 
 #library .albumCoversContent .albumDetails .head {
@@ -976,7 +990,7 @@ article div.refreshList {
 
 #library .albumCoversContent .albumDetails .controls{
   padding-top: 15px;
-  padding-bottom: 15px;
+  padding-bottom: 30px;
 }
 
 #library .albumCoversContent .albumDetails .controls > span:hover{
@@ -985,6 +999,10 @@ article div.refreshList {
 
 #library .albumCoversContent .albumDetails .songsList{
   margin-left: 20px;
+  column-count: 2;
+  -moz-column-count: 2;
+  -webkit-column-count: 2;
+  list-style-position: inside;
 }
 
 .popover {

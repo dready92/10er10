@@ -1,8 +1,10 @@
 define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router", 
 	   "js/d10.rest", "js/d10.toolbox", "js/d10.restHelpers",
-       "js/d10.widgetHelpers", "js/color-manipulation.thief"
+       "js/d10.widgetHelpers", "js/color-manipulation.thief",
+       "js/playlist", "js/d10.dnd"
        ],
-	   function(dataParsers, tpl, router, rest, toolbox, restHelpers, widgetHelpers, thief) {
+	   function(dataParsers, tpl, router, rest, toolbox, restHelpers, 
+                widgetHelpers, thief, playlist, dnd) {
 	"use strict";
 	var bindAllAlbums = function(topicdiv, categorydiv, topic, category, letter) {
 		categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all"));
@@ -20,9 +22,6 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 		.delegate(".link[name=all]","click", function() {
 			router.navigateTo( [ "library","albums","<all>" ] );
 		})
-		.delegate(".albumMini .albumTitle","click",function() {
-		  router.navigateTo( [ "library","albums",$(this).closest(".albumMini").data("albumDetails").album ] );
-		});
         categorydiv.delegate(".albumMini", "click", function() {
           toggleAlbumDetails($(this));
         });
@@ -49,7 +48,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
       var arrow2 = miniWidget.find(".arrow2");
       var albumDetailsContainer = $(tpl.mustacheView("library.content.album.all.details", albumDetails));
       var albumDetailsHeadContainer = albumDetailsContainer.find(".head");
-      row.after(albumDetailsContainer);
+      var songsListContainer = albumDetailsHeadContainer.find(".songsList");
       var colors = thief.getColors(miniWidget.find("img").get(0));
       var bgColor = "rgb("+colors[1].join(',')+")";
       var fgColors = thief.inverseColors(colors[1], colors[0]);
@@ -59,17 +58,53 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
       
       albumDetailsContainer.css({"background-color": primaryColor});
       arrow.css({"border-bottom-color": primaryColor});
-      albumDetailsHeadContainer.css({"background-color": bgColor, color: primaryColor});
       arrow2.css({"border-bottom-color": bgColor});
+      albumDetailsHeadContainer.css({"background-color": bgColor, color: primaryColor});
+      songsListContainer.css({color: secondaryColor});
       miniWidget.data("albumDetailsContainer",albumDetailsContainer);
       miniWidget.addClass("opened");
-      albumDetailsHeadContainer.append(JSON.stringify(  ));
+      row.after(albumDetailsContainer);
+      albumDetailsContainer.slideDown(300);
+      var getSongTemplate = function(id) {
+        for ( var i in albumDetails.songs ) {
+          if ( albumDetails.songs[i]._id == id ) {
+            return $( tpl.song_template(albumDetails.songs[i]) );
+            break;
+          }
+        }
+      };
+      
+      albumDetailsContainer
+        .delegate("[data-target]","click",function() {
+          router.navigateTo( $(this).attr("data-target") );
+        })
+        .delegate(".addAlbumToPlaylist","click",function() {
+          playlist.append( $(tpl.song_template(albumDetails.songs)) );
+          
+        })
+        .delegate("li",'dragstart', function(e) {
+          var songId = $(this).attr("name");
+          var song = getSongTemplate(songId);
+          var dt = e.originalEvent.dataTransfer;
+          dt.effectAllowed = "copy";
+          dt.setData('text','playlist');
+          dt.setDragImage( $('#songitem img')[0], 0, 0);
+          dnd.setDragItem( song );
+        })
+        .delegate("li",'dragend', dnd.removeDragItem)
+        .delegate("li","dblclick",function(e) {
+          var songId = $(this).attr("name");
+          playlist.append(getSongTemplate(songId));
+        })
+      ;
     };
     
     var closeAlbumDetails = function(miniWidget) {
       var albumDetailsContainer = miniWidget.data("albumDetailsContainer");
       if ( albumDetailsContainer ) {
-        albumDetailsContainer.remove();
+        albumDetailsContainer.slideUp(300, function() {
+          albumDetailsContainer.remove();
+        });
         miniWidget.removeData("albumDetailsContainer");
       }
       miniWidget.removeClass("opened");
