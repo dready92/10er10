@@ -44,6 +44,10 @@ response.prototype.setHeader = function(name, value) {
     debug("setting header "+name+" to "+value);
     this.headers[name] = value;
   };
+
+response.prototype.getHeader = function(name) {
+  return this.headers[name];
+};
   
 response.prototype._implicitHeader = function() {
   this.writeHead(this.statusCode);
