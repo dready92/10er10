@@ -234,13 +234,6 @@ exports.server = {
 		view_by_letter: "Display albums beginning by the letter:",
 		view_all: "Display all albums"
 	},
-	"html/library/content_album_all_popover.html": {
-		songs: "song(s)",
-		artists: "Artists",
-		genres: "Genres",
-		hours: "h",
-		minutes: "min"
-	},
 	"html/library/control_genre.html": {
 		loading: "Loading..."
 	},

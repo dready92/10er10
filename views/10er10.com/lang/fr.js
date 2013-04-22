@@ -236,13 +236,6 @@ exports.server = {
 		view_by_letter: "Afficher les albums commençant par la lettre:",
 		view_all: "Afficher tous les albums"
 	},
-	"html/library/content_album_all_popover.html": {
-		songs: "morceau(x)",
-		artists: "Artistes",
-		hours: "h",
-		minutes: "min",
-		genres: "Genres"
-	},
 	"html/library/control_genre.html": {
 		loading: "Chargement en cours..."
 	},
