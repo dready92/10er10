@@ -7,7 +7,6 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 	"use strict";
 	var bindAllAlbums = function(topicdiv, categorydiv, topic, category, letter) {
 		categorydiv.html(tpl.mustacheView("loading")+tpl.mustacheView("library.content.album.all"));
-        //widgetHelpers.bindAlbumCoverPopin(categorydiv);
 		categorydiv.delegate(".letter","click", function() {
 			var letter = $(this);
 			if ( letter.hasClass("active") ) {
