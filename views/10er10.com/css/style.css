@@ -1467,10 +1467,12 @@ aside .spectrumControl .controls {
   padding-top: 5px;
 }
 
-aside .spectrumControl > input{
+aside .spectrumControl input{
   vertical-align: middle;
   font-size: 0.8em;
   margin-right: 10px;
+  width: auto;
+  background: none;
 }
 
 aside .spectrumControl canvas{
