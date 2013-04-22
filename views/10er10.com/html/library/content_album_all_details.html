@@ -3,7 +3,7 @@
     <img src="{{image_url}}" class="pointer" data-target="library/albums/{{e_album}}">
     <div class="infos">
       <div class="albumTitle pointer" data-target="library/albums/{{e_album}}">{{album}}</div>
-      <div class="albumArtists">
+      <div class="albumArtists">((album_by))
         {{#artists}}
         <span class="albumArtist pointer" data-target="library/artists/{{encoded}}">
           {{name}}
@@ -11,14 +11,13 @@
         {{/artists}}
       </div>
       <div class="controls">
-        <span class="pointer addAlbumToPlaylist">
-          Ajouter l'album à la lecture en cours
+        <span class="pointer addAlbumToPlaylist">((add_album_to_playlist))
         </span>
       </div>
       <div class="songsList">
         <ol class="songs">
           {{#songs}}
-            <li draggable="true" class="pointer" name="{{_id}}" title="Double click or drag'n'drop to add this song to the playlist"> {{title}}</li>
+            <li draggable="true" class="pointer" name="{{_id}}" title="((album_song_tooltip))"> {{title}}</li>
           {{/songs}}
         </ol>
       </div>

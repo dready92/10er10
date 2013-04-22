@@ -208,6 +208,11 @@ exports.server = {
 	  list_view: "list",
 	  covers_view: "covers"
 	},
+    "html/library/content_album_all_details.html": {
+      album_by: "by",
+      add_album_to_playlist: "Add this album to the player",
+      album_song_tooltip: "Double click or drag'n'drop to add this song to the player"
+    },
 	"html/library/content_none.html": {
 		no_song: "No song"
 	},

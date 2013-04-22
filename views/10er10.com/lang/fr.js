@@ -210,6 +210,11 @@ exports.server = {
 		covers_view: "jaquettes"
 
 	},
+    "html/library/content_album_all_details.html": {
+      album_by: "par",
+      add_album_to_playlist: "Ajouter l'album à la lecture en cours",
+      album_song_tooltip: "double-cliquer ou glisser/déposer pour ajouter ce morceau dans la file d'attente du lecteur"
+    },
 	"html/library/content_none.html": {
 		no_song: "Aucun morceau"
 	},
