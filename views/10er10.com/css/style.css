@@ -958,6 +958,7 @@ article div.refreshList {
   width: 670px;
   margin: auto;
 }
+#library .albumCoversContent .albumrow { text-align: center }
 
 #library .albumCoversContent .albumDetails {
   margin-top: 10px;
@@ -1472,7 +1473,7 @@ aside .spectrumControl input{
   font-size: 0.8em;
   margin-right: 10px;
   width: auto;
-  background: none;
+  background: none; 
 }
 
 aside .spectrumControl canvas{
