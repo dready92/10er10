@@ -109,7 +109,7 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
 		categorydiv.append(contentDiv);
 	};
 	
-    var albumRowTemplate = '<div class="albumrow"></div>';
+    var albumRowTemplate = tpl.mustacheView("library.listing.album.all.row");
     
 	var loadContentDiv = function( contentDiv, letter) {
 		var endPoint = rest.song.list.albums;

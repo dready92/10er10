@@ -310,6 +310,7 @@ exports.templates.clientList = {
 	'library.listing.artist.loading':'html/library/listing_artist_loading.html',
     'library.listing.genre':'html/library/listing_genre.html',
     'library.listing.genre.line':'html/library/listing_genre_line.html',
+    'library.listing.album.all.row': 'html/library/listing_album_all_row.html',
     'hoverbox.addsong.container':'html/hoverbox/addsong.container.html',
 	'hoverbox.playlist.container': 'html/hoverbox/playlist.container.html',
 	'hoverbox.playlist.rpl.container': 'html/hoverbox/playlist.rpl.container.html',

@@ -10,7 +10,7 @@ define([
        ], 
        function(rest, localcache, tpl, router, restHelpers, dataParsers, widgetHelpers) {
     
-    
+    var albumRowTemplate = tpl.mustacheView("library.listing.album.all.row");
     var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {
       var template_data = {
         genre: category,
@@ -50,7 +50,6 @@ define([
       };
       var cursor = new restHelpers.couchMapMergedCursor(restWrapper, {}, "album");
       var cols = 0;
-      var albumRowTemplate = '<div class="albumrow"></div>';
       var currentAlbumRow = $(albumRowTemplate);
       contentDiv.append(currentAlbumRow);
       var scrollOpts = {
