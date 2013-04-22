@@ -994,8 +994,8 @@ article div.refreshList {
   padding-bottom: 30px;
 }
 
-#library .albumCoversContent .albumDetails .controls > span:hover{
-  font-weight: bold;
+#library .albumCoversContent .albumDetails .controls {
+  text-align: center;
 }
 
 #library .albumCoversContent .albumDetails .songsList{

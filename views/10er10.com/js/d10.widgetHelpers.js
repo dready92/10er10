@@ -1,6 +1,7 @@
 "use strict";
 define(["js/d10.templates","js/color-manipulation.thief",
-       "js/playlist", "js/d10.dnd"], function(templates, thief, playlist, dnd) {
+       "js/playlist", "js/d10.dnd", "js/d10.router"], 
+       function(templates, thief, playlist, dnd, router) {
   
   var bindAlbumCoverPopin = function(categorydiv, template_name) {
     template_name = template_name || "library.content.album.all.popover";
