@@ -150,7 +150,10 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 				/*var html="";
 				rows.forEach(function(v) { html+=tpl.song_template(v.doc); });
 				return html;*/
-			}
+			},
+            append: function(html) {
+              list.append(html);
+            }
 		};
 		$.extend(settings,options);
         var initialLoad = true;
@@ -177,7 +180,7 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 				if ( err ) { ajaxRunning = false; return; }
 				var html=settings.parseResults(resp);
 				if ( html.length ) {
-					list.append(html);
+					settings.append(html);
 				}
 				if ( firstRun ) {
 					firstRun=false;
