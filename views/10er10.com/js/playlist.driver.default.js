@@ -75,10 +75,10 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 //                              debug("playlistDriverDefault:ontimeupdate",this);
                                 if ( current && this === current.audio ) {
                                         var secs = Math.floor(this.currentTime);
-										var dur = current.duration;
+										var dur = parseInt(current.duration,10);
                                         if ( secs == this.last_secs_update ) {return true;}
                                         this.last_secs_update = secs;
-                                        trigger('currentTimeUpdate',{currentTime: secs});
+                                        trigger('currentTimeUpdate',{currentTime: secs, duration: dur});
 										if ( !this.prefetchStart ) {
 											this.prefetchStart = secs + settings.prefectchMinStartupTime;
 										} else if ( this.prefetchStart == secs ) {
