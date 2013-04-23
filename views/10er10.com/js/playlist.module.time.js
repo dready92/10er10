@@ -12,8 +12,7 @@ var createInstance = function(container) {
 		{
 			"playlist:currentSongChanged": function() {
 				var secs = playlist.driver().current().duration;
-				bar.setMax( secs );
-				var total_secs = parseInt(secs);
+				var total_secs = parseInt(secs, 10);
 				var d = new Date(1970,1,1,0,0,total_secs);
 				total.html(seconds2display(total_secs));
 				bar.setNetloadBar(playlist.driver().currentLoadProgress());
@@ -25,8 +24,9 @@ var createInstance = function(container) {
 				current.empty();
 			},
 			"playlist:currentTimeUpdate": function(e) {
-				bar.setBar(e.currentTime);
-// 				var d = new Date(1970,1,1,0,0,e.currentTime);
+                var duration = e.duration || 100;
+                var pc = 100 / duration * e.currentTime;
+				bar.setBar(pc);
 				current.html(seconds2display(e.currentTime));
 				
 			},
@@ -106,22 +106,15 @@ var createInstance = function(container) {
           }
         });
 
-		this.getMax = function () { return pmax; }
-
-		// in seconds
-		this.setMax = function(num) {
-			pmax=parseInt(num);
-			punit=ui.width() / pmax;
-		}
         this.lastSet = null;
 		this.setBar = function(data) {
-          punit=ui.width() / pmax;
-          var width = Math.floor(punit*data);
-          if ( this.lastSet === width ) {
+//           punit=ui.width() / pmax;
+//           var width = Math.floor(punit*data);
+          if ( this.lastSet === data ) {
             return ;
           }
-          resized.css({width: width});
-          this.lastSet = width;
+          resized.css({width: data+"%"});
+          this.lastSet = data;
 		}
 
 
