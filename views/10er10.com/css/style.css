@@ -987,54 +987,6 @@ article div.refreshList {
   list-style-position: inside;
 }
 
-.popover {
-	position: absolute;
-	background-color: #232323;
-    transform: scale(0.6);
-    transform-origin: center;
-	-webkit-transform: scale(0.6);
-	-webkit-transform-origin: center;
-	-moz-transform: scale(0.6);
-	-moz-transform-origin: center;
-	opacity: 0;
-	padding: 10px;
-	border: 2px solid rgba(150,150,150,0.6);
-	max-height: 300px; 
-	max-width: 700px;
-	overflow: auto;
-    background: linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
-	background: -webkit-linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
-	background: -moz-linear-gradient(100deg, #232323 30%, #3F3F3F 100%);
-	box-shadow: 0 0 40px rgba(0,0,0,1);
-}
-
-
-.popover.on {
-    transform: scale(1);
-    transform-origin: center;
-    transition: transform 0.2s ease-in, opacity 0.15s ease-in 0.05s;
-	-webkit-transform: scale(1);
-	-moz-transform: scale(1);
-	opacity: 1;
-	-webkit-transform-origin: center;
-	-webkit-transition: -webkit-transform 0.2s ease-in, opacity 0.15s ease-in 0.05s;
-	-moz-transform-origin: center;
-	-moz-transition: -moz-transform 0.2s ease-in, opacity 0.15s ease-in 0.05s;
-}
-
-.popover li, .popover ul { display: inline; }
-.popover li:not(:last-child):after { display: inline; content: " , "; }
-.popover .albumTitle { padding: 15px 0; }
-.popover .albumTitle a{ font-size: 1.3em; }
-.popover hr {
-	border-color: rgba(154, 154, 154,0.7);
-	margin: 10px 50px;
-}
-
-.popover .label {
-	font-size: 1.2em; padding-right: 10px;
-}
-
 #my article.plm { margin-top: 10px;}
 
 #my .plm-list-container {
