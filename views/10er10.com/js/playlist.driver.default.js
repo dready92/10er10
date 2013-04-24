@@ -55,6 +55,8 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
           }
           return af;
         },
+        prefetch: navigator.userAgent.match(/Chrome/) ? false : true,
+        forceFading: navigator.userAgent.match(/Chrome/) ? true : false,
 		prefectchMinStartupTime: 9,
         prefetchInterval: 5,
 		title: tpl.mustacheView("playlist.anonymous.name")
@@ -81,13 +83,16 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                                         trigger('currentTimeUpdate',{currentTime: secs, duration: dur});
 										if ( !this.prefetchStart ) {
 											this.prefetchStart = secs + settings.prefectchMinStartupTime;
-										} else if ( this.prefetchStart == secs ) {
+										} else if ( settings.prefetch && this.prefetchStart == secs ) {
 											optimistPrefetch();
 											this.prefetchStart = secs + settings.prefetchInterval;
 										}
 
 										var fade = settings.fade();
                                         if ( fade > 0 && !isNaN(dur) && dur > 0 && dur - secs == fade && !inTheMix ) {
+                                                if ( settings.forceFading ) {
+                                                  createNext();
+                                                }
                                                 beginFade(createDefaultMix());
                                         }
                                 }
@@ -173,6 +178,22 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		}
 	}
 
+	var createNext = function () {
+      var nextWidget = playlist.next();
+      if ( !nextWidget.length ) {
+        return false;
+      }
+      var infos = playlist.getTrackParameters(nextWidget);
+      if ( next && next.id == infos[0] ) {
+        return true;
+      }
+      if ( next ) {
+        next.destroy();
+      }
+      next = createTrack.apply(this,infos);
+      return true;
+    }
+	
     var createDefaultMix = function() {
       var secs = settings.fade();
       var mixSteps = [];
@@ -212,7 +233,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
     };
     
     var launchMix = this.launchMix = function(fadeMix, onFadeEnded) {
-      if ( !isNextPreloaded() ) {
+      if ( !settings.forceFading && !isNextPreloaded() ) {
         debug("Next song isn't preloaded");
         return false;
       }
@@ -237,7 +258,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       if ( !doesNextExists() ) {
         return false;
       }
-      if ( next.audio.readyState  < next.audio.HAVE_ENOUGH_DATA ) {
+      if ( !settings.forceFading && next.audio.readyState  < next.audio.HAVE_ENOUGH_DATA ) {
         debug("Not enough data on next track to fade");
         return false;
       }
