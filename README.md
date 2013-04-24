@@ -28,7 +28,7 @@ Please check that your npm version (using the command **npm -v**) is >= 1.0.0 .
 Install audio utilities
 -----------------------
 
-10er10 website allows you to upload flac, mp3 and ogg audio files. Flac and mp3 files will be converted on the fly to ogg.
+10er10 website allows you to upload flac, mp3, m4a and ogg audio files. Flac, mp3 and m4a files will be converted on the fly to ogg.
 
 * install **lame** executable : it's certainly is available from your distribution packages
 
@@ -65,7 +65,7 @@ cd to the 10er10 root directory (the one that contains the *audio*, *node* and *
 
 * node modules : install required node packages :
 
-    npm install mime qs gm connect nodemailer prompt musicmetadata mmmagic ws debug
+        npm install mime qs gm connect nodemailer prompt musicmetadata mmmagic ws debug
 
 You should now have a new **node_modules** folder at the same level as the "audio", "node" and "views" folders.
 

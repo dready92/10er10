@@ -1,3 +1,16 @@
+Upgrade from 0.20 to 0.21
+=========================
+
+- install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
+
+- restart the node 10er10 server
+
+**What changed ?**
+
+- display of albums by little widgets: no more popin, use classy details panel
+- playback should work fine on Chrome
+- use percents for time progressbar
+
 Upgrade from 0.14 to 0.20
 =========================
 
