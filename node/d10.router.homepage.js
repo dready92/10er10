@@ -142,9 +142,7 @@ exports.homepage = function(app) {
 					if ( !err ) {
 						d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
 						var cookie = { user: request.ctx.user.login, session: sessionDoc._id.substring(2) };
-						var d = new Date();
-						d.setTime ( d.getTime() + d10.config.cookieTtl );
-						request.ctx.headers["Set-Cookie"] = d10.config.cookieName+"="+escape(JSON.stringify(cookie))+"; expires="+d.toUTCString()+"; path="+d10.config.cookiePath;
+                        request.ctx.setCookie(cookie);
 						if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
 					}
 					displayHomepage(request,response,next);
