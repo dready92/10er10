@@ -9,7 +9,8 @@ exports.context = function (req,res,next) {
 		response: res,
 		headers: {Connection: "close"},
 		status: 404,
-		session: {}
+		session: {},
+        remoteControlSession: {}
 	};
 	var u = url.parse("http://"+req.headers.host+req.url);
 	req.query = u.query ? qs.parse(u.query) : {};
