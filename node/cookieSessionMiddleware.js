@@ -14,7 +14,7 @@ var sessionCache = {};
 d10.couch.auth.on("save",function(err,doc) {
 	if ( ! err ) {
 		var type = doc._id.substr(0,2);
-		if ( type == "se" || type == "pr" || type == "us" ) {
+		if ( type == "se" || type == "pr" || type == "us" || type == "rs" ) {
 			for ( var i in sessionCache ) {
 				if ( sessionCache[i][type] && sessionCache[i][type]._id == doc._id ) {
 					sessionCache[i][type] = doc;
@@ -28,7 +28,7 @@ d10.couch.auth.on("save",function(err,doc) {
 d10.couch.auth.on("delete",function(err,doc) {
 	if ( ! err ) {
 		var type = doc._id.substr(0,2);
-		if ( type == "se" || type == "pr" || type == "us" ) {
+		if ( type == "se" || type == "pr" || type == "us" || type == "rs" ) {
 			for ( var i in sessionCache ) {
 				if ( sessionCache[i][type] && sessionCache[i][type]._id == doc._id ) {
 					delete sessionCache[i];
@@ -39,8 +39,8 @@ d10.couch.auth.on("delete",function(err,doc) {
 	}
 });
 
-var sessionCacheAdd = function(us,pr,se) {
-	sessionCache[us.login] =  {us:us,pr:pr,se:se};
+var sessionCacheAdd = function(us,pr,se, rs) {
+	sessionCache[us.login] =  {us:us,pr:pr,se:se,rs:rs};
 };
 
 var getd10cookie = function(ctx) {
@@ -66,7 +66,10 @@ var getd10cookie = function(ctx) {
 
 var getSessionDataFromCache = function(cookieData) {
   if ( sessionCache[cookieData.user] ) {
-    if ( sessionCache[cookieData.user].se._id == "se"+cookieData.session ) {
+    if ( cookieData.session && sessionCache[cookieData.user].se._id == "se"+cookieData.session ) {
+      return sessionCache[cookieData.user];
+    } else if ( cookieData.remoteControlSession &&
+                sessionCache[cookieData.user].rs._id == "rs"+cookieData.remoteControlSession ) {
       return sessionCache[cookieData.user];
     }
   }
@@ -74,15 +77,21 @@ var getSessionDataFromCache = function(cookieData) {
 };
 
 var getSessionDataFromDatabase = function(cookieData, then) {
+  
+  var sessionMatch = function(row) {
+    return ( (cookieData.session && row.doc._id == "se"+cookieData.session) ||
+              (cookieData.remoteControlSession && row.doc._id == "rs"+cookieData.session) );
+  };
+  
   d10.db.loginInfos(
     cookieData.user, 
     function(response) {
+      console.log("login infos response: ");
+      console.log(response);
       var found = false;
       response.rows.forEach(function(v,k) {
-        if ( !found && v.doc._id == "se"+cookieData.session ) {
-          d10.fillUserCtx(ctx,response,v.doc);
-          sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session);
-          found = {response: response, doc: doc};
+        if ( !found && sessionMatch(v) ) {
+          found = {response: response, doc: v.doc};
         }
       });
       return then(null, found);
@@ -98,7 +107,7 @@ var checkAuth = function (ctx, passTheCoochie) {
   if ( !cookieData ) {
     return passTheCoochie(); 
   }
-  if ( !cookieData.user || !cookieData.session ) {
+  if ( !cookieData.user || (!cookieData.session && !cookieData.remoteControlSession) ) {
     return passTheCoochie();
   }
   //get from sessionCache
@@ -106,17 +115,18 @@ var checkAuth = function (ctx, passTheCoochie) {
   if ( userSessionCache ) {
     ctx.user = userSessionCache.us;
     ctx.userPrivateConfig = userSessionCache.pr;
-    ctx.session = userSessionCache.se;
+    ctx.session = userSessionCache.se || {};
+    ctx.remoteControlSession = userSessionCache.rs || {};
     return passTheCoochie();
   }
   
   //get from database
   getSessionDataFromDatabase(cookieData, function(err,data) {
-    if ( err ) {
+    if ( err || !data) {
       return passTheCoochie();
     }
     d10.fillUserCtx(ctx,data.response,data.doc);
-    sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session);
+    sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session,ctx.remoteControlSession);
     return passTheCoochie();
   });
 };
