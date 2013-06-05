@@ -43,57 +43,60 @@ var sessionCacheAdd = function(us,pr,se) {
 	sessionCache[us.login] =  {us:us,pr:pr,se:se};
 };
 
+var getd10cookie = function(ctx) {
+  var cookies = {};
+  if ( ctx.request.headers.cookie ) {
+    ctx.request.headers.cookie.split(';').forEach(function( cookie ) {
+      var parts = cookie.split('=');
+      cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
+    });
+    if ( cookies[d10.config.cookieName] ) {
+      var cookieData;
+      try {
+        cookieData = JSON.parse(unescape(cookies[d10.config.cookieName]));
+      } catch (e) { 
+        debug("cookie read failed", unescape(cookies[d10.config.cookieName])); 
+        return false;
+      };
+      return cookieData;
+    }
+  }
+  return false;
+};
+
 var checkAuth = function (ctx,passTheCoochie) {	
-	var cookies = {};
-	if ( ctx.request.headers.cookie ) {
-		ctx.request.headers.cookie.split(';').forEach(function( cookie ) {
-			var parts = cookie.split('=');
-			cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
-		});
-		if ( cookies[d10.config.cookieName] ) {
-			var cookieData;
-			try {
-				cookieData = JSON.parse(unescape(cookies[d10.config.cookieName]));
-			} catch (e) { 
-				debug("cookie read failed", unescape(cookies[d10.config.cookieName])); 
-				return passTheCoochie(); 
-				
-			};
-			if ( cookieData && cookieData.user && cookieData.session ) {
-				//get from sessionCache
-				if ( sessionCache[cookieData.user] ) {
-					if ( sessionCache[cookieData.user].se._id == "se"+cookieData.session ) {
-						ctx.user = sessionCache[cookieData.user].us;
-						ctx.userPrivateConfig = sessionCache[cookieData.user].pr;
-						ctx.session = sessionCache[cookieData.user].se;
-						return passTheCoochie();
-					}
-				}
-				
-				d10.db.loginInfos(
-					cookieData.user, 
-					function(response) {
-						var found = false;
-						response.rows.forEach(function(v,k) {
-							if ( !found && v.doc._id == "se"+cookieData.session ) {
-								d10.fillUserCtx(ctx,response,v.doc);
-								sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session);
-								found = true;
-							}
-						});
-						return passTheCoochie();
-					}, 
-					function() {return passTheCoochie();}
-					);
-			} else {
-				return passTheCoochie();
-			}
-		} else {
-			return passTheCoochie();
-		}
-	} else {
-		return passTheCoochie();
-	}
+  var cookieData = getd10cookie(ctx);
+  if ( !cookieData ) {
+    return passTheCoochie(); 
+  }
+  if ( !cookieData.user || !cookieData.session ) {
+    return passTheCoochie();
+  }
+  //get from sessionCache
+  if ( sessionCache[cookieData.user] ) {
+    if ( sessionCache[cookieData.user].se._id == "se"+cookieData.session ) {
+      ctx.user = sessionCache[cookieData.user].us;
+      ctx.userPrivateConfig = sessionCache[cookieData.user].pr;
+      ctx.session = sessionCache[cookieData.user].se;
+      return passTheCoochie();
+    }
+  }
+  
+  d10.db.loginInfos(
+    cookieData.user, 
+    function(response) {
+      var found = false;
+      response.rows.forEach(function(v,k) {
+        if ( !found && v.doc._id == "se"+cookieData.session ) {
+          d10.fillUserCtx(ctx,response,v.doc);
+          sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session);
+          found = true;
+        }
+      });
+      return passTheCoochie();
+    }, 
+    function() {return passTheCoochie();}
+  );
 };
 
 
