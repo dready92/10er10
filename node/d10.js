@@ -255,10 +255,13 @@ exports.ucwords = function(str) {
 exports.fillUserCtx = function (ctx,response,session) {
 	ctx.session = session;
 	response.rows.forEach(function(v,k) {
-		if ( v.doc._id.indexOf("se") === 0 && v.doc._id != session._id ) {
+		if ( v.doc._id.indexOf("se") === 0 && session._id.indexOf("se") === 0 && v.doc._id != session._id ) {
 			debug("deleting session ",v.doc._id);
 			exports.saveSession(v.doc,true);
-		} else if ( v.doc._id.indexOf("us") === 0 ) {
+		} else if ( v.doc._id.indexOf("rs") === 0 && session._id.indexOf("rs") === 0 && v.doc._id != session._id ) {
+            debug("deleting session ",v.doc._id);
+            exports.saveSession(v.doc,true);
+        } else if ( v.doc._id.indexOf("us") === 0 ) {
 			ctx.user = v.doc;
 		} else if ( v.doc._id.indexOf("pr") === 0 ) {
 			ctx.userPrivateConfig = v.doc;
