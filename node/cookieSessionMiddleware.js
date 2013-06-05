@@ -64,24 +64,16 @@ var getd10cookie = function(ctx) {
   return false;
 };
 
-var checkAuth = function (ctx,passTheCoochie) {	
-  var cookieData = getd10cookie(ctx);
-  if ( !cookieData ) {
-    return passTheCoochie(); 
-  }
-  if ( !cookieData.user || !cookieData.session ) {
-    return passTheCoochie();
-  }
-  //get from sessionCache
+var getSessionDataFromCache = function(cookieData) {
   if ( sessionCache[cookieData.user] ) {
     if ( sessionCache[cookieData.user].se._id == "se"+cookieData.session ) {
-      ctx.user = sessionCache[cookieData.user].us;
-      ctx.userPrivateConfig = sessionCache[cookieData.user].pr;
-      ctx.session = sessionCache[cookieData.user].se;
-      return passTheCoochie();
+      return sessionCache[cookieData.user];
     }
   }
-  
+  return false;
+};
+
+var getSessionDataFromDatabase = function(cookieData, then) {
   d10.db.loginInfos(
     cookieData.user, 
     function(response) {
@@ -90,13 +82,43 @@ var checkAuth = function (ctx,passTheCoochie) {
         if ( !found && v.doc._id == "se"+cookieData.session ) {
           d10.fillUserCtx(ctx,response,v.doc);
           sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session);
-          found = true;
+          found = {response: response, doc: doc};
         }
       });
-      return passTheCoochie();
+      return then(null, found);
     }, 
-    function() {return passTheCoochie();}
+    function(err) {
+      then(err);
+    }
   );
+};
+
+var checkAuth = function (ctx, passTheCoochie) {	
+  var cookieData = getd10cookie(ctx);
+  if ( !cookieData ) {
+    return passTheCoochie(); 
+  }
+  if ( !cookieData.user || !cookieData.session ) {
+    return passTheCoochie();
+  }
+  //get from sessionCache
+  var userSessionCache = getSessionDataFromCache(cookieData);
+  if ( userSessionCache ) {
+    ctx.user = userSessionCache.us;
+    ctx.userPrivateConfig = userSessionCache.pr;
+    ctx.session = userSessionCache.se;
+    return passTheCoochie();
+  }
+  
+  //get from database
+  getSessionDataFromDatabase(cookieData, function(err,data) {
+    if ( err ) {
+      return passTheCoochie();
+    }
+    d10.fillUserCtx(ctx,data.response,data.doc);
+    sessionCacheAdd(ctx.user,ctx.userPrivateConfig,ctx.session);
+    return passTheCoochie();
+  });
 };
 
 
