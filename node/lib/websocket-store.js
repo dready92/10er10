@@ -66,16 +66,16 @@ websocketStore.prototype.remove = function(socket) {
   return (ssuccess && usuccess);
 };
 
-websocket.prototype.findByUser = function(user) {
+websocketStore.prototype.findByUser = function(user) {
   if ( !(user in this.usersLookup) || !this.usersLookup[user].length ) {
     return null;
   }
   return this.usersLookup[user].slice(0);
 };
 
-websocket.prototype.findByFilter = function(filter) {
+websocketStore.prototype.findByFilter = function(filter) {
   return this.sockets.filter(filter);
 };
 
 
-exports = modules.exports = new websocketStore();
+exports = module.exports = new websocketStore();
