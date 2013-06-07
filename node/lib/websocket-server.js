@@ -48,6 +48,13 @@ websocketServer.prototype.registerPevtsProtocol = function(httpServer, d10Server
   this.router.addType(pevtsProtocolInstance.name, pevtsProtocolInstance.handler);
 };
 
+websocketServer.prototype.registerRcslaProtocol = function(httpServer, d10Server) {
+  var rcslaProtocol = require("./websocket-protocol-rcsla");
+  var rcslaProtocolInstance = new rcslaProtocol(httpServer, d10Server);
+  this.router.addType(rcslaProtocolInstance.name, rcslaProtocolInstance.handler);
+};
+
+
 websocketServer.prototype.bindWebSocketListeners = function(ws) {
   ws.on('message', function(message) {
     this.router.route(message,ws);
