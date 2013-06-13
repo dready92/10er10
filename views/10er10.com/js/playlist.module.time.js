@@ -7,7 +7,22 @@ define(["js/domReady","js/d10.playlistModule", "js/playlist"], function(foo, pla
 	s = s < 10 ? "0"+s : s;
     return m+':'+s;
   };
+  
+  
 var createInstance = function(container) {
+  var secondsOfEvent = function (e) {
+    if ( !playlist.driver().current() ) {
+      return false;
+    }
+    var offset = ui.offset();
+    var pix = e.pageX - offset.left;
+    var pixMax = ui.width();
+    var secs = playlist.driver().current().duration;
+    var total_secs = parseInt(secs, 10);
+    var currentSecs = total_secs / pixMax * pix;
+    return currentSecs;
+  }
+
 	var module = new playlistModule("time",
 		{
 			"playlist:currentSongChanged": function() {
@@ -67,10 +82,10 @@ var createInstance = function(container) {
         var timeOverlaySize = {width:0, height: 0};
         var timeOverlayElem = null;
         var onMouseMove = function(e) {
-          if (!punit) { return ;}
-          var offset = ui.offset();
-          var pix = e.pageX-offset.left;
-          var secs = Math.floor(pix/punit);
+          var secs = secondsOfEvent(e);
+          if ( secs === false || secs === Infinity ) {
+            return ;
+          }
           if ( !timeOverlay ) {
             timeOverlay = $("<div class=\"yellowOverlay currentTimeContainer upArrow\">"+seconds2display(secs)+"</div>")
                             .data("seconds",secs)
@@ -92,10 +107,8 @@ var createInstance = function(container) {
         };
         
 		ui.click(function(e) {
-			if ( !module.isEnabled() )	return ;
-			var offset = ui.offset();
-			var pix = e.pageX-offset.left;
-			playlist.seek(Math.floor(pix/punit));
+          if ( !module.isEnabled() )	return ;
+          playlist.seek(secondsOfEvent(e));
 		})
         .mousemove(onMouseMove)
         .mouseenter(onMouseMove)
