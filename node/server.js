@@ -31,6 +31,7 @@ var onConfig = function(isProduction) {
 		imagesStuff = require(__dirname+"/d10.router.images"),
 		invites = require(__dirname+"/d10.router.invites"),
 		download = require(__dirname+"/d10.router.audio.download"),
+		rc = require(__dirname+"/d10.router.rc"),
 		invitesRouter = require(__dirname+"/invites.router"),
 		lang = require(__dirname+"/lang"),
 		contextMiddleware = require(__dirname+"/contextMiddleware").context,
@@ -108,6 +109,7 @@ var onConfig = function(isProduction) {
 		connect.router(listingApi.api),
 		connect.router(songStuff.api),
 		connect.router(imagesStuff.api),
+		connect.router(rc.api),
 		connect.router(invites.api)
 	];
 
