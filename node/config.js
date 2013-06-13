@@ -77,6 +77,7 @@ exports.library = {
 	defaultTab: "genres"
 }
 exports.javascript = {
+    rootDir: "../views/10er10.com/js",
 	includes : [
 		"modernizr-1.6.min.js",
 		"jquery.sprintf.js",
