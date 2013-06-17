@@ -3,16 +3,44 @@
     <title>Login to 10er10 remote control</title>
     <link rel="stylesheet" type="text/css" href="/css/style-rc.css">
   </head>
-  <body>
-    <form method="POST">
-      <fieldset class="center">
-        <legend>Login please</legend>
-        <p><input type="text" name="login" placeholder="User name" autocapitalize="off" autocorrect="off"></p>
-        <p><input type="password" name="password" placeholder="Password"></p>
-        <p><input type="submit" value="Login"></p>
-      </fieldset>
-    </form>
+  <body data-ng-cloak>
+    <div class="loginForm" data-ng-show="loginState == 'not logged'">
+      <form method="POST" data-ng-submit="restLogin()" data-d10login>
+        <fieldset class="center">
+          <legend>Login please</legend>
+          <p><input type="text" name="login" placeholder="User name" autocapitalize="off" autocorrect="off" data-ng-model="login" data-ng-disabled="formDisabled"></p>
+          <p><input type="password" name="password" placeholder="Password" data-ng-model="password" data-ng-disabled="formDisabled"></p>
+          <p><input type="submit" value="Login" data-ng-disabled="formDisabled"></p>
+        </fieldset>
+      </form>
+    </div>
+    <div class="loginFromSession" data-ng-show="loginState == 'session'">
+      <div class="center">Trying to login from session...</div>
+    </div>
+    <div class="logged" data-ng-show="loginState == 'logged'">
+      <div class="center">You're logged dude !</div>
+    </div>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="/js/jquery.d10param.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
+    <script src="/js/require.js"></script>
+    <script>
+      function debug() {
+        if ( console && ( "log" in console ) ) {
+          console.log.apply(console,arguments);
+        }
+      }
+      requirejs.config({
+        waitSeconds: 20,
+        baseUrl: "/",
+        paths: {
+          "js/config": "rc/js/config",
+        },
+        deps: ["js/d10.rest"],
+        callback: function(rest) {
+        }
+      });
+    </script>
     <script src="/rc/js"></script>
   </body>
 </html>
