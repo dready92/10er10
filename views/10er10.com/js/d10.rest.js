@@ -621,5 +621,16 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			restQuery("search.details","POST",config.site_url+"/api/details",options);
 		}
 	};
+    
+    rest.rc = {
+      login: function(login, password, options) {
+        options.data = {login: login, password: password};
+        restQuery("rc.login","POST",config.site_url+"/api/rc/login",options);
+      },
+      sessionLogin: function(options) {
+        restQuery("rc.login","POST",config.site_url+"/api/rc/login",options);
+      }
+    };
+    
 	return rest;
 });
