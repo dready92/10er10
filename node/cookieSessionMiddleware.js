@@ -80,14 +80,12 @@ var getSessionDataFromDatabase = function(cookieData, then) {
   
   var sessionMatch = function(row) {
     return ( (cookieData.session && row.doc._id == "se"+cookieData.session) ||
-              (cookieData.remoteControlSession && row.doc._id == "rs"+cookieData.session) );
+              (cookieData.remoteControlSession && row.doc._id == "rs"+cookieData.remoteControlSession) );
   };
   
   d10.db.loginInfos(
     cookieData.user, 
     function(response) {
-      console.log("login infos response: ");
-      console.log(response);
       var found = false;
       response.rows.forEach(function(v,k) {
         if ( !found && sessionMatch(v) ) {
@@ -108,6 +106,7 @@ var checkAuth = function (ctx, passTheCoochie) {
     return passTheCoochie(); 
   }
   if ( !cookieData.user || (!cookieData.session && !cookieData.remoteControlSession) ) {
+    debug("cookie is missing some keys");
     return passTheCoochie();
   }
   //get from sessionCache
