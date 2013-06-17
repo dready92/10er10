@@ -49,9 +49,9 @@ websocketServer.prototype.registerPevtsProtocol = function(httpServer, d10Server
 };
 
 websocketServer.prototype.registerRcslaProtocol = function(httpServer, d10Server) {
-  var rcslaProtocol = require("./websocket-protocol-rcsla");
-  var rcslaProtocolInstance = new rcslaProtocol(httpServer, d10Server);
-  this.router.addType(rcslaProtocolInstance.name, rcslaProtocolInstance.handler);
+  var remotProtocol = require("./websocket-protocol-remot");
+  var remotProtocolInstance = new remotProtocol(httpServer, d10Server);
+  this.router.addType(remotProtocolInstance.name, remotProtocolInstance.handler);
 };
 
 

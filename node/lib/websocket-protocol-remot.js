@@ -1,10 +1,10 @@
-var debug = require("../d10").debug("d10:websocket-protocol-rcsla");
+var debug = require("../d10").debug("d10:websocket-protocol-remot");
 var emitter = require("./song-processor/song-processor-events");
 var sessionMiddleware = require("../cookieSessionMiddleware");
 var protocol = require("./websocket-protocol");
 var websocketStore = require("./websocket-store");
 
-var protocolName = "rcsla";
+var protocolName = "remot";
 
 
 function routeMessage(message, socket, callback) {
@@ -33,11 +33,27 @@ function getPeer(socket) {
   }
 };
 
+function parseMessage(message) {
+  try {
+    var query = JSON.parse(message.payload);
+  } catch (e) {
+    debug("Badly formatted JSON payload");
+    debug(message);
+    return ;
+  }
+  return query;
+};
+
 function sendErrorResponse(message, socket, callback) {
+  var query = parseMessage(message);
+    if ( !query ) {
+      return ;
+    }
   var response = JSON.stringify(
     {
       success: false,
-      error: "ERRNOPEER"
+      error: "ERRNOPEER",
+      requestId: query.requestId
     }
                       );
   callback(response);
@@ -46,14 +62,11 @@ function sendErrorResponse(message, socket, callback) {
 function websocketProtocolRcsla (httpServer, d10Server) {
 };
 
-websocketProtocolRcsla.prototype.name = protocolName;
-websocketProtocolRcsla.prototype.handler = function (message, socket, callback) {
+websocketProtocolRemot.prototype.name = protocolName;
+websocketProtocolRemot.prototype.handler = function (message, socket, callback) {
   if ( !socket.d10user ) {
-    try {
-      var query = JSON.parse(message.payload);
-    } catch (e) {
-      debug("Badly formatted JSON payload");
-      debug(message);
+    var query = parseMessage(message);
+    if ( !query ) {
       return ;
     }
     authRequest(socket, query, function(err) {
@@ -81,4 +94,4 @@ function authRequest (socket, query, then) {
 };
 
 
-exports = module.exports = websocketProtocolPevts;
+exports = module.exports = websocketProtocolRemot;
