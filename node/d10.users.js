@@ -184,22 +184,31 @@ var checkAuthFromLogin = function(login, password, cb) {
  * create a session for uid and returns the session document
  */
 var makeSession = function(uid, cb ) {
-	var sessionId = d10.uid();
-	var d = new Date();
-	// create session and send cookie
-	var doc = { 
-		_id:"se"+sessionId ,
-		userid: uid.substr(2),
-		ts_creation: d.getTime(),
-		ts_last_usage: d.getTime()
-	};
-	d10.couch.auth.storeDoc(doc,function(err,storeResponse) {
-		if ( err ) {
-			return cb(new Error("Session recording error"));
-		}
-		return cb(null,doc);
-	});
+  return makeSessionForType(uid, "se", cb);
 };
+
+var makeRemoteControlSession = function(uid, cb ) {
+  return makeSessionForType(uid, "rs", cb);
+};
+
+var makeSessionForType = function(uid, type, cb ) {
+    var sessionId = d10.uid();
+    var d = new Date();
+    // create session and send cookie
+    var doc = { 
+        _id:type+sessionId ,
+        userid: uid.substr(2),
+        ts_creation: d.getTime(),
+        ts_last_usage: d.getTime()
+    };
+    d10.couch.auth.storeDoc(doc,function(err,storeResponse) {
+        if ( err ) {
+            return cb(new Error("Session recording error"));
+        }
+        return cb(null,doc);
+    });
+};
+
 
 var getListenedSongsByDate = function(uid, opts, callback) {
 	if ( opts.startkey && opts.startkey.length && opts.startkey[0]!=uid ) {
@@ -216,5 +225,6 @@ exports.isValidPassword = isValidPassword;
 exports.createUser = createUser;
 exports.checkAuthFromLogin = checkAuthFromLogin;
 exports.makeSession = makeSession;
+exports.makeRemoteControlSession = makeRemoteControlSession;
 exports.getListenedSongsByDate = getListenedSongsByDate;
 
