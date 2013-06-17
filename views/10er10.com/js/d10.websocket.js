@@ -1,27 +1,20 @@
 "use strict";
-define(["js/config", "js/d10.websocket.protocol.pevts"], function(config, pevtsWebsocketProtocol) {
+define(["js/config", 
+       "js/d10.events"
+       ], function(config, pubsub) {
   var socket;
   var types = {};
   
+  var socketCreatedPubsub = pubsub.topic("websocket:created");
+  var socketClosedPubsub = pubsub.topic("websocket:closed");
+  
   function destroySocket() {
     socket = null;
+    socketClosedPubsub.publish();
   };
   
   var createSocketWithTimeout = function() {
     setTimeout(createSocket, 1000);
-  };
-  
-  function registerPevts() {
-    try {
-      var session = JSON.parse($.cookie("doBadThings")).session;
-    } catch(e) {
-      debug("Unable to get session from cookie: ",e);
-      return false;
-    }
-    var sent = send(pevtsWebsocketProtocol.name, pevtsWebsocketProtocol.prepare({session: session}));
-    if ( !sent ) {
-      debug("Message sending through websocket failed");
-    }
   };
   
   function createSocket() {
@@ -35,6 +28,7 @@ define(["js/config", "js/d10.websocket.protocol.pevts"], function(config, pevtsW
       createSocketWithTimeout();
     };
     socket.onmessage = onmessage;
+    socketCreatedPubsub.publish();
     setTimeout(registerPevts, 1000);
   };
   
@@ -71,8 +65,6 @@ define(["js/config", "js/d10.websocket.protocol.pevts"], function(config, pevtsW
   };
   
   createSocket();
-  
-  addProtocol(pevtsWebsocketProtocol.name, pevtsWebsocketProtocol.onmessage);
   
   return {
     addProtocol: addProtocol,
