@@ -253,7 +253,11 @@ exports.ucwords = function(str) {
  * ctx.userPrivateConfig
  */
 exports.fillUserCtx = function (ctx,response,session) {
-	ctx.session = session;
+    if ( session._id.indexOf("se") === 0 ) {
+      ctx.session = session;
+    } else {
+      ctx.remoteControlSession = session;
+    }
 	response.rows.forEach(function(v,k) {
 		if ( v.doc._id.indexOf("se") === 0 && session._id.indexOf("se") === 0 && v.doc._id != session._id ) {
 			debug("deleting session ",v.doc._id);
