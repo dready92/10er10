@@ -90,6 +90,7 @@ var onConfig = function(isProduction) {
 		cookieSession.cookieSession,
 		d10LangMiddleWare,
 		connect.router(homepage.homepage),
+		connect.router(rc.publicApi),
 		// from here we need to be logged:
 		function(request,response,next) {
 			if ( !request.ctx.session || !request.ctx.user || !request.ctx.user._id ) {
