@@ -29,7 +29,6 @@ define(["js/config",
     };
     socket.onmessage = onmessage;
     socketCreatedPubsub.publish();
-    setTimeout(registerPevts, 1000);
   };
   
   function onmessage (message) {
@@ -64,12 +63,17 @@ define(["js/config",
     return true;
   };
   
+  function isValidProtocol(name) {
+    return (name in types);
+  }
+  
   createSocket();
   
   return {
     addProtocol: addProtocol,
     socketReady: socketReady,
-    send: send
+    send: send,
+    isValidProtocol: isValidProtocol
   };
   
 });
