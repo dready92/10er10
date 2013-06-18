@@ -1,9 +1,8 @@
 "use strict";
 define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket",
-          "js/d10.websocket.protocol.wrest"
+        "js/d10.websocket.protocol.wrest"
         ], 
         function(config, toolbox, pubsub, websocket, websocketProtocolWrest) {
-    websocket.addProtocol(websocketProtocolWrest.name, websocketProtocolWrest.onmessage);
     
 	function httpmanager ( domainUrl ) {
 		// 	debug("worker base_url: ", domainUrl);
@@ -140,6 +139,9 @@ define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket",
 		}
 		
 		this.sendViaWebSocket = function(options) {
+          if ( !websocket.isValidProtocol("wrest") ) {
+            return false;
+          }
           if ( !websocket.socketReady() ) {
             return false;
           }

@@ -121,8 +121,30 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 	};
 
 		
-	var step2 = function () {
+	var step2 = function (websocket, pevts, wrest) {
 		"use strict";
+        //
+        //webwocket protocols declaration
+        //
+        websocket.addProtocol(wrest.name, wrest.onmessage);
+        websocket.addProtocol(pevts.name, pevts.onmessage);
+        
+        function registerPevts() {
+          try {
+            var session = JSON.parse($.cookie("doBadThings")).session;
+          } catch(e) {
+            debug("Unable to get session from cookie: ",e);
+            return false;
+          }
+          var sent = websocket.send(pevts.name, pevts.prepare({session: session}));
+          if ( !sent ) {
+            debug("Message sending through websocket failed");
+          }
+        };
+        pubsub.topic("websocket:created").subscribe(function() {
+          setTimeout(registerPevts,1000);
+        });
+        
 		//
 		// initialisation des workers ajax
 		//
@@ -245,7 +267,10 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		} else {
 			delete Modernizr;
 			$("#browserNotSupported").remove();
-			step2();
+            require(["js/d10.websocket", "js/d10.websocket.protocol.pevts", 
+                    "js/d10.websocket.protocol.wrest"], function(websocket, pevts, wrest) {
+              step2(websocket, pevts, wrest);
+            });
 		}
 	});
     
