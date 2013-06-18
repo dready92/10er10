@@ -10,7 +10,7 @@ var protocolName = "remot";
 function routeMessage(message, socket, callback) {
   var peerSocket = getPeer(socket);
   if ( !peerSocket ) {
-    sendErrorResponse(message, socket, callback);
+    sendNoPeerErrorResponse(message, socket, callback);
   }
   //reconstruct the message
   var line = protocol.formatMessage(message);
@@ -44,7 +44,15 @@ function parseMessage(message) {
   return query;
 };
 
-function sendErrorResponse(message, socket, callback) {
+function sendNoPeerErrorResponse (message, socket, callback) {
+  return sendErrorResponse("ERRNOPEER", message, socket, callback);
+};
+
+function sendBadAuthErrorResponse (message, socket, callback) {
+  return sendErrorResponse("ERRBADAUTH", message, socket, callback);
+};
+
+function sendErrorResponse(error, message, socket, callback) {
   var query = parseMessage(message);
     if ( !query ) {
       return ;
@@ -52,14 +60,15 @@ function sendErrorResponse(message, socket, callback) {
   var response = JSON.stringify(
     {
       success: false,
-      error: "ERRNOPEER",
-      requestId: query.requestId
+      error: error,
+      uid: query.uid,
+      type: "servererror"
     }
                       );
   callback(response);
 };
 
-function websocketProtocolRcsla (httpServer, d10Server) {
+function websocketProtocolRemot (httpServer, d10Server) {
 };
 
 websocketProtocolRemot.prototype.name = protocolName;
@@ -71,16 +80,20 @@ websocketProtocolRemot.prototype.handler = function (message, socket, callback) 
     }
     authRequest(socket, query, function(err) {
       if ( err ) {
-        sendErrorResponse(message, socket, callback);
+        sendBadAuthErrorResponse(message, socket, callback);
+      } else {
+        routeMessage(message, socket, callback);
       }
     });
+    return ;
   }
   routeMessage(message, socket, callback);
 };
 
 function authRequest (socket, query, then) {
   if ( !query.session ) {
-    debug("Query ",query," invalid: should authenticate first");
+    debug("Query ",query," invalid: should give session id");
+    return then(true);
   }
   sessionMiddleware.getUser(query.session, function(err,userId) {
     if ( err ) {
