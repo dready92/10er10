@@ -51,6 +51,7 @@ var onConfig = function(isProduction) {
 	function staticRoutes(app) {
 		app.get("/js/*",httpHelper.localPathServer("/js","../views/10er10.com/js",{bypass: config.production ? false : true}));
 		app.get("/css/*",httpHelper.localPathServer("/css","../views/10er10.com/css",{bypass: config.production ? false : true}));
+        app.get("/html/rc/*",httpHelper.localPathServer("/html/rc","../views/10er10.com/html/rc",{bypass: config.production ? false : true}));
 	};
 
 	function staticAudio (app) {
