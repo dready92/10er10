@@ -7,17 +7,22 @@ define(["js/config",
   
   var socketCreatedPubsub = pubsub.topic("websocket:created");
   var socketClosedPubsub = pubsub.topic("websocket:closed");
+  var createSocketTimeoutId = null;
   
   function destroySocket() {
     socket = null;
+    debug("sending websocket:closed event");
     socketClosedPubsub.publish();
   };
   
   var createSocketWithTimeout = function() {
-    setTimeout(createSocket, 1000);
+    if ( !createSocketTimeoutId ) {
+      createSocketTimeoutId = setTimeout(createSocket, 1000);
+    }
   };
   
   function createSocket() {
+    createSocketTimeoutId = null;
     socket = new WebSocket("ws://"+location.host+config.base_url, "protocolOne");
     socket.onclose = function() {
       destroySocket();
@@ -28,6 +33,7 @@ define(["js/config",
       createSocketWithTimeout();
     };
     socket.onmessage = onmessage;
+    debug("sending websocket:created event");
     socketCreatedPubsub.publish();
   };
   
