@@ -128,7 +128,7 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
         //
         websocket.addProtocol(wrest.name, wrest.onmessage);
         websocket.addProtocol(pevts.name, pevts.onmessage);
-        
+        require(["js/d10.remot.slave.connection", "js/d10.remot.events"]);
         function registerPevts() {
           try {
             var session = JSON.parse($.cookie("doBadThings")).session;
