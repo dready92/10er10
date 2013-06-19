@@ -34,6 +34,7 @@ websocketServer.prototype.createRouter = function() {
 websocketServer.prototype.registerProtocols = function(httpServer, d10Server) {
   this.registerWrestProtocol(httpServer, d10Server);
   this.registerPevtsProtocol(httpServer, d10Server);
+  this.registerRemotProtocol(httpServer, d10Server);
 };
 
 websocketServer.prototype.registerWrestProtocol = function(httpServer, d10Server) {
@@ -48,7 +49,7 @@ websocketServer.prototype.registerPevtsProtocol = function(httpServer, d10Server
   this.router.addType(pevtsProtocolInstance.name, pevtsProtocolInstance.handler);
 };
 
-websocketServer.prototype.registerRcslaProtocol = function(httpServer, d10Server) {
+websocketServer.prototype.registerRemotProtocol = function(httpServer, d10Server) {
   var remotProtocol = require("./websocket-protocol-remot");
   var remotProtocolInstance = new remotProtocol(httpServer, d10Server);
   this.router.addType(remotProtocolInstance.name, remotProtocolInstance.handler);
