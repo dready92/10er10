@@ -25,7 +25,7 @@ websocketStore.prototype.store = function (socket, user, type) {
     this.remove(socket);
   }.bind(this));
   
-  this.socket.push(socket);
+  this.sockets.push(socket);
   if ( ! (user in this.usersLookup) ) {
     this.usersLookup[user] = [];
   }
@@ -34,6 +34,8 @@ websocketStore.prototype.store = function (socket, user, type) {
 };
 
 websocketStore.prototype.remove = function(socket) {
+  var sockets = this.sockets,
+      usersLookup = this.usersLookup;
   function removeFromArray (a) {
     var index = a.indexOf(socket);
     if ( index < 0 ) {
@@ -45,7 +47,7 @@ websocketStore.prototype.remove = function(socket) {
   };
   
   function removeFromSockets () {
-    return removeFromArray(this.sockets);
+    return removeFromArray(sockets);
   };
   
   function removeFromUsersLookup() {
@@ -54,11 +56,11 @@ websocketStore.prototype.remove = function(socket) {
       debug("WARNING: socket don't have a d10user property. Can't remove from this.usersLookup");
       return false;
     }
-    if ( ! (user in this.usersLookup) ) {
+    if ( ! (user in usersLookup) ) {
       debug("WARNING: user ",user," don't have this.usersLookup entry");
       return false;
     }
-    return removeFromArray(this.usersLookup[user]);
+    return removeFromArray(usersLookup[user]);
   };
   
   var ssuccess = removeFromSockets();
@@ -68,7 +70,7 @@ websocketStore.prototype.remove = function(socket) {
 
 websocketStore.prototype.findByUser = function(user) {
   if ( !(user in this.usersLookup) || !this.usersLookup[user].length ) {
-    return null;
+    return [];
   }
   return this.usersLookup[user].slice(0);
 };
