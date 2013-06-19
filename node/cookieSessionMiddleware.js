@@ -1,6 +1,7 @@
 var d10 = require("./d10"),
   debug = d10.debug("d10:cookieSessionMiddleware"),
-  utils = require("connect").utils;
+  utils = require("connect").utils,
+  when = require("./when");
 
 	/*
 	 * {
@@ -146,14 +147,36 @@ exports.getUser = function(sessionId, then) {
   for (var i in sessionCache ) {
     if ( sessionCache[i].se && sessionCache[i].se._id == 'se'+sessionId ) {
       return then ( null, sessionCache[i].us._id );
+    } else if ( sessionCache[i].rs && sessionCache[i].rs._id == 'rs'+sessionId ) {
+      return then ( null, sessionCache[i].us._id );
     }
   }
+  var searchSession = function(then) {
+    d10.couch.auth.getDoc("se"+sessionId, function(err,resp) {
+      if ( err ) {
+        return then(err,resp);
+      }
+      return then(null,"us"+resp.userid);
+    });
+  };
   
-  d10.couch.auth.getDoc("se"+sessionId, function(err,resp) {
-    if ( err ) {
-      return then(err,resp);
+  var searchRemoteSession = function(then) {
+    d10.couch.auth.getDoc("rs"+sessionId, function(err,resp) {
+      if ( err ) {
+        return then(err,resp);
+      }
+      return then(null,"us"+resp.userid);
+    });
+  };
+  
+  when ({se: searchSession, rs: searchRemoteSession}, function(errs, resps) {
+    if ( resps.se ) {
+      return then(null, resps.se);
+    } else if ( resps.rs ) {
+      return then(null, resps.rs);
+    } else {
+      return then(errs,resps);
     }
-    return then(null,"us"+resp.userid);
   });
   
 };
