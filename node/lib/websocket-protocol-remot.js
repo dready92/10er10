@@ -10,27 +10,27 @@ var protocolName = "remot";
 function routeMessage(message, socket, callback) {
   var peerSocket = getPeer(socket);
   if ( !peerSocket ) {
-    sendNoPeerErrorResponse(message, socket, callback);
+    return sendNoPeerErrorResponse(message, socket, callback);
   }
   //reconstruct the message
+  debug("Sending message to peer socket");
   var line = protocol.formatMessage(message);
   try {
-    socket.send(line, function() {});
+    peerSocket.send(line, function() {});
   } catch (e) {
     debug("error while sending response");
   }
 };
 
 function getPeer(socket) {
-  var userSockets = websocketStore.findByUser(socket.d10user);
-  if ( !userSockets ) {
+  var userSockets = websocketStore.findByUser(socket.d10user).filter(function(s) {
+    var back = (s === socket) ? false : true ;
+    return back;
+  });
+  if ( !userSockets.length ) {
     return ;
   }
-  for ( var i = 0; i < userSockets.length; i++ ) {
-    if ( userSockets[i].d10type == 'remoteControlSession' ) {
-      return userSockets[i];
-    }
-  }
+  return userSockets[0];
 };
 
 function parseMessage(message) {
@@ -57,12 +57,14 @@ function sendErrorResponse(error, message, socket, callback) {
     if ( !query ) {
       return ;
     }
+  var responseType = (query.type == "request") ? "response" : "servererror";
   var response = JSON.stringify(
     {
       success: false,
       error: error,
       uid: query.uid,
-      type: "servererror"
+      type: responseType,
+      args: [error]
     }
                       );
   callback(response);
