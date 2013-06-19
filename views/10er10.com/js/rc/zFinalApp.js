@@ -1,5 +1,5 @@
 "use strict";
-angular.module('d10remoteControl', []);
+angular.module('d10remoteControl', ['d10remoteView']);
 angular.module('d10remoteControl').directive('d10login',["$rootScope", function($rootScope) {
   var rest = require("js/d10.rest");
   return {
@@ -49,8 +49,40 @@ angular.module('d10remoteControl').run(['$rootScope', function($rootScope) {
   });
 }]);
 
+angular.module("d10remoteControl").directive("d10peerConnection", function() {
+  var pubsub = require("js/d10.events");
 
-require(["js/d10.events", "js/d10.rest", "js/config"], function() {
+  return {
+    restrict: 'A',
+    link: function($scope, $element, $attrs) {
+      function connectionStatusChanged (status) {
+        debug("Got connection status changed: ",status);
+        if ( status === "peered" && $scope.peered === false) {
+          $scope.$apply(function()  {
+            debug("should switch UI to peered");
+            $scope.peered = true;
+          });
+        } else if ( status != "peered" && $scope.peered === true ) {
+          $scope.$apply(function()  {
+            debug("should switch UI to not peered");
+            $scope.peered = false;
+          });
+        }
+      };
+      $scope.peered = false;
+      $scope.$watch('loginState', function() {
+        debug("loginState now is ",$scope.loginState);
+        if ( $scope.loginState == 'logged' ) {
+          pubsub.topic("remot-connection").subscribe(connectionStatusChanged);
+        } else {
+          pubsub.topic("remot-connection").unsubscribe(connectionStatusChanged);
+        }
+      });
+    }
+  };
+});
+
+require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.connection"], function() {
   var rest = require("js/d10.rest");
   var config = require("js/config");
   var bghttp = require("js/d10.httpbroker");
