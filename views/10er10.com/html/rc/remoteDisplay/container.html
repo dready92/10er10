@@ -1,7 +1,9 @@
-<div class="remoteDisplay" data-ng-controller="d10remoteViewController">
-  <div data-ng-repeat="song in remoteView.playlist" data-ng-class='{active: $index === remoteView.index}'>
-    <span>{{song.token.title}}</span>
-    <span name="{{song.token.artist}}">by {{song.token.artist}}</span>
-    <span data-ng-show='song.token.artists.length'>Feat. <span data-ng-repeat='artist in song.token.artists' name="{{artist}}">{{artist}} </span></span>
+<div class="remoteDisplay playerList" data-ng-controller="d10remoteViewController">
+  <div class="song ellipsis" data-ng-repeat="song in remoteView.playlist" data-ng-class='{active: $index === remoteView.index}'>
+    <span class="songTitle ellipsis">{{song.token.title}}</span>
+    <span class="songArtist songMainArtist" name="{{song.token.artist}}"><span class="lighter">by</span> {{song.token.artist}}</span>
+    <span class="otherArtists" data-ng-show='song.token.artists.length'><span class="lighter">Feat. </span>
+      <span class="songArtist songOtherArtist" data-ng-repeat='artist in song.token.artists' name="{{artist}}">{{artist}} </span>
+    </span>
   </div>
 </div>

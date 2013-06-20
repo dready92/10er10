@@ -1,11 +1,70 @@
 body {
   background-color: black;
   color: white;
+  padding: 0;
+  margin: 0;
+  font-size: medium;
+}
+
+.lighter {
+  color: #BFBFBF;
 }
 
 .center {
   text-align: center;
 }
 
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noPeer {
+  display: -webkit-flex;
+  display: flex;
+  height: 100%;
+  -webkit-flex-flow: column;
+  -webkit-align-content: center;
+  -webkit-align-items: center;
+  -webkit-justify-content: center;
+  flex-flow: column;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+}
+
+.app {
+  margin-top: 3em;
+}
+
+.app > .miniPlayer {
+  position: static;
+  height: 3em;
+  width: 100%;
+  top: 0;
+  left: 0;
+  margin-top: -3em;
+}
 
 
+
+.playerList .song {
+  background-color: #333;
+  margin: 2px;
+  padding: 1px;
+}
+
+.playerList .song > .songTitle {
+  display: block;
+  color: rgb(79, 180, 228);
+}
+
+.playerList .song  .songTitle ,
+.playerList .song  .songArtist,
+.playerList .song  .songOtherArtist {
+  color: rgb(79, 180, 228);
+}
+
+
+.playerList .song  .songOtherArtist:not(:last-child):after { display: inline; content: " , "; }
