@@ -22,6 +22,7 @@ define(["js/config", "js/d10.toolbox", "js/d10.websocket", "js/d10.events"],
   var name = "remot";
   var totalRequests = 1;
   var endpoints = {};
+  var requestFilters = {};
   var TYPE_REQUEST = "request";
   var TYPE_RESPONSE = "response";
   var TYPE_EVENT = "event";
@@ -65,7 +66,14 @@ define(["js/config", "js/d10.toolbox", "js/d10.websocket", "js/d10.events"],
       request.send(callback);
     };
   };
-    
+  
+  function addRequestFilter(name, callback) {
+    if ( ! requestFilters[name] ) {
+      requestFilters[name] = [];
+    }
+    requestFilters[name].push(callback);
+  };
+  
   function prepare(request) {
     debug("preparing",request);
     return JSON.stringify(request);
@@ -121,11 +129,26 @@ define(["js/config", "js/d10.toolbox", "js/d10.websocket", "js/d10.events"],
     return response;
   };
   
+  function applyRequestFilters(wsMessage) {
+    if ( !requestFilters[wsMessage.endpoint] ) {
+      return wsMessage;
+    }
+    requestFilters[wsMessage.endpoint].forEach(function(cb) {
+      wsMessage = cb(wsMessage);
+    });
+    return wsMessage;
+  };
+  
   function onRequestMessage (wsMessage) {
-    if ( !"endpoint" in wsMessage ) {
+    if ( ! ("endpoint" in wsMessage) ) {
       debug("websocket.protocol.remot: invalid wsMessage doesn't have endpoint");
       return ;
     }
+    var args = wsMessage.args ? wsMessage.args : [];
+    args.push(buildResponseCallback(wsMessage));
+    
+    applyRequestFilters(wsMessage);
+    
     if ( ! (wsMessage.endpoint in endpoints) ) {
       debug("websocket.protocol.remot: unknown query ",wsMessage.endpoint);
       var response = buildResponseObject(
@@ -135,9 +158,6 @@ define(["js/config", "js/d10.toolbox", "js/d10.websocket", "js/d10.events"],
       );
       return websocket.send(name, prepare(response));
     }
-    var args = wsMessage.args ? wsMessage.args : [];
-    
-    args.push(buildResponseCallback(wsMessage));
     endpoints[wsMessage.endpoint].apply(this, args);
   };
   
@@ -153,7 +173,7 @@ define(["js/config", "js/d10.toolbox", "js/d10.websocket", "js/d10.events"],
   };
 
   function onEventMessage (wsMessage) {
-    if ( !"endpoint" in wsMessage ) {
+    if ( ! ("endpoint" in wsMessage) ) {
       debug("invalid wsMessage doesn't have endpoint");
       return ;
     }
@@ -221,6 +241,7 @@ define(["js/config", "js/d10.toolbox", "js/d10.websocket", "js/d10.events"],
     name: name,
     addLocalEndPoint: addLocalEndPoint,
     addRemoteEndPoint: addRemoteEndPoint,
+    addRequestFilter: addRequestFilter,
     sendEvent: sendEvent,
     SERVER_ERROR_NOPEER: SERVER_ERROR_NOPEER,
     SERVER_ERROR_BADAUTH: SERVER_ERROR_BADAUTH,

@@ -82,12 +82,14 @@ angular.module("d10remoteControl").directive("d10peerConnection", function() {
   };
 });
 
-require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.connection"], function() {
+require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.connection",
+  "js/d10.remot.master.endpoints", "js/d10.artistTokenizer"
+], function() {
   var rest = require("js/d10.rest");
   var config = require("js/config");
   var bghttp = require("js/d10.httpbroker");
   console.log(config);
   bghttp.init(config.base_url);
   
-  angular.bootstrap( angular.element("body"), ["d10remoteControl"]);
+  angular.bootstrap( angular.element("body"), ["d10remoteControl","d10song"]);
 });

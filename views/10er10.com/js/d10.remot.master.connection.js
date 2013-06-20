@@ -4,22 +4,28 @@ define(["js/d10.websocket.protocol.remot",
        function (remot, websocket, pubsub) {
 
   var serverConnectionInterval = null;
-  var lastServerConnectionErr = null;
+  var lastServerConnectionErr = "init";
   var STATUS_OFF = "off";
   var STATUS_BADAUTH = remot.SERVER_ERROR_BADAUTH;
   var STATUS_NOPEER = remot.SERVER_ERROR_NOPEER;
   var STATUS_PEERED = "peered";
   var currentStatus = STATUS_OFF;
+  var smallPlayStatusPubsub = pubsub.topic("remot:smallPlayStatus");
          
   function checkServerConnection() {
-    remot.serverconnection(function(err,resp) {
-      debug("serverconnection returns");
+    remot.smallPlayStatus(function(err,resp) {
       debug("err = ",err,", lastServerConnectionErr = ", lastServerConnectionErr);
       if ( !err ) {
-        debug("real bad thing: the endpoint serverconnection succeded");
-        throw "ERROR: serverconnection succeded";
+        smallPlayStatusPubsub.publish(resp);
       }
+      
       if ( err == lastServerConnectionErr ) {
+        return ;
+      }
+      if ( !err ) {
+        debug("Everything's all right");
+        lastServerConnectionErr = err;
+        setStatus(STATUS_PEERED);
         return ;
       }
       if ( err == remot.SERVER_ERROR_BADAUTH ) {
@@ -31,9 +37,8 @@ define(["js/d10.websocket.protocol.remot",
         lastServerConnectionErr = err;
         setStatus(STATUS_NOPEER);
       } else {
-        debug("Everything's all right");
-        lastServerConnectionErr = err;
-        setStatus(STATUS_PEERED);
+        debug("real bad thing: the endpoint smallPlayStatus encountered an unknown error",err);
+        throw "ERROR: smallPlayStatus unknown error";
       }
     });
   };
@@ -66,7 +71,7 @@ define(["js/d10.websocket.protocol.remot",
   websocket.addProtocol(remot.name, remot.onmessage);
   pubsub.topic("websocket:created").subscribe(onSocketCreated);
   pubsub.topic("websocket:closed").subscribe(onSocketClosed);
-  remot.addRemoteEndPoint("serverconnection");
+
   setTimeout(function() {
     if ( websocket.socketReady() ) {
       debug("starting onSocketCreated manually");

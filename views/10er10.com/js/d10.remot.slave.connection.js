@@ -41,6 +41,20 @@ define(["js/d10.websocket.protocol.remot",
   pubsub.topic("websocket:closed").subscribe(onSocketClosed);
   
   remot.addRemoteEndPoint("serverconnection");
+  
+  remot.addRequestFilter("smallPlayStatus", function(wsMessage) {
+    debug("remot.slave: got a PEER smallPlayStatus request");
+    if ( noPeerWatchDogId ) {
+      clearTimeout(noPeerWatchDogId);
+    }
+    noPeerWatchDogId = setTimeout(peerWatchdog, 30000);
+    if ( currentStatus != STATUS_ON ) {
+      debug("RemoteControl started !");
+      setStatus(STATUS_ON);
+    }
+  });
+
+/*  
   remot.addLocalEndPoint("serverconnection", function() {
     debug("remot.slave: got a PEER serverconnection request");
     if ( noPeerWatchDogId ) {
@@ -55,6 +69,7 @@ define(["js/d10.websocket.protocol.remot",
       setStatus(STATUS_ON);
     }
   });
+*/
   
   setTimeout(function() {
     if ( websocket.socketReady() ) {
