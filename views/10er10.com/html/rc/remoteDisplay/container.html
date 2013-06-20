@@ -1,0 +1,7 @@
+<div class="remoteDisplay" data-ng-controller="d10remoteViewController">
+  <div data-ng-repeat="song in remoteView.playlist" data-ng-class='{active: $index === remoteView.index}'>
+    <span>{{song.token.title}}</span>
+    <span name="{{song.token.artist}}">by {{song.token.artist}}</span>
+    <span data-ng-show='song.token.artists.length'>Feat. <span data-ng-repeat='artist in song.token.artists' name="{{artist}}">{{artist}} </span></span>
+  </div>
+</div>
