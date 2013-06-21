@@ -1,0 +1,5 @@
+    <span class="songTitle ellipsis">{{song.token.title}}</span>
+    <span class="songArtist songMainArtist" name="{{song.token.artist}}"><span class="lighter">by</span> {{song.token.artist}}</span>
+    <span class="otherArtists" data-ng-show='song.token.artists.length'><span class="lighter">Feat. </span>
+      <span class="songArtist songOtherArtist" data-ng-repeat='artist in song.token.artists' name="{{artist}}">{{artist}} </span>
+    </span>

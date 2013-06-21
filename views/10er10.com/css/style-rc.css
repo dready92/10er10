@@ -4,6 +4,19 @@
   -webkit-text-size-adjust: none;
 }
 
+@font-face {
+  font-family: awesome;
+  src: url('fontawesome-webfont.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.awesome {
+  font-family: awesome;
+  -webkit-font-smoothing: antialiased;
+}
+  
+
 body {
   background-color: black;
   color: white;
@@ -42,19 +55,40 @@ body {
 }
 
 .app {
-  margin-top: 3em;
+  margin-top: 5em;
 }
 
 .app > .miniPlayer {
   position: fixed;
-  height: 3em;
+  height: 4.9em;
   width: 100%;
   top: 0;
   left: 0;
   background: rgb(4,39,44);
+  border-bottom: 0.1em solid blue;
 }
 
+.app > .miniPlayer > .controls {
+  display: -webkit-flex;
+  display: flex;
+  height: 100%;
+  -webkit-flex-flow: row;
+  -webkit-align-content: center;
+  -webkit-align-items: flex-start;
+  -webkit-justify-content: center;
+  flex-flow: column;
+  align-content: center;
+  align-items: center;
+  justify-content: center;  
+}
 
+.app > .miniPlayer > .controls > button {
+  padding: 0.6em;
+  border-radius: 1em;
+  border: none;
+  text-align: center;
+  font-size: 1.4em;
+}
 
 .playerList .song {
   background-color: #333;

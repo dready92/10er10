@@ -20,6 +20,13 @@
 
     }
   })
+  .directive("d10songPlayerList",function() {
+    return {
+      restrict: 'A',
+      templateUrl: '../html/rc/song/playerList.html',
+      replace: false
+    };
+  })
   ;
   
   
