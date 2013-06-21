@@ -1,9 +1,16 @@
+* {
+  margin: 0;
+  padding: 0;
+  -webkit-text-size-adjust: none;
+}
+
 body {
   background-color: black;
   color: white;
   padding: 0;
   margin: 0;
   font-size: medium;
+  font-family: 'HelveticaNeue-Light', Helvetica, Arial, sans-serif;
 }
 
 .lighter {
@@ -39,12 +46,12 @@ body {
 }
 
 .app > .miniPlayer {
-  position: static;
+  position: fixed;
   height: 3em;
   width: 100%;
   top: 0;
   left: 0;
-  margin-top: -3em;
+  background: rgb(4,39,44);
 }
 
 
