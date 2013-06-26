@@ -28,7 +28,7 @@
     <div class="app" data-ng-show="peered == true">
       <div class="miniPlayer">
         <div class="controls">
-          <button class="awesome">&#xF04B;</button>
+          <span d10playpause />
         </div>
       </div>
       <div data-d10remote-view-container></div>
@@ -37,6 +37,8 @@
     <script src="/js/jquery.d10param.js"></script>
     <script src="/js/jquery.cookie.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
+    <script src="/js/hammer.js"></script>
+    <script src="/js/angular-hammer.js"></script>
     <script src="/js/require.js"></script>
     <script>
       function debug() {
