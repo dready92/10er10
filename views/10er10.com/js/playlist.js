@@ -198,6 +198,22 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			return back;
 		};
 
+        var playOrResume = this.playOrResume = function() {
+          var widget = current(),
+          track = driver.current();
+          if ( widget.length ) {
+            if ( !track ) {
+              driver.play( getTrackParameters( widget ));
+            } else {
+              var ok = resume();
+            }
+          } else {
+            var first = all().eq(0);
+            if ( first.length ) {
+              driver.play( getTrackParameters(first) );
+            }
+          }
+        };
 
 
 		var recordPlaylistDriver = this.recordPlaylistDriver = function() {
