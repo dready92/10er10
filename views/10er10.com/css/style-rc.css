@@ -82,7 +82,7 @@ body {
   justify-content: center;  
 }
 
-.app > .miniPlayer > .controls > button {
+.app > .miniPlayer > .controls > div.playpause > button {
   padding: 0.6em;
   border-radius: 1em;
   border: none;
