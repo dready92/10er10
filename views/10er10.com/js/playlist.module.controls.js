@@ -13,7 +13,16 @@ var createModule = function(ui) {
 		"playlist:ended": function() {
 			pause.hide();
 			play.show();
-		}
+		},
+        "playlist:resumed": function() {
+            play.hide();
+            pause.show();
+        },
+        "playlist:paused": function() {
+          pause.hide();
+          play.show();
+        }
+
 	},{});
     
     pubsub.topic('songStarring').subscribe(function(resp) { 
@@ -75,35 +84,12 @@ var createModule = function(ui) {
 	play.bind("click",function() {
 // 		debug("click on play",binder.enabled);
 		if ( !module.isEnabled() )	return ;
-		var widget = playlist.current(),
-			track = playlist.driver().current();
-		if ( widget.length ) {
-			if ( !track ) {
-				playlist.driver().play( playlist.getTrackParameters( widget ));
-			} else {
-				var ok = playlist.resume();
-				if ( ok ) {
-					play.hide();
-					pause.show();
-// 					starringControls();
-				}
-			}
-		} else {
-// 			debug("playlist all",playlist.all());
-			var first = playlist.all().eq(0);
-			if ( first.length ) {
-				playlist.driver().play( playlist.getTrackParameters(first) );
-			}
-		}
+        playlist.playOrResume();
 	});
 
 	pause.bind("click",function() {
 		if ( !module.isEnabled() )	return ;
 		var ok = playlist.pause();
-		if ( ok ) {
-			pause.hide();
-			play.show();
-		};
 	});
 
 	next.bind("click",function() {
