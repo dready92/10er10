@@ -42,4 +42,14 @@ define(
     var response = getSmallPlayStatus();
     callback(null,response);
   });
+  
+  remot.addLocalEndPoint("play",function(callback) {
+    playlist.playOrResume();
+    callback(null);
+  });
+  
+  remot.addLocalEndPoint("pause",function(callback) {
+    playlist.pause();
+    callback(null);
+  });
 });

@@ -1,4 +1,6 @@
 define(["js/d10.websocket.protocol.remot"], function(remot) {
   remot.addRemoteEndPoint("fullPlayStatus");
   remot.addRemoteEndPoint("smallPlayStatus");
+  remot.addRemoteEndPoint("play");
+  remot.addRemoteEndPoint("pause");
 });
