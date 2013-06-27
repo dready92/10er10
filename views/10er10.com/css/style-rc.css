@@ -139,3 +139,49 @@ body {
 
 
 .playerList .song  .songOtherArtist:not(:last-child):after { display: inline; content: " , "; }
+
+.playerList .song .songControls {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-flow: row;
+  -webkit-align-content: center;
+  -webkit-align-items: center;
+  -webkit-justify-content: center;
+  flex-flow: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  
+  margin-top: 0.3em;
+}
+
+.playerList .song .songControls > div{
+  flex: 1 0 auto;
+  -webkit-flex: 1 0 auto;
+  
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-flow: column;
+  -webkit-align-content: center;
+  -webkit-align-items: center;
+  -webkit-justify-content: center;
+  flex-flow: column;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  
+  border: 1px solid #CFCFCF;
+  background-color: #BFBFBF;
+  color: #333;
+}
+
+.playerList .song .songControls > div > div:first-child {
+  flex: 1 0 auto;
+  -webkit-flex: 2 0 auto;
+  padding: 1em 0;
+}
+
+.playerList .song .songControls > div > div:last-child {
+  flex: 1 0 auto;
+  -webkit-flex: 1 0 auto;
+}
