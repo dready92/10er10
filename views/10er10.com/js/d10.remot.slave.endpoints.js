@@ -52,4 +52,12 @@ define(
     playlist.pause();
     callback(null);
   });
+  
+  remot.addLocalEndPoint("next",function(callback) {
+    callback(null, playlist.playNext());
+  });
+  
+  remot.addLocalEndPoint("previous",function(callback) {
+    callback(null, playlist.playPrevious());
+  });
 });
