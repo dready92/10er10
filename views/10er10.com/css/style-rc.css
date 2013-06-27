@@ -125,7 +125,7 @@ body {
   vertical-align: middle;
 }
 
-.playerList .song > .songTitle {
+.playerList .songInformations > .songTitle {
   display: block;
   color: rgb(79, 180, 228);
 }

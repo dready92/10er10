@@ -22,6 +22,7 @@ angular.module("d10remoteView").controller("d10remoteViewController", ["$scope",
     $scope.remoteView.paused = true;
     $scope.remoteView.currentTime = 0;
     $scope.remoteView.index = -1;
+    $scope.remoteView.expandedIndex = -1;
     $scope.remoteView.playlist = [];
     $scope.remoteView.volume = 0;
     $scope.remoteView.listening = false;
@@ -30,12 +31,21 @@ angular.module("d10remoteView").controller("d10remoteViewController", ["$scope",
   $scope.remoteView = {};
   $scope.resetRemoteView();
   
+  $scope.toggleExpandedIndex = function(index) {
+    if ( $scope.remoteView.expandedIndex === index ) {
+      $scope.remoteView.expandedIndex = -1;
+    } else {
+      $scope.remoteView.expandedIndex = index;
+    }
+  };
+  
   pubsub.topic("remot-connection").subscribe(connectionStatusChanged);
   
   function updatePlaylist(songs) {
     if ( !songs.length ) {
       $scope.remoteView.playlist = songs;
       $scope.remoteView.index = -1;
+      $scope.remoteView.expandedIndex = -1;
       $scope.remoteView.song = null;
       $scope.remoteView.currentTime = 0;
     } else {
