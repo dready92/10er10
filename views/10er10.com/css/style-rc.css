@@ -82,18 +82,24 @@ body {
   justify-content: center;  
 }
 
-.app > .miniPlayer > .controls > span.playpause > button {
+.app > .miniPlayer > .controls > span.playpause > button,
+.app > .miniPlayer > .controls > span.playnext > button,
+.app > .miniPlayer > .controls > span.playprevious > button {
   padding: 0.6em;
   border-radius: 1em;
   border: none;
   text-align: center;
+  
+}
+
+.app > .miniPlayer > .controls > span.playpause > button {
   font-size: 1.4em;
 }
 .app > .miniPlayer > .controls > span.playnext > button {
-  padding: 0.6em;
-  border-radius: 1em;
-  border: none;
-  text-align: center;
+  font-size: 1.2em;
+}
+
+.app > .miniPlayer > .controls > span.playprevious > button {
   font-size: 1.2em;
 }
 

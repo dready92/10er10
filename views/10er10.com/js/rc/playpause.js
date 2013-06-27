@@ -44,6 +44,22 @@
       }
     };
   })
+  .directive("d10playprevious",function() {
+    var remot = require("js/d10.websocket.protocol.remot");
+    return {
+      restrict: 'A',
+      templateUrl: '../html/rc/controls/playprevious.html',
+      replace: true,
+      link: function ($scope) {
+        $scope.d10playpause = $scope.d10playpause || {};
+        $scope.d10playpause.playPrevious = function() {
+          remot.previous(function(err,done) {
+            debug("previous command response: ",err,"done:",done);
+          });
+        };
+      }
+    };
+  })
   ;
   
   
