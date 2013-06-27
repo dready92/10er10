@@ -134,6 +134,24 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 		var next = this.next = function() {
 			return current().next();
 		};
+        
+        var playNext = this.playNext = function() {
+          var widget = current().next();
+          if ( widget.length ) {
+            driver.play( getTrackParameters(widget) );
+            return true;
+          }
+          return false;
+        };
+        
+        var playPrevious = this.playPrevious = function() {
+          var widget = current().prev();
+          if ( widget.length ) {
+            driver.play( getTrackParameters(widget) );
+            return true;
+          }
+          return false;
+        };
 
 		var all = this.all = function() {
 			return list.children(".song");
