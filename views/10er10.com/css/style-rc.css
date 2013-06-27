@@ -64,8 +64,8 @@ body {
   width: 100%;
   top: 0;
   left: 0;
-  background: rgb(4,39,44);
-  border-bottom: 0.1em solid blue;
+  background: black;
+  border-bottom: 0.1em solid rgb(20,47,60);
 }
 
 .app > .miniPlayer > .controls {
@@ -82,18 +82,41 @@ body {
   justify-content: center;  
 }
 
-.app > .miniPlayer > .controls > div.playpause > button {
+.app > .miniPlayer > .controls > span.playpause > button {
   padding: 0.6em;
   border-radius: 1em;
   border: none;
   text-align: center;
   font-size: 1.4em;
 }
+.app > .miniPlayer > .controls > span.playnext > button {
+  padding: 0.6em;
+  border-radius: 1em;
+  border: none;
+  text-align: center;
+  font-size: 1.2em;
+}
 
 .playerList .song {
   background-color: #333;
   margin: 2px;
   padding: 1px;
+}
+
+.playerList .song.active .sonTitle{
+  padding-left: 0.5em;
+}
+
+.playerList .song.active .songTitle:before {
+  content: "\f04b";
+  font-family: awesome;
+  -webkit-font-smoothing: antialiased;
+  font-size: 0.5em;
+  background-color: #EEE;
+  border-radius: 3.5em;
+  padding: 0.25em;
+  margin-right: 0.5em;
+  vertical-align: middle;
 }
 
 .playerList .song > .songTitle {
@@ -105,6 +128,7 @@ body {
 .playerList .song  .songArtist,
 .playerList .song  .songOtherArtist {
   color: rgb(79, 180, 228);
+  text-shadow: 1px 1px black;
 }
 
 
