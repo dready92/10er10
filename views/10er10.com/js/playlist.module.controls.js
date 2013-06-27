@@ -94,21 +94,14 @@ var createModule = function(ui) {
 
 	next.bind("click",function() {
 		if ( !module.isEnabled() )	return ;
-		debug("calling next");
-		var widget = playlist.current().next();
-		debug("next: playlist: ", playlist.current(),", next = ",widget);
-		if ( widget.length ) {
-			playlist.driver().play( playlist.getTrackParameters(widget) );
-		}
+        playlist.playNext();
+
 	});
 
 	prev.bind("click",function() {
 		if ( !module.isEnabled() )	return ;
-		var widget = playlist.current().prev();
-		if ( widget.length ) {
-				playlist.driver().play( playlist.getTrackParameters(widget) );
-		}
-	});
+      playlist.playPrevious();
+    });
 	starUp.click(function() {
 		if ( !module.isEnabled() )	return ;
 		var test = playlist.current().attr('name');
