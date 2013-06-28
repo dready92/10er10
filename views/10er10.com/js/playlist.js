@@ -153,6 +153,22 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
           return false;
         };
 
+        var getSongAtIndex = this.getSongAtIndex = function(index) {
+          var widget = list.children(".song").eq(index) ;
+          if ( widget.length ) {
+            return widget;
+          }
+          return null;
+        };
+        
+        var playSongAtIndex = this.playSongAtIndex = function(index) {
+          var widget = getSongAtIndex(index);
+          if ( widget ) {
+            return driver.play( getTrackParameters(widget) );
+          }
+          return null;
+        };
+        
 		var all = this.all = function() {
 			return list.children(".song");
 		};
