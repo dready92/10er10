@@ -60,4 +60,28 @@ define(
   remot.addLocalEndPoint("previous",function(callback) {
     callback(null, playlist.playPrevious());
   });
+  
+  remot.addLocalEndPoint("playSongAtIndex",function(index, callback) {
+    var index = parseInt(index, 10);
+    if ( isNaN(index) ) {
+      return callback("PARAMETER_ERROR");
+    }
+    
+    if ( !playlist.getSongAtIndex(index) ) {
+      return callback("BAD_INDEX_ERROR");
+    }
+    callback(null, playlist.playSongAtIndex(index));
+  });
+  
+  remot.addLocalEndPoint("removeSongAtIndex",function(index, callback) {
+    var index = parseInt(index, 10);
+    if ( isNaN(index) ) {
+      return callback("PARAMETER_ERROR");
+    }
+    var widget = playlist.getSongAtIndex(index);
+    if ( !widget ) {
+      return callback("BAD_INDEX_ERROR");
+    }
+    callback(null, playlist.remove(widget));
+  });
 });
