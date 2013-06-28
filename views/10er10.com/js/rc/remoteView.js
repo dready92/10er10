@@ -12,7 +12,15 @@ angular.module("d10remoteView").directive("d10remoteViewContainer", function() {
 });
 
 
-angular.module("d10remoteView").controller("d10remoteViewController", ["$scope", "d10artistTokenizer", function($scope, d10artistTokenizer) {
+angular.module("d10remoteView").controller("d10remoteViewController", 
+                                           [
+                                           "$scope", 
+                                           "d10artistTokenizer",
+                                           "d10rc",
+                                           function(
+                                             $scope, 
+                                             d10artistTokenizer,
+                                             d10remoteControl) {
   var pubsub = require("js/d10.events");
   var rest = require("js/d10.rest");
   var remotConnection = require("js/d10.remot.master.connection");
@@ -38,7 +46,8 @@ angular.module("d10remoteView").controller("d10remoteViewController", ["$scope",
       $scope.remoteView.expandedIndex = index;
     }
   };
-  
+  $scope.remoteControl = d10remoteControl;
+  /*
   $scope.remoteControl = {};
   
   $scope.remoteControl.playSongAtIndex = function(index) {
@@ -79,7 +88,7 @@ angular.module("d10remoteView").controller("d10remoteViewController", ["$scope",
       debug("previous command response: ",err,"done:",done);
     });
   };
-  
+  */
   pubsub.topic("remot-connection").subscribe(connectionStatusChanged);
   
   function updatePlaylist(songs) {
