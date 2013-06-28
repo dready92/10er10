@@ -39,13 +39,54 @@ angular.module("d10remoteView").controller("d10remoteViewController", ["$scope",
     }
   };
   
+  $scope.remoteControl = {};
+  
+  $scope.remoteControl.playSongAtIndex = function(index) {
+    remot.playSongAtIndex(index, function(err,resp) {
+      debug("playSongAtIndex returns : ",err,resp);
+    });
+  };
+  
+  $scope.remoteControl.removeSongAtIndex = function(index) {
+    remot.removeSongAtIndex(index, function(err,resp) {
+      debug("removeSongAtIndex returns : ",err,resp);
+    });
+  };
+  
+  $scope.remoteControl.play = function(evt) {
+    debug("sending play command to peer");
+    remot.play(function(err) {
+      debug("play command response: ",err);
+    });
+    evt.stopPropagation();
+    evt.preventDefault();
+  };
+  $scope.remoteControl.pause = function(evt) {
+    debug("sending pause command to peer");
+    remot.pause(function(err) {
+      debug("pause command response: ",err);
+    });
+    evt.stopPropagation();
+    evt.preventDefault();
+  };
+  $scope.remoteControl.playNext = function() {
+    remot.next(function(err,done) {
+      debug("next command response: ",err,"done:",done);
+    });
+  };
+  $scope.remoteControl.playPrevious = function() {
+    remot.previous(function(err,done) {
+      debug("previous command response: ",err,"done:",done);
+    });
+  };
+  
   pubsub.topic("remot-connection").subscribe(connectionStatusChanged);
   
   function updatePlaylist(songs) {
+    $scope.remoteView.expandedIndex = -1;
     if ( !songs.length ) {
       $scope.remoteView.playlist = songs;
       $scope.remoteView.index = -1;
-      $scope.remoteView.expandedIndex = -1;
       $scope.remoteView.song = null;
       $scope.remoteView.currentTime = 0;
     } else {

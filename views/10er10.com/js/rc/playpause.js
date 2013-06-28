@@ -6,26 +6,7 @@
     return {
       restrict: 'A',
       templateUrl: '../html/rc/controls/playpause.html',
-      replace: true,
-      link: function ($scope) {
-        $scope.d10playpause = $scope.d10playpause || {};
-        $scope.d10playpause.play = function(evt) {
-          debug("sending play command to peer");
-          remot.play(function(err) {
-            debug("play command response: ",err);
-          });
-          evt.stopPropagation();
-          evt.preventDefault();
-        };
-        $scope.d10playpause.pause = function(evt) {
-          debug("sending pause command to peer");
-          remot.pause(function(err) {
-            debug("pause command response: ",err);
-          });
-          evt.stopPropagation();
-          evt.preventDefault();
-        };
-      }
+      replace: true
     };
   })
   .directive("d10playnext",function() {
@@ -33,15 +14,7 @@
     return {
       restrict: 'A',
       templateUrl: '../html/rc/controls/playnext.html',
-      replace: true,
-      link: function ($scope) {
-        $scope.d10playpause = $scope.d10playpause || {};
-        $scope.d10playpause.playNext = function() {
-          remot.next(function(err,done) {
-            debug("next command response: ",err,"done:",done);
-          });
-        };
-      }
+      replace: true
     };
   })
   .directive("d10playprevious",function() {
@@ -49,15 +22,7 @@
     return {
       restrict: 'A',
       templateUrl: '../html/rc/controls/playprevious.html',
-      replace: true,
-      link: function ($scope) {
-        $scope.d10playpause = $scope.d10playpause || {};
-        $scope.d10playpause.playPrevious = function() {
-          remot.previous(function(err,done) {
-            debug("previous command response: ",err,"done:",done);
-          });
-        };
-      }
+      replace: true
     };
   })
   ;

@@ -9,10 +9,28 @@
   <div class="songControls"
         data-ng-show="$index === remoteView.expandedIndex">
     <div 
-      data-ng-hide="$index === remoteView.index">
+      data-ng-show="$index !== remoteView.index"
+      data-hm-tap="remoteControl.playSongAtIndex($index)">
       <div class="awesome">&#xF04B;</div>
       <div>play</div>
     </div>
-    <div> 2 </div>
+    <div 
+      data-ng-show="$index === remoteView.index && remoteView.paused"
+      data-hm-tap="remoteControl.play($event)">
+      <div class="awesome">&#xF04B;</div>
+      <div>play</div>
+    </div>
+    <div 
+      data-ng-show="$index === remoteView.index && !remoteView.paused"
+      data-hm-tap="remoteControl.pause($event)">
+      <div class="awesome">&#xF04C;</div>
+      <div>pause</div>
+    </div>
+    <div data-ng-show="$index !== remoteView.index"
+      data-hm-tap="remoteControl.removeSongAtIndex($index)"
+    >
+      <div class="awesome">&#xF00D;</div>
+      <div>remove</div> 
+    </div>
     <div> 3 </div>
   </div>
