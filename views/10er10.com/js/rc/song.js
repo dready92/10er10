@@ -28,8 +28,11 @@
     };
   })
   
-  .controller("d10inPlayerListController", function($scope, $routeParams) {
-  })
+  .controller("d10inPlayerListController", ["$scope","$routeParams","d10rc",function($scope, $routeParams,d10remoteControl) {
+    if ( d10remoteControl.playlist[$routeParams.index] ) {
+      $scope.song = d10remoteControl.playlist[$routeParams.index];
+    }
+  }])
   ;
   
   

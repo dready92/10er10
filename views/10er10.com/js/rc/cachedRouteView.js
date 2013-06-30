@@ -211,14 +211,14 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
         }
         
         var shouldCachePrevious = false;
-        if ( lastControllerCache.routeDef &&
+        if ( lastControllerCache && lastControllerCache.routeDef &&
             "cache" in lastControllerCache.routeDef &&
             lastControllerCache.routeDef.cache ) {
           shouldCachePrevious = true;
         }
         
         debug("shouldCachePrevious:",shouldCachePrevious,"shouldCacheCurrent:",shouldCacheCurrent);
-        
+        debug("template",template);
         if (template) {
           clearContent(shouldCachePrevious);
           var enterElements ;
@@ -232,7 +232,6 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
           } else {
             enterElements = angular.element('<div></div>').html(template).contents();
           }
-          debugger;
           animate.enter(enterElements, element);
 
           var link = $compile(enterElements),
@@ -260,6 +259,8 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
               routeDef: routeDef
             };
             controllersCache[current.controller] = lastControllerCache;
+          } else {
+            lastControllerCache = null;
           }
           
           // $anchorScroll might listen on event...
