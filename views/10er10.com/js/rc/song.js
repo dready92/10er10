@@ -31,6 +31,21 @@
       }
     };
   })
+  .filter("d10songTime", function() {
+    return function(input) {
+      var time = parseInt(input, 10) * 1000;
+      var d = new Date(time);
+      var m = d.getMinutes();
+      if ( m < 10 ) {
+        m = "0"+m;
+      }
+      var s = d.getSeconds();
+      if ( s < 10 ) {
+        s = "0"+s;
+      }
+      return m+":"+s;
+    };
+  })
   .directive("d10songPlayerList",function() {
     return {
       restrict: 'A',
@@ -51,6 +66,7 @@
     function getCurrentSong() {
       if ( $scope.remoteView.playlist[$routeParams.index] ) {
         $scope.song = $scope.remoteView.playlist[$routeParams.index];
+        $scope.songIndex = $routeParams.index;
       }
     };
     $scope.$on("playlist:changed",function() {

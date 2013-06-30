@@ -1,6 +1,14 @@
 <div class="inPlayerList insidePage">
   <div data-d10inside-nav class="nav"></div>
-{{song.title}} by {{song.artist}}
+  <div class="inPlayerContainer">
+    <div class="header">
+      <img class="cover" data-ng-src="{{song | d10songImage}}">
+      <div class="title">{{song.title}}</div>
+      <div class="artist">{{song.artist}}</div>
+      <div><span class="genre">{{song.genre}}</span> - <span class="duration">{{song.duration | d10songTime}}</span></div>
+      <div class="playing" data-ng-show="songIndex == remoteView.index">Currently playing</div>
+    </div>
+    <div class="album" data-ng-show="song.album && song.album.length">on album: {{song.album}}</div>
 
-<img data-ng-src="{{song | d10songImage}}">
+  </div>
 </div>
