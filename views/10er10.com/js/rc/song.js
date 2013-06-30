@@ -28,9 +28,17 @@
     };
   })
   
-  .controller("d10inPlayerListController", ["$scope","$routeParams","d10rc",function($scope, $routeParams,d10remoteControl) {
-    if ( d10remoteControl.playlist[$routeParams.index] ) {
-      $scope.song = d10remoteControl.playlist[$routeParams.index];
+  .controller("d10inPlayerListController", [
+  "$scope",
+  "$routeParams",
+  "$location",
+  "d10rc",
+  function($scope, $routeParams,$location,d10remoteControl) {
+    $scope.home = function() {
+      $location.path("/main");
+    };
+    if ( $scope.remoteView.playlist[$routeParams.index] ) {
+      $scope.song = $scope.remoteView.playlist[$routeParams.index];
     }
   }])
   ;

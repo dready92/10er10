@@ -186,3 +186,24 @@ body {
   flex:  0 1 auto;
   -webkit-flex:  0 1 auto;
 }
+
+.insidePage {
+  margin-top: 2.5em;
+}
+
+.nav {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  top: 0;
+  height: 2em;
+  border-bottom: 1px solid #DFDFDF;
+}
+
+.nav > span {
+  display: inline-block;
+  padding-top: 0.5em;
+  padding-left: 0.5em;
+  height: 1.5em;
+  vertical-align: middle;
+}
