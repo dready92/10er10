@@ -33,8 +33,24 @@ angular.module('d10remoteControl').directive('d10login',["$rootScope", function(
 }]);
 
 
+angular.module('d10remoteControl').config(['$routeProvider','$locationProvider',function($routeProvider, $locationProvider) {
+  $routeProvider.when('/main', {
+    templateUrl: '../html/rc/remoteDisplay/container.html',
+    controller: "d10remoteViewController"
+  });
+  
+  $routeProvider.when('/playerList/:index', {
+    templateUrl: '../html/rc/song/inPlayerList.html',
+    controller: "d10inPlayerListController"
+  });
+  
+  $routeProvider.otherwise({redirectTo: "/mail"});
+  
+}]);
+
 angular.module('d10remoteControl').run(['$rootScope', function($rootScope) {
   var rest = require("js/d10.rest");
+  $rootScope.remoteView = {};
   $rootScope.loginState = "session";
   rest.rc.sessionLogin({
     load: function(err,resp) {
@@ -91,5 +107,5 @@ require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.conne
   console.log(config);
   bghttp.init(config.base_url);
   
-  angular.bootstrap( angular.element("body"), ["hmTouchevents","d10remoteControl", "d10rc","d10song","d10playpause","d10remoteView"]);
+  angular.bootstrap( angular.element("body"), ["hmTouchevents","d10remoteControl","d10rc","d10song","d10playpause", "d10cachedRouteView"]);
 });

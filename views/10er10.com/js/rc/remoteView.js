@@ -14,11 +14,13 @@ angular.module("d10remoteView").directive("d10remoteViewContainer", function() {
 
 angular.module("d10remoteView").controller("d10remoteViewController", 
                                            [
-                                           "$scope", 
+                                           "$scope",
+                                           "$location",
                                            "d10artistTokenizer",
                                            "d10rc",
                                            function(
                                              $scope, 
+                                             $location,
                                              d10artistTokenizer,
                                              d10remoteControl) {
   var pubsub = require("js/d10.events");
@@ -35,8 +37,7 @@ angular.module("d10remoteView").controller("d10remoteViewController",
     $scope.remoteView.volume = 0;
     $scope.remoteView.listening = false;
   };
-  
-  $scope.remoteView = {};
+
   $scope.resetRemoteView();
   
   $scope.toggleExpandedIndex = function(index) {
@@ -46,6 +47,11 @@ angular.module("d10remoteView").controller("d10remoteViewController",
       $scope.remoteView.expandedIndex = index;
     }
   };
+  
+  $scope.playerListSongDetails = function(index) {
+    $location.path("/playerList/"+index);
+  };
+  
   $scope.remoteControl = d10remoteControl;
   /*
   $scope.remoteControl = {};

@@ -27,6 +27,9 @@
       replace: false
     };
   })
+  
+  .controller("d10inPlayerListController", function($scope, $routeParams) {
+  })
   ;
   
   
