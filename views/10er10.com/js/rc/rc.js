@@ -79,6 +79,8 @@
         d10artistTokenizer(songs);
         rcView.playlist = songs;
       }
+      debug("Broadcasting playlist:changed");
+      $rootScope.$broadcast("playlist:changed");
     };
     
     function updateIndex(index) {

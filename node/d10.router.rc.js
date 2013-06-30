@@ -100,6 +100,8 @@ exports.publicApi = function(app) {
       {
         site_url: "",
         base_url: "/",
+        img_default: d10.config.images.default,
+        img_root: "../audioImages",
         cookieName: d10.config.cookieName
       }
     )+"});");

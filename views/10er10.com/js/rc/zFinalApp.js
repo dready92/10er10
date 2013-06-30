@@ -100,7 +100,7 @@ angular.module("d10remoteControl").directive("d10peerConnection", function() {
 });
 
 require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.connection",
-  "js/d10.remot.master.endpoints", "js/d10.artistTokenizer"
+  "js/d10.remot.master.endpoints", "js/d10.artistTokenizer", "js/d10.imageUtils"
 ], function() {
   var rest = require("js/d10.rest");
   var config = require("js/config");

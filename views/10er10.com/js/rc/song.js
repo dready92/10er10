@@ -20,6 +20,17 @@
 
     }
   })
+  .filter("d10songImage", function() {
+    var imageUtils = require("js/d10.imageUtils");
+    var anonymousImage = imageUtils.getAlbumDefaultImage();
+    return function d10songImage(input) {
+      if ( input && input.images && input.images.length ) {
+        return imageUtils.getImageUrl(input.images[0].filename);
+      } else {
+        return anonymousImage;
+      }
+    };
+  })
   .directive("d10songPlayerList",function() {
     return {
       restrict: 'A',
@@ -37,9 +48,15 @@
     $scope.home = function() {
       $location.path("/main");
     };
-    if ( $scope.remoteView.playlist[$routeParams.index] ) {
-      $scope.song = $scope.remoteView.playlist[$routeParams.index];
-    }
+    function getCurrentSong() {
+      if ( $scope.remoteView.playlist[$routeParams.index] ) {
+        $scope.song = $scope.remoteView.playlist[$routeParams.index];
+      }
+    };
+    $scope.$on("playlist:changed",function() {
+      getCurrentSong();
+    });
+    getCurrentSong();
   }])
   ;
   
