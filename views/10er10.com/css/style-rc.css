@@ -54,11 +54,11 @@ body {
   justify-content: center;
 }
 
-.app {
+.remoteDisplay {
   margin-top: 5em;
 }
 
-.app > .miniPlayer {
+.remoteDisplay > .miniPlayer {
   position: fixed;
   height: 4.9em;
   width: 100%;
@@ -68,7 +68,7 @@ body {
   border-bottom: 0.1em solid rgb(20,47,60);
 }
 
-.app > .miniPlayer > .controls {
+.remoteDisplay > .miniPlayer > .controls {
   display: -webkit-flex;
   display: flex;
   height: 100%;
@@ -82,9 +82,9 @@ body {
   justify-content: center;  
 }
 
-.app > .miniPlayer > .controls > span.playpause > button,
-.app > .miniPlayer > .controls > span.playnext > button,
-.app > .miniPlayer > .controls > span.playprevious > button {
+.remoteDisplay > .miniPlayer > .controls > span.playpause > button,
+.remoteDisplay > .miniPlayer > .controls > span.playnext > button,
+.remoteDisplay > .miniPlayer > .controls > span.playprevious > button {
   padding: 0.6em;
   border-radius: 1em;
   border: none;
@@ -92,14 +92,14 @@ body {
   
 }
 
-.app > .miniPlayer > .controls > span.playpause > button {
+.remoteDisplay > .miniPlayer > .controls > span.playpause > button {
   font-size: 1.4em;
 }
-.app > .miniPlayer > .controls > span.playnext > button {
+.remoteDisplay > .miniPlayer > .controls > span.playnext > button {
   font-size: 1.2em;
 }
 
-.app > .miniPlayer > .controls > span.playprevious > button {
+.remoteDisplay > .miniPlayer > .controls > span.playprevious > button {
   font-size: 1.2em;
 }
 
