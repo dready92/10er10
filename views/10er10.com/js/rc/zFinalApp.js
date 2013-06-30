@@ -36,7 +36,8 @@ angular.module('d10remoteControl').directive('d10login',["$rootScope", function(
 angular.module('d10remoteControl').config(['$routeProvider','$locationProvider',function($routeProvider, $locationProvider) {
   $routeProvider.when('/main', {
     templateUrl: '../html/rc/remoteDisplay/container.html',
-    controller: "d10remoteViewController"
+    controller: "d10remoteViewController",
+    cache: true
   });
   
   $routeProvider.when('/playerList/:index', {

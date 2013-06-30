@@ -191,6 +191,7 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
         if ( shouldCachePrevious ) {
           lastControllerCache.widget.detach();
         } else {
+          debug("animate.leave on ",element);
           animate.leave(element.contents(), element);
           destroyLastScope(shouldCachePrevious);
         }
@@ -198,22 +199,31 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
 
       function update() {
         var locals = $route.current && $route.current.locals,
-            routeDef = $route.current && $route.current.$route,
+            routeDef = $route.current && $route.current.$$route,
             template = locals && locals.$template;
         var current = $route.current;
-
-
+        debug("current: ",$route.current);
+        debug("routeDef: ",routeDef);
+        
+        var shouldCacheCurrent = false;
+        if ( routeDef && routeDef.cache ) {
+          shouldCacheCurrent = true;
+        }
+        
         var shouldCachePrevious = false;
         if ( lastControllerCache.routeDef &&
             "cache" in lastControllerCache.routeDef &&
             lastControllerCache.routeDef.cache ) {
           shouldCachePrevious = true;
         }
+        
+        debug("shouldCachePrevious:",shouldCachePrevious,"shouldCacheCurrent:",shouldCacheCurrent);
+        
         if (template) {
           clearContent(shouldCachePrevious);
           var enterElements ;
           if ( current.controller && controllersCache[current.controller] ) {
-            debug("Using controller from cache");
+            debug("Using controller from cache", current.controller);
             lastControllerCache = controllersCache[current.controller];
             enterElements = lastControllerCache.widget;
             lastControllerCache.scope.$emit("$attach");
@@ -222,6 +232,7 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
           } else {
             enterElements = angular.element('<div></div>').html(template).contents();
           }
+          debugger;
           animate.enter(enterElements, element);
 
           var link = $compile(enterElements),
@@ -241,7 +252,7 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
           lastScope.$emit('$viewContentLoaded');
           lastScope.$eval(onloadExp);
 
-          if ( current.controller ) {
+          if ( shouldCacheCurrent && current.controller ) {
             lastControllerCache = {
               controller: controller,
               widget: element.children(),
