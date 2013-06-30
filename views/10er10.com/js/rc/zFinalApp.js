@@ -45,7 +45,7 @@ angular.module('d10remoteControl').config(['$routeProvider','$locationProvider',
     controller: "d10inPlayerListController"
   });
   
-  $routeProvider.otherwise({redirectTo: "/mail"});
+  $routeProvider.otherwise({redirectTo: "/main"});
   
 }]);
 
@@ -68,7 +68,7 @@ angular.module('d10remoteControl').run(['$rootScope', 'd10rcView', function($roo
 
 angular.module("d10remoteControl").directive("d10peerConnection", function() {
   var pubsub = require("js/d10.events");
-
+  var remotConnection = require("js/d10.remot.master.connection");
   return {
     restrict: 'A',
     link: function($scope, $element, $attrs) {
@@ -86,7 +86,7 @@ angular.module("d10remoteControl").directive("d10peerConnection", function() {
           });
         }
       };
-      $scope.peered = false;
+      $scope.peered = remotConnection.status() === "peered" ? true : false;
       $scope.$watch('loginState', function() {
         debug("loginState now is ",$scope.loginState);
         if ( $scope.loginState == 'logged' ) {
