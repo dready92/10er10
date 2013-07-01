@@ -34,11 +34,19 @@
         <div class="awesome">&#xF00D;</div>
         <div>remove</div> 
       </div>
-      <div data-hm-tap="toggleMix()">  
+      <div data-ng-show="songIndex != remoteView.index"
+           data-hm-tap="toggleMix()">  
         <div class="awesome">&#xF0C5;</div>
         <div>mix...</div>
       </div>
     </div>
-
+    <div class="mixPanel" data-ng-show='mixVisibility'>
+      <h3>Choose your mix and press the mix button</h3>
+      <select data-ng-model="mix"
+              data-ng-options="m.label for m in mixesList">
+      </select>
+      <br>
+      <button data-hm-tap="sendMix()" data-ng-disabled="!mix">Mix</button>
+    </div>
   </div>
 </div>

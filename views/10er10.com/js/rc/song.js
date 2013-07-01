@@ -59,15 +59,31 @@
   "$routeParams",
   "$location",
   "d10rc",
-  function($scope, $routeParams,$location,d10remoteControl) {
+  "d10mixList",
+  function($scope, $routeParams,$location,d10remoteControl, d10mixList) {
     $scope.home = function() {
       $location.path("/main");
     };
     
     $scope.mixVisibility = false;
+    $scope.mixesList = [];
     
     $scope.toggleMix = function() {
       $scope.mixVisibility = $scope.mixVisibility ? false : true;
+      if ( $scope.mixVisibility ) {
+        $scope.mixesList = d10mixList();
+      }
+    };
+    
+    $scope.sendMix = function() {
+      if ( !$scope.mix ) {
+        return ;
+      }
+      $scope.remoteControl.mixSongAtIndex(
+        $scope.mix.label, 
+        $scope.mix.description,
+        $scope.songIndex
+      );
     };
     
     function getCurrentSong() {

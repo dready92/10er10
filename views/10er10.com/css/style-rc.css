@@ -239,3 +239,19 @@ body {
   padding-bottom: 0.5em;
   font-style: italic;
 }
+
+.inPlayerContainer .mixPanel {
+  border: 1px solid #CFCFCF;
+  background-color: #BFBFBF;
+  padding: 1em;
+  text-align: center;
+}
+
+.inPlayerContainer .mixPanel h3 {
+  color: black;
+}
+
+.inPlayerContainer .mixPanel select, .inPlayerContainer .mixPanel button,
+.inPlayerContainer .mixPanel h3{
+  margin: 0.5em;
+}
