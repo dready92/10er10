@@ -178,9 +178,14 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		}
 	}
 
-	var createNext = function () {
-      var nextWidget = playlist.next();
-      if ( !nextWidget.length ) {
+	var createNext = function (index) {
+      var nextWidget;
+      if ( !arguments.length ) {
+        nextWidget = playlist.next();
+      } else {
+        nextWidget = playlist.getSongAtIndex(index);
+      }
+      if ( !nextWidget || !nextWidget.length ) {
         return false;
       }
       var infos = playlist.getTrackParameters(nextWidget);
@@ -232,8 +237,26 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       return true;
     };
     
-    var launchMix = this.launchMix = function(fadeMix, onFadeEnded) {
-      if ( !settings.forceFading && !isNextPreloaded() ) {
+    var launchMixRelaxed = this.launchMixRelaxed = function(fadeMix, opts, onFadeEnded) {
+      opts = opts||{};
+      if ( opts.index ) {
+        var nextExists = createNext(opts.index);
+        if ( !nextExists ) {
+          return false;
+        }
+      }
+      launchMix(fadeMix, opts, onFadeEnded);
+    };
+    
+    var launchMix = this.launchMix = function(fadeMix, opts, onFadeEnded) {
+      if ( !onFadeEnded && $.isFunction(opts) ) {
+        onFadeEnded = opts;
+        opts = null;
+      }
+      if (!opts ) {
+        opts = {};
+      }
+      if ( !opts.forceFading && !settings.forceFading && !isNextPreloaded() ) {
         debug("Next song isn't preloaded");
         return false;
       }
