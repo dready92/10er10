@@ -1,6 +1,6 @@
 <div class="inPlayerList insidePage">
   <div data-d10inside-nav class="nav"></div>
-  <div class="inPlayerContainer">
+  <div class="inPlayerContainer song">
     <div class="header">
       <img class="cover" data-ng-src="{{song | d10songImage}}">
       <div class="title">{{song.title}}</div>
@@ -9,6 +9,36 @@
       <div class="playing" data-ng-show="songIndex == remoteView.index">Currently playing</div>
     </div>
     <div class="album" data-ng-show="song.album && song.album.length">on album: {{song.album}}</div>
+
+    <div class="controls songControls">
+      <div 
+        data-ng-show="songIndex != remoteView.index"
+        data-hm-tap="remoteControl.playSongAtIndex(songIndex)">
+        <div class="awesome">&#xF04B;</div>
+        <div>play</div>
+      </div>
+      <div 
+        data-ng-show="songIndex == remoteView.index && remoteView.paused"
+        data-hm-tap="remoteControl.play($event)">
+        <div class="awesome">&#xF04B;</div>
+        <div>play</div>
+      </div>
+      <div 
+        data-ng-show="songIndex == remoteView.index && !remoteView.paused"
+        data-hm-tap="remoteControl.pause($event)">
+        <div class="awesome">&#xF04C;</div>
+        <div>pause</div>
+      </div>
+      <div data-ng-show="songIndex != remoteView.index"
+        data-hm-tap="remoteControl.removeSongAtIndex(songIndex) ; home()">
+        <div class="awesome">&#xF00D;</div>
+        <div>remove</div> 
+      </div>
+      <div data-hm-tap="toggleMix()">  
+        <div class="awesome">&#xF0C5;</div>
+        <div>mix...</div>
+      </div>
+    </div>
 
   </div>
 </div>

@@ -109,7 +109,7 @@ body {
   padding: 1px;
 }
 
-.playerList .song.active .sonTitle{
+.playerList .song.active .songTitle{
   padding-left: 0.5em;
 }
 
@@ -140,7 +140,7 @@ body {
 
 .playerList .song  .songOtherArtist:not(:last-child):after { display: inline; content: " , "; }
 
-.playerList .song .songControls {
+.playerList .song .songControls,  .inPlayerList .song .songControls{
   display: -webkit-flex;
   display: flex;
   -webkit-flex-flow: row;
@@ -156,7 +156,7 @@ body {
   height: 4em;
 }
 
-.playerList .song .songControls > div{
+.playerList .song .songControls > div, .inPlayerList .song .songControls > div{
   flex: 1 0 auto;
   -webkit-flex: 1 0 auto;
   
@@ -176,13 +176,15 @@ body {
   color: #333;
 }
 
-.playerList .song .songControls > div > div:first-child {
+.playerList .song .songControls > div > div:first-child,
+.inPlayerList .song .songControls > div > div:first-child{
   flex: 0 1 auto;
   -webkit-flex:  0 1 auto;
   font-size: 2em;
 }
 
-.playerList .song .songControls > div > div:last-child {
+.playerList .song .songControls > div > div:last-child,
+.inPlayerList .song .songControls > div > div:last-child {
   flex:  0 1 auto;
   -webkit-flex:  0 1 auto;
 }

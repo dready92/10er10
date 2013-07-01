@@ -22,7 +22,7 @@
   })
   .filter("d10songImage", function() {
     var imageUtils = require("js/d10.imageUtils");
-    var anonymousImage = imageUtils.getAlbumDefaultImage();
+    var anonymousImage = '/'+imageUtils.getAlbumDefaultImage();
     return function d10songImage(input) {
       if ( input && input.images && input.images.length ) {
         return imageUtils.getImageUrl(input.images[0].filename);
@@ -63,6 +63,13 @@
     $scope.home = function() {
       $location.path("/main");
     };
+    
+    $scope.mixVisibility = false;
+    
+    $scope.toggleMix = function() {
+      $scope.mixVisibility = $scope.mixVisibility ? false : true;
+    };
+    
     function getCurrentSong() {
       if ( $scope.remoteView.playlist[$routeParams.index] ) {
         $scope.song = $scope.remoteView.playlist[$routeParams.index];
