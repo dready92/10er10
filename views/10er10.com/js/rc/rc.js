@@ -44,6 +44,11 @@
         remot.previous(function(err,done) {
           debug("previous command response: ",err,"done:",done);
         });
+      },
+      mixSongAtIndex: function(mixLabel, mixDescription, index) {
+        remot.mixSongAtIndex(mixLabel, mixDescription, index,function(err,done) {
+          debug("mixSongAtIndex command response: ",err,"done:",done);
+        });
       }
     };
   })
