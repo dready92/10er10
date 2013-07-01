@@ -7,4 +7,6 @@ define(["js/d10.websocket.protocol.remot"], function(remot) {
   remot.addRemoteEndPoint("previous");
   remot.addRemoteEndPoint("playSongAtIndex");
   remot.addRemoteEndPoint("removeSongAtIndex");
+  remot.addRemoteEndPoint("mixesList");
+  remot.addRemoteEndPoint("mixSongAtIndex");
 });
