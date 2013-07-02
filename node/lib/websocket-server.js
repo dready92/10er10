@@ -1,5 +1,6 @@
 var debug = require("debug")("d10:websocket-server");
-
+var util = require("util");
+var dosWatchdog = require("../dosWatchdog");
 function websocketServer ( httpServer, d10Server ) {
   var wsId = 1;
   var sockets = {};
@@ -12,6 +13,16 @@ function websocketServer ( httpServer, d10Server ) {
     sockets[ws.d10id] = ws;
     this.bindWebSocketListeners(ws, sockets);
   }.bind(this));
+  
+  d10wsServer.on('error', function(err) {
+    if ( err.errno === 'EMFILE' ) {
+      console.log("EMFILE !!!");
+      dosWatchdog.garbage();
+    } else {
+      throw err;
+    }
+  });
+  
 };
 
 websocketServer.prototype.router = null;

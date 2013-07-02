@@ -35,7 +35,8 @@ var onConfig = function(isProduction) {
 		lang = require(__dirname+"/lang"),
 		contextMiddleware = require(__dirname+"/contextMiddleware").context,
 		webSocketServer = require(__dirname+"/lib/websocket-server"),
-		nodeVersion = require(__dirname+"/nodeVersion");
+		nodeVersion = require(__dirname+"/nodeVersion"),
+		dosWatchdog = require(__dirname+"/dosWatchdog");
 
 
 	process.chdir(__dirname);
@@ -154,7 +155,14 @@ var onConfig = function(isProduction) {
 			.use(d10Server)
 		;
 		var nodeHTTPServer = globalSrv.listen(config.port);
+        dosWatchdog.install(nodeHTTPServer);
         var wsServer = new webSocketServer(nodeHTTPServer, d10Server);
+
+        nodeHTTPServer.on("error", function(err) {
+          console.log(err);
+        });
+        
+        
 		d10Server.on("clientError",function() {
 			console.log("CLIENT ERROR");
 			console.log(arguments);
