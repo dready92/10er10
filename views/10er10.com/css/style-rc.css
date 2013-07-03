@@ -76,7 +76,7 @@ body {
   -webkit-align-content: center;
   -webkit-align-items: flex-start;
   -webkit-justify-content: center;
-  flex-flow: column;
+  flex-flow: row;
   align-content: center;
   align-items: center;
   justify-content: center;  
@@ -256,7 +256,8 @@ body {
   margin: 0.5em;
 }
 
-.searchForm {
+.searchForm,
+.resultsTab {
   display: -webkit-flex;
   display: flex;
   -webkit-flex-flow: row;
@@ -278,6 +279,12 @@ body {
   margin-right: 1em;
 }
 
-.searchForm .searchResults {
+.searchResults {
   margin: 1em;
 }
+
+.resultsContainer .resultsTab{
+  margin: 1em 0.5em;
+}
+
+
