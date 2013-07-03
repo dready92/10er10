@@ -4,8 +4,9 @@
   .controller("d10searchController", [
   "$scope",
   "$location",
+  "d10artistTokenizer",
   "d10search",
-  function($scope, $location,d10search) {
+  function($scope, $location, d10artistTokenizer, d10search) {
     $scope.searchInProgress = false;
     $scope.query = "";
     $scope.results = {
@@ -45,6 +46,7 @@
             $scope.results.title = resp.title.map(function(i) {return i.doc});
             $scope.results.album = resp.album;
             $scope.results.artist = resp.artist;
+            d10artistTokenizer($scope.results.title);
           }
           $scope.getResultsCount();
         });
