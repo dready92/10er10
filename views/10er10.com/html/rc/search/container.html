@@ -23,8 +23,8 @@
           <span data-hm-tap="setCurrentPane('album')">album ({{results.album.length}})</span>
         </div>
         <div class="resultsPane" data-ng-show="getCurrentPane() === 'title'">
-          <div data-ng-repeat='res in results.title'>
-            <span>{{res.doc.title}}</span>
+          <div data-ng-repeat='song in results.title'>
+            <span>{{song.title}}</span>
           </div>
         </div>
       </div>

@@ -42,7 +42,7 @@
         $scope.$apply(function() {
           $scope.searchInProgress = false;
           if ( !err ) {
-            $scope.results.title = resp.title;
+            $scope.results.title = resp.title.map(function(i) {return i.doc});
             $scope.results.album = resp.album;
             $scope.results.artist = resp.artist;
           }
