@@ -255,3 +255,29 @@ body {
 .inPlayerContainer .mixPanel h3{
   margin: 0.5em;
 }
+
+.searchForm {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-flow: row;
+  -webkit-align-content: center;
+  -webkit-align-items: center;
+  -webkit-justify-content: space-around;
+  flex-flow: row;
+  align-content: center;
+  align-items: center;
+}
+
+.searchForm input {
+  -webkit-flex: 1 0 auto;
+  margin: 0 1em;
+}
+
+.searchForm button {
+  padding: 0.2em;
+  margin-right: 1em;
+}
+
+.searchForm .searchResults {
+  margin: 1em;
+}

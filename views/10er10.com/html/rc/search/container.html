@@ -4,7 +4,42 @@
     <div class="searchForm">
       <input type="text" autocapitalize="off" autocorrect="off" data-ng-model="query"> 
       <button class="awesome"
-        data-ng-disabled="!query">&#xF002;</button>
+        data-ng-disabled="!query || query.length < 3"
+        data-hm-tap='search()'>&#xF002;</button>
+    </div>
+    <div class="searchResults">
+      <div class="noResults center" data-ng-show="!searchInProgress && resultsCount===0">
+        No results to display
+      </div>
+      <div class="searchInProgress" data-ng-show="searchInProgress">
+        Searching...
+      </div>
+      <div class="resultsContainer" 
+          data-ng-show='!searchInProgress && resultsCount'
+          data-d10tab>
+        <div class="resultsTab">
+          <span data-hm-tap="setCurrentPane('title')">titles ({{results.title.length}})</span>
+          <span data-hm-tap="setCurrentPane('artist')">artists ({{results.artist.length}})</span>
+          <span data-hm-tap="setCurrentPane('album')">album ({{results.album.length}})</span>
+        </div>
+        <div class="resultsPane" data-ng-show="getCurrentPane() === 'title'">
+          <div data-ng-repeat='res in results.title'>
+            <span>{{res.doc.title}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="resultsPane" data-ng-show="getCurrentPane() === 'artist'">
+          <div data-ng-repeat='res in results.artist'>
+            <span>{{res.value.json.value}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="resultsPane" data-ng-show="getCurrentPane() === 'album'">
+          <div data-ng-repeat='res in results.album'>
+            <span>{{res.value.json.value}}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
