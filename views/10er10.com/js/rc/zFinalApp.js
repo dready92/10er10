@@ -45,6 +45,11 @@ angular.module('d10remoteControl').config(['$routeProvider','$locationProvider',
     controller: "d10inPlayerListController"
   });
   
+  $routeProvider.when('/search', {
+    templateUrl: '../html/rc/search/container.html',
+    controller: "d10searchController"
+  });
+  
   $routeProvider.otherwise({redirectTo: "/main"});
   
 }]);
@@ -116,6 +121,7 @@ require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.conne
     "d10song",
     "d10playpause", 
     "d10cachedRouteView",
-    "d10mix"
+    "d10mix",
+    "d10search"
   ]);
 });
