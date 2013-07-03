@@ -272,11 +272,13 @@ body {
 .searchForm input {
   -webkit-flex: 1 0 auto;
   margin: 0 1em;
+  font-size: 1.5em;
 }
 
 .searchForm button {
   padding: 0.2em;
   margin-right: 1em;
+  font-size: 2em;
 }
 
 .searchResults {

@@ -53,6 +53,13 @@
       replace: false
     };
   })
+  .directive("d10songList", function() {
+    return {
+      restrict: 'A',
+      templateUrl: '../html/rc/song/list.html',
+      replace: false
+    };
+  })
   
   .controller("d10inPlayerListController", [
   "$scope",
