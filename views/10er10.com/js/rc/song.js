@@ -60,7 +60,13 @@
       replace: false
     };
   })
-  
+  .directive("d10songFragmentListInformations", function() {
+    return {
+      restrict: 'A',
+      templateUrl: '../html/rc/song/songFragmentListInformations.html',
+      replace: true
+    };
+  })
   .controller("d10inPlayerListController", [
   "$scope",
   "$routeParams",

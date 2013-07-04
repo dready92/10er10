@@ -103,7 +103,7 @@ body {
   font-size: 1.2em;
 }
 
-.playerList .song {
+.songInList {
   background-color: #333;
   margin: 2px;
   padding: 1px;
@@ -125,22 +125,22 @@ body {
   vertical-align: middle;
 }
 
-.playerList .songInformations > .songTitle {
+.songInformations > .songTitle {
   display: block;
   color: rgb(79, 180, 228);
 }
 
-.playerList .song  .songTitle ,
-.playerList .song  .songArtist,
-.playerList .song  .songOtherArtist {
+.songInList  .songTitle ,
+.songInList  .songArtist,
+.songInList  .songOtherArtist {
   color: rgb(79, 180, 228);
   text-shadow: 1px 1px black;
 }
 
 
-.playerList .song  .songOtherArtist:not(:last-child):after { display: inline; content: " , "; }
+.songInList  .songOtherArtist:not(:last-child):after { display: inline; content: " , "; }
 
-.playerList .song .songControls,  .inPlayerList .song .songControls{
+.songInList .songControls,  .inPlayerList .song .songControls{
   display: -webkit-flex;
   display: flex;
   -webkit-flex-flow: row;
@@ -156,7 +156,7 @@ body {
   height: 4em;
 }
 
-.playerList .song .songControls > div, .inPlayerList .song .songControls > div{
+.songInList .songControls > div, .inPlayerList .song .songControls > div{
   flex: 1 0 auto;
   -webkit-flex: 1 0 auto;
   
@@ -176,14 +176,14 @@ body {
   color: #333;
 }
 
-.playerList .song .songControls > div > div:first-child,
+.songInList .songControls > div > div:first-child,
 .inPlayerList .song .songControls > div > div:first-child{
   flex: 0 1 auto;
   -webkit-flex:  0 1 auto;
   font-size: 2em;
 }
 
-.playerList .song .songControls > div > div:last-child,
+.songInList .songControls > div > div:last-child,
 .inPlayerList .song .songControls > div > div:last-child {
   flex:  0 1 auto;
   -webkit-flex:  0 1 auto;

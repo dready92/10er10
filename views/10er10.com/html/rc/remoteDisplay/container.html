@@ -7,6 +7,9 @@
     </div>
   </div>
 
-  <div class="song ellipsis" data-ng-repeat="song in remoteView.playlist" data-ng-class='{active: $index === remoteView.index}' data-d10song-player-list>
+  <div data-ng-model="titleList.toggleControls"
+        data-ng-init="titleList.toggleControls=false">
+    <div class="song ellipsis songInList" data-ng-repeat="song in remoteView.playlist" data-ng-class='{active: $index === remoteView.index}' data-d10song-player-list>
+    </div>
   </div>
 </div>

@@ -1,13 +1,8 @@
-  <div class="songInformations"
-        data-hm-tap="toggleExpandedIndex($index)">
-    <span class="songTitle ellipsis">{{song.token.title}}</span>
-    <span class="songArtist songMainArtist" name="{{song.token.artist}}"><span class="lighter">by</span> {{song.token.artist}}</span>
-    <span class="otherArtists" data-ng-show='song.token.artists.length'><span class="lighter">Feat. </span>
-      <span class="songArtist songOtherArtist" data-ng-repeat='artist in song.token.artists' name="{{artist}}">{{artist}} </span>
-    </span>
+  <div d10song-fragment-list-informations
+        data-hm-tap="titleList.toggleControls = (titleList.toggleControls===$index) ? false : $index">
   </div>
   <div class="songControls"
-        data-ng-show="$index === remoteView.expandedIndex">
+        data-ng-show="$index === titleList.toggleControls">
     <div 
       data-ng-show="$index !== remoteView.index"
       data-hm-tap="remoteControl.playSongAtIndex($index)">

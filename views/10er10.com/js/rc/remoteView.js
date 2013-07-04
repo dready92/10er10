@@ -21,13 +21,6 @@ angular.module("d10remoteView").controller("d10remoteViewController",
                                              $scope, 
                                              $location,
                                              d10remoteControl) {
-  $scope.toggleExpandedIndex = function(index) {
-    if ( $scope.remoteView.expandedIndex === index ) {
-      $scope.remoteView.expandedIndex = -1;
-    } else {
-      $scope.remoteView.expandedIndex = index;
-    }
-  };
   
   $scope.playerListSongDetails = function(index) {
     $location.path("/playerList/"+index);

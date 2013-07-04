@@ -19,13 +19,13 @@
     $scope.getResultsCount = function() {
       $scope.resultsCount = 0;
       if ( $scope.results && $scope.results.title ) {
-        $scope.resultsCount += $scope.results.title;
+        $scope.resultsCount += $scope.results.title.length;
       }
       if ( $scope.results && $scope.results.artist ) {
-        $scope.resultsCount += $scope.results.artist;
+        $scope.resultsCount += $scope.results.artist.length;
       }
       if ( $scope.results && $scope.results.album ) {
-        $scope.resultsCount += $scope.results.album;
+        $scope.resultsCount += $scope.results.album.length;
       }
       return $scope.resultsCount;
     };
