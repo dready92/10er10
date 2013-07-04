@@ -129,7 +129,7 @@ define(
   
   remot.addLocalEndPoint("appendToCurrentAndPlay", function(id, callback) {
     if ( !$.isFunction(callback) ) {
-      debug("mixSongAtIndex: bad number of arguments",arguments);
+      debug("appendToCurrentAndPlay: bad number of arguments",arguments);
       return ;
     }
     if ( !id || id.substr(0,2) != 'aa' ) {
@@ -146,5 +146,23 @@ define(
       }
     });
   });
-  
+  remot.addLocalEndPoint("appendToPlayerList", function(id, callback) {
+    if ( !$.isFunction(callback) ) {
+      debug("appendToPlayerList: bad number of arguments",arguments);
+      return ;
+    }
+    if ( !id || id.substr(0,2) != 'aa' ) {
+      return callback("ERR_BAD_SONG_ID");
+    }
+    rest.song.get(id, {
+      load: function(err,resp) {
+        if ( err ) {
+          return callback("ERR_SONG_NOT_FOUND");
+        }
+        var widget = $(templates.song_template(resp));
+        playlist.append(widget);
+        return callback(null, true);
+      }
+    });
+  });
 });

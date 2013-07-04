@@ -54,6 +54,11 @@
         remot.appendToCurrentAndPlay(id, function(err,done) {
           debug("appendToCurrentAndPlay command response: ",err,"done:",done);
         });
+      },
+      appendToPlayerList: function(id) {
+        remot.appendToPlayerList(id, function(err,done) {
+          debug("appendToPlayerList command response: ",err,"done:",done);
+        });
       }
     };
   })
