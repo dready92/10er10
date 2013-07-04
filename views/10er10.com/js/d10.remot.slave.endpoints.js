@@ -2,9 +2,11 @@ define(
   [
   "js/d10.websocket.protocol.remot",
   "js/playlist",
-  "js/d10.mixes"
+  "js/d10.mixes",
+  "js/d10.rest",
+  "js/d10.templates"
   ],
-  function(remot, playlist, mixes) {
+  function(remot, playlist, mixes, rest, templates) {
     
   function getSmallPlayStatus() {
     function noTrack(response) {
@@ -123,6 +125,26 @@ define(
       response.push({label: mix.label, description: mix.description});
     });
     callback(null, response);
+  });
+  
+  remot.addLocalEndPoint("appendToCurrentAndPlay", function(id, callback) {
+    if ( !$.isFunction(callback) ) {
+      debug("mixSongAtIndex: bad number of arguments",arguments);
+      return ;
+    }
+    if ( !id || id.substr(0,2) != 'aa' ) {
+      return callback("ERR_BAD_SONG_ID");
+    }
+    rest.song.get(id, {
+      load: function(err,resp) {
+        if ( err ) {
+          return callback("ERR_SONG_NOT_FOUND");
+        }
+        var widget = $(templates.song_template(resp));
+        playlist.appendToCurrent(widget);
+        return callback(null,playlist.playSongAtIndex(widget.prevAll().length));
+      }
+    });
   });
   
 });

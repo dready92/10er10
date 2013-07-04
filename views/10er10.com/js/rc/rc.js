@@ -49,6 +49,11 @@
         remot.mixSongAtIndex(mixLabel, mixDescription, index,function(err,done) {
           debug("mixSongAtIndex command response: ",err,"done:",done);
         });
+      },
+      appendToCurrentAndPlay: function(id) {
+        remot.appendToCurrentAndPlay(id, function(err,done) {
+          debug("appendToCurrentAndPlay command response: ",err,"done:",done);
+        });
       }
     };
   })

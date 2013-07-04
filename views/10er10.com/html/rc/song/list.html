@@ -9,28 +9,14 @@
   <div class="songControls"
         data-ng-show="$index === titleList.toggleControls">
     <div 
-      data-ng-show="$index !== remoteView.index"
-      data-hm-tap="remoteControl.playSongAtIndex($index)">
+      data-hm-tap="remoteControl.appendToCurrentAndPlay(song._id)">
       <div class="awesome">&#xF04B;</div>
       <div>play</div>
     </div>
     <div 
-      data-ng-show="$index === remoteView.index && remoteView.paused"
-      data-hm-tap="remoteControl.play($event)">
-      <div class="awesome">&#xF04B;</div>
-      <div>play</div>
-    </div>
-    <div 
-      data-ng-show="$index === remoteView.index && !remoteView.paused"
-      data-hm-tap="remoteControl.pause($event)">
-      <div class="awesome">&#xF04C;</div>
-      <div>pause</div>
-    </div>
-    <div data-ng-show="$index !== remoteView.index"
-      data-hm-tap="remoteControl.removeSongAtIndex($index)"
-    >
-      <div class="awesome">&#xF00D;</div>
-      <div>remove</div> 
+      data-hm-tap="remoteControl.playSongAtIndex(song._id)">
+      <div class="awesome">&#xF175;</div>
+      <div>append</div>
     </div>
     <div data-hm-tap="playerListSongDetails($index)">  
       <div class="awesome">&#xF141;</div>
