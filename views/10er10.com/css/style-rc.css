@@ -221,7 +221,8 @@ body {
 }
 
 .insidePage {
-  margin-top: 4em;
+  margin-top: 3.1em;
+  padding: 0 0.3em;
 }
 
 .nav {
@@ -309,20 +310,27 @@ body {
   align-items: center;
 }
 
+.searchForm {
+  padding: 10px 0;
+  background-color: hsl(248, 39%, 39%);
+  
+}
+
 .searchForm input {
   -webkit-flex: 1 0 auto;
   margin: 0 1em;
   font-size: 1.5em;
+  border: none;
+  background-color: inherit;
+  outline: none;
 }
 
 .searchForm button {
   padding: 0.2em;
   margin-right: 1em;
   font-size: 2em;
-}
-
-.searchResults {
-  margin: 1em;
+  border: none;
+  background-color: inherit;
 }
 
 .resultsContainer .resultsTab{

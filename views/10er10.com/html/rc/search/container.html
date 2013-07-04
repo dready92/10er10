@@ -3,13 +3,15 @@
   <div data-d10search-nav class="nav"></div>
   <div class="insidePageBody">
     <div class="searchForm">
-      <input type="text" autocapitalize="off" autocorrect="off" data-ng-model="query"> 
+      <input type="text" autocapitalize="off" autocorrect="off" 
+        data-ng-model="query" size="10" autofocus="true" placeholder="Search..."
+        data-ng-disabled="searchInProgress"> 
       <button class="awesome"
-        data-ng-disabled="!query || query.length < 3"
+        data-ng-disabled="!query || query.length < 3 || searchInProgress"
         data-hm-tap='search()'>&#xF002;</button>
     </div>
     <div class="searchResults">
-      <div class="noResults center" data-ng-show="!searchInProgress && resultsCount===0">
+      <div class="noResults center" data-ng-show="query.length > 2 && !searchInProgress && resultsCount===0">
         No results to display
       </div>
       <div class="searchInProgress" data-ng-show="searchInProgress">
@@ -31,10 +33,9 @@
         </div>
       </div>
       <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'artist'">
-          <div data-ng-show='!results.artist.length'>No artist found</div>
-          <div data-ng-repeat='res in results.artist'>
-            <span>{{res.value.json.value}}</span>
-          </div>
+        <div data-ng-show='!results.artist.length'>No artist found</div>
+        <div data-ng-repeat='res in results.artist'>
+          <span>{{res.value.json.value}}</span>
         </div>
       </div>
       <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'album'">
