@@ -4,6 +4,11 @@
   -webkit-text-size-adjust: none;
 }
 
+a, a:visited, a:active {
+  text-decoration: none;
+  color: inherit;
+}
+
 @font-face {
   font-family: awesome;
   src: url('fontawesome-webfont.ttf');
@@ -55,12 +60,12 @@ body {
 }
 
 .remoteDisplay {
-  margin-top: 5em;
+  margin-top: 6em;
 }
 
 .remoteDisplay > .miniPlayer {
   position: fixed;
-  height: 4.9em;
+  height: 5.9em;
   width: 100%;
   top: 0;
   left: 0;
@@ -68,23 +73,41 @@ body {
   border-bottom: 0.1em solid rgb(20,47,60);
 }
 
-.remoteDisplay > .miniPlayer > .controls {
+.remoteDisplay > .miniPlayer .controlsContainer {
   display: -webkit-flex;
   display: flex;
-  height: 100%;
+  -webkit-flex-flow: row;
+  -webkit-align-content: center;
+  -webkit-align-items: flex-start;
+  -webkit-justify-content: space-between;
+  flex-flow: row;
+  align-content: flex-start;
+  align-items: center;
+  justify-content: space-between;  
+}
+
+.remoteDisplay > .miniPlayer .controlsContainer .searchIcon {
+  font-size: 1.5em;
+  padding: 0.2em;
+}
+
+.remoteDisplay > .miniPlayer .controls {
+  display: -webkit-flex;
+  display: flex;
+  height: 3.1em;
   -webkit-flex-flow: row;
   -webkit-align-content: center;
   -webkit-align-items: flex-start;
   -webkit-justify-content: center;
   flex-flow: row;
-  align-content: center;
+  align-content: flex-start;
   align-items: center;
   justify-content: center;  
 }
 
-.remoteDisplay > .miniPlayer > .controls > span.playpause > button,
-.remoteDisplay > .miniPlayer > .controls > span.playnext > button,
-.remoteDisplay > .miniPlayer > .controls > span.playprevious > button {
+.remoteDisplay > .miniPlayer .controls > span.playpause > button,
+.remoteDisplay > .miniPlayer .controls > span.playnext > button,
+.remoteDisplay > .miniPlayer .controls > span.playprevious > button {
   padding: 0.6em;
   border-radius: 1em;
   border: none;
@@ -92,16 +115,24 @@ body {
   
 }
 
-.remoteDisplay > .miniPlayer > .controls > span.playpause > button {
+.remoteDisplay > .miniPlayer .controls > span.playpause > button {
   font-size: 1.4em;
 }
-.remoteDisplay > .miniPlayer > .controls > span.playnext > button {
+.remoteDisplay > .miniPlayer .controls > span.playnext > button {
   font-size: 1.2em;
 }
 
-.remoteDisplay > .miniPlayer > .controls > span.playprevious > button {
+.remoteDisplay > .miniPlayer .controls > span.playprevious > button {
   font-size: 1.2em;
 }
+
+.remoteDisplay > .miniPlayer > .playingSongTitle,
+.remoteDisplay > .miniPlayer > .playingSongTime{
+  font-size: 0.8em;
+  padding-top: 0.2em;
+}
+
+
 
 .songInList {
   background-color: #333;
@@ -200,14 +231,23 @@ body {
   top: 0;
   height: 3em;
   border-bottom: 1px solid #DFDFDF;
+  
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-flow: row;
+  -webkit-align-content: center;
+  -webkit-align-items: center;
+  -webkit-justify-content: space-between;
+  flex-flow: row;
+  align-content: center;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.nav > span {
+.nav > a {
   display: inline-block;
-  padding-top: 1em;
-  padding-left: 1em;
-  height: 1.5em;
-  vertical-align: middle;
+  padding: 0 1em;
+  font-size: 1.5em;
 }
 
 .inPlayerContainer {

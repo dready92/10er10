@@ -189,6 +189,7 @@
         return ;
       }
       $rootScope.$apply(function() {
+        rcView.currentTime = 0;
         rcView.paused = false;
         updateIndex(index);
       });

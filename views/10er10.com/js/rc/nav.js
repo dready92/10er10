@@ -8,6 +8,13 @@
       templateUrl: '../html/rc/nav/inside.html'
     };
   })
+  .directive("d10searchNav",function() {
+    return {
+      restrict: "A",
+      replace: false,
+      templateUrl: '../html/rc/nav/search.html'
+    };
+  })
   .directive("d10tab", function() {
     return {
       restrict: 'A',
