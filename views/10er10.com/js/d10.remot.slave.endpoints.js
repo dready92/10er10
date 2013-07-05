@@ -67,11 +67,11 @@ define(
   remot.addLocalEndPoint("playSongAtIndex",function(index, callback) {
     var index = parseInt(index, 10);
     if ( isNaN(index) ) {
-      return callback("PARAMETER_ERROR");
+      return callback("ERR_BAD_PARAMETER");
     }
     
     if ( !playlist.getSongAtIndex(index) ) {
-      return callback("BAD_INDEX_ERROR");
+      return callback("ERR_BAD_INDEX");
     }
     callback(null, playlist.playSongAtIndex(index));
   });
@@ -79,7 +79,7 @@ define(
   remot.addLocalEndPoint("removeSongAtIndex",function(index, callback) {
     var index = parseInt(index, 10);
     if ( isNaN(index) ) {
-      return callback("PARAMETER_ERROR");
+      return callback("ERR_BAD_PARAMETER");
     }
     var current = playlist.current();
     if ( current && current.length ) {
@@ -90,7 +90,7 @@ define(
     }
     var widget = playlist.getSongAtIndex(index);
     if ( !widget ) {
-      return callback("BAD_INDEX_ERROR");
+      return callback("ERR_BAD_INDEX");
     }
     callback(null, playlist.remove(widget));
   });
