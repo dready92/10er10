@@ -8,29 +8,34 @@ var protocolName = "remot";
 
 
 function routeMessage(message, socket, callback) {
-  var peerSocket = getPeer(socket);
-  if ( !peerSocket ) {
+  var peerSockets = getPeer(socket);
+  if ( !peerSockets || !peerSockets.length ) {
     return sendNoPeerErrorResponse(message, socket, callback);
   }
   //reconstruct the message
-  debug("Sending message to peer socket");
+  debug("Sending message to peer sockets");
   var line = protocol.formatMessage(message);
-  try {
-    peerSocket.send(line, function() {});
-  } catch (e) {
-    debug("error while sending response");
-  }
+  peerSockets.forEach(function(peerSocket) {
+    try {
+      peerSocket.send(line, function() {});
+    } catch (e) {
+      debug("error while routing message");
+    }
+  });
 };
 
 function getPeer(socket) {
+  debug("number of webwockets for user: "+websocketStore.findByUser(socket.d10user).length);
   var userSockets = websocketStore.findByUser(socket.d10user).filter(function(s) {
-    var back = (s === socket) ? false : true ;
-    return back;
+    if ( !s.d10remotSession ) {
+      return false;
+    }
+    return (s.d10remotSession !== socket.d10remotSession);
   });
   if ( !userSockets.length ) {
     return ;
   }
-  return userSockets[0];
+  return userSockets;
 };
 
 function parseMessage(message) {
@@ -75,15 +80,17 @@ function websocketProtocolRemot (httpServer, d10Server) {
 
 websocketProtocolRemot.prototype.name = protocolName;
 websocketProtocolRemot.prototype.handler = function (message, socket, callback) {
-  if ( !socket.d10user ) {
+  if ( !socket.d10remotUser ) {
     var query = parseMessage(message);
     if ( !query ) {
       return ;
     }
-    authRequest(socket, query, function(err) {
+    authRequest(socket, query, function(err, userId, session) {
       if ( err ) {
         sendBadAuthErrorResponse(message, socket, callback);
       } else {
+        socket.d10remotUser = userId;
+        socket.d10remotSession = session;
         routeMessage(message, socket, callback);
       }
     });
@@ -92,19 +99,27 @@ websocketProtocolRemot.prototype.handler = function (message, socket, callback) 
   routeMessage(message, socket, callback);
 };
 
+var currentAuthRequests = 0;
+
 function authRequest (socket, query, then) {
+  currentAuthRequests++;
+  debug("authRequest() currentAuthRequests: ",currentAuthRequests);
   if ( !query.session ) {
     debug("Query ",query," invalid: should give session id");
+    currentAuthRequests--;
     return then(true);
   }
   sessionMiddleware.getUser(query.session, function(err,userId) {
+    debug("authRequest.getUser() currentAuthRequests: ",currentAuthRequests);
     if ( err ) {
       debug("Error fetching userId from session",err);
+      currentAuthRequests--;
       return then(err);
     }
     debug("userId = "+userId);
     var stored = websocketStore.store(socket, userId, "session");
-    return stored ? then() : then(true);
+    currentAuthRequests--;
+    return stored ? then(false, userId, query.session) : then(true);
   });
 };
 

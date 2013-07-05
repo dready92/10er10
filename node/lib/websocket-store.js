@@ -18,7 +18,13 @@ websocketStore.prototype.store = function (socket, user, type) {
     debug("Invalid user ",user," for websocket");
     return false;
   }
+  var alreadyInStore = this.sockets.filter(function(s) {return s === socket});
+  if ( alreadyInStore.length ) {
+    debug("Socket already in store, not registering");
+    return ;
+  }
   debug("storing new socket, user=",user,", type=",type);
+  console.log(socket.upgradeReq.headers);
   socket.d10user = user;
   socket.d10type = type;
   socket.on('close', function() {
