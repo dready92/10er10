@@ -72,6 +72,16 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		
 		$(window).resize(onWindowResize);
 		onWindowResize();
+        
+        var remoteControlWidget = $("#player .remoteControl");
+        pubsub.topic("remot-connection").subscribe(function(status) {
+          if ( status === "ON" && remoteControlWidget.hasClass("hidden") ) {
+            remoteControlWidget.removeClass("hidden");
+          }
+          if ( status === "OFF" && !remoteControlWidget.hasClass("hidden") ) {
+            remoteControlWidget.addClass("hidden");
+          }
+        });
 	};
 		
 		

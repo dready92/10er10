@@ -2660,6 +2660,14 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   text-align: center;
 }
 
+#player > div.side > .remoteControl {
+  position: absolute;
+  left: 37px;
+  top: -7px;
+  transform: rotate(-20deg);
+  -webkit-transform: rotate(-20deg);
+}
+
 #player div.player {
   margin-left: 155px;
 }
