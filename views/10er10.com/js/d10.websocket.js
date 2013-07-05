@@ -54,10 +54,6 @@ define(["js/config",
     createSocketTimeoutId = null;
     socket = new WebSocket("ws://"+socketURI, "protocolOne");
     socket.d10id = socketId++;
-    socket.d10send = function() {
-      debug("Sending, ",this.d10id);
-      this.send.apply(this,arguments);
-    };
     socket.onclose = function() {
       destroySocket();
       createSocketWithTimeout();
@@ -102,9 +98,14 @@ define(["js/config",
       debug("d10.websocket:send(",name,") returns false");
       return false;
     }
-    socket.d10send(name+" "+message);
-    debug("d10.websocket:send(",name,") returns true");
-    return true;
+    try {
+      socket.send(name+" "+message);
+      debug("d10.websocket:send(",name,") returns true");
+      return true;
+    } catch (e) {
+      debug("d10.websocket:send(",name,") returns false",e);
+      return false;
+    }
   };
   
   function isValidProtocol(name) {
