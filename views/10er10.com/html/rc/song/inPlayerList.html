@@ -40,7 +40,7 @@
         <div>mix...</div>
       </div>
     </div>
-    <div class="mixPanel" data-ng-show='mixVisibility'>
+    <div class="mixPanel" data-ng-show='mixVisibility && songIndex != remoteView.index'>
       <h3>Choose your mix and press the mix button</h3>
       <select data-ng-model="mix"
               data-ng-options="m.label for m in mixesList">
