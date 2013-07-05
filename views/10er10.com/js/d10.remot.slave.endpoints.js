@@ -117,6 +117,47 @@ define(
     }
   });
   
+  remot.addLocalEndPoint("mixSong",function(label, description, id, callback) {
+    if ( !$.isFunction(callback) ) {
+      debug("mixSong: bad number of arguments",arguments);
+      return ;
+    }
+    if ( !id || id.substr(0,2) != 'aa' ) {
+      return callback("ERR_BAD_SONG_ID");
+    }
+    rest.song.get(id, {
+      load: function(err,resp) {
+        if ( err ) {
+          return callback("ERR_SONG_NOT_FOUND");
+        }
+        var widget = $(templates.song_template(resp));
+        try {
+          var mixDef = null;
+          for (var i=0; i<mixes.length; i++) {
+            if ( mixes[i].label == label && mixes[i].description == description ) {
+              mixDef = mixes[i];
+              break;
+            }
+          }
+          if ( !mixDef ) {
+            return callback("ERR_MIX_NOT_FOUND");
+          }
+          var mix = mixDef.builder();
+          playlist.appendToCurrent(widget);
+          var index = widget.prevAll().length;
+          mix.load(function() {
+            var mixStarted = playlist.driver().launchMixRelaxed(mix, {index: index, forceFading: true});
+            if ( !mixStarted ) {
+              return callback("ERR_MIX_NOT_STARTED");
+            }
+            return callback();
+          });
+        } catch(e) {
+          debug("mixSong: error",e);
+        }
+      }
+    });
+  });
   
   remot.addLocalEndPoint("mixesList",function(callback) {
     var response = [];

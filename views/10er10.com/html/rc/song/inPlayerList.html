@@ -1,4 +1,4 @@
-<div class="inPlayerList insidePage">
+<div class="inPlayerList songPage insidePage">
   <div data-d10inside-nav class="nav"></div>
   <div class="inPlayerContainer song">
     <div class="header">
@@ -46,7 +46,7 @@
               data-ng-options="m.label for m in mixesList">
       </select>
       <br>
-      <button data-hm-tap="sendMix()" data-ng-disabled="!mix">Mix</button>
+      <button data-hm-tap="remoteControl.mixSongAtIndex(mix.label, mix.description, songIndex)" data-ng-disabled="!mix">Mix</button>
     </div>
   </div>
 </div>

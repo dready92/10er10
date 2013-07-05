@@ -22,7 +22,7 @@
       <div>pause</div>
     </div>
     <div data-ng-show="$index !== remoteView.index"
-      data-hm-tap="remoteControl.removeSongAtIndex($index)"
+      data-hm-tap="remoteControl.removeSongAtIndex($index); titleList.toggleControls=false;"
     >
       <div class="awesome">&#xF00D;</div>
       <div>remove</div> 

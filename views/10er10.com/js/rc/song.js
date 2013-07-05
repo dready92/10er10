@@ -20,6 +20,24 @@
 
     }
   })
+  .factory("d10songFetch", ["d10songsCache", "d10artistTokenizer",function(d10songsCache, d10artistTokenizer) {
+    var rest = require("js/d10.rest");
+    return function(id, callback) {
+      var cached = d10songsCache.get(id);
+      if ( cached ) {
+        return callback(null, cached);
+      }
+      rest.song.get(id, {
+        load: function(err,resp) {
+          if ( err ) {
+            return callback(err);
+          }
+          d10artistTokenizer(resp);
+          return callback(null,resp);
+        }
+      });
+    };
+  }])
   .filter("d10songImage", function() {
     var imageUtils = require("js/d10.imageUtils");
     var anonymousImage = '/'+imageUtils.getAlbumDefaultImage();
@@ -80,12 +98,17 @@
     
     $scope.mixVisibility = false;
     $scope.mixesList = [];
-    
+    d10mixList.then(function(response, err) {
+      $scope.safelyApply(function() {
+        $scope.mixesList = response;
+      });
+    });
+    d10mixList = null;
     $scope.toggleMix = function() {
       $scope.mixVisibility = $scope.mixVisibility ? false : true;
-      if ( $scope.mixVisibility ) {
-        $scope.mixesList = d10mixList();
-      }
+//       if ( $scope.mixVisibility ) {
+//         $scope.mixesList = d10mixList();
+//       }
     };
     
     $scope.sendMix = function() {
@@ -110,6 +133,33 @@
     });
     getCurrentSong();
   }])
+  .controller("d10songPageController", [
+  "$scope",
+  "$routeParams",
+  "d10songFetch",
+  "d10mixList",
+  "d10rc",
+  function($scope, $routeParams, d10songFetch, d10mixList, d10rc) {
+    $scope.remoteControl = d10rc;
+    $scope.toggle = {mix: false};
+    $scope.mixesList = [];
+    d10mixList.then(function(response, err) {
+      $scope.safelyApply(function() {
+        $scope.mixesList = response;
+      });
+    });
+    d10mixList = null;
+    d10songFetch($routeParams.id, function(err,resp) {
+      $scope.safelyApply(function() {
+        if ( err ) {
+          debug("d10songPageController: error: ",err);
+          return ;
+        }
+        debug("setting scope.song to ",resp);
+        $scope.song = resp;
+      });
+    });
+  }]);
   ;
   
   

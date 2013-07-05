@@ -33,7 +33,7 @@ angular.module('d10remoteControl').directive('d10login',["$rootScope", function(
 }]);
 
 
-angular.module('d10remoteControl').config(['$routeProvider','$locationProvider',function($routeProvider, $locationProvider) {
+angular.module('d10remoteControl').config(['$routeProvider',function($routeProvider) {
   $routeProvider.when('/main', {
     templateUrl: '../html/rc/remoteDisplay/container.html',
     controller: "d10remoteViewController",
@@ -51,14 +51,31 @@ angular.module('d10remoteControl').config(['$routeProvider','$locationProvider',
     cache: true
   });
   
+  $routeProvider.when('/song/:id', {
+    templateUrl: '../html/rc/song/page.html',
+    controller: "d10songPageController"
+  });
+  
   $routeProvider.otherwise({redirectTo: "/main"});
   
 }]);
 
-angular.module('d10remoteControl').run(['$rootScope', 'd10rcView', function($rootScope, d10rcView) {
+angular.module('d10remoteControl').run(['$rootScope', 'd10rcView', '$window', '$location',
+                                       function($rootScope, d10rcView, $window, $location) {
   var rest = require("js/d10.rest");
   $rootScope.remoteView = d10rcView;
   $rootScope.loginState = "session";
+  $rootScope.router = {
+    back: function() {
+      $window.history.back();
+    },
+    songPage: function(id) {
+      $location.path('/song/'+id);
+    },
+    home: function() {
+      $location.path('/main');
+    }
+  };
   rest.rc.sessionLogin({
     load: function(err,resp) {
       $rootScope.$apply(function() {
@@ -70,6 +87,16 @@ angular.module('d10remoteControl').run(['$rootScope', 'd10rcView', function($roo
       });
     }
   });
+  
+  $rootScope.safelyApply = function(callback) {
+    var self = this;
+    if ( self.$$phase ) {
+      callback();
+    } else {
+      self.$apply(callback);
+    }
+  };
+  
 }]);
 
 angular.module("d10remoteControl").directive("d10peerConnection", function() {
@@ -122,6 +149,7 @@ require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.conne
     "d10rc",
     "d10nav",
     "d10song",
+    "d10songsCache",
     "d10playpause", 
     "d10cachedRouteView",
     "d10mix",

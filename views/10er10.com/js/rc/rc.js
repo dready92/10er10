@@ -59,6 +59,11 @@
         remot.appendToPlayerList(id, function(err,done) {
           debug("appendToPlayerList command response: ",err,"done:",done);
         });
+      },
+      mixSong: function(mixLabel, mixDescription, id) {
+        remot.mixSong(mixLabel, mixDescription, id, function(err,done) {
+          debug("mixSong command response: ",err,"done:",done);
+        });
       }
     };
   })

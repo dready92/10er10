@@ -6,7 +6,8 @@
   "$location",
   "d10artistTokenizer",
   "d10search",
-  function($scope, $location, d10artistTokenizer, d10search) {
+  "d10songsCache",
+  function($scope, $location, d10artistTokenizer, d10search, d10songsCache) {
     $scope.searchInProgress = false;
     $scope.query = "";
     $scope.results = {
@@ -47,6 +48,7 @@
             $scope.results.album = resp.album;
             $scope.results.artist = resp.artist;
             d10artistTokenizer($scope.results.title);
+            d10songsCache.set("d10searchController",$scope.results.title);
           }
           $scope.getResultsCount();
         });

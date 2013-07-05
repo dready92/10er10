@@ -158,20 +158,20 @@ body {
 
 .songInformations > .songTitle {
   display: block;
-  color: rgb(79, 180, 228);
+  color: #549BBE;
 }
 
 .songInList  .songTitle ,
 .songInList  .songArtist,
 .songInList  .songOtherArtist {
-  color: rgb(79, 180, 228);
+  color: #549BBE;
   text-shadow: 1px 1px black;
 }
 
 
 .songInList  .songOtherArtist:not(:last-child):after { display: inline; content: " , "; }
 
-.songInList .songControls,  .inPlayerList .song .songControls{
+.songInList .songControls,  .songPage .song .songControls{
   display: -webkit-flex;
   display: flex;
   -webkit-flex-flow: row;
@@ -187,7 +187,7 @@ body {
   height: 4em;
 }
 
-.songInList .songControls > div, .inPlayerList .song .songControls > div{
+.songInList .songControls > div, .songPage .song .songControls > div{
   flex: 1 0 auto;
   -webkit-flex: 1 0 auto;
   
@@ -208,20 +208,20 @@ body {
 }
 
 .songInList .songControls > div > div:first-child,
-.inPlayerList .song .songControls > div > div:first-child{
+.songPage .song .songControls > div > div:first-child{
   flex: 0 1 auto;
   -webkit-flex:  0 1 auto;
   font-size: 2em;
 }
 
 .songInList .songControls > div > div:last-child,
-.inPlayerList .song .songControls > div > div:last-child {
+.songPage .song .songControls > div > div:last-child {
   flex:  0 1 auto;
   -webkit-flex:  0 1 auto;
 }
 
 .insidePage {
-  margin-top: 3.1em;
+  margin-top: 3em;
   padding: 0 0.3em;
 }
 
@@ -255,45 +255,49 @@ body {
   padding: 0 2px;
 }
 
-.inPlayerContainer > .header {
+.songPage .song {
+  padding-top: 1em;
+}
+
+.songPage  .header {
   min-height: 128px;
   margin-bottom: 1em;
 }
 
-.inPlayerContainer > .header > img.cover {
+.songPage  .header > img.cover {
   float: right;
   margin-left: 1em;
 }
 
-.inPlayerContainer .title {
+.songPage .title {
   font-size: 1.1em;
   padding-bottom: 0.5em;
 }
 
-.inPlayerContainer .artist {
+.songPage .artist {
   color: #CFCFCF;
   padding-bottom: 0.5em;
 }
 
-.inPlayerContainer .genre, .inPlayerContainer .duration {
+.songPage .genre, .inPlayerContainer .duration {
   color: #AFAFAF;
   padding-bottom: 0.5em;
   font-style: italic;
 }
 
-.inPlayerContainer .mixPanel {
+.songPage .mixPanel {
   border: 1px solid #CFCFCF;
   background-color: #BFBFBF;
   padding: 1em;
   text-align: center;
 }
 
-.inPlayerContainer .mixPanel h3 {
+.songPage .mixPanel h3 {
   color: black;
 }
 
-.inPlayerContainer .mixPanel select, .inPlayerContainer .mixPanel button,
-.inPlayerContainer .mixPanel h3{
+.songPage .mixPanel select, .songPage .mixPanel button,
+.songPage .mixPanel h3{
   margin: 0.5em;
 }
 
@@ -316,7 +320,7 @@ body {
 
 .searchForm {
   padding: 10px 0;
-  background-color: hsl(248, 39%, 39%);
+  background-color: #549BBE;
   
 }
 
