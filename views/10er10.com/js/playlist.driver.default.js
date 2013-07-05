@@ -245,7 +245,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
           return false;
         }
       }
-      launchMix(fadeMix, opts, onFadeEnded);
+      return launchMix(fadeMix, opts, onFadeEnded);
     };
     
     var launchMix = this.launchMix = function(fadeMix, opts, onFadeEnded) {
