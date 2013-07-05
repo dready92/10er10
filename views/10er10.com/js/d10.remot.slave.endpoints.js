@@ -81,6 +81,13 @@ define(
     if ( isNaN(index) ) {
       return callback("PARAMETER_ERROR");
     }
+    var current = playlist.current();
+    if ( current && current.length ) {
+      var currentIndex = current.prevAll().length;
+      if ( index == currentIndex ) {
+        return callback("ERR_SONG_PLAYING");
+      }
+    }
     var widget = playlist.getSongAtIndex(index);
     if ( !widget ) {
       return callback("BAD_INDEX_ERROR");
