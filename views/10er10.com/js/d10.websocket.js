@@ -4,15 +4,39 @@ define(["js/config",
        ], function(config, pubsub) {
   var socket;
   var types = {};
-  
+  var socketURI = null; // location.host+config.base_url
   var socketCreatedPubsub = pubsub.topic("websocket:created");
   var socketClosedPubsub = pubsub.topic("websocket:closed");
   var createSocketTimeoutId = null;
+  var socketAvailableWatchdogTimeoutId = null;
+  
+  function init(uri) {
+    socketURI = uri;
+    createSocket();
+  };
   
   function destroySocket() {
+    try {
+      socket.close();
+    } catch (e) {}
     socket = null;
+    if ( socketAvailableWatchdogTimeoutId ) {
+      clearTimeout(socketAvailableWatchdogTimeoutId);
+      socketAvailableWatchdogTimeoutId = null;
+    }
     debug("sending websocket:closed event");
     socketClosedPubsub.publish();
+  };
+  
+  
+  
+  function socketAvailableWatchdog() {
+    if ( socketReady() && send("ping","ping") ) {
+      debug("sending websocket:created event");
+      socketCreatedPubsub.publish();
+    } else {
+      socketAvailableWatchdogTimeoutId = setTimeout(socketAvailableWatchdog,300);
+    }
   };
   
   var createSocketWithTimeout = function() {
@@ -21,20 +45,31 @@ define(["js/config",
     }
   };
   
+  var socketId = 1;
   function createSocket() {
+    if ( createSocketTimeoutId ) {
+      clearTimeout(createSocketTimeoutId);
+    }
+    debug("CREATESOCKET########################################",socket);
     createSocketTimeoutId = null;
-    socket = new WebSocket("ws://"+location.host+config.base_url, "protocolOne");
+    socket = new WebSocket("ws://"+socketURI, "protocolOne");
+    socket.d10id = socketId++;
+    socket.d10send = function() {
+      debug("Sending, ",this.d10id);
+      this.send.apply(this,arguments);
+    };
     socket.onclose = function() {
       destroySocket();
       createSocketWithTimeout();
     };
+    /*
     socket.onerror = function() {
       destroySocket();
       createSocketWithTimeout();
     };
+    */
     socket.onmessage = onmessage;
-    debug("sending websocket:created event");
-    socketCreatedPubsub.publish();
+    socketAvailableWatchdog();
   };
   
   function onmessage (message) {
@@ -62,10 +97,13 @@ define(["js/config",
   };
   
   function send(name, message) {
+    debug("d10.websocket:send()");
     if ( !socketReady() ) {
+      debug("d10.websocket:send(",name,") returns false");
       return false;
     }
-    socket.send(name+" "+message);
+    socket.d10send(name+" "+message);
+    debug("d10.websocket:send(",name,") returns true");
     return true;
   };
   
@@ -73,13 +111,12 @@ define(["js/config",
     return (name in types);
   }
   
-  createSocket();
-  
   return {
     addProtocol: addProtocol,
     socketReady: socketReady,
     send: send,
-    isValidProtocol: isValidProtocol
+    isValidProtocol: isValidProtocol,
+    init: init
   };
   
 });

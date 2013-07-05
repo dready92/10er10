@@ -131,7 +131,7 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
         require(["js/d10.remot.slave.connection", 
                 "js/d10.remot.slave.events",
                 "js/d10.remot.slave.endpoints"
-                ]);
+                ],function(slave) { slave.init(); });
         function registerPevts() {
           try {
             var session = JSON.parse($.cookie("doBadThings")).session;
@@ -148,6 +148,7 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
           setTimeout(registerPevts,1000);
         });
         
+        websocket.init(location.host+config.base_url);
 		//
 		// initialisation des workers ajax
 		//

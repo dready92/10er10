@@ -110,7 +110,9 @@ require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.conne
   var rest = require("js/d10.rest");
   var config = require("js/config");
   var bghttp = require("js/d10.httpbroker");
+  var websocket = require("js/d10.websocket");
   console.log(config);
+  websocket.init(location.host+config.base_url);
   bghttp.init(config.base_url);
   
   angular.bootstrap(angular.element("body"), [

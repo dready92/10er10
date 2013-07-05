@@ -63,7 +63,7 @@ define(["js/config", "js/d10.toolbox", "js/d10.websocket", "js/d10.events"],
       }
       var uid = newUid();
       var request = new remotRequest (name, uid, parameters);
-      request.send(callback);
+      return request.send(callback);
     };
   };
   
@@ -232,7 +232,7 @@ define(["js/config", "js/d10.toolbox", "js/d10.websocket", "js/d10.events"],
       session: getSession()
     };
     requests[this.uid] = this;
-    websocket.send(name, prepare(query));
+    return websocket.send(name, prepare(query));
   };
     
   var remotProtocol = {

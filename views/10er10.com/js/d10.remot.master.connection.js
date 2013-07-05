@@ -55,8 +55,10 @@ define(["js/d10.websocket.protocol.remot",
     debug("remot.master.connection, got socket:closed event");
     clearInterval(serverConnectionInterval);
     serverConnectionInterval = null;
-    lastServerConnectionErr = null;
-    setStatus(STATUS_OFF);
+    lastServerConnectionErr = STATUS_OFF;
+    if ( currentStatus != STATUS_OFF ) {
+      setStatus(STATUS_OFF);
+    }
   }
 
   function status() {
@@ -64,6 +66,7 @@ define(["js/d10.websocket.protocol.remot",
   };
   
   function setStatus (status) {
+    debug("Change status: ",currentStatus,"=>",status);
     currentStatus = status;
     pubsub.topic("remot-connection").publish(status);
   };
@@ -72,14 +75,6 @@ define(["js/d10.websocket.protocol.remot",
   pubsub.topic("websocket:created").subscribe(onSocketCreated);
   pubsub.topic("websocket:closed").subscribe(onSocketClosed);
 
-  setTimeout(function() {
-    if ( websocket.socketReady() ) {
-      debug("starting onSocketCreated manually");
-      onSocketCreated();
-    }else {
-      debug("websocket is not ready");
-    }
-  },1000);
   
   return {
     status: status,

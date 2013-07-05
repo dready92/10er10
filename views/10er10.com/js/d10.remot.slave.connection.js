@@ -10,11 +10,12 @@ define(["js/d10.websocket.protocol.remot",
          
   function onSocketCreated() {
     debug("onSocketCreated");
-    setTimeout(function() {
-      remot.serverconnection(function() {
-        debug("remot.serverconnection returns: ",arguments);
-      });
-    },5000);
+    var sent = remot.serverconnection(function() {
+      debug("remot.serverconnection returns: ",arguments);
+    });
+    if ( !sent ) {
+      debug("unable to register to the websocket server");
+    }
   };
 
   function onSocketClosed() {
@@ -71,18 +72,19 @@ define(["js/d10.websocket.protocol.remot",
   });
 */
   
-  setTimeout(function() {
+  function init() {
     if ( websocket.socketReady() ) {
       debug("starting onSocketCreated manually");
       onSocketCreated();
     }else {
       debug("websocket is not ready");
     }
-  },1000);
+  };
   
   return {
     status: status,
     STATUS_OFF: STATUS_OFF,
-    STATUS_ON: STATUS_ON
+    STATUS_ON: STATUS_ON,
+    init: init
   };
 });
