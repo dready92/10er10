@@ -32,7 +32,7 @@ define(["js/d10.websocket.protocol.remot",
         debug("Authentication failed");
         setStatus(STATUS_BADAUTH);
         lastServerConnectionErr = err;
-      } else if ( err == remot.SERVER_ERROR_NOPEER ) {
+      } else if ( err == remot.SERVER_ERROR_NOPEER || err == remot.ERROR_ENDPOINT_NOT_FOUND ) {
         debug("No peer connected");
         lastServerConnectionErr = err;
         setStatus(STATUS_NOPEER);
