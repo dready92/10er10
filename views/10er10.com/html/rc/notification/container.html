@@ -1,0 +1,12 @@
+<div class="notification" data-ng-show="message && message.length">
+  <div data-ng-show="type=='info'">
+    <span class="awesome" data-ng-show="icon=='play'">&#xF04B;</span>
+    <span class="awesome" data-ng-show="icon=='pause'">&#xF04C;</span>
+    <span class="awesome" data-ng-show="icon=='next'">&#xF04E;</span>
+    <span class="awesome" data-ng-show="icon=='previous'">&#xF04A;</span>
+    {{message}}
+  </div>
+  <div data-ng-show="type=='error'">
+    <span class="error awesome">&#xF06A;</span>   <span class="awesome" data-ng-show="icon">{{icon}}</span> {{message}}
+  </div>
+</div>
