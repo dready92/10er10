@@ -20,6 +20,10 @@ a, a:visited, a:active {
   font-family: awesome;
   -webkit-font-smoothing: antialiased;
 }
+
+.error {
+  color: hsl(4, 69%, 35%);
+}
   
 
 body {
@@ -377,4 +381,22 @@ body {
 }
 .resultsContainer .songInList:last-child {
   margin-bottom: 0;
+}
+
+.notification {
+  position: fixed;
+  bottom: 50px;
+  left: 0px;
+  text-align: center;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.notification > div {
+  width: 80%;
+  margin: 0 auto;
+  padding: 0.4em 0.2em;
+  background-color: rgba(0,0,0,0.8);
+  border-radius: 0.4em;
+  border: 1px solid rgba(0,0,0,0.6);
 }
