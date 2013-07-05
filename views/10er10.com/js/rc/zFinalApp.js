@@ -47,7 +47,8 @@ angular.module('d10remoteControl').config(['$routeProvider','$locationProvider',
   
   $routeProvider.when('/search', {
     templateUrl: '../html/rc/search/container.html',
-    controller: "d10searchController"
+    controller: "d10searchController",
+    cache: true
   });
   
   $routeProvider.otherwise({redirectTo: "/main"});

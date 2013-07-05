@@ -22,24 +22,35 @@
           data-ng-model="resultsTab.toggleControls"
           data-ng-init="resultsTab.toggleControls=false">
         <div class="resultsTab">
-          <span data-hm-tap="resultsTab.toggleControls='title'">titles ({{results.title.length}})</span>
-          <span data-hm-tap="resultsTab.toggleControls='artist'">artists ({{results.artist.length}})</span>
-          <span data-hm-tap="resultsTab.toggleControls='album'">album ({{results.album.length}})</span>
+          <span data-hm-tap="resultsTab.toggleControls='title'"
+                data-ng-class="{active: resultsTab.toggleControls === 'title'}">
+            <div class="tabArrow"  data-ng-show="resultsTab.toggleControls === 'title'"> </div>
+            titles ({{results.title.length}})
+          </span>
+          <span data-hm-tap="resultsTab.toggleControls='artist'"
+                data-ng-class="{active: resultsTab.toggleControls === 'artist'}">
+            <div class="tabArrow"  data-ng-show="resultsTab.toggleControls === 'artist'"> </div>
+            artists ({{results.artist.length}})
+          </span>
+          <span data-hm-tap="resultsTab.toggleControls='album'"
+                data-ng-class="{active: resultsTab.toggleControls === 'album'}">
+            <div class="tabArrow"  data-ng-show="resultsTab.toggleControls === 'album'"> </div>
+            album ({{results.album.length}})
+          </span>
         </div>
         <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'title'">
-          <div data-ng-show='!results.title.length'>No song found</div>
+          <div data-ng-show='!results.title.length' class="center noResults">No song found</div>
           <div data-ng-repeat='song in results.title' data-d10song-list class="song ellipsis songInList">
           </div>
         </div>
-      </div>
-      <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'artist'">
-        <div data-ng-show='!results.artist.length'>No artist found</div>
-        <div data-ng-repeat='res in results.artist'>
-          <span>{{res.value.json.value}}</span>
+        <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'artist'">
+          <div data-ng-show='!results.artist.length' class="center noResults">No artist found</div>
+          <div data-ng-repeat='res in results.artist'>
+            <span>{{res.value.json.value}}</span>
+          </div>
         </div>
-      </div>
-      <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'album'">
-          <div data-ng-show='!results.album.length'>No album found</div>
+        <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'album'">
+          <div data-ng-show='!results.album.length' class="center noResults">No album found</div>
           <div data-ng-repeat='res in results.album'>
             <span>{{res.value.json.value}}</span>
           </div>

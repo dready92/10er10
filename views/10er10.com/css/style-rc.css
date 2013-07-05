@@ -297,6 +297,10 @@ body {
   margin: 0.5em;
 }
 
+.searchResults .noResults {
+  padding: 2em;
+}
+
 .searchForm,
 .resultsTab {
   display: -webkit-flex;
@@ -334,7 +338,39 @@ body {
 }
 
 .resultsContainer .resultsTab{
-  margin: 1em 0.5em;
+  margin: 0.9em 0.5em;
 }
 
+.resultsContainer .resultsTab > span {
+  position: relative;
+}
 
+.resultsContainer .resultsTab > span.active {
+  border-bottom: 1px solid #FFFFFF;
+}
+
+.resultsTab .tabArrow {
+  position: absolute;
+  margin-left: -1em;
+  content: '';
+  border-left: 1em solid transparent;
+  border-right: 1em solid transparent;
+  border-bottom: 1em solid #FFFFFF;
+  bottom: -1em;
+  left: 50%;
+}
+
+.resultsPane {
+  border: 1px solid #FFFFFF;
+}
+
+.resultsContainer .songInList {
+  margin-left: 0;
+  margin-right: 0;
+}
+.resultsContainer .songInList:first-child {
+  margin-top: 0;
+}
+.resultsContainer .songInList:last-child {
+  margin-bottom: 0;
+}
