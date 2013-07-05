@@ -2,20 +2,30 @@
 "use strict";
 
 (function() {
-  
+    
   angular.module("d10rc",[])
-  .factory("d10rc", function() {
+  .factory("d10rc",["d10notification", function(d10notification) {
     var remot = require("js/d10.websocket.protocol.remot");
     return {
       playSongAtIndex: function(index) {
         remot.playSongAtIndex(index, function(err,resp) {
           debug("playSongAtIndex returns : ",err,resp);
+          if ( err ) {
+            d10notification.notify("Failed to play song",d10notification.TYPE_ERROR);
+          } else {
+            d10notification.notify("Song playback started", d10notification.TYPE_INFO, "play");
+          }
         });
       },
       
       removeSongAtIndex: function(index) {
         remot.removeSongAtIndex(index, function(err,resp) {
           debug("removeSongAtIndex returns : ",err,resp);
+          if ( err ) {
+            d10notification.notify("Failed to remove song from the player queue",d10notification.TYPE_ERROR);
+          } else {
+            d10notification.notify("Song removed");
+          }
         });
       },
       
@@ -23,6 +33,11 @@
         debug("sending play command to peer");
         remot.play(function(err) {
           debug("play command response: ",err);
+          if ( err ) {
+            d10notification.notify("Failed to play",d10notification.TYPE_ERROR);
+          } else {
+            d10notification.notify("Playback started",d10notification.TYPE_INFO, "play");
+          }
         });
         evt.stopPropagation();
         evt.preventDefault();
@@ -31,6 +46,11 @@
         debug("sending pause command to peer");
         remot.pause(function(err) {
           debug("pause command response: ",err);
+          if ( err ) {
+            d10notification.notify("Failed to pause playback",d10notification.TYPE_ERROR);
+          } else {
+            d10notification.notify("Playback paused",d10notification.TYPE_INFO, "pause");
+          }
         });
         evt.stopPropagation();
         evt.preventDefault();
@@ -38,35 +58,65 @@
       playNext: function() {
         remot.next(function(err,done) {
           debug("next command response: ",err,"done:",done);
+          if ( err ) {
+            d10notification.notify("Failed to switch to next song",d10notification.TYPE_ERROR);
+          } else {
+            d10notification.notify("Next song playback started",d10notification.TYPE_INFO, "next");
+          }
         });
       },
       playPrevious: function() {
         remot.previous(function(err,done) {
           debug("previous command response: ",err,"done:",done);
+          if ( err ) {
+            d10notification.notify("Failed to play previous song",d10notification.TYPE_ERROR);
+          } else {
+            d10notification.notify("Previous song playback started",d10notification.TYPE_INFO,"previous");
+          }
         });
       },
       mixSongAtIndex: function(mixLabel, mixDescription, index) {
         remot.mixSongAtIndex(mixLabel, mixDescription, index,function(err,done) {
           debug("mixSongAtIndex command response: ",err,"done:",done);
+          if ( err ) {
+            d10notification.notify("Mix failed to start",d10notification.TYPE_ERROR);
+          } else {
+            d10notification.notify("Mix started");
+          }
         });
       },
       appendToCurrentAndPlay: function(id) {
         remot.appendToCurrentAndPlay(id, function(err,done) {
           debug("appendToCurrentAndPlay command response: ",err,"done:",done);
+          if ( err ) {
+            d10notification.notify("Failed to play song",d10notification.TYPE_ERROR);
+          } else {
+            d10notification.notify("Song playback started", d10notification.TYPE_INFO, "play");
+          }
         });
       },
       appendToPlayerList: function(id) {
         remot.appendToPlayerList(id, function(err,done) {
           debug("appendToPlayerList command response: ",err,"done:",done);
+          if ( err ) {
+            d10notification.notify("Failed to add song to the player list",d10notification.TYPE_ERROR);
+          } else {
+            d10notification.notify("Song added to the player list");
+          }
         });
       },
       mixSong: function(mixLabel, mixDescription, id) {
         remot.mixSong(mixLabel, mixDescription, id, function(err,done) {
           debug("mixSong command response: ",err,"done:",done);
+          if ( err ) {
+            d10notification.notify("Failed to start the mix",d10notification.TYPE_ERROR);
+          } else {
+            d10notification.notify("Mix started");
+          }
         });
       }
     };
-  })
+  }])
   .factory("d10rcView",["$rootScope","d10artistTokenizer",
            function($rootScope, d10artistTokenizer) {
     var rcView = {
