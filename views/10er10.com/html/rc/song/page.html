@@ -1,15 +1,8 @@
 <div class="songPage insidePage">
   <div data-d10inside-nav class="nav"></div>
   <div class="song">
-    <div class="header">
-      <img class="cover" data-ng-src="{{song | d10songImage}}">
-      <div class="title">{{song.title}}</div>
-      <div class="artist">{{song.artist}}</div>
-      <div><span class="genre">{{song.genre}}</span> - <span class="duration">{{song.duration | d10songTime}}</span></div>
-      <div class="playing" data-ng-show="songIndex == remoteView.index">Currently playing</div>
+    <div data-d10song-fragment-page-informations>
     </div>
-    <div class="album" data-ng-show="song.album && song.album.length">on album: {{song.album}}</div>
-
     <div class="controls songControls">
       <div 
         data-hm-tap="remoteControl.appendToCurrentAndPlay(song._id)">
