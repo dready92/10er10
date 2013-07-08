@@ -85,6 +85,13 @@
       replace: true
     };
   })
+  .directive("d10songFragmentPageInformations", function() {
+    return {
+      restrict: 'A',
+      templateUrl: '../html/rc/song/songFragmentPageInformations.html',
+      replace: false
+    };
+  })
   .controller("d10inPlayerPageController", [
   "$scope",
   "$routeParams",
