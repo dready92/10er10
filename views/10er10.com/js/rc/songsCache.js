@@ -10,7 +10,7 @@
       get: function(id) {
         for (var key in cache) {
           for (var i in cache[key]) {
-            if ( cache[key][i]._id == id ) {
+            if ( "_id" in cache[key][i] && cache[key][i]._id == id ) {
               return cache[key][i];
             }
           }
