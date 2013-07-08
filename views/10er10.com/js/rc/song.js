@@ -85,7 +85,7 @@
       replace: true
     };
   })
-  .controller("d10inPlayerListController", [
+  .controller("d10inPlayerPageController", [
   "$scope",
   "$routeParams",
   "$location",

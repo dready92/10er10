@@ -41,8 +41,8 @@ angular.module('d10remoteControl').config(['$routeProvider',function($routeProvi
   });
   
   $routeProvider.when('/playerList/:index', {
-    templateUrl: '../html/rc/song/inPlayerList.html',
-    controller: "d10inPlayerListController"
+    templateUrl: '../html/rc/song/inPlayerPage.html',
+    controller: "d10inPlayerPageController"
   });
   
   $routeProvider.when('/search', {

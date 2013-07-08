@@ -255,10 +255,6 @@ body {
   font-size: 1.5em;
 }
 
-.inPlayerContainer {
-  padding: 0 2px;
-}
-
 .songPage .song {
   padding-top: 1em;
 }
@@ -283,7 +279,7 @@ body {
   padding-bottom: 0.5em;
 }
 
-.songPage .genre, .inPlayerContainer .duration {
+.songPage .genre, .songPage .duration {
   color: #AFAFAF;
   padding-bottom: 0.5em;
   font-style: italic;
