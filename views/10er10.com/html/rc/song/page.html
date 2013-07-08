@@ -21,12 +21,12 @@
         <div class="awesome">&#xF175;</div>
         <div>append</div>
       </div>
-      <div data-hm-tap="toggle.mix=!toggle.mix">  
+      <div data-hm-tap="toggle.mix=!toggle.mix" data-ng-show="remoteView.index > -1">  
         <div class="awesome">&#xF0C5;</div>
         <div>mix...</div>
       </div>
     </div>
-    <div class="mixPanel" data-ng-show='toggle.mix'>
+    <div class="mixPanel" data-ng-show='toggle.mix && remoteView.index > -1'>
       <h3>Choose your mix and press the mix button</h3>
       <select data-ng-model="mix"
               data-ng-options="m.label for m in mixesList">
