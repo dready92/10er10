@@ -1,0 +1,38 @@
+<div class="songPage insidePage">
+  <div data-d10inside-nav class="nav"></div>
+  <div class="song">
+    <div class="header">
+      <img class="cover" data-ng-src="{{song | d10songImage}}">
+      <div class="title">{{song.title}}</div>
+      <div class="artist">{{song.artist}}</div>
+      <div><span class="genre">{{song.genre}}</span> - <span class="duration">{{song.duration | d10songTime}}</span></div>
+      <div class="playing" data-ng-show="songIndex == remoteView.index">Currently playing</div>
+    </div>
+    <div class="album" data-ng-show="song.album && song.album.length">on album: {{song.album}}</div>
+
+    <div class="controls songControls">
+      <div 
+        data-hm-tap="remoteControl.appendToCurrentAndPlay(song._id)">
+        <div class="awesome">&#xF04B;</div>
+        <div>play</div>
+      </div>
+      <div 
+        data-hm-tap="remoteControl.appendToPlayerList(song._id)">
+        <div class="awesome">&#xF175;</div>
+        <div>append</div>
+      </div>
+      <div data-hm-tap="toggle.mix=!toggle.mix">  
+        <div class="awesome">&#xF0C5;</div>
+        <div>mix...</div>
+      </div>
+    </div>
+    <div class="mixPanel" data-ng-show='toggle.mix'>
+      <h3>Choose your mix and press the mix button</h3>
+      <select data-ng-model="mix"
+              data-ng-options="m.label for m in mixesList">
+      </select>
+      <br>
+      <button data-hm-tap="remoteControl.mixSong(mix.label, mix.description, song._id)" data-ng-disabled="!mix">Mix</button>
+    </div>
+  </div>
+</div>
