@@ -260,6 +260,10 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
         debug("Next song isn't preloaded");
         return false;
       }
+      if ( !current ) {
+        debug("Current song doesn't exist, no way to mix");
+        return false;
+      }
       onFadeEnded = onFadeEnded || function(){};
       inTheMix = fadeMix;
       
