@@ -56,6 +56,11 @@ angular.module('d10remoteControl').config(['$routeProvider',function($routeProvi
     controller: "d10songPageController"
   });
   
+  $routeProvider.when('/album/:name', {
+    templateUrl: '../html/rc/album/page.html',
+    controller: "d10albumPageController"
+  });
+  
   $routeProvider.otherwise({redirectTo: "/main"});
   
 }]);
@@ -149,6 +154,7 @@ require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.conne
     "d10rc",
     "d10nav",
     "d10song",
+    "d10album",
     "d10songsCache",
     "d10playpause", 
     "d10cachedRouteView",

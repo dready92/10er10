@@ -43,6 +43,9 @@
       d10search($scope.query, function(err,resp) {
         $scope.$apply(function() {
           $scope.searchInProgress = false;
+          if ( $scope.titleList && $scope.titleList.toggleControls ) {
+            $scope.titleList.toggleControls = false;
+          }
           if ( !err ) {
             $scope.results.title = resp.title.map(function(i) {return i.doc});
             $scope.results.album = resp.album;
