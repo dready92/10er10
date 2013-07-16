@@ -180,7 +180,7 @@ define(
       debug("appendToCurrentAndPlay: bad number of arguments",arguments);
       return ;
     }
-    if ( !id || id.substr(0,2) != 'aa' ) {
+    if ( !id || !$.isArray(id) && id.substr(0,2) != 'aa' ) {
       return callback("ERR_BAD_SONG_ID");
     }
     rest.song.get(id, {
@@ -190,7 +190,7 @@ define(
         }
         var widget = $(templates.song_template(resp));
         playlist.appendToCurrent(widget);
-        return callback(null,playlist.playSongAtIndex(widget.prevAll().length));
+        return callback(null,playlist.playSongAtIndex(widget.eq(0).prevAll().length));
       }
     });
   });
@@ -199,7 +199,7 @@ define(
       debug("appendToPlayerList: bad number of arguments",arguments);
       return ;
     }
-    if ( !id || id.substr(0,2) != 'aa' ) {
+    if ( !id || !$.isArray(id) && id.substr(0,2) != 'aa' ) {
       return callback("ERR_BAD_SONG_ID");
     }
     rest.song.get(id, {
