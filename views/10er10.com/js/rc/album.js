@@ -8,7 +8,7 @@ angular.module("d10album",[])
   }
 })
 .factory("d10albumDataParser", ["d10artistTokenizer", function(d10artistTokenizer) {
-  
+  var imageUtils = require("js/d10.imageUtils");
   function addImages(album, song) {
     if ( !song.images || !song.images.length ) {
       return ;
@@ -58,12 +58,12 @@ angular.module("d10album",[])
         return 0;
       }
     });
-    var images = album.images.map(function(i) {return i.filename;});
+    var images = album.images.map(function(i) {return imageUtils.getImageUrl(i.filename);});
     album.images = images;
     if ( album.images.length ) {
       album.mainImage = images[ (images.length-1) ];
     } else {
-      album.mainImage = null;
+      album.mainImage = '/'+imageUtils.getAlbumDefaultImage();
     }
   };
   
@@ -104,9 +104,34 @@ angular.module("d10album",[])
     );
   };
 }])
-.controller("d10albumPageController", ["$scope","$routeParams","d10albumFetch",
-            function($scope, $routeParams,d10albumFetch) {
+.controller("d10albumPageController", ["$scope","$routeParams","d10albumFetch", "d10rc",
+            function($scope, $routeParams,d10albumFetch, d10rc) {
+  function getSongIds() {
+    if ( !$scope.album ) {
+      return [];
+    }
+    var ids = $scope.album.songs.map(function(song) {
+      return song._id;
+    });
+    return ids;
+  };
   $scope.name = $routeParams.name;
+  $scope.titleList = {toggleControls: false};
+  $scope.appendAlbum = function() {
+    if ( !$scope.album ) {
+      return false;
+    }
+    var ids = getSongIds();
+    d10rc.appendToPlayerList(ids);
+  };
+  $scope.playAlbum = function() {
+    if ( !$scope.album ) {
+      return false;
+    }
+    var ids = getSongIds();
+    d10rc.appendToCurrentAndPlay(ids);
+  };
+  
   d10albumFetch($scope.name, function(err,album) {
     if ( err ) {
       return ;
