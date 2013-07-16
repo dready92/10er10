@@ -117,8 +117,8 @@
       }
     };
   }])
-  .factory("d10rcView",["$rootScope","d10artistTokenizer",
-           function($rootScope, d10artistTokenizer) {
+  .factory("d10rcView",["$rootScope","d10artistTokenizer","$timeout",
+           function($rootScope, d10artistTokenizer, $timeout) {
     var rcView = {
     };
     var pubsub = require("js/d10.events");
@@ -149,8 +149,10 @@
         d10artistTokenizer(songs);
         rcView.playlist = songs;
       }
-      debug("Broadcasting playlist:changed");
-      $rootScope.$broadcast("playlist:changed");
+      $timeout(function() {
+        debug("Broadcasting playlist:changed");
+        $rootScope.$broadcast("playlist:changed");
+      });
     };
     
     function updateIndex(index) {
