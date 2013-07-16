@@ -49,15 +49,28 @@ body {
   white-space: nowrap;
 }
 
+.btn {
+  border: none;
+  outline: none;
+  padding: 0.5em 0.2em;
+  background-color: #dfdfdf;
+  font-size: 1em;
+}
+
+.btn > .awesome {
+  font-size: 2em;
+  paddding-bottom: 0.2em;
+}
+
 .noPeer {
   display: -webkit-flex;
   display: flex;
   height: 100%;
-  -webkit-flex-flow: column;
+  -webkit-flex-direction: column;
   -webkit-align-content: center;
   -webkit-align-items: center;
   -webkit-justify-content: center;
-  flex-flow: column;
+  flex-direction: column;
   align-content: center;
   align-items: center;
   justify-content: center;
@@ -80,11 +93,11 @@ body {
 .remoteDisplay > .miniPlayer .controlsContainer {
   display: -webkit-flex;
   display: flex;
-  -webkit-flex-flow: row;
+  -webkit-flex-direction: row;
   -webkit-align-content: center;
   -webkit-align-items: flex-start;
   -webkit-justify-content: space-between;
-  flex-flow: row;
+  flex-direction: row;
   align-content: flex-start;
   align-items: center;
   justify-content: space-between;  
@@ -99,11 +112,11 @@ body {
   display: -webkit-flex;
   display: flex;
   height: 3.1em;
-  -webkit-flex-flow: row;
+  -webkit-flex-direction: row;
   -webkit-align-content: center;
   -webkit-align-items: flex-start;
   -webkit-justify-content: center;
-  flex-flow: row;
+  flex-direction: row;
   align-content: flex-start;
   align-items: center;
   justify-content: center;  
@@ -178,11 +191,11 @@ body {
 .songInList .songControls,  .songPage .song .songControls{
   display: -webkit-flex;
   display: flex;
-  -webkit-flex-flow: row;
+  -webkit-flex-direction: row;
   -webkit-align-content: center;
   -webkit-align-items: stretch;
   -webkit-justify-content: center;
-  flex-flow: row;
+  flex-direction: row;
   align-content: center;
   align-items: stretch;
   justify-content: center;
@@ -197,11 +210,11 @@ body {
   
   display: -webkit-flex;
   display: flex;
-  -webkit-flex-flow: column;
+  -webkit-flex-direction: column;
   -webkit-align-content: center;
   -webkit-align-items: center;
   -webkit-justify-content: space-around;
-  flex-flow: column;
+  flex-direction: column;
   align-content: center;
   align-items: center;
   justify-content: space-around;
@@ -239,11 +252,11 @@ body {
   
   display: -webkit-flex;
   display: flex;
-  -webkit-flex-flow: row;
+  -webkit-flex-direction: row;
   -webkit-align-content: center;
   -webkit-align-items: center;
   -webkit-justify-content: space-between;
-  flex-flow: row;
+  flex-direction: row;
   align-content: center;
   align-items: center;
   justify-content: space-between;
@@ -255,16 +268,16 @@ body {
   font-size: 1.5em;
 }
 
-.songPage .song {
+.songPage .song, .albumPage .album {
   padding-top: 1em;
 }
 
-.songPage  .header {
+.imgContainer {
   min-height: 128px;
   margin-bottom: 1em;
 }
 
-.songPage  .header > img.cover {
+.imgContainer > img.cover {
   float: right;
   margin-left: 1em;
 }
@@ -279,7 +292,7 @@ body {
   padding-bottom: 0.5em;
 }
 
-.songPage .genre, .songPage .duration {
+.songPage .genre, .songPage .duration, .albumPage div.duration {
   color: #AFAFAF;
   padding-bottom: 0.5em;
   font-style: italic;
@@ -309,13 +322,14 @@ body {
 .resultsTab {
   display: -webkit-flex;
   display: flex;
-  -webkit-flex-flow: row;
+  -webkit-flex-direction: row;
   -webkit-align-content: center;
   -webkit-align-items: center;
   -webkit-justify-content: space-around;
-  flex-flow: row;
+  flex-direction: row;
   align-content: center;
   align-items: center;
+  justify-content: space-around;
 }
 
 .searchForm {

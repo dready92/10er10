@@ -17,7 +17,7 @@
 
   <div data-ng-model="titleList.toggleControls"
         data-ng-init="titleList.toggleControls=false">
-    <div class="song ellipsis songInList" data-ng-repeat="song in remoteView.playlist" data-ng-class='{active: $index === remoteView.index}' data-d10song-player-list>
+    <div class="song ellipsis songInList" data-ng-repeat="song in remoteView.playlist  track by $index" data-ng-class='{active: $index === remoteView.index}' data-d10song-player-list>
     </div>
   </div>
 </div>

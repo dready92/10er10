@@ -1,5 +1,24 @@
 <div class="albumPage insidePage">
   <div data-d10inside-nav class="nav"></div>
-
-Album page for {{name}} !
+  <div class="album">
+    <div class="contents imgContainer">
+      <img data-ng-src="{{album.mainImage}}" class="cover">
+      <h3>{{name}}</h3>
+      <div class="duration">
+        <span class="duration">{{album.duration | d10songTime}}</span>
+      </div>
+      <div>
+        <button class="btn" data-ng-disabled="!album" data-hm-tap="appendAlbum()">
+          <div class="awesome">&#xF04B;</div>
+          Append to playlist
+        </button>
+        <button class="btn" data-ng-disabled="!album" data-hm-tap="playAlbum()">
+          <div class="awesome">&#xF175;</div>
+          Play now
+        </button>
+      </div>
+    </div>
+    <div data-ng-repeat='song in album.songs' data-d10song-list class="song ellipsis songInList">
+    </div>
+  </div>
 </div>
