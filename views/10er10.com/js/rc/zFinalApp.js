@@ -60,6 +60,11 @@ angular.module('d10remoteControl').config(['$routeProvider',function($routeProvi
     templateUrl: '../html/rc/album/page.html',
     controller: "d10albumPageController"
   });
+
+  $routeProvider.when('/artist/:name', {
+    templateUrl: '../html/rc/artist/page.html',
+    controller: "d10artistPageController"
+  });
   
   $routeProvider.otherwise({redirectTo: "/main"});
   
