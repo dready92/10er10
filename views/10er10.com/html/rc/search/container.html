@@ -51,8 +51,7 @@
         </div>
         <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'album'">
           <div data-ng-show='!results.album.length' class="center noResults">No album found</div>
-          <div data-ng-repeat='res in results.album'>
-            <span>{{res.value.json.value}}</span>
+          <div data-ng-repeat='albumSearchResult in results.album' d10album-list-item>
           </div>
         </div>
       </div>

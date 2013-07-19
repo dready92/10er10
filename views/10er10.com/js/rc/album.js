@@ -141,6 +141,13 @@ angular.module("d10album",[])
     });
   });
 }])
+.directive("d10albumListItem", function() {
+  return {
+    restrict: "A",
+    templateUrl: "../html/rc/album/listItem.html",
+    replace: true
+  };
+});
 ;
 
 
