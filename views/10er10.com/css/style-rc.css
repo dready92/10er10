@@ -268,7 +268,7 @@ body {
   font-size: 1.5em;
 }
 
-.songPage .song, .albumPage .album {
+.songPage .song, .albumPage .album, .artistPage .artist {
   padding-top: 1em;
 }
 
@@ -292,7 +292,7 @@ body {
   padding-bottom: 0.5em;
 }
 
-.songPage .genre, .songPage .duration, .albumPage div.duration {
+.songPage .genre, .songPage .duration, .albumPage div.duration, .artistPage div.duration  {
   color: #AFAFAF;
   padding-bottom: 0.5em;
   font-style: italic;
