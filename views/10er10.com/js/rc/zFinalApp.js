@@ -155,6 +155,7 @@ require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.conne
     "d10nav",
     "d10song",
     "d10album",
+    "d10artist",
     "d10songsCache",
     "d10playpause", 
     "d10cachedRouteView",
