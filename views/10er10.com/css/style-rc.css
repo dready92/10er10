@@ -151,7 +151,7 @@ body {
 
 
 
-.songInList, .resultsPane .albumListItem {
+.songInList, .resultsPane .albumListItem,  .resultsPane .artistListItem{
   background-color: #333;
   margin: 2px;
   padding: 1px;
@@ -382,7 +382,7 @@ body {
   border: 1px solid #FFFFFF;
 }
 
-.resultsPane .albumListItem{
+.resultsPane .albumListItem, .resultsPane .artistListItem{
   display: block;
   height: 2em;
   padding-top: 1em;
