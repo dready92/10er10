@@ -45,8 +45,7 @@
         </div>
         <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'artist'">
           <div data-ng-show='!results.artist.length' class="center noResults">No artist found</div>
-          <div data-ng-repeat='res in results.artist'>
-            <span>{{res.value.json.value}}</span>
+          <div data-ng-repeat='artistSearchResult in results.artist' d10artist-list-item>
           </div>
         </div>
         <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'album'">
