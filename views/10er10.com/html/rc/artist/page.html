@@ -1,0 +1,22 @@
+<div class="artistPage insidePage">
+  <div data-d10inside-nav class="nav"></div>
+  <div class="artist">
+    <div class="contents imgContainer">
+      <img data-ng-src="{{artist.mainImage}}" class="cover">
+      <h3>{{name}}</h3>
+      <div class="duration">
+        <span class="duration">{{artist.duration | d10songTime}}</span>
+      </div>
+      <div>
+        <button class="btn" data-ng-disabled="!artist.duration" data-hm-tap="appendAllSongs()">
+          <div class="awesome">&#xF04B;</div>
+          Append to playlist
+        </button>
+        <button class="btn" data-ng-disabled="!artist.duration" data-hm-tap="playAllSongs()">
+          <div class="awesome">&#xF175;</div>
+          Play now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
