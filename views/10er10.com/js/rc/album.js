@@ -147,6 +147,13 @@ angular.module("d10album",[])
     templateUrl: "../html/rc/album/listItem.html",
     replace: true
   };
+})
+.directive("d10albumPageFragment", function() {
+  return {
+    restrict: "A",
+    templateUrl: "../html/rc/album/pageFragment.html",
+    replace: true
+  };
 });
 ;
 
