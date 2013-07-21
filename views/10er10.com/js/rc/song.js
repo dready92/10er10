@@ -50,8 +50,13 @@
     };
   })
   .filter("d10songTime", function() {
-    return function(input) {
-      var time = parseInt(input, 10) * 1000;
+ 
+    var sanitize = function(input) {
+      input = parseInt(input,10) * 1000;
+      return input;
+    };
+    
+    var minSecs = function(time) {
       var d = new Date(time);
       var m = d.getMinutes();
       if ( m < 10 ) {
@@ -62,6 +67,25 @@
         s = "0"+s;
       }
       return m+":"+s;
+    };
+    
+    var hourMins = function(time) {
+      var d = new Date(time);
+      var m = d.getMinutes();
+      var h = d.getHours();
+      if ( m < 10 ) {
+        m = "0"+m;
+      }
+      return h+"h "+m+"min";
+    };
+    
+    return function(input) {
+      var time = sanitize(input);
+      if ( time >= (60*60*1000) ) {
+        return hourMins(time);
+      } else {
+        return minSecs(time);
+      }
     };
   })
   .directive("d10songPlayerList",function() {
