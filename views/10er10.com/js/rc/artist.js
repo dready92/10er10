@@ -36,6 +36,7 @@ angular.module("d10artist",[])
             songsForCache = songsForCache.concat(album.songs);
             artistData.duration+=album.duration;
             artistData.mainImage = album.mainImage;
+            album.title = album.songs[0].album;
             artistData.albums.push(album);
           }
           if ( noAlbum.length ) {
