@@ -277,7 +277,8 @@ body {
   margin-bottom: 1em;
 }
 
-.imgContainer > img.cover {
+.imgContainer > img.cover, 
+.pageFragment img.cover {
   float: right;
   margin-left: 1em;
 }
@@ -415,4 +416,12 @@ body {
   background-color: rgba(0,0,0,0.8);
   border-radius: 0.4em;
   border: 1px solid rgba(0,0,0,0.6);
+}
+
+.artistPage .pageFragment {
+  margin-top: 2em;
+}
+
+.artistPage .pageFragment img.cover {
+  width: 64px;
 }
