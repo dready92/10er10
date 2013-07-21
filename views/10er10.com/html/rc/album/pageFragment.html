@@ -1,0 +1,21 @@
+<div class="album pageFragment">
+  <div class="header">
+    <img class="cover" data-ng-src="{{album.mainImage}}">
+    <h4>{{album.title}}</h4>
+    <div class="duration">
+      <span class="duration">{{album.duration | d10songTime}}</span>
+    </div>
+    <div>
+      <button class="btn" data-ng-disabled="!artist.duration" data-hm-tap="appendAllSongs()">
+        <div class="awesome">&#xF04B;</div>
+        Append to playlist
+      </button>
+      <button class="btn" data-ng-disabled="!artist.duration" data-hm-tap="playAllSongs()">
+        <div class="awesome">&#xF175;</div>
+        Play now
+      </button>
+    </div>
+    <div data-ng-repeat='song in album.songs' data-d10song-list class="song ellipsis songInList">
+    </div>
+  </div>
+</div>
