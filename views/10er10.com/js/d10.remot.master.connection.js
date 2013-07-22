@@ -14,7 +14,6 @@ define(["js/d10.websocket.protocol.remot",
          
   function checkServerConnection() {
     remot.smallPlayStatus(function(err,resp) {
-      debug("err = ",err,", lastServerConnectionErr = ", lastServerConnectionErr);
       if ( !err ) {
         smallPlayStatusPubsub.publish(resp);
       }
