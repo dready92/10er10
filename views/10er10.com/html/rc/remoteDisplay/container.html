@@ -1,19 +1,5 @@
 <div class="remoteDisplay playerList">
-  <div class="miniPlayer">
-    <div class="controlsContainer">
-      <div class="volumeIcon awesome">&#xF026;</div>
-      <div class="controls">
-        <span d10playprevious></span>
-        <span d10playpause></span>
-        <span d10playnext></span>
-      </div>
-      <a class="searchIcon awesome" href="#/search">&#xF002;</a>
-    </div>
-    <div class="ellipsis playingSongTitle center" data-ng-show="remoteView.index > -1">
-      <span>{{remoteView.song.title}}</span> by <span>{{remoteView.song.artist}}
-    </div>
-    <div class="center playingSongTime"  data-ng-show="remoteView.index > -1">{{remoteView.currentTime|d10songTime}} / {{remoteView.song.duration|d10songTime}}</div>
-  </div>
+  <div data-d10miniplayer></div>
 
   <div data-ng-model="titleList.toggleControls"
         data-ng-init="titleList.toggleControls=false">
