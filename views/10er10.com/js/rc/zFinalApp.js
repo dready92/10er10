@@ -142,6 +142,12 @@ angular.module("d10remoteControl").directive("d10peerConnection", function() {
   };
 });
 
+angular.module("d10remoteControl").filter("d10encode",function() {
+  return function(input) {
+    return encodeURIComponent(input);
+  }
+});
+
 require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.connection",
   "js/d10.remot.master.endpoints", "js/d10.artistTokenizer", "js/d10.imageUtils"
 ], function() {
