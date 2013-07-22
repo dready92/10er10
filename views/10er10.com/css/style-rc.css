@@ -74,6 +74,26 @@ body {
   margin: 0.4em 0.4em 0 0;
 }
 
+@-moz-keyframes blink {
+  from {
+    opacity: 1;
+  }
+  
+  to {
+    opacity: 0.2;
+  }
+}
+
+@-webkit-keyframes blink {
+  from {
+    opacity: 1;
+  }
+  
+  to {
+    opacity: 0.2;
+  }
+}
+
 .noPeer {
   display: -webkit-flex;
   display: flex;
@@ -278,6 +298,13 @@ body {
   display: inline-block;
   padding: 0 1em;
   font-size: 1.5em;
+}
+
+.song .playing {
+  padding-top: 1em;
+  color: rgb(191, 151, 48);
+  -webkit-animation: blink 1.4s ease-in infinite alternate;
+  -moz-animation: blink 1.4s ease-in infinite alternate;
 }
 
 .songPage .song, .albumPage .album, .artistPage .artist {
