@@ -1,0 +1,25 @@
+<div class="miniPlayer"
+      data-ng-init="miniplayer.volumeControl=false">
+  <div class="controlsContainer">
+    <div class="volumeIcon awesome"
+      data-hm-tap="miniplayer.volumeControl=!miniplayer.volumeControl">&#xF026;</div>
+    <div class="controls">
+      <span d10playprevious></span>
+      <span d10playpause></span>
+      <span d10playnext></span>
+    </div>
+    <a class="searchIcon awesome" href="#/search">&#xF002;</a>
+  </div>
+  <div class="volumeControl center"
+      data-ng-show="miniplayer.volumeControl">
+    <input type="range" min="0" max="100" 
+          data-ng-model="remoteView.volume"
+          data-ng-change="remoteControl.volume(remoteView.volume)">
+  </div>
+  <div class="ellipsis playingSongTitle center" 
+        data-ng-show="remoteView.index > -1 && miniplayer.volumeControl==false">
+    <span>{{remoteView.song.title}}</span> by <span>{{remoteView.song.artist}}
+  </div>
+  <div class="center playingSongTime"
+    data-ng-show="remoteView.index > -1 && miniplayer.volumeControl==false">{{remoteView.currentTime|d10songTime}} / {{remoteView.song.duration|d10songTime}}</div>
+</div>
