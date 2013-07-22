@@ -182,6 +182,13 @@ body {
   padding-top: 0.2em;
 }
 
+.remoteDisplay > .miniPlayer .volumeControl {
+  padding-top: 0.5em;
+}
+
+.remoteDisplay > .miniPlayer .volumeControl input {
+  width: 95%;
+}
 
 
 .songInList, .resultsPane .albumListItem,  .resultsPane .artistListItem{
