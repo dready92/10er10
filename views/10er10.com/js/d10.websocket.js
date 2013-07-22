@@ -93,14 +93,12 @@ define(["js/config",
   };
   
   function send(name, message) {
-    debug("d10.websocket:send()");
     if ( !socketReady() ) {
       debug("d10.websocket:send(",name,") returns false");
       return false;
     }
     try {
       socket.send(name+" "+message);
-      debug("d10.websocket:send(",name,") returns true");
       return true;
     } catch (e) {
       debug("d10.websocket:send(",name,") returns false",e);
