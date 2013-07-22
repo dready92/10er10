@@ -43,6 +43,10 @@ body {
   text-align: center;
 }
 
+.verticalSpace {
+  padding: 1em 0;
+}
+
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -60,6 +64,10 @@ body {
 .btn > .awesome {
   font-size: 2em;
   padding-bottom: 0.2em;
+}
+
+.inlineList:after {
+  content: ", "
 }
 
 .noPeer {

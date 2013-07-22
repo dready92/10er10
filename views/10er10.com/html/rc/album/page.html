@@ -20,5 +20,9 @@
     </div>
     <div data-ng-repeat='song in album.songs' data-d10song-list class="song ellipsis songInList">
     </div>
+    <div class="albumArtists" data-ng-show="album.artists.length">
+      <h4 class="center verticalSpace">Album artists</h4>
+      <div><a class="inlineList" data-ng-repeat="artist in album.artists" data-ng-href="#/artist/{{artist|d10encode}}">{{artist}}</a>
+    </div>
   </div>
 </div>
