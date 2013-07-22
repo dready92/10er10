@@ -135,7 +135,8 @@ body {
   justify-content: space-between;  
 }
 
-.remoteDisplay > .miniPlayer .controlsContainer .searchIcon {
+.remoteDisplay > .miniPlayer .controlsContainer .searchIcon,
+.remoteDisplay > .miniPlayer .controlsContainer .volumeIcon{
   font-size: 1.5em;
   padding: 0.2em;
 }
