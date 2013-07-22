@@ -75,6 +75,12 @@
           }
         });
       },
+      volume: function(volume) {
+        volume = parseInt(volume,10) / 100;
+        remot.volume(volume, function(err) {
+          debug("volume err ? ",err);
+        });
+      },
       mixSongAtIndex: function(mixLabel, mixDescription, index) {
         remot.mixSongAtIndex(mixLabel, mixDescription, index,function(err,done) {
           debug("mixSongAtIndex command response: ",err,"done:",done);
@@ -168,9 +174,13 @@
     function fillFromFullStatus(response) {
       rcView.currentTime = response.currentTime;
       rcView.paused = response.paused;
-      rcView.volume = response.volume;
+      setVolume(response.volume);
       updatePlaylist(response.playlist);
       updateIndex(response.index);
+    };
+    
+    function setVolume(volume) {
+      rcView.volume = volume * 100;
     };
 
     function connectionStatusChanged(status) {
@@ -281,7 +291,7 @@
         return ;
       }
       $rootScope.$apply(function() {
-        rcView.volume = volume;
+        setVolume(volume);
       });
     });
     

@@ -213,4 +213,19 @@ define(
       }
     });
   });
+  remot.addLocalEndPoint("volume", function(volume, callback) {
+    if ( !$.isFunction(callback) ) {
+      debug("appendToPlayerList: bad number of arguments",arguments);
+      return ;
+    }
+    volume = parseFloat(volume);
+    if ( isNaN(volume) ) {
+      return callback("ERR_BAD_ARGUMENT");
+    }
+    if ( volume < 0 || volume > 1 ) {
+      return callback("ERR_BAD_ARGUMENT");
+    }
+    playlist.volume(volume);
+    return callback();
+  });
 });

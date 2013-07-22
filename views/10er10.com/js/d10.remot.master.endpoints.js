@@ -12,4 +12,5 @@ define(["js/d10.websocket.protocol.remot"], function(remot) {
   remot.addRemoteEndPoint("appendToCurrentAndPlay");
   remot.addRemoteEndPoint("appendToPlayerList");
   remot.addRemoteEndPoint("mixSong");
+  remot.addRemoteEndPoint("volume");
 });
