@@ -249,7 +249,7 @@ body {
   top: 0;
   height: 3em;
   border-bottom: 1px solid #DFDFDF;
-  
+  background-color: #000;
   display: -webkit-flex;
   display: flex;
   -webkit-flex-direction: row;
