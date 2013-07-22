@@ -59,7 +59,7 @@ body {
 
 .btn > .awesome {
   font-size: 2em;
-  paddding-bottom: 0.2em;
+  padding-bottom: 0.2em;
 }
 
 .noPeer {
@@ -420,8 +420,24 @@ body {
 
 .artistPage .pageFragment {
   margin-top: 2em;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+  border-bottom: 1px solid #DFDFDF;
+}
+
+.artistPage .pageFragment .header {
+  padding-bottom: 1em;
 }
 
 .artistPage .pageFragment img.cover {
-  width: 64px;
+  width: 6em;
+}
+
+.artistPage .artistAlbums {
+  padding-top: 1em;
+  background-color: #151515;
+}
+
+.artistPage .artistAlbums .btn > .awesome {
+  font-size: 1em;
 }
