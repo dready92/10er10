@@ -66,8 +66,12 @@ body {
   padding-bottom: 0.2em;
 }
 
-.inlineList:after {
-  content: ", "
+.inlineList {
+  display: inline-block;
+  background-color: #333;
+  padding: 0.3em;
+  border-radius: 5px;
+  margin: 0.4em 0.4em 0 0;
 }
 
 .noPeer {
