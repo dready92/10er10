@@ -81,6 +81,25 @@
           debug("volume err ? ",err);
         });
       },
+      volumeDelayedTimeoutId: null,
+      volumeDelayed: function(volume, delay) {
+        this.removeVolumeDelayedTimeout();
+        delay = parseInt(delay,10);
+        if ( isNaN(delay) ) {
+          this.volume(volume);
+          return ;
+        }
+        var self = this;
+        this.volumeDelayedTimeoutId = setTimeout(function() {
+          self.volume(volume);
+        },delay);
+      },
+      removeVolumeDelayedTimeout: function() {
+        if ( this.volumeDelayedTimeoutId ) {
+          clearTimeout(this.volumeDelayedTimeoutId);
+          this.volumeDelayedTimeoutId = null;
+        }
+      },
       mixSongAtIndex: function(mixLabel, mixDescription, index) {
         remot.mixSongAtIndex(mixLabel, mixDescription, index,function(err,done) {
           debug("mixSongAtIndex command response: ",err,"done:",done);

@@ -14,7 +14,10 @@
       data-ng-show="miniplayer.volumeControl">
     <input type="range" min="0" max="100" 
           data-ng-model="remoteView.volume"
-          data-ng-change="remoteControl.volume(remoteView.volume)">
+          data-ng-change="remoteControl.volumeDelayed(remoteView.volume, 1000)">
+  </div>
+  <div class="center volumePercentIndicator" data-ng-show="miniplayer.volumeControl">
+    {{remoteView.volume}}%
   </div>
   <div class="ellipsis playingSongTitle center" 
         data-ng-show="remoteView.index > -1 && miniplayer.volumeControl==false">

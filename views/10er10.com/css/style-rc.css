@@ -167,6 +167,7 @@ body {
 
 .remoteDisplay > .miniPlayer .controls > span.playpause > button {
   font-size: 1.4em;
+  margin: 0 0.5em;
 }
 .remoteDisplay > .miniPlayer .controls > span.playnext > button {
   font-size: 1.2em;
@@ -183,13 +184,16 @@ body {
 }
 
 .remoteDisplay > .miniPlayer .volumeControl {
-  padding-top: 0.5em;
+  padding-top: 0.3em;
 }
 
 .remoteDisplay > .miniPlayer .volumeControl input {
   width: 95%;
 }
 
+.remoteDisplay > .miniPlayer .volumePercentIndicator {
+  font-size: 0.8em;
+}
 
 .songInList, .resultsPane .albumListItem,  .resultsPane .artistListItem{
   background-color: #333;
