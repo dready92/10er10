@@ -209,6 +209,10 @@ var makeSessionForType = function(uid, type, cb ) {
     });
 };
 
+var removeSession = function(sessionId, cb) {
+  d10.couch.auth.deleteDoc(sessionId, cb);
+};
+
 
 var getListenedSongsByDate = function(uid, opts, callback) {
 	if ( opts.startkey && opts.startkey.length && opts.startkey[0]!=uid ) {
@@ -225,6 +229,7 @@ exports.isValidPassword = isValidPassword;
 exports.createUser = createUser;
 exports.checkAuthFromLogin = checkAuthFromLogin;
 exports.makeSession = makeSession;
+exports.removeSession = removeSession;
 exports.makeRemoteControlSession = makeRemoteControlSession;
 exports.getListenedSongsByDate = getListenedSongsByDate;
 
