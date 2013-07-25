@@ -1,5 +1,5 @@
 var debug = require("../d10").debug("d10:websocket-protocol-remot");
-var emitter = require("./song-processor/song-processor-events");
+var emitter = require("./rc-events");
 var sessionMiddleware = require("../cookieSessionMiddleware");
 var protocol = require("./websocket-protocol");
 var websocketStore = require("./websocket-store");
@@ -75,7 +75,28 @@ function sendErrorResponse(error, message, socket, callback) {
   callback(response);
 };
 
+function unregisterSocket(userId, sessionId) {
+  var sid = sessionId.substr(2);
+  var sockets = websocketStore.findByUser(userId).filter(function(s) {
+    debug("Socket, sessionId = ",s.d10remotSession, sid);
+    if ( !s.d10remotSession ) {
+      return false;
+    }
+    return (s.d10remotSession === sid);
+  });
+  if ( !sockets.length ) {
+    debug("Weird, can't find socket for user",userId,"session",sessionId);
+    return ;
+  }
+  var socket = sockets[0];
+  websocketStore.remove(socket);
+  socket.close(1000,"End of session");
+};
+
 function websocketProtocolRemot (httpServer, d10Server) {
+  emitter.on("logout",function(id) {
+    unregisterSocket(id.user,id.session);
+  });
 };
 
 websocketProtocolRemot.prototype.name = protocolName;
