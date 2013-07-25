@@ -629,6 +629,9 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
       },
       sessionLogin: function(options) {
         restQuery("rc.login","POST",config.site_url+"/api/rc/login",options);
+      },
+      logout: function(options) {
+        restQuery("rc.logout","PUT",config.site_url+"/api/rc/logout",options);
       }
     };
     
