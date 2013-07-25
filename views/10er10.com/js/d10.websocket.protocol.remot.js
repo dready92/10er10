@@ -41,7 +41,14 @@ define(["js/config", "js/d10.toolbox", "js/d10.websocket", "js/d10.events"],
   };
   
   function getSession() {
-    var cookie = JSON.parse($.cookie(config.cookieName));
+    var cookie;
+    try {
+      debug("cookie:",config.cookieName,$.cookie(config.cookieName));
+      cookie = JSON.parse($.cookie(config.cookieName));
+    } catch(e) {
+      debug("cookie parsing failed");
+      return {};
+    }
     return cookie.remoteControlSession ? cookie.remoteControlSession : cookie.session;
   };
   
