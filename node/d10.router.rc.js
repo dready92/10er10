@@ -3,6 +3,7 @@ var     d10 = require("./d10"),
         debug = d10.debug("d10:d10.router.rc"),
         fs = require("fs"),
         when = require("./when"),
+        emitter = require('./lib/rc-events'),
         users = require("./d10.users");
 
 var readOneFileOrDir = function(stats, fileName, completePath, opts) {
@@ -107,6 +108,23 @@ exports.publicApi = function(app) {
     )+"});");
   });
   
+  app.put("/api/rc/logout", function(request, response, next) {
+    debug("PUT /api/rc/logout");
+    if ( !request.ctx.user || !request.ctx.remoteControlSession ) {
+      return d10.realrest.err(404,{error: "session not found"},request.ctx);
+    }
+    var cookie = {user: "", remoteControlSession: ""};
+    request.ctx.setCookie(cookie);
+    var id = {
+      user: request.ctx.user._id,
+      session: request.ctx.remoteControlSession._id
+    };
+    users.removeSession(id.session, function() {
+      emitter.emit("logout",id);
+      d10.realrest.success({logout: true},request.ctx);
+    });
+  });
+  
   app.post("/api/rc/login", function(request, response, next) {
     debug("POST /api/rc/login begin");
     bodyDecoder()(request, response,function() {
@@ -128,13 +146,13 @@ exports.publicApi = function(app) {
             }
             return sessionErrorResponse(err, request.ctx);
           });
-          
         });
         return ;
       }
       debug("POST /api/rc/login: no user/pass provided, lookup current session");
       if ( request.ctx.remoteControlSession && request.ctx.remoteControlSession._id
             && request.ctx.remoteControlSession._id.substr(0,2) == "rs" ) {
+        debug("Successfully logged from current session");
         return sessionSuccessResponse(request.ctx.session._id, request.ctx);
       }
       debug("POST /api/rc/login: no current session");
