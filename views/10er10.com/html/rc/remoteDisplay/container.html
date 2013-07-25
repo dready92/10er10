@@ -5,5 +5,7 @@
         data-ng-init="titleList.toggleControls=false">
     <div class="song ellipsis songInList" data-ng-repeat="song in remoteView.playlist  track by $index" data-ng-class='{active: $index === remoteView.index}' data-d10song-player-list>
     </div>
+    <div class="verticalSpace center" data-ng-show="!remoteView.playlist">Empty playlist</div>
   </div>
+  <div class="verticalSpace center"><a href="#" data-hm-tap="logout()">Logout</a>
 </div>
