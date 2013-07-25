@@ -73,6 +73,7 @@ angular.module('d10remoteControl').config(['$routeProvider',function($routeProvi
 angular.module('d10remoteControl').run(['$rootScope', 'd10rcView', '$window', '$location',
                                        function($rootScope, d10rcView, $window, $location) {
   var rest = require("js/d10.rest");
+  var pubsub = require("js/d10.events");
   $rootScope.remoteView = d10rcView;
   $rootScope.loginState = "session";
   $rootScope.router = {
@@ -107,6 +108,16 @@ angular.module('d10remoteControl').run(['$rootScope', 'd10rcView', '$window', '$
     }
   };
   
+  $rootScope.logout = function() {
+    rest.rc.logout({
+      load: function(err,resp) {
+        debug("logged out");
+        $rootScope.safelyApply(function() {
+          $rootScope.loginState = "not logged";
+        });
+      }
+    });
+  };
 }]);
 
 angular.module("d10remoteControl").directive("d10peerConnection", function() {
