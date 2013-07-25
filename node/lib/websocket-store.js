@@ -46,6 +46,7 @@ websocketStore.prototype.remove = function(socket) {
     var index = a.indexOf(socket);
     if ( index < 0 ) {
       debug("WARNING: can't remove socket from array: socket not found");
+      debug("Store size: ",sockets.length);
       return false;
     }
     a.splice(index,1);
