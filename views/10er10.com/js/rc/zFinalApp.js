@@ -13,20 +13,21 @@ angular.module('d10remoteControl').directive('d10login',["$rootScope", function(
         });
         $scope.formDisabled = true;
         console.log($scope);
-        if ( $scope.login && $scope.password ) {
-          console.log("rest starting");
-          rest.rc.login($scope.login, $scope.password, {
-            load: function(err,resp) {
-              $scope.$apply(function() {
-                console.log("rest.rc.login load(): ",err,resp);
-                if ( !err ) {
-                  $rootScope.loginState= "logged";
-                }
-                $scope.formDisabled = false;
-              });
-            }
-          });
+        if ( !$scope.login || !$scope.password ) {
+          return;
         }
+        console.log("rest starting");
+        rest.rc.login($scope.login, $scope.password, {
+          load: function(err,resp) {
+            $scope.$apply(function() {
+              console.log("rest.rc.login load(): ",err,resp);
+              if ( !err ) {
+                $rootScope.loginState= "logged";
+              }
+              $scope.formDisabled = false;
+            });
+          }
+        });
       };
     }
   };
