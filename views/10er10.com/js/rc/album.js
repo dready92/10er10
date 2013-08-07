@@ -82,8 +82,7 @@ angular.module("d10album",[])
     return album;
   };
 }])
-.factory("d10albumFetch", ["d10songsCache","d10albumDataParser", 
-         function(d10songsCache, d10albumDataParser) {
+.factory("_d10albumFetch", ["d10albumDataParser", function(d10albumDataParser) {
   var rest = require("js/d10.rest");
   return function(album, callback) {
     rest.song.list.albums(
@@ -97,11 +96,40 @@ angular.module("d10album",[])
             return callback(err);
           }
           var album = d10albumDataParser(resp);
-          d10songsCache.set("album",album.songs);
           return callback(null, album);
         }
       }
     );
+  };
+}])
+.factory("d10albumSongCache", ["d10songsCache",function(d10songsCache) {
+  return function(album) {
+    d10songsCache.set("album", album.songs);
+  }
+}])
+.factory("d10albumFetch", ["d10albumSongCache","_d10albumFetch", 
+         function(d10albumSongCache, _d10albumFetch) {
+  return function(album, options, callback) {
+    var settings = {
+      cacheSongs: true
+    };
+    if ( arguments.length < 3 ) {
+      callback = options;
+      options = {};
+    }
+    angular.extend(settings, options);
+    _d10albumFetch(album, function(err,album) {
+      if ( err ) {
+        return callback(err,album);
+      }
+      if ( settings.cacheSongs
+          && album.songs
+          && album.songs.length
+      ) {
+        d10albumSongCache(album);
+      }
+      return callback(err,album);
+    });
   };
 }])
 .controller("d10albumPageController", ["$scope","$routeParams","d10albumFetch", "d10rc",
