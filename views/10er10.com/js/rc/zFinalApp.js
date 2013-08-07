@@ -1,6 +1,8 @@
 "use strict";
 angular.module('d10remoteControl', ['d10remoteView']);
-angular.module('d10remoteControl').directive('d10login',["$rootScope", function($rootScope) {
+angular.module('d10remoteControl')
+.directive('d10login',["$rootScope", 'd10session', 
+           function($rootScope, d10session) {
   var rest = require("js/d10.rest");
   return {
     restrict: 'A',
@@ -16,16 +18,14 @@ angular.module('d10remoteControl').directive('d10login',["$rootScope", function(
         if ( !$scope.login || !$scope.password ) {
           return;
         }
-        rest.rc.login($scope.login, $scope.password, {
-          load: function(err,resp) {
-            $scope.$apply(function() {
-              console.log("rest.rc.login load(): ",err,resp);
-              if ( !err ) {
-                $rootScope.loginState= "logged";
-              }
-              $scope.formDisabled = false;
-            });
-          }
+        d10session.login($scope.login, $scope.password, function(err,resp) {
+          $scope.$apply(function() {
+            console.log("rest.rc.login load(): ",err,resp);
+            if ( !err ) {
+              $rootScope.loginState= "logged";
+            }
+            $scope.formDisabled = false;
+          });
         });
       };
     }
