@@ -31,10 +31,6 @@
       return $scope.resultsCount;
     };
     
-    $scope.home = function() {
-      $location.path("/main");
-    };
-    
     $scope.search = function() {
       if ( !$scope.query || $scope.query.length < 3 ) {
         return false;

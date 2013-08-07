@@ -123,9 +123,6 @@
   "d10rc",
   "d10mixList",
   function($scope, $routeParams,$location,d10remoteControl, d10mixList) {
-    $scope.home = function() {
-      $location.path("/main");
-    };
     
     $scope.mixVisibility = false;
     $scope.mixesList = [];
