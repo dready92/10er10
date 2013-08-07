@@ -3,7 +3,11 @@
 
 angular.module("d10utils",[]).filter("d10encode",function() {
   return function(input) {
-    return encodeURIComponent(input);
+    var back = encodeURIComponent(
+      encodeURIComponent(input)
+    );
+    return back;
+      
   }
 });
   

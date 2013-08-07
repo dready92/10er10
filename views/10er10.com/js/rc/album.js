@@ -143,7 +143,7 @@ angular.module("d10album",[])
     });
     return ids;
   };
-  $scope.name = $routeParams.name;
+  $scope.name = decodeURIComponent($routeParams.name);
   $scope.titleList = {toggleControls: false};
   $scope.appendAlbum = function() {
     if ( !$scope.album ) {

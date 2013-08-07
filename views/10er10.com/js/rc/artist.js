@@ -87,7 +87,7 @@ angular.module("d10artist",[])
 ])
 .controller("d10artistPageController", ["$scope","$routeParams","d10artistFetch", "d10rc",
             function($scope, $routeParams, d10artistFetch, d10rc) {
-  $scope.name = $routeParams.name;
+  $scope.name = decodeURIComponent($routeParams.name);
   $scope.titleList = {toggleControls: false};
   d10artistFetch($scope.name, function(err,artist) {
     if ( err ) {
