@@ -70,8 +70,15 @@ angular.module('d10remoteControl').config(['$routeProvider',function($routeProvi
   
 }]);
 
-angular.module('d10remoteControl').run(['$rootScope', 'd10rcView', '$window', '$location',
-                                       function($rootScope, d10rcView, $window, $location) {
+angular.module('d10remoteControl').run(
+  [
+    '$rootScope', 
+    'd10rcView', 
+    'd10session', 
+    '$window', 
+    '$location', 
+    'd10session',
+    function($rootScope, d10rcView, d10session, $window, $location) {
   var rest = require("js/d10.rest");
   var pubsub = require("js/d10.events");
   $rootScope.remoteView = d10rcView;
@@ -87,16 +94,14 @@ angular.module('d10remoteControl').run(['$rootScope', 'd10rcView', '$window', '$
       $location.path('/main');
     }
   };
-  rest.rc.sessionLogin({
-    load: function(err,resp) {
-      $rootScope.$apply(function() {
-        if ( err ) {
-          $rootScope.loginState = "not logged";
-        } else {
-          $rootScope.loginState = "logged";
-        }
-      });
-    }
+  d10session.sessionLogin(function(err, logged) {
+    $rootScope.$apply(function() {
+      if ( err || !logged  ) {
+        $rootScope.loginState = "not logged";
+      } else {
+        $rootScope.loginState = "logged";
+      }
+    });
   });
   
   $rootScope.safelyApply = function(callback) {
@@ -109,9 +114,8 @@ angular.module('d10remoteControl').run(['$rootScope', 'd10rcView', '$window', '$
   };
   
   $rootScope.logout = function() {
-    rest.rc.logout({
-      load: function(err,resp) {
-        debug("logged out");
+    d10session.logout(function(err) {
+      if ( !err ) {
         $rootScope.safelyApply(function() {
           $rootScope.loginState = "not logged";
         });
@@ -177,6 +181,7 @@ require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.conne
     "d10rc",
     "d10nav",
     "d10song",
+    "d10session",
     "d10album",
     "d10artist",
     "d10songsCache",
