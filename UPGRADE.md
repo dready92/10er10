@@ -1,3 +1,14 @@
+Upgrade from 0.21 to 0.22
+=========================
+
+- install the files from the tarball (thus replacing the old 10er10 version). Keep your file **node/config.local.js** in place, as it's the only file having your personnal configuration.
+
+- restart the node 10er10 server
+
+**What changed ?**
+
+- new smartphone interface to connect to a running 10er10 session and remote control it. Just go to http://your.10er10.server.com/rc/
+
 Upgrade from 0.20 to 0.21
 =========================
 
