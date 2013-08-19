@@ -1,4 +1,4 @@
-var ncouch = require("../ncouch");
+var ncouch = require("ncouch");
 var config ,
 configParser = require("../configParser");
 var configChecker = require("./configChecker");

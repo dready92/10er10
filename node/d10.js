@@ -2,7 +2,7 @@ process.env.MAGIC = process.env.MAGIC || __dirname+"/magic/magic.mgc";
 
 var fs = require("fs"),
     debugModule = require("debug"),
-	ncouch = require("./ncouch"),
+	ncouch = require("ncouch"),
 	files = require("./files"),
 	mmmagic = require("mmmagic"),
 	Magic = mmmagic.Magic,
