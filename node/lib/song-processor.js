@@ -409,12 +409,12 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
                   job.complete("fileType",function(err,resp) {
                       internalEmitter.emit("uploadCompleteAndFileTypeAvailable");
                       if (  job.tasks.fileType.response == "application/ogg" ) { 
-                        job.internalEmitter("oggAvailable",[]); 
+                        internalEmitter.emit("oggAvailable",[]); 
                       }
                   });
               } else {
                   if ( job.tasks.fileType.response == "application/ogg" ) { 
-                    job.internalEmitter("oggAvailable",[]);
+                    internalEmitter.emit("oggAvailable",[]);
                   }
                   internalEmitter.emit("uploadCompleteAndFileTypeAvailable");
               }
