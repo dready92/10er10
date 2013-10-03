@@ -2707,6 +2707,7 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
 
 #player div[name=progression] .netload{
   background-color: rgb(53,91,54);
+  transition: width 0.5s;
 }
 
 #player div[name=progression] .timer{
