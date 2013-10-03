@@ -204,26 +204,6 @@ section > h1 {
 		color: #086FA1;
 }
 
-div.tooltip {
-  display:none;
-  padding: 8px 8px;
-  background: linear-gradient(top,  #232323,  #343434);
-  background: -webkit-linear-gradient(top,  #232323,  #343434);
-  background: -moz-linear-gradient(top,  #232323,  #343434);
-  color: rgba(255,255,255,0.8);
-  border: 2px solid rgba(255,255,255,0.4);
-  border-radius: 5px;
-  -moz-box-shadow: rgba(255,255,255,0.3) 0px 0px 5px;
-  -webkit-box-shadow: rgba(255,255,255,0.3) 0px 0px 5px;
-  box-shadow: rgba(255,255,255,0.3) 0px 0px 5px;
-  z-index: 50;
-}
-
-div.tooltip > p {
-  font-weight: bold;
-  padding: 4px 0;
-}
-
 #containerWrap {	text-align:center; position: relative;}
 
 #container {

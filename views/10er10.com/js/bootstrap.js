@@ -222,14 +222,7 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 			if ( album.length ) { $(this).addClass("link"); }
 		});
 		$("#main").delegate("div.song > span.album","mouseleave",function(e) { $(this).removeClass("link"); });
-		
-		//
-		// tooltips
-		//
-		$('aside .table[name=controls] img, aside div.manager button, #modeSwitcher').tooltip({
-			"predelay": 1000
-		}).dynamic({ bottom: { direction: 'down', bounce: true } });
-		
+				
 		$("footer a.logout").click(function() {
 			$("footer .loggedin").hide();
 			$("footer .loggingOut").removeClass("hidden");
