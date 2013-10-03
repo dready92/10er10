@@ -71,8 +71,6 @@ var createInstance = function(container) {
 		var punit = 0; // 1 secs = punit pixels
 		var current = 0;
 
-		var netload_pmax = 0;  // x secs = y pixels
-		var netload_punit = 0; // 1 secs = punit pixels
 		ui.css({ textAlign: 'left', position: 'relative', overflow: 'hidden' });
 		var resized = $('div.timer',ui);
 		$('div.netload',ui).css({ position: 'absolute', width: 0, height: '100%', overflow: 'hidden' });
@@ -131,18 +129,8 @@ var createInstance = function(container) {
           this.lastSet = data;
 		}
 
-
-		this.setNetloadMax = function (num) {
-			netload_pmax=parseInt(num, 10);
-			netload_punit=ui.width() / netload_pmax;
-		}
-		this.setNetloadMax(100); // percentile
-
 		this.setNetloadBar = function(data) {
-          this.setNetloadMax(100);
-          ui.find('div.netload').css({
-              width: Math.floor(netload_punit*data)
-          });
+          ui.find('div.netload').css({width: data+"%"});
 		}
 	}
 	return module;
