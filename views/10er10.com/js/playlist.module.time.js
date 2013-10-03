@@ -91,10 +91,10 @@ var createInstance = function(container) {
                             .data("seconds",secs)
                             .css("visibility","hidden")
                             .prependTo($("#player"));
-            timeOverlaySize =  {width: timeOverlay.outerWidth() / 2 - 1, height: timeOverlay.outerHeight() +10};
             timeOverlay.css("visibility","visible");
             timeOverlayElem = timeOverlay.get(0);
           }
+          timeOverlaySize =  {width: timeOverlay.outerWidth() / 2 - 1, height: timeOverlay.outerHeight() +10};
 
           if ( timeOverlay.data("seconds") != secs ) {
             timeOverlay.html(seconds2display(secs));
