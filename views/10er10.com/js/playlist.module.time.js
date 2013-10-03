@@ -98,6 +98,7 @@ var createInstance = function(container) {
 
           if ( timeOverlay.data("seconds") != secs ) {
             timeOverlay.html(seconds2display(secs));
+            timeOverlay.data("seconds",secs);
           }
           var cssPosition = {
             left: (e.pageX - timeOverlaySize.width) +"px",
