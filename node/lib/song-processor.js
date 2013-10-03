@@ -388,7 +388,6 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           job.fileWriter  = new files.fileWriter(d10.config.audio.tmpdir+"/"+job.fileName);
           debug(songId,"settings bytescheck interval");
           bytesIval = setInterval(bytesCheck,500);
-          debug(songId,"interval = ", bytesIval);
           job.fileWriter.open();
 
           job.fileWriter.on("end", function() {
