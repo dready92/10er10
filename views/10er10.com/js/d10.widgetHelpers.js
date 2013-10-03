@@ -56,7 +56,6 @@ define(["js/d10.templates","js/color-manipulation.thief",
         var dt = e.originalEvent.dataTransfer;
         dt.effectAllowed = "copy";
         dt.setData('text','playlist');
-        dt.setDragImage( $('#songitem img')[0], 0, 0);
         dnd.setDragItem( song );
       })
       .delegate("li",'dragend', dnd.removeDragItem)

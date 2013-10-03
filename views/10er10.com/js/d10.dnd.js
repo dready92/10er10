@@ -23,7 +23,6 @@ define(function() {
 		var dt = e.originalEvent.dataTransfer;
 		dt.effectAllowed = "copy";
 		dt.setData('text','playlist');
-		dt.setDragImage( $('#songitem img')[0], 0, 0);
 		setDragItem( song.closest(".list").find(".song.selected") );
 	};
 	

@@ -507,7 +507,6 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 				var dt = e.originalEvent.dataTransfer;
 				$(this).toggleClass("selected",true);
 				dt.setData('text/plain','playlist');
-				dt.setDragImage( $('#songitem img')[0], 0, 0);
 				$(this).css('opacity',0.5);
 				dnd.setDragItem(list.find('.song.selected'));
 			}
