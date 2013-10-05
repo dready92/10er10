@@ -7,47 +7,39 @@
   "d10artistTokenizer",
   "d10search",
   "d10songsCache",
-  function($scope, $location, d10artistTokenizer, d10search, d10songsCache) {
-    $scope.searchInProgress = false;
-    $scope.query = "";
-    $scope.results = {
-      title: [],
-      artist: [],
-      album: []
-    };
-    $scope.resultsCount = 0;
-    
+  "d10searchPageCache",
+  function($scope, $location, d10artistTokenizer, d10search, d10songsCache,
+    d10searchPageCache
+  ) {
+    $scope.search = d10searchPageCache;
     $scope.getResultsCount = function() {
-      $scope.resultsCount = 0;
-      if ( $scope.results && $scope.results.title ) {
-        $scope.resultsCount += $scope.results.title.length;
+      $scope.search.resultsCount = 0;
+      if ( $scope.search.results && $scope.search.results.title ) {
+        $scope.search.resultsCount += $scope.search.results.title.length;
       }
-      if ( $scope.results && $scope.results.artist ) {
-        $scope.resultsCount += $scope.results.artist.length;
+      if ( $scope.search.results && $scope.search.results.artist ) {
+        $scope.search.resultsCount += $scope.search.results.artist.length;
       }
-      if ( $scope.results && $scope.results.album ) {
-        $scope.resultsCount += $scope.results.album.length;
+      if ( $scope.search.results && $scope.search.results.album ) {
+        $scope.search.resultsCount += $scope.search.results.album.length;
       }
-      return $scope.resultsCount;
+      return $scope.search.resultsCount;
     };
     
-    $scope.search = function() {
-      if ( !$scope.query || $scope.query.length < 3 ) {
+    $scope.startSearch = function() {
+      if ( !$scope.search.query || $scope.search.query.length < 3 ) {
         return false;
       }
-      $scope.searchInProgress = true;
-      d10search($scope.query, function(err,resp) {
+      $scope.search.searchInProgress = true;
+      d10search($scope.search.query, function(err,resp) {
         $scope.$apply(function() {
-          $scope.searchInProgress = false;
-          if ( $scope.titleList && $scope.titleList.toggleControls ) {
-            $scope.titleList.toggleControls = false;
-          }
+          $scope.search.searchInProgress = false;
           if ( !err ) {
-            $scope.results.title = resp.title.map(function(i) {return i.doc});
-            $scope.results.album = resp.album;
-            $scope.results.artist = resp.artist;
-            d10artistTokenizer($scope.results.title);
-            d10songsCache.set("d10searchController",$scope.results.title);
+            $scope.search.results.title = resp.title.map(function(i) {return i.doc});
+            $scope.search.results.album = resp.album;
+            $scope.search.results.artist = resp.artist;
+            d10artistTokenizer($scope.search.results.title);
+            d10songsCache.set("d10searchController",$scope.search.results.title);
           }
           $scope.getResultsCount();
         });
@@ -59,6 +51,19 @@
     var rest = require("js/d10.rest");
     return function(query, callback) {
       rest.search.all(query, {load: callback});
+    };
+  })
+  .factory("d10searchPageCache", function() {
+    return {
+      searchInProgress: false,
+      query: "",
+      results: {
+        title: [],
+        artist: [],
+        album: []
+      },
+      resultsCount: 0,
+      openedTab: false
     };
   });
   

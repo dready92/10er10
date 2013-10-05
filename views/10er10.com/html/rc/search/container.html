@@ -1,56 +1,53 @@
-<div class="insidePage" data-ng-model="titleList.toggleControls"
-        data-ng-init="titleList.toggleControls=false">
+<div class="insidePage">
   <div data-d10search-nav class="nav"></div>
   <div class="insidePageBody">
     <div class="searchForm">
       <input type="text" autocapitalize="off" autocorrect="off" 
-        data-ng-model="query" size="10" autofocus="true" placeholder="Search..."
-        data-ng-disabled="searchInProgress"> 
+        data-ng-model="search.query" size="10" autofocus="true" placeholder="Search..."
+        data-ng-disabled="search.searchInProgress"> 
       <button class="awesome"
-        data-ng-disabled="!query || query.length < 3 || searchInProgress"
-        data-hm-tap='search()'>&#xF002;</button>
+        data-ng-disabled="!search.query || search.query.length < 3 || search.searchInProgress"
+        data-hm-tap='startSearch()'>&#xF002;</button>
     </div>
     <div class="searchResults">
-      <div class="noResults center" data-ng-show="query.length > 2 && !searchInProgress && resultsCount===0">
+      <div class="noResults center" data-ng-show="search.query.length > 2 && !search.searchInProgress && search.resultsCount===0">
         No results to display
       </div>
       <div class="searchInProgress" data-ng-show="searchInProgress">
         Searching...
       </div>
       <div class="resultsContainer" 
-          data-ng-show='!searchInProgress && resultsCount'
-          data-ng-model="resultsTab.toggleControls"
-          data-ng-init="resultsTab.toggleControls=false">
+          data-ng-show='!search.searchInProgress && search.resultsCount'>
         <div class="resultsTab">
-          <span data-hm-tap="resultsTab.toggleControls='title'"
-                data-ng-class="{active: resultsTab.toggleControls === 'title'}">
-            <div class="tabArrow"  data-ng-show="resultsTab.toggleControls === 'title'"> </div>
-            titles ({{results.title.length}})
+          <span data-hm-tap="search.openedTab='title'"
+                data-ng-class="{active: search.openedTab === 'title'}">
+            <div class="tabArrow" data-ng-show="search.openedTab === 'title'"> </div>
+            titles ({{search.results.title.length}})
           </span>
-          <span data-hm-tap="resultsTab.toggleControls='artist'"
-                data-ng-class="{active: resultsTab.toggleControls === 'artist'}">
-            <div class="tabArrow"  data-ng-show="resultsTab.toggleControls === 'artist'"> </div>
-            artists ({{results.artist.length}})
+          <span data-hm-tap="search.openedTab='artist'"
+                data-ng-class="{active: search.openedTab === 'artist'}">
+            <div class="tabArrow"  data-ng-show="search.openedTab === 'artist'"> </div>
+            artists ({{search.results.artist.length}})
           </span>
-          <span data-hm-tap="resultsTab.toggleControls='album'"
-                data-ng-class="{active: resultsTab.toggleControls === 'album'}">
-            <div class="tabArrow"  data-ng-show="resultsTab.toggleControls === 'album'"> </div>
-            album ({{results.album.length}})
+          <span data-hm-tap="search.openedTab='album'"
+                data-ng-class="{active: search.openedTab === 'album'}">
+            <div class="tabArrow"  data-ng-show="search.openedTab === 'album'"> </div>
+            album ({{search.results.album.length}})
           </span>
         </div>
-        <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'title'">
-          <div data-ng-show='!results.title.length' class="center noResults">No song found</div>
-          <div data-ng-repeat='song in results.title' data-d10song-list class="song ellipsis songInList">
+        <div class="resultsPane" data-ng-show="search.openedTab === 'title'">
+          <div data-ng-show='!search.results.title.length' class="center noResults">No song found</div>
+          <div data-ng-repeat='song in search.results.title' data-d10song-list class="song ellipsis songInList">
           </div>
         </div>
-        <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'artist'">
-          <div data-ng-show='!results.artist.length' class="center noResults">No artist found</div>
-          <div data-ng-repeat='artistSearchResult in results.artist' d10artist-list-item>
+        <div class="resultsPane" data-ng-show="search.openedTab === 'artist'">
+          <div data-ng-show='!search.results.artist.length' class="center noResults">No artist found</div>
+          <div data-ng-repeat='artistSearchResult in search.results.artist' d10artist-list-item>
           </div>
         </div>
-        <div class="resultsPane" data-ng-show="resultsTab.toggleControls === 'album'">
-          <div data-ng-show='!results.album.length' class="center noResults">No album found</div>
-          <div data-ng-repeat='albumSearchResult in results.album' d10album-list-item>
+        <div class="resultsPane" data-ng-show="search.openedTab === 'album'">
+          <div data-ng-show='!search.results.album.length' class="center noResults">No album found</div>
+          <div data-ng-repeat='albumSearchResult in search.results.album' d10album-list-item>
           </div>
         </div>
       </div>
