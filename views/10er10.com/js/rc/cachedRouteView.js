@@ -191,7 +191,6 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
         if ( shouldCachePrevious ) {
           lastControllerCache.widget.detach();
         } else {
-          debug("animate.leave on ",element);
           animate.leave(element.contents(), element);
           destroyLastScope(shouldCachePrevious);
         }
@@ -202,8 +201,6 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
             routeDef = $route.current && $route.current.$$route,
             template = locals && locals.$template;
         var current = $route.current;
-        debug("current: ",$route.current);
-        debug("routeDef: ",routeDef);
         
         var shouldCacheCurrent = false;
         if ( routeDef && routeDef.cache ) {
@@ -217,8 +214,6 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
           shouldCachePrevious = true;
         }
         
-        debug("shouldCachePrevious:",shouldCachePrevious,"shouldCacheCurrent:",shouldCacheCurrent);
-        debug("template",template);
         if (template) {
           clearContent(shouldCachePrevious);
           var enterElements ;
