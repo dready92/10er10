@@ -256,7 +256,10 @@
       if ( !rcView.listening ) {
         return ;
       }
-      $rootScope.$apply(function() { rcView.paused = true; });
+      $rootScope.$apply(function() {
+        rcView.paused = true;
+        rcView.index = -1;
+      });
     });
     pubsub.topic("remot:playlist:paused").subscribe(function() {
       if ( !rcView.listening ) {
