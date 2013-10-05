@@ -47,8 +47,7 @@ angular.module('d10remoteControl').config(['$routeProvider',function($routeProvi
   
   $routeProvider.when('/search', {
     templateUrl: '../html/rc/search/container.html',
-    controller: "d10searchController",
-    cache: true
+    controller: "d10searchController"
   });
   
   $routeProvider.when('/song/:id', {
