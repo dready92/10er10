@@ -17,11 +17,14 @@ angular.module("d10remoteView").controller("d10remoteViewController",
                                            "$scope",
                                            "$location",
                                            "d10rc",
+                                           'd10rcView',
                                            function(
                                              $scope, 
                                              $location,
-                                             d10remoteControl) {
-  
+                                             d10remoteControl,
+                                             d10rcView
+                                                   ) {
+  $scope.remoteView = d10rcView;
   $scope.remoteControl = d10remoteControl;
 }]);
 

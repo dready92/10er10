@@ -36,8 +36,7 @@ angular.module('d10remoteControl')
 angular.module('d10remoteControl').config(['$routeProvider',function($routeProvider) {
   $routeProvider.when('/main', {
     templateUrl: '../html/rc/remoteDisplay/container.html',
-    controller: "d10remoteViewController",
-    cache: true
+    controller: "d10remoteViewController"
   });
   
   $routeProvider.when('/playerList/:index', {
@@ -71,16 +70,14 @@ angular.module('d10remoteControl').config(['$routeProvider',function($routeProvi
 
 angular.module('d10remoteControl').run(
   [
-    '$rootScope', 
-    'd10rcView', 
-    'd10session', 
-    '$window', 
-    '$location', 
+    '$rootScope',
     'd10session',
-    function($rootScope, d10rcView, d10session, $window, $location) {
+    '$window',
+    '$location',
+    'd10rcView',
+    function($rootScope, d10session, $window, $location, d10rcView) {
   var rest = require("js/d10.rest");
   var pubsub = require("js/d10.events");
-  $rootScope.remoteView = d10rcView;
   $rootScope.loginState = "session";
   $rootScope.router = {
     back: function() {

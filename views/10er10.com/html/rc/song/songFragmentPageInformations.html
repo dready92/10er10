@@ -5,4 +5,6 @@
   <div><span class="genre">{{song.genre}}</span> - <span class="duration">{{song.duration | d10songTime}}</span></div>
   <div class="playing" data-ng-show="songIndex == remoteView.index">Currently playing</div>
 </div>
-<div class="album verticalSpace" data-ng-show="song.album && song.album.length">song album <a class="inlineList" data-ng-href="#/album/{{song.album|d10encode}}">{{song.album}}</a></div>
+<div class="album verticalSpace" data-ng-show="song.album && song.album.length">song album 
+  <a class="inlineList" data-ng-href="#/album/{{song.album|d10encode}}">{{song.album}}</a>
+</div>

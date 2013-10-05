@@ -99,7 +99,12 @@
     return {
       restrict: 'A',
       templateUrl: '../html/rc/song/list.html',
-      replace: false
+      replace: false,
+      controller: ['$scope', 'd10rc', function($scope, d10remoteControl) {
+        if ( ! $scope.remoteControl ) {
+          $scope.remoteControl = d10remoteControl;
+        }
+      }]
     };
   })
   .directive("d10songFragmentListInformations", function() {
@@ -113,7 +118,12 @@
     return {
       restrict: 'A',
       templateUrl: '../html/rc/song/songFragmentPageInformations.html',
-      replace: false
+      replace: false,
+      controller: ['$scope', 'd10rcView',function($scope, d10rcView) {
+        if ( ! $scope.remoteView ) {
+          $scope.remoteView = d10rcView;
+        }
+      }]
     };
   })
   .controller("d10inPlayerPageController", [
@@ -121,9 +131,11 @@
   "$routeParams",
   "$location",
   "d10rc",
+  "d10rcView",
   "d10mixList",
-  function($scope, $routeParams,$location,d10remoteControl, d10mixList) {
-    
+  function($scope, $routeParams,$location,d10remoteControl, d10rcView, d10mixList) {
+    $scope.remoteControl = d10remoteControl;
+    $scope.remoteView = d10rcView;
     $scope.mixVisibility = false;
     $scope.mixesList = [];
     d10mixList.then(function(response, err) {
@@ -134,9 +146,6 @@
     d10mixList = null;
     $scope.toggleMix = function() {
       $scope.mixVisibility = $scope.mixVisibility ? false : true;
-//       if ( $scope.mixVisibility ) {
-//         $scope.mixesList = d10mixList();
-//       }
     };
     
     $scope.sendMix = function() {
@@ -167,7 +176,9 @@
   "d10songFetch",
   "d10mixList",
   "d10rc",
-  function($scope, $routeParams, d10songFetch, d10mixList, d10rc) {
+  "d10rcView",
+  function($scope, $routeParams, d10songFetch, d10mixList, d10rc, d10rcView) {
+    $scope.remoteView = d10rcView;
     $scope.remoteControl = d10rc;
     $scope.toggle = {mix: false};
     $scope.mixesList = [];

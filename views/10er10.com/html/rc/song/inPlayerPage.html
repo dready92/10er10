@@ -28,8 +28,8 @@
         <div class="awesome">&#xF00D;</div>
         <div>remove</div> 
       </div>
-      <div data-ng-show="songIndex != remoteView.index"
-           data-hm-tap="toggleMix()">  
+      <div data-ng-show="remoteView.index >= 0 && songIndex != remoteView.index"
+           data-hm-tap="toggleMix()">
         <div class="awesome">&#xF0C5;</div>
         <div>mix...</div>
       </div>
