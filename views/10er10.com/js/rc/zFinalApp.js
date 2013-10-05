@@ -10,9 +10,12 @@ angular.module('d10remoteControl')
     link: function($scope, $element, $attrs) {
       $scope.formDisabled = false;
       $scope.restLogin = function() {
-        $element.find('input[data-ng-model]').each( function() {
-          angular .element( this ).controller( 'ngModel' )
-                  .$setViewValue( $( this ).val() );
+        $element.find('input').each( function() {
+          var $this = angular.element(this);
+          if ( $this.attr('data-ng-model') ) {
+            angular .element( this ).controller( 'ngModel' )
+                    .$setViewValue( $this.val() );
+          }
         });
         $scope.formDisabled = true;
         if ( !$scope.login || !$scope.password ) {
