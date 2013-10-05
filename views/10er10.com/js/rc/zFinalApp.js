@@ -168,6 +168,7 @@ require(["js/d10.events", "js/d10.rest", "js/config", "js/d10.remot.master.conne
   bghttp.init(config.base_url);
   
   angular.bootstrap(angular.element("body"), [
+    "ngRoute",
     "hmTouchevents",
     "d10utils",
     "d10remoteControl",
