@@ -89,6 +89,9 @@ angular.module('d10remoteControl').run(
     songPage: function(id) {
       $location.path('/song/'+id);
     },
+    playerSongPage: function(id) {
+      $location.path("/playerList/"+id);
+    },
     home: function() {
       $location.path('/main');
     }

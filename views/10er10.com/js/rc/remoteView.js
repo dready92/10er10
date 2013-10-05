@@ -22,10 +22,6 @@ angular.module("d10remoteView").controller("d10remoteViewController",
                                              $location,
                                              d10remoteControl) {
   
-  $scope.playerListSongDetails = function(index) {
-    $location.path("/playerList/"+index);
-  };
-  
   $scope.remoteControl = d10remoteControl;
 }]);
 
