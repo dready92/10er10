@@ -11,6 +11,8 @@
   function($scope, $location, d10artistTokenizer, d10search, d10songsCache,
     d10searchPageCache
   ) {
+    $scope.titleList = {toggleControls: false};
+
     $scope.search = d10searchPageCache;
     $scope.getResultsCount = function() {
       $scope.search.resultsCount = 0;
