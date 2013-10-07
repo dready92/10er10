@@ -13,5 +13,17 @@
   "author": "dready92",
   "bugs": {
     "url": "https://github.com/dready92/10er10/issues"
+  },
+  "dependencies": {
+    "qs": "~0.6.5",
+    "debug": "~0.7.2",
+    "mime": "~1.2.11",
+    "gm": "~1.13.1",
+    "ws": "~0.4.31",
+    "musicmetadata": "~0.2.5",
+    "mmmagic": "~0.3.4",
+    "prompt": "~0.2.11",
+    "nodemailer": "~0.5.3",
+    "connect": "~2.9.0"
   }
 }
