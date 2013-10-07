@@ -1,0 +1,17 @@
+{
+  "name": "10er10",
+  "version": "0.21.0",
+  "description": "10er10 is an HTML5 audio jukebox. It works on Firefox 4+ and Chromium/Chrome.",
+  "main": "node/server.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dready92/10er10"
+  },
+  "author": "dready92",
+  "bugs": {
+    "url": "https://github.com/dready92/10er10/issues"
+  }
+}
