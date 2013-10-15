@@ -1,8 +1,11 @@
 {
   "name": "10er10",
-  "version": "0.21.0",
+  "version": "0.23.0",
   "description": "10er10 is an HTML5 audio jukebox. It works on Firefox 4+ and Chromium/Chrome.",
   "main": "node/server.js",
+  "engines" : { 
+    "node" : ">=0.8"
+  },
   "directories": {
     "doc": "doc"
   },
@@ -10,7 +13,7 @@
     "type": "git",
     "url": "https://github.com/dready92/10er10"
   },
-  "author": "dready92",
+  "author": "Michael Bailly <mickael.bailly@free.fr>",
   "bugs": {
     "url": "https://github.com/dready92/10er10/issues"
   },
@@ -24,6 +27,7 @@
     "mmmagic": "~0.3.4",
     "prompt": "~0.2.11",
     "nodemailer": "~0.5.3",
-    "connect": "~2.9.0"
+    "connect": "~2.9.0",
+    "ncouch": ">=1.0.0"
   }
 }
