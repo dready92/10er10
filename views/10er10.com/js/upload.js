@@ -55,54 +55,76 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest",
 			handleFiles(files);
 		}  
 
+        function handleFile(file) {
+          var widget = $( tpl.mustacheView("upload.file.widget") );
+          widget.find("div.head span.name").text(file.name);
+          widget.find("div.head span.size").text(file.size);
+          widget.find("div.head span.type").text(file.type);
+          widget.find("button.review").hide();
+          widget.find("span.progress").hide();
+          widget.find("span.cancel span").click(function() {
+            var widget = $(this).closest("div.fileWidget");
+            debug("cancel widget : ",widget, uploadCandidates);
+            $.each(uploadCandidates,function(k,v) {
+              if ( v && v.get(0) === widget.get(0) ) {
+                uploadCandidates.splice(k,1);
+                var f = widget.data('file');
+                widget.removeData('file');
+                f = null;
+                widget.remove();
+              }
+            });
+            return false;
+          });
+          widget.data('file',file);
+          var typeOK = false;
+          for ( var index in audioTypes ) {
+            if ( audioTypes[index] == file.type ) {
+              typeOK = true;
+            }
+          }
+          
+          // fuckin osX does not know the mime type of flac files
+          if ( file.name.match(/\.flac$/) ) {
+            typeOK = true;
+          }
+          
+          if ( typeOK ) {
+            widget.find("div.typeError").hide();
+            widget.find("button.close").hide();
+            widget.data('status',0);
+            uploadCandidates.push(widget);
+            intervalID = setInterval(uploader.checkForUpload,2000);
+          } else {
+            widget.data('status',-1);
+            widget.find("div.controls").hide();
+          }
+          ui.find("div.filesQueue").append(widget);
+        };
+      
 		function handleFiles (files) {
-			for (var i = 0; i < files.length; i++) {  
+          var queue = [];
+          
+          function dequeue () {
+            if ( !queue.length ) {
+              return ;
+            }
+            var current = queue.shift();
+            current();
+            setTimeout(dequeue,15);
+          };
+          
+          for (var i = 0; i < files.length; i++) {
 			var file = files[i];
-			var widget = $( tpl.mustacheView("upload.file.widget") );
-			$("div.head span.name",widget).text(file.name);
-			$("div.head span.size",widget).text(file.size);
-			$("div.head span.type",widget).text(file.type);
-			$("button.review",widget).hide();
-				$("span.progress",widget).hide();
-				$("span.cancel span",widget).click(function() {
-					var widget = $(this).closest("div.fileWidget");
-					debug("cancel widget : ",widget, uploadCandidates);
-					$.each(uploadCandidates,function(k,v) {
-						if ( v && v.get(0) === widget.get(0) ) {
-							uploadCandidates.splice(k,1);
-							var f = widget.data('file');
-							widget.removeData('file');
-							f = null;
-							widget.remove();
-						}
-					});
-					return false;
-				});
-			widget.data('file',file);
-			var typeOK = false;
-			for ( var index in audioTypes ) {
-				if ( audioTypes[index] == file.type ) {
-				typeOK = true;
-				}
-			}
-			
-			// fuckin osX does not know the mime type of flac files
-			if ( file.name.match(/\.flac$/) ) {
-				typeOK = true;
-			}
-			
-			if ( typeOK ) {
-				$("div.typeError",widget).hide();
-				$("button.close",widget).hide();
-				widget.data('status',0);
-				uploadCandidates.push(widget);
-				intervalID = setInterval(uploader.checkForUpload,2000);
-			} else {
-				widget.data('status',-1);
-				$("div.controls",widget).hide();
-			}
-			$("div.filesQueue",ui).append(widget);
-			}
+			(function(file) {
+              debug("pushing ");
+              queue.push(function() {
+                handleFile(file);
+              });
+            })(file);
+          }
+          
+          dequeue();
 		};
 
 		function uploadManager () {
