@@ -325,6 +325,7 @@ exports.templates.clientList = {
 	'review.song.error':'html/review/song_error.html',
 	'review.list': 'html/review/list.html',
 	'review.list.none': 'html/review/none.html',
+  	'review.tokens': 'html/review/tokens.html',
 	'welcome.wnWidget.album': 'html/welcome/wnWidget.album.html',
     // should always be at the end : that what's client JS check
     'song_template':'html/song_template/song.html'

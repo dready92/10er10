@@ -10,21 +10,26 @@
 <p class="airin center">((review_file)){{filename}}</p>
 <form method="post" action="#">
 <input type="hidden" name="_id" value="{{_id}}">
-<div class="table">
+  <div class="table">
 	<div class="row center">
-		<div class="cell airin">
+      <div class="cell airin">
 			<span class="formlabel">((title))</span><br>
 			<input type="text" name="title" value="{{title}}" autocomplete="off">
       <br>
 			<div class="form_error hidden" name="title"></div>
-		</div>
-		<div class="cell airin">
+      </div>
+      <div class="cell airin">
 			<span class="formlabel">((artist))</span><br>
 			<input type="text" name="artist" value="{{artist}}" autocomplete="off">
-      <div class="overlay resized"><div class="loading hidden">((loading))</div><div class="noResult hidden">((no_artist))</div><ul></ul></div><br>
-			<div class="form_error hidden" name="artist"></div>
-		</div>
+        <div class="overlay resized"><div class="loading hidden">((loading))</div><div class="noResult hidden">((no_artist))</div><ul></ul></div><br>
+        <div class="form_error hidden" name="artist"></div>
+      </div>
 	</div>
+  </div>
+  
+  <div class="horizontal-air left" data-content="artists">
+  </div>
+  <div class="table">
 	<div class="row center">
 		<div class="cell airin">
 			<span class="formlabel">((album))</span><br>

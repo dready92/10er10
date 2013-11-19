@@ -1,6 +1,8 @@
 define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/d10.dnd", "js/playlist", "js/d10.restHelpers", 
-	   "js/d10.router", "js/d10.toolbox", "js/d10.osd", "js/d10.imageUtils", "js/config", "js/d10.events", "js/d10.widgetHelpers"],
-	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils, config, pubsub, widgetHelpers) {
+	   "js/d10.router", "js/d10.toolbox", "js/d10.osd", "js/d10.imageUtils", "js/config", "js/d10.events", "js/d10.widgetHelpers",
+       "js/d10.artistTokenizer"],
+	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils, config, pubsub, widgetHelpers,
+               artistTokenizer) {
 
 function myCtrl (ui) {
     //
@@ -567,6 +569,48 @@ function myCtrl (ui) {
 						}
 					}
 				});
+              
+              function ucwords(str) {
+                  // originally from :
+                  // discuss at: http://phpjs.org/functions/ucwords    // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+                  // +   improved by: Waldo Malqui Silva
+                  // +   bugfixed by: Onno Marsman
+                  // +   improved by: Robin
+                  // +      input by: James (http://www.james-bell.co.uk/)    // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+                  // *     example 1: ucwords('kevin van  zonneveld');
+                  // *     returns 1: 'Kevin Van  Zonneveld'
+                  // *     example 2: ucwords('HELLO WORLD');
+                  // *     returns 2: 'HELLO WORLD'    
+                  return (str + '').replace(/^([a-z])|[\s\[\(\.0-9-]+([a-z])/g, function ($1) {
+                      return $1.toUpperCase();
+                  });
+              }
+              
+              function sanitizeString(s) {
+                return ucwords(s.replace(/^\s+/,"").replace(/\s+$/,"").replace(/</g,"").replace(/>/g,"").toLowerCase());
+              }
+              
+              topicdiv.find('input[name=title], input[name=artist]').bind("input",tokenize);
+              var tokenContainer = topicdiv.find('[data-content=artists]');
+              function tokenize() {
+                var doc = {
+                  title: sanitizeString(topicdiv.find('input[name=title]').val()),
+                  artist: sanitizeString(topicdiv.find('input[name=artist]').val())
+                };
+                var artists = artistTokenizer(doc, true);
+                var tplData = {
+                  artists: artists[0] || [],
+                  title: artists[1] || ''
+                };
+                tokenContainer.html(tpl.mustacheView('review.tokens', tplData));
+                tokenContainer.find(".summary").click(function() {
+                  var that =  $(this);
+                  that.toggleClass("open");
+                  that.next().slideToggle();
+                });
+
+              };
+              tokenize();
 			}
 		});
 	}

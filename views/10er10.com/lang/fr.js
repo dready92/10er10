@@ -390,6 +390,14 @@ exports.server = {
 		review_other_button: "Valider les informations sur d'autres morceaux",
 		upload_button: "Aller dans la partie \"Uploader\""
 	},
+    "html/review/tokens.html": {
+      extracted_title: "Titre trouvé",
+      extracted_artists: "Artistes trouvés",
+      more_link: "Plus...",
+      infos_generic: "Il y a un grand nombre de chansons réalisées par plusieurs artistes. De nombreuses fois, on trouve ces artistes dans le titre du morceau (exemple \"Some Title Featuring Some Artist\") et/ou dans le champs artiste (exemple \"Some Artist featuring Another Artist\"). 10er10 lit automatiquement les champs titre et artiste de vos morceaux afin de deviner le vrai titre et les différents artistes.",
+      infos_parser: "Si le parseur se trompe, vous pouvez l'aider en laissant dans le champs titre le titre uniquement, et en ajoutant les artistes dans le champs artiste. Pour indiquer à 10er10 qu'il y a plus d'un artiste, utilisez les mots clés \"Featuring\" (ou \"Feat.\") et séparer les différents artistes par une virgule. ",
+      example: "Exemple: Changez<br>Title: \"The World (Remix featuring Bob Dylan and Mick Jagger)\" , Artist: \"Margin Gaye, Alicia Keys\"<br>par<br>Title: \"The World (Remix)\" , Artist: \"Margin Gaye featuring Bob Dylan, Alicia Keys and Mick Jagger\""
+    },
 	"html/my/invites_none.html": {
 		no_invite: "Vous n'avez pas d'invitation à offrir. Désolé"
 	},

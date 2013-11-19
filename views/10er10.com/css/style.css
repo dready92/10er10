@@ -46,6 +46,7 @@ a:active { color: #FFCA40 }
 .bigbottom {	padding-bottom: 30px;}
 .airnobottom { padding: 15px 20px 0 20px; }
 .vertical-air { padding: 10px 0; }
+.horizontal-air { padding: 0 10px; }
 .vertical-little-air {padding: 5px 0;}
 .littletrans { opacity: 0.6; }
 .pointer { cursor: pointer; }
@@ -1293,6 +1294,41 @@ aside div.emptyPlaylist {
   -webkit-box-shadow: inset rgba(255,255,255,0.4) 0px 0px 2px;
   box-shadow: inset rgba(255,255,255,0.4) 0px 0px 2px;
   color:  #BF9730;
+}
+
+#my article.review .parsedArtists {
+  border:1px solid rgb(8,111,161);
+  padding:5px;
+  border-radius: 5px;
+  background-color: #121212;
+}
+
+#my article.review .summary:before {
+  display: inline-block;
+  transform: rotate(0deg);
+  -webkit-transform: rotate(0deg);
+  transition: transform 0.3s ease-in;
+  -webkit-transition: -webkit-transform 0.3s ease-in;
+  content: "▸";
+}
+
+#my article.review .summary.open:before {
+  transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+}
+
+
+#my article.review .details .infos {
+  color: rgba(98, 195, 97, 0.72);
+}
+
+#my article.review .parsedArtist {
+  display: inline-block;
+  margin: 0 3px;
+  padding: 1px;
+  border: 1px solid rgb(8,111,161);
+  background-color: #232323;
+  border-radius: 3px;
 }
 
 

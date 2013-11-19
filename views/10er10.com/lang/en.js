@@ -388,6 +388,14 @@ exports.server = {
 		review_other_button: "Review other songs meta data",
 		upload_button: "Go to the\"Upload\" part"
 	},
+    "html/review/tokens.html": {
+      extracted_title: "Extracted title",
+      extracted_artists: "Extracted artists",
+      more_link: "More...",
+      infos_generic: "There is a high number of songs involving more than one artist. Lots of times, you find the featured artists in the title (e.g. \"Some Title Featuring Some Artist\") and/or in the artist field (e.g. \"Some Artist featuring Another Artist\"). 10er10 automatically parses your song's title and artist fields, and guesses the real title and the associated artists.",
+      infos_parser: "If the parser doesn't work correctly, try to help it by keeping the title only in the title field, and adding the artists in the artist field. To let 10er10 knows there are more than one artist, use the \"Featuring\" (or \"Feat.\") keyword, and split your artists with comas. ",
+      example: "Example: Change<br>Title: \"The World (Remix featuring Bob Dylan and Mick Jagger)\" , Artist: \"Margin Gaye, Alicia Keys\"<br>to<br>Title: \"The World (Remix)\" , Artist: \"Margin Gaye featuring Bob Dylan, Alicia Keys and Mick Jagger\""
+    },
 	"html/my/invites_none.html": {
 		no_invite: "You don't have any invite to send. Sorry"
 	},
