@@ -9,14 +9,15 @@ var d10 = require ("./d10"),
 	os = require("os"),
 	when = require("./when"),
 	users = require("./d10.users"),
-	exec = require('child_process').exec;
+	exec = require('child_process').exec,
+  dumbRadio = require('./lib/radio/dumb');
 
 exports.api = function(app) {
 
 	app.post("/api/songs",function(request,response) {
 		bodyDecoder()(request, response,function() {
 			request.ctx.headers["Content-type"] = "application/json";
-			if ( ! request.body["ids"] || 
+			if ( ! request.body["ids"] ||
 				Object.prototype.toString.call(request.body["ids"]) !== '[object Array]' ||
 				!request.body["ids"].length ) {
 				d10.realrest.success([],request.ctx);
@@ -34,12 +35,12 @@ exports.api = function(app) {
 						d10.realrest.success(resp.rows.map(function(v) {return v.doc;}),request.ctx);
 					}
 				});
-			} 
-			
+			}
+
 		});
 	});
-	
-	
+
+
 	app.get("/api/song/aa:id",function(request,response) {
 		d10.couch.d10.getDoc("aa"+request.params.id, function(err,doc) {
 			if ( err ) {
@@ -48,9 +49,9 @@ exports.api = function(app) {
 			return d10.realrest.success(doc,request.ctx);
 		});
 	});
-	
+
 	app.get("/api/userinfos", function(request,response) {
-		when ( 
+		when (
 			{
 				preferences: function(cb) {
 					d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,data) {
@@ -79,9 +80,9 @@ exports.api = function(app) {
 			}
 		);
 	}); // /api/userinfos
-	
+
 	app.get("/api/htmlElements", function(request,response) {
-		
+
 		var jobs = {}
 		for ( var jobname in d10.config.templates.clientList ) {
 			jobs[jobname] = (function(tpl,j) {
@@ -121,13 +122,13 @@ exports.api = function(app) {
 			}
 		});
 	});
-	
-	
+
+
 	app.get("/api/serverLoad", function(request,response) {
 		d10.realrest.success( {load: os.loadavg()}, request.ctx );
 
 	});
-	
+
 	app.get("/api/toReview",function(request,response) {
 		d10.couch.d10.view("user/song",{key: [ request.ctx.user._id, false ]},function(err,resp) {
 			if ( err )	d10.realrest.err(423,err,request.ctx)
@@ -136,7 +137,7 @@ exports.api = function(app) {
 	});
 
 
-	app.put("/api/current_playlist",function(request,response) 
+	app.put("/api/current_playlist",function(request,response)
 	{
 		var body = "";
 		request.setEncoding("utf8");
@@ -145,7 +146,7 @@ exports.api = function(app) {
 			var data = querystring.parse(body);
 			d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,userPreferences) {
 				if ( err ) { return d10.realrest.err(413,err,request.ctx);}
-				
+
 				var recordDoc = function() {
 					userPreferences.playlist = {};
 					for ( var k in data) {
@@ -159,8 +160,8 @@ exports.api = function(app) {
 						else		d10.realrest.success( [], request.ctx );
 					});
 				};
-				
-				
+
+
 				if ( !data.type )	data.type == "default";
 				var actions = {};
 				if ( data.id ) {
@@ -181,7 +182,7 @@ exports.api = function(app) {
 						});
 					};
 				}
-				
+
 				if ( actions.length ) {
 					when(actions,function(err,responses) {
 						if ( err ) {
@@ -193,13 +194,13 @@ exports.api = function(app) {
 				} else {
 					recordDoc();
 				}
-				
+
 
 			});
 		});
 	}
 	);
-	
+
 	app.post("/api/ping",function(request,response) {
 		var updateAliveDoc = function() {
 			d10.couch.track.updateDoc("tracking/ping/"+request.ctx.user._id.replace(/^us/,"pi"),function(err,resp) {
@@ -217,7 +218,7 @@ exports.api = function(app) {
 			} catch(e) {
 				return ;
 			}
-			
+
 			var updateHits = function ( id ) {
 				d10.couch.d10wi.getDoc(id, function(err,doc) {
 					if (err) {
@@ -228,7 +229,7 @@ exports.api = function(app) {
 					d10.couch.d10wi.storeDoc(doc,function(err,resp) {});
 				});
 			};
-			
+
 			var updateUserData = function(id) {
 				d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/,"pr"),function(err,doc) {
 					if ( err ) {
@@ -240,7 +241,7 @@ exports.api = function(app) {
 					d10.couch.d10wi.storeDoc(doc,function() {});
 				});
 			};
-			
+
 			infos.forEach(function(v,k) {
 				if ( v.id.substr(0,2) != "aa" ) {
 					return ;
@@ -253,9 +254,9 @@ exports.api = function(app) {
 				v.user = request.ctx.user._id;
 				d10.couch.track.storeDoc(v,function(){});
 			});
-			
+
 		};
-		
+
 		var updateSessionTimestamp = function() {
 			request.ctx.session.ts_last_usage = new Date().getTime();
 			d10.couch.auth.storeDoc(request.ctx.session, function(err) {
@@ -264,98 +265,21 @@ exports.api = function(app) {
 				}
 			});
 		};
-		
+
 		bodyDecoder()(request, response,function() {
 			updateAliveDoc();
 			parsePlayerInfos();
 			d10.realrest.success( [], request.ctx );
 			updateSessionTimestamp();
 		});
-	
+
 	});
 
 	app.post("/api/random",function(request,response) {
-		_random("genre/unsorted", request, response);
+		dumbRadio("genre/unsorted", request, response);
 	});
-	var _random = function(view, request,response) {
-		var getArray = function(v) {
-			if ( typeof v == "undefined" ) return [];
-			if ( Object.prototype.toString.call(v) !== '[object Array]' ) {
-				if( v.length ) return [v];
-				return [];
-			}
-			return v;
-		};
-		
-		var getRandomIds = function (resp,count,not,really_not) {
-			
-			var shuffle = function(o){ //v1.0
-				for(var j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-				return o;
-			};
-			
-			
-			var ids = [];
-			resp.rows.forEach(function(v,k) { ids.push(v.id); });
-			if ( !ids.length )	return ids;
-			really_not.forEach(function(v,k) {
-				if( ids.indexOf(v) >=0 )	ids.splice(ids.indexOf(v),1);
-			});
-			if ( !ids.length )	return ids;
-			not.forEach(function(v,k) {
-				if( ids.indexOf(v) >=0 )	ids.splice(ids.indexOf(v),1);
-			});
-			if ( !ids.length ) {
-				return getRandomIds(resp,count,[],really_not);
-			}
-			if (  count > ids.length ) {
-				return shuffle(ids);
-			}
-			
-			if ( count == 1 ) {
-				var r = Math.floor(Math.random()*ids.length);
-				return ids[r];
-			}
-			shuffle(ids);
-			return ids.slice(0,count);
-		};
 
-		var body = "";
-		request.setEncoding("utf8");
-		request.on("data",function(chunk) { body+=chunk; });
-		request.on("end",function() {
-			request.body = qs.parse(body);
-			var count = parseInt(request.body.count);
-			if ( isNaN(count) || count < 1 ){
-				return d10.realrest.err(427,"count",request.ctx);
-			}
-			var data = {};
-			var name = getArray(request.body["name"]);
-			if ( name.length ) {
-				data.keys = name;
-			}
-			var not = getArray(request.body["not"]);
-			var really_not = getArray(request.body["really_not"]);
-			d10.couch.d10.view(view,data,function(err,response) {
-				if ( err ) {
-					return d10.realrest.err(423,err,request.ctx);
-				}
-				var random = getRandomIds(response,count,not,really_not);
-				if ( !random.length ) {
-					return d10.realrest.success({songs: []},request.ctx);
-				}
-				d10.couch.d10.getAllDocs({keys: random, include_docs: true},function(err,resp) {
-					if ( err ) {
-						return d10.realrest.err(423,err,request.ctx);
-					}
-					var back = [];
-					resp.rows.forEach(function(v) { back.push(v.doc); });
-					d10.realrest.success(back,request.ctx);
-				});
-			});
-		});
-	};
-	
+
 	app.post("/api/volume",function(request,response) {
 		bodyDecoder()(request, response,function() {
 			var volume = (request.body && "volume" in request.body) ? parseFloat(request.body.volume) : 0;
@@ -370,8 +294,8 @@ exports.api = function(app) {
 			});
 		});
 	});
-	
-	
+
+
 	var updateUserPreferences = function(request, onDoc, callback) {
 		d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
 			if ( err ) { return callback(err); }
@@ -379,7 +303,7 @@ exports.api = function(app) {
 			d10.couch.d10wi.storeDoc(doc,callback);
 		});
 	};
-	
+
 	app.put("/api/preference/:name",function(request,response) {
 		var defaultCallback = function(err,resp) {
 			if ( err ) { d10.realrest.err(423,err,request.ctx); }
@@ -389,7 +313,7 @@ exports.api = function(app) {
 			var prefValue = (request.body && "value" in request.body) ? request.body.value : null;
 			if ( request.params.name == "hiddenExtendedInfos" || request.params.name == "hiddenReviewHelper" ) {
 				updateUserPreferences(
-					request, 
+					request,
 					function(doc) {
 						if ( prefValue && prefValue == "true" ) {
 							doc[request.params.name] = true;
@@ -405,7 +329,7 @@ exports.api = function(app) {
                 return d10.realrest.err(406,"preference "+request.params.name+" should be a number",request.ctx);
               }
               updateUserPreferences(
-                    request, 
+                    request,
                     function(doc) {
                         doc[request.params.name] = prefValue;
                     },
@@ -416,7 +340,7 @@ exports.api = function(app) {
 			}
 		});
 	});
-	
+
 	app.put("/api/starring/likes/aa:id",function(request,response) {
 		var starring = function() {
 			d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
@@ -433,7 +357,7 @@ exports.api = function(app) {
 				}
 				if ( doc.likes["aa"+request.params.id] ) {
 					delete doc.likes["aa"+request.params.id];
-					
+
 				} else {
 					doc.likes["aa"+request.params.id] = true;
 					star = "likes";
@@ -449,7 +373,7 @@ exports.api = function(app) {
 			else {  starring(); }
 		});
 	});
-	
+
 	app.put("/api/starring/dislikes/aa:id",function(request,response) {
 		var starring = function() {
 			d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
@@ -466,7 +390,7 @@ exports.api = function(app) {
 				}
 				if ( doc.dislikes["aa"+request.params.id] ) {
 					delete doc.dislikes["aa"+request.params.id];
-					
+
 				} else {
 					doc.dislikes["aa"+request.params.id] = true;
 					star = "dislikes";
@@ -482,7 +406,7 @@ exports.api = function(app) {
 			else {  starring(); }
 		});
 	});
-	
+
 	app.get("/api/search",function(request,response) {
 		_songSearch("song/search", request, response);
 	});
@@ -552,10 +476,10 @@ exports.api = function(app) {
 			d10.realrest.success(results, request.ctx);
 		});
 	};
-	
+
 	app.post("/api/details",function(request,response) {
 		bodyDecoder()(request, response,function() {
-			
+
 			var artists = [], albums = [], jobs = {};
 			if ( request.body.artists ) {
 				if ( Object.prototype.toString.call(request.body.artists) === '[object Array]' ) {
@@ -599,7 +523,7 @@ exports.api = function(app) {
 			);
 		});
 	});
-	
+
 	app.get("/api/relatedArtists/:artist",function(request,response,next) {
 		d10.couch.d10.view("artist/related",{key: request.params.artist},function(err,body,errBody) {
 			if ( err ) {
@@ -608,7 +532,7 @@ exports.api = function(app) {
 			if ( ! body.rows.length ) {
 				return d10.realrest.success( {artists: [], artistsRelated:[]}, request.ctx);
 			}
-			var related = [], relatedKeys = [], relatedHash = {} ; 
+			var related = [], relatedKeys = [], relatedHash = {} ;
 			body.rows.forEach(function(v) {
 				if ( v.value in relatedHash ) {
 					relatedHash[v.value]++;
@@ -620,13 +544,13 @@ exports.api = function(app) {
 				}
 				relatedKeys.push( v.value );
 			});
-			
+
 			var opts = {keys: relatedKeys};
 			d10.couch.d10.view("artist/related",opts,function(err,degree2,errBody ) {
 				if ( err ) {
 					return d10.realrest.err(427,err,request.ctx);
 				}
-				
+
 				var relatedArtists = [], relatedArtistsHash = {};
 				degree2.rows.forEach(function(v) {
 					if ( v.value != request.params.artist && !relatedHash[v.value] ) {
@@ -636,14 +560,14 @@ exports.api = function(app) {
 							relatedArtistsHash[v.value] = 1;
 						}
 					}
-					if ( v.value != request.params.artist 
-						&& related.indexOf(v.value) < 0 
+					if ( v.value != request.params.artist
+						&& related.indexOf(v.value) < 0
 						&& relatedArtists.indexOf(v.value) < 0  )
-						
+
 						relatedArtists.push(v.value);
-						
+
 				});
-				
+
 				return d10.realrest.success(
 					{
 						artists: relatedHash,
@@ -651,15 +575,15 @@ exports.api = function(app) {
 					}
 					,request.ctx			);
 			});
-			
-			
-			
-			
+
+
+
+
 		});
-		
-		
+
+
 	});
-	
+
 	/*
 	 track : _id: pt....  , song: aa....
 
@@ -674,8 +598,8 @@ exports.api = function(app) {
 	_id: pl.... , songs: [aa....]
 	*/
 	app.delete("/api/song/aa:id",function(request,response,next) {
-		
-		var 
+
+		var
 			findAllSongReferences = function(id, then) {
 				when(
 					{
@@ -702,8 +626,8 @@ exports.api = function(app) {
 						then(errs,responses);
 					}
 				);
-				
-				
+
+
 			},
 			removeSongReferences = function (id, errs, responses, then ) {
 				if ( errs ) { return then(errs); }
@@ -817,7 +741,7 @@ exports.api = function(app) {
 						else					usage[v.key]=1;
 					});
 					var back = [];
-					keys.forEach(function(v) { 
+					keys.forEach(function(v) {
 						if ( !usage[v] || usage[v]<2 ) {
 							back.push({sha1: v, filename: filenames[v]});
 						}
@@ -842,8 +766,8 @@ exports.api = function(app) {
 				when(actions,then);
 			}
 		;
-		
-		
+
+
 		d10.couch.d10.getDoc("aa"+request.params.id,function(err,doc) {
 			if ( err ) {
 				return d10.realrest.err(423,err,request.ctx);
@@ -851,9 +775,9 @@ exports.api = function(app) {
 			if ( doc.user != request.ctx.user._id && !request.ctx.user.superman ) {
 				return d10.realrest.err(403,"You are not allowed to delete this song",request.ctx);
 			}
-			
-			
-			
+
+
+
 			findAllSongReferences(doc._id,
 				function(errs,references) {
 					if ( errs ) { debug("error on findAllSongReferences"); return d10.realrest.err(423,errs,request.ctx); }
@@ -875,18 +799,18 @@ exports.api = function(app) {
 					});
 				}
 			);
-			
+
 		});
-		
-		
-		
-		
+
+
+
+
 	});
-	
+
 	app.get("/api/album/firstLetter",function(request,response) {
 		_albumsFirstLetter("album/firstLetter",request,response);
 	});
-	
+
 	var _albumsFirstLetter = function(viewName, request,response) {
 		var query = {group: true, group_level: 1};
 		d10.couch.d10.view(viewName,query,function(err,resp) {
@@ -897,10 +821,10 @@ exports.api = function(app) {
 			d10.realrest.success(resp.rows,request.ctx);
 		});
 	};
-	
+
     app.get("/api/genres/available", function(request, response) {
       d10.couch.d10.view("genre/name",{
-        group: true, 
+        group: true,
         group_level: 1,
       }, function(err,resp) {
         if( err ) {
@@ -910,14 +834,14 @@ exports.api = function(app) {
         d10.realrest.success(resp.rows,request.ctx);
       });
     });
-    
+
 	app.get("/api/genre/gotAlbums/:genre", function(request, response) {
-		if ( !request.params.genre || 
+		if ( !request.params.genre ||
 			d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
 		}
 		d10.couch.d10.view("genre/albums",{
-			group: true, 
+			group: true,
 			group_level: 1,
 			startkey: [request.params.genre],
 			endkey: [request.params.genre,[]]
@@ -930,13 +854,13 @@ exports.api = function(app) {
 			d10.realrest.success({albums: resp.rows.length ? true : false},request.ctx);
 		});
 	});
-    
+
     app.get("/api/genre/resume/:genre", function(request, response) {
-        if ( !request.params.genre || 
+        if ( !request.params.genre ||
             d10.config.allowCustomGenres == false && d10.config.genres.indexOf(request.params.genre) < 0 ) {
             return d10.realrest.err(428, request.params.genre, request.ctx);
         }
-        
+
         var getAlbums = function(genre, cb) {
             var startkey = [genre];
             var endkey = [genre, {}];
@@ -953,7 +877,7 @@ exports.api = function(app) {
                 return cb(null, albums.length);
             });
         };
-        
+
         var getArtists = function(genre, cb) {
             var startkey = [genre];
             var endkey = [genre, {}];
@@ -970,7 +894,7 @@ exports.api = function(app) {
                 return cb(null, artists.length);
             });
         };
-        
+
         var getSongInfos = function(genre,cb) {
             d10.couch.d10.view("genre/songInfos",{reduce: true, group: true, group_level: 1, key: genre}, function(err,resp) {
                 if ( err ) { return cb(err); }
@@ -978,7 +902,7 @@ exports.api = function(app) {
                 return cb(null,resp.rows[0].value);
             });
         };
-        
+
         when({
                 songs: function(cb) {getSongInfos(request.params.genre,cb);} ,
                 albums: function(cb) {getAlbums(request.params.genre,cb);} ,
@@ -987,38 +911,12 @@ exports.api = function(app) {
             function(errs,resps) {
                 if ( errs )
                   return d10.realrest.err(423, errs, request.ctx);
-                
+
                 return d10.realrest.success(resps, request.ctx);
             }
         );
-        
-        
+
+
     });
-    
+
 }; // exports.api
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
