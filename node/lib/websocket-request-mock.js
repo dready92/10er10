@@ -20,6 +20,9 @@ function request ( webSocketData ) {
   }
   this.headers = webSocketData.headers;
   this.body = webSocketData.body;
+  this.socket = {
+    sock: null
+  };
   process.nextTick(this.emitEvents.bind(this));
 };
 util.inherits(request, EventEmitter);
