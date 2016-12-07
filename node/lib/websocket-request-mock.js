@@ -31,6 +31,9 @@ request.prototype.method = null;
 request.prototype.httpVersion = "1.1";
 request.prototype.httpVersionMajor = "1";
 request.prototype.httpVersionMinor = "1";
+request.prototype.socket =  {
+  remoteAddress: '0.0.0.0'
+};
 request.prototype.setEncoding = function() {
   debug("setEncoding called");
 };
@@ -47,11 +50,11 @@ request.prototype.emitEvents = function() {
 exports = module.exports = request;
 
 /*
- * 
+ *
   var wsReq = require("./lib/websocket-request-mock");
   var wsResp = require("./lib/websocket-response-mock");
-  
-  
+
+
   var req = new wsReq({
     headers: {host: "localhost",
     "cookie":"doBadThings=%7B%22user%22%3A%22test2%22%2C%22session%22%3A%221ntlb8o3mj2hs72p167uf%22%7D",
@@ -59,7 +62,7 @@ exports = module.exports = request;
     url: "/api/genres/available",
     method: "GET"
   });
-  
+
   var resp = new wsResp("1");
   d10Server.handle(req,resp);
   */
