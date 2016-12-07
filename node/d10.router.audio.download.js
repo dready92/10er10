@@ -31,7 +31,7 @@ exports.api = function(app) {
 					request.ctx.headers["Pagma"] = "no-cache";
 					request.ctx.headers["Content-Length"] = ""+r.stat.size;
 					response.writeHead(200, request.ctx.headers );
-					util.pump(fs.createReadStream(file),response);
+					fs.createReadStream(file).pipe(response);
 				}
 			}
 		);

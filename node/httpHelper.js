@@ -42,7 +42,7 @@ exports.localPathServer = function ( uri, localuri, cacheSettings ) {
 			}
 		});
 	};
-	
+
 };
 
 
@@ -50,7 +50,7 @@ exports.localPathServer = function ( uri, localuri, cacheSettings ) {
 
 /**
  * the grasshopper parseRange function, untouched
- * 
+ *
  * @param object ctx the context opbject. Only ctx.request is used; should contain the request
  * @param object stats the response of the node.js fs.stat of the file to send
  * @return array index 0 is the start offset, index 1 is the last offset to send
@@ -98,7 +98,7 @@ function sendStatic(staticFile, stats, ctx,cache) {
 			}
 			ctx.response.writeHead(ctx.status, ctx.headers);
 			if(ctx.request.method == 'GET') {
-				util.pump(stream, ctx.response);
+				stream.pipe(ctx.response);
 			} else {
 				ctx.response.end();
 			}
@@ -106,7 +106,7 @@ function sendStatic(staticFile, stats, ctx,cache) {
 	}
 
 	sendBytes();
-    
+
     /**
 	 * grasshopper fn. 1 line commented and 1 modified to directly set mime-type to "text.html"
 	 * ctx.request , ctx.response, ctx.headers ( object )
@@ -121,7 +121,7 @@ function sendStatic(staticFile, stats, ctx,cache) {
 		} else if(noneMatch && noneMatch == mtime.getTime()) {
 			var status = 304;
 		}
-		
+
 		if(status) {
 // 			ctx.extn = defaultViewExtn;
 // 			ctx.headers['content-type'] = mime.mimes[defaultViewExtn];
