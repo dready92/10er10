@@ -4,7 +4,7 @@ var 	path = require("path"),
 		d10 = require("./d10");
 
 
-exports.context = function (req,res,next) { 
+exports.context = function (req,res,next) {
 	req.ctx = {
 		request: req,
 		response: res,
@@ -20,6 +20,7 @@ exports.context = function (req,res,next) {
                                               escape(JSON.stringify(cookie))+
                                               "; expires="+d.toUTCString()+
                                               "; path="+d10.config.cookiePath;
+					this.headers['X-10er10-Auth-Token'] = escape(JSON.stringify(cookie));
         }
 	};
 	var u = url.parse("http://"+req.headers.host+req.url);

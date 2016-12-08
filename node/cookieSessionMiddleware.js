@@ -55,8 +55,8 @@ var getd10cookie = function(ctx) {
       var cookieData;
       try {
         cookieData = JSON.parse(unescape(cookies[d10.config.cookieName]));
-      } catch (e) { 
-        debug("cookie read failed", unescape(cookies[d10.config.cookieName])); 
+      } catch (e) {
+        debug("cookie read failed", unescape(cookies[d10.config.cookieName]));
         return false;
       };
       return cookieData;
@@ -64,6 +64,20 @@ var getd10cookie = function(ctx) {
   }
   return false;
 };
+
+var getd10authHeader = function(ctx) {
+  var authHeader = ctx.request.headers['x-10er10-auth-token'], authData;
+  if (!authHeader) {
+    return false;
+  }
+  try {
+    authData = JSON.parse(unescape(authHeader));
+  } catch(e) {
+    debug("d10 auth header read failed", unescape(authHeader));
+    return false;
+  }
+  return authData;
+}
 
 var getSessionDataFromCache = function(cookieData) {
   if ( sessionCache[cookieData.user] ) {
@@ -78,14 +92,14 @@ var getSessionDataFromCache = function(cookieData) {
 };
 
 var getSessionDataFromDatabase = function(cookieData, then) {
-  
+
   var sessionMatch = function(row) {
     return ( (cookieData.session && row.doc._id == "se"+cookieData.session) ||
               (cookieData.remoteControlSession && row.doc._id == "rs"+cookieData.remoteControlSession) );
   };
-  
+
   d10.db.loginInfos(
-    cookieData.user, 
+    cookieData.user,
     function(response) {
       var found = false;
       response.rows.forEach(function(v,k) {
@@ -94,17 +108,20 @@ var getSessionDataFromDatabase = function(cookieData, then) {
         }
       });
       return then(null, found);
-    }, 
+    },
     function(err) {
       then(err);
     }
   );
 };
 
-var checkAuth = function (ctx, passTheCoochie) {	
+var checkAuth = function (ctx, passTheCoochie) {
   var cookieData = getd10cookie(ctx);
   if ( !cookieData ) {
-    return passTheCoochie(); 
+    cookieData = getd10authHeader(ctx);
+  }
+  if ( !cookieData ) {
+    return passTheCoochie();
   }
   if ( !cookieData.user || (!cookieData.session && !cookieData.remoteControlSession) ) {
     debug("cookie is missing some keys");
@@ -119,7 +136,7 @@ var checkAuth = function (ctx, passTheCoochie) {
     ctx.remoteControlSession = userSessionCache.rs || {};
     return passTheCoochie();
   }
-  
+
   //get from database
   getSessionDataFromDatabase(cookieData, function(err,data) {
     if ( err || !data) {
@@ -159,7 +176,7 @@ exports.getUser = function(sessionId, then) {
       return then(null,"us"+resp.userid);
     });
   };
-  
+
   var searchRemoteSession = function(then) {
     d10.couch.auth.getDoc("rs"+sessionId, function(err,resp) {
       if ( err ) {
@@ -168,7 +185,7 @@ exports.getUser = function(sessionId, then) {
       return then(null,"us"+resp.userid);
     });
   };
-  
+
   when ({se: searchSession, rs: searchRemoteSession}, function(errs, resps) {
     if ( resps.se ) {
       return then(null, resps.se);
@@ -178,7 +195,7 @@ exports.getUser = function(sessionId, then) {
       return then(errs,resps);
     }
   });
-  
+
 };
 
 // cache invalidation

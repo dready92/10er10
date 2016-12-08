@@ -41,7 +41,7 @@ var onConfig = function(isProduction) {
 
 
 	process.chdir(__dirname);
-	
+
 	var child = require('child_process').fork(__dirname + '/bgworker.js');
 	child.send({type: "configuration", production: isProduction});
 
@@ -87,7 +87,7 @@ var onConfig = function(isProduction) {
 
 	var stack = [
 		contextMiddleware,
-		connect.router(staticRoutes), 
+		connect.router(staticRoutes),
 		cookieSession.cookieSession,
 		d10LangMiddleWare,
 		connect.router(homepage.homepage),
@@ -121,7 +121,7 @@ var onConfig = function(isProduction) {
 
 
 	function startServer() {
-		
+
 		var d10Server = connect().use(connect.favicon('../views/10er10.com/favicon.ico'));
 		if ( !config.production ) {
 			d10Server.use(connect.logger());
@@ -150,7 +150,7 @@ var onConfig = function(isProduction) {
 			}
             )
         ;
-		
+
 
 		var globalSrv = connect()
 			// 10er10 vhosts
@@ -165,8 +165,8 @@ var onConfig = function(isProduction) {
         nodeHTTPServer.on("error", function(err) {
           console.log(err);
         });
-        
-        
+
+
 		d10Server.on("clientError",function() {
 			console.log("CLIENT ERROR");
 			console.log(arguments);
@@ -176,7 +176,7 @@ var onConfig = function(isProduction) {
 			console.log("SERVER ERROR");
 			console.log(arguments);
 		});
-		
+
 		globalSrv.on("error",function() {
 			console.log("SERVER ERROR");
 			console.log(arguments);
