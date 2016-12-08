@@ -45,7 +45,7 @@ exports.extractTags = function(file,cb) {
 		if ( result.picture && Array.isArray(result.picture) && result.picture.length ) {
 			debug("this song got picture");
 		}
-		
+
 		if ( result.artist && Array.isArray(result.artist) && result.artist.length ) {
 			back.ARTIST = result.artist.pop();
 		}
@@ -99,3 +99,7 @@ exports.setOggtags = function(file, tags, cb) {
 		cb(null,tags);
 	});
 };
+
+exports.isOggFileType = function(mimeType) {
+  return mimeType === 'application/ogg' || mimeType === 'audio/ogg';
+}
