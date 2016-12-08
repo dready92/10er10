@@ -9,7 +9,7 @@ var d10 = require ("../d10"),
     exec = require('child_process').exec,
     EventEmitter = require("events").EventEmitter,
     debug = d10.debug("d10:song-processor"),
-    supportedAudioTypes = [ "audio/mpeg", "audio/mp4", "application/ogg", "audio/x-flac" ];
+    supportedAudioTypes = audioUtils.supportedAudioTypes;
 
 function processSong(songId, songFilename, songFilesize, userId, readableStream, emitter) {
 
@@ -218,7 +218,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       } else {
           job.inputFileBuffer.status = false;
           job.inputFileBuffer.buffer = [];
-          if ( resp !== "application/ogg" && resp !== 'audio/ogg' ) {
+          if ( !audioUtils.isOggFileType(resp) ) {
               job.allComplete(function() { safeErrResp(415,resp); });
           }
       }
@@ -259,7 +259,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       if ( err ) {
           return safeErrResp(432,err);
       }
-      if ( job.tasks.fileType.response != "application/ogg" ) { // if the file is not an ogg we move it
+      if ( !audioUtils.isOggFileType(job.tasks.fileType.response) ) { // if the file is not an ogg we move it
           debug(songId, "unlink file ",d10.config.audio.tmpdir+"/"+job.fileName);
           fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName,function()  {});
       }
@@ -397,22 +397,18 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
               }
               job.bufferJoin = 20;
 
-              if ( job.tasks.fileType.status === false &&
-                    supportedAudioTypes.indexOf(job.tasks.fileType.response) < 0  ) {
-                      return ;
-              }
               job.run("sha1File");
               job.run("fileMeta");
               uploadComplete = true;
               if ( job.tasks.fileType.status === null ) {
                   job.complete("fileType",function(err,resp) {
                       internalEmitter.emit("uploadCompleteAndFileTypeAvailable");
-                      if (  job.tasks.fileType.response == "application/ogg" ) {
+                      if ( audioUtils.isOggFileType(job.tasks.fileType.response) ) {
                         internalEmitter.emit("oggAvailable",[]);
                       }
                   });
               } else {
-                  if ( job.tasks.fileType.response == "application/ogg" ) {
+                  if ( audioUtils.isOggFileType(job.tasks.fileType.response) ) {
                     internalEmitter.emit("oggAvailable",[]);
                   }
                   internalEmitter.emit("uploadCompleteAndFileTypeAvailable");

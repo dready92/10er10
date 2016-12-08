@@ -1,4 +1,5 @@
 var d10 = require("../../d10"),
+    audioUtils = require('../../audioFileUtils'),
     debug = d10.debug("d10:song-processor:task-move-file"),
     fs = require("fs")
     ;
@@ -10,7 +11,7 @@ exports = module.exports = function moveFileTask (then) {
     filename = this.oggName,
     tmpFile = d10.config.audio.tmpdir+"/"+this.fileName,
     sourceFile = d10.config.audio.tmpdir+"/";
-    sourceFile+= (this.tasks.fileType.response == "application/ogg" ) ? this.fileName : this.oggName ;
+    sourceFile+= audioUtils.isOggFileType(this.tasks.fileType.response) ? this.fileName : this.oggName ;
   debug(job.id,"moveFile : ",sourceFile," -> ",d10.config.audio.dir+"/"+c+"/"+filename);
   var moveFile = function() {
     fs.rename(

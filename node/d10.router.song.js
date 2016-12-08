@@ -8,7 +8,6 @@ var d10 = require ("./d10"),
 	gu = require("./graphicsUtils"),
 	spawn = require('child_process').spawn,
 	exec = require('child_process').exec,
-	supportedAudioTypes = [ "audio/mpeg", "audio/mp4", "application/ogg", "audio/x-flac" ],
     EventEmitter = require("events").EventEmitter,
     songProcessorEmitter = require("./lib/song-processor/song-processor-events"),
     songProcessor = require("./lib/song-processor");
@@ -49,7 +48,7 @@ exports.api = function(app) {
 			}
 		});
 	});
-	
+
 	app.put("/api/meta/:id",function(request,response,next) {
 		if ( request.params.id.substr(0,2) != "aa" ) {
 			return next();
@@ -138,23 +137,23 @@ exports.api = function(app) {
 					} else {
 						fields.date = 0;
 					}
-					
+
 					fields.valid = true;
 					fields.reviewed = true;
-				
+
 					d10.couch.d10.getDoc(request.params.id,function(err,doc) {
 						if ( err ) {
 							d10.realrest.err(err.statusCode, err.statusMessage, request.ctx);
 							return ;
 						}
-						
+
 						if ( doc.user != request.ctx.user._id && !request.ctx.user.superman ) {
 							debug("debug",request.ctx.user._id,"Not allowed to edit", doc._id);
 							d10.realrest.err(403, "Forbidden", request.ctx);
 							return ;
-							
+
 						}
-						
+
 						for ( var i in fields ) {
 							doc[i] = fields[i];
 						}
@@ -173,12 +172,12 @@ exports.api = function(app) {
 			);
 		});
 	});
-	
-	
-	
-	
+
+
+
+
 	app.put("/api/song", function(request,response) {
-		if ( !request.query.filename || !request.query.filename.length 
+		if ( !request.query.filename || !request.query.filename.length
 			|| !request.query.filesize || !request.query.filesize.length ) {
 			return d10.realrest.err(427,"filename and filesize arguments required",request.ctx);
 		}
@@ -208,13 +207,13 @@ exports.api = function(app) {
         songProcessorEmitter.removeListener("uploadEnd",onuploadend);
         d10.realrest.success({id: songId, status: "uploadEnd"}, request.ctx);
       };
-      
+
       if ( bgencoding ) {
         songProcessorEmitter.on("uploadEnd",onuploadend);
       } else {
         songProcessorEmitter.on("end",onend);
       }
-      
+
       songProcessor(
         songId,
         request.query.filename,
@@ -226,5 +225,3 @@ exports.api = function(app) {
 
 	});
 };
-
-
