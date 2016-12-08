@@ -28,14 +28,11 @@ exports.extractTags = function(file,cb) {
 	var stream = fs.createReadStream(file);
 	var back = { ALBUM: "", ARTIST: "", TRACKNUMBER: "", TITLE: "", GENRE: "", DATE: "", PICTURES: [] };
 	var cbCalled = false;
-	stream.on("end",function() {
-		debug("["+file+"] debug id3tags : end of stream ");
-		if ( !cbCalled ) {
-			return cb(null,back);
+
+	musicmetadata(stream, {}, function(err, result) {
+		if ( err ) {
+			return cb(err);
 		}
-	});
-	var parser = new musicmetadata(stream);
-	parser.on('metadata', function(result) {
 		debug("["+file+"] debug id3tags: ");
 		for ( var i in result ) {
 			if ( i != "picture" ) {
@@ -69,14 +66,6 @@ exports.extractTags = function(file,cb) {
 		}
 		cbCalled = true;
 		return cb(null,back);
-	});
-	parser.on('done', function(err) {
-		debug("["+file+"] debug id3tags done: ",err);
-		if (err) {
-			debug("Got error decoding metadata: ",err);
-			cbCalled = true;
-			cb(err);
-		}
 	});
 };
 
