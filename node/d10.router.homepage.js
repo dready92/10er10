@@ -1,6 +1,7 @@
-var 	bodyDecoder = require("connect").bodyParser,
+var	bodyParser = require('body-parser'),
+		jsonParserMiddleware = bodyParser.json(),
+		urlencodedParserMiddleware = bodyParser.urlencoded({extended: true}),
 		hash = require("./hash"),
-		utils = require("connect").utils,
 		d10 = require("./d10"),
 		debug = d10.debug("d10:d10.router.homepage"),
 		when = require("./when"),
@@ -130,7 +131,7 @@ exports.homepage = function(app) {
 	});
 
 	app.get("/", displayHomepage);
-	app.post("/",function( request, response, next ) {
+	app.post("/", urlencodedParserMiddleware, function( request, response, next ) {
 		var checkPass = function() {
 			users.checkAuthFromLogin(request.body.username,request.body.password,function(err, uid, loginResponse) {
 				if ( err || !uid) {
@@ -153,18 +154,16 @@ exports.homepage = function(app) {
 
 
 		// login try
-		bodyDecoder()(request, response,function() {
-			if ( request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length ) {
-				// get uid with login
-				debug("got a username & password : try to find uid with username");
-				checkPass();
-			} else {
-				displayHomepage(request,response,next);
-			}
-		});
+		if ( request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length ) {
+			// get uid with login
+			debug("got a username & password : try to find uid with username");
+			checkPass();
+		} else {
+			displayHomepage(request,response,next);
+		}
 	});
 
-	app.post("/api/session",function(request,response,next) {
+	app.post("/api/session", jsonParserMiddleware, function(request,response,next) {
 		var checkPass = function() {
 			users.checkAuthFromLogin(request.body.username,request.body.password,function(err, uid, loginResponse) {
 				if ( err ) {
@@ -189,14 +188,12 @@ exports.homepage = function(app) {
 			});
 		};
 		// login try
-		bodyDecoder()(request, response,function() {
-			if ( request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length ) {
-				// get uid with login
-				debug("got a username & password : try to find uid with username");
-				checkPass();
-			} else {
-				return d10.realrest.err(500,{error: "login failed",reason: "invalid parameters"},request.ctx);
-			}
-		});
+		if ( request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length ) {
+			// get uid with login
+			debug("got a username & password : try to find uid with username");
+			checkPass();
+		} else {
+			return d10.realrest.err(500,{error: "login failed",reason: "invalid parameters"},request.ctx);
+		}
 	});
 };

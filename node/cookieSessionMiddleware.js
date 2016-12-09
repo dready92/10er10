@@ -1,6 +1,6 @@
 var d10 = require("./d10"),
   debug = d10.debug("d10:cookieSessionMiddleware"),
-  utils = require("connect").utils,
+  pause = require("pause"),
   when = require("./when");
 
 	/*
@@ -152,11 +152,11 @@ var checkAuth = function (ctx, passTheCoochie) {
 
 exports.cookieSession = function ( req,res,next) {
 	var passTheCoochie = function() {
-		pause.end();
+		handle.end();
 		next();
-		pause.resume();
+		handle.resume();
 	};
-	var pause = utils.pause(req);
+	var handle  = pause(req);
 	checkAuth(req.ctx,passTheCoochie);
 };
 

@@ -2,42 +2,40 @@
 
 var d10 = require ("./d10"),
     debug = d10.debug("d10:d10.router.api"),
-	bodyDecoder = require("connect").bodyParser,
-	querystring = require("querystring"),
-	qs = require("qs"),
-	fs = require("fs"),
-	os = require("os"),
-	when = require("./when"),
-	users = require("./d10.users"),
-	exec = require('child_process').exec,
-  dumbRadio = require('./lib/radio/dumb');
+    bodyParser = require('body-parser'),
+    jsonParserMiddleware = bodyParser.json(),
+  	querystring = require("querystring"),
+  	qs = require("qs"),
+  	fs = require("fs"),
+  	os = require("os"),
+  	when = require("./when"),
+  	users = require("./d10.users"),
+  	exec = require('child_process').exec,
+    dumbRadio = require('./lib/radio/dumb');
 
 exports.api = function(app) {
 
-	app.post("/api/songs",function(request,response) {
-		bodyDecoder()(request, response,function() {
-			request.ctx.headers["Content-type"] = "application/json";
-			if ( ! request.body["ids"] ||
-				Object.prototype.toString.call(request.body["ids"]) !== '[object Array]' ||
-				!request.body["ids"].length ) {
-				d10.realrest.success([],request.ctx);
-			} else {
-				for ( var index in request.body["ids"] ) {
-					if ( request.body["ids"][index].substr(0,2) != "aa" ) {
-						d10.realrest.success([],request.ctx);
-						return ;
-					}
+	app.post("/api/songs",jsonParserMiddleware, function(request,response) {
+		request.ctx.headers["Content-type"] = "application/json";
+		if ( ! request.body["ids"] ||
+			Object.prototype.toString.call(request.body["ids"]) !== '[object Array]' ||
+			!request.body["ids"].length ) {
+			d10.realrest.success([],request.ctx);
+		} else {
+			for ( var index in request.body["ids"] ) {
+				if ( request.body["ids"][index].substr(0,2) != "aa" ) {
+					d10.realrest.success([],request.ctx);
+					return ;
 				}
-				d10.couch.d10.getAllDocs({keys:request.body["ids"],include_docs: true},function(err,resp) {
-					if ( err ) {
-						d10.realrest.err(500,err,request.ctx);
-					} else {
-						d10.realrest.success(resp.rows.map(function(v) {return v.doc;}),request.ctx);
-					}
-				});
 			}
-
-		});
+			d10.couch.d10.getAllDocs({keys:request.body["ids"],include_docs: true},function(err,resp) {
+				if ( err ) {
+					d10.realrest.err(500,err,request.ctx);
+				} else {
+					d10.realrest.success(resp.rows.map(function(v) {return v.doc;}),request.ctx);
+				}
+			});
+		}
 	});
 
 
@@ -201,7 +199,7 @@ exports.api = function(app) {
 	}
 	);
 
-	app.post("/api/ping",function(request,response) {
+	app.post("/api/ping", jsonParserMiddleware, function(request,response) {
 		var updateAliveDoc = function() {
 			d10.couch.track.updateDoc("tracking/ping/"+request.ctx.user._id.replace(/^us/,"pi"),function(err,resp) {
 				if ( err ) debug("/api/ping error on db request:",err);
@@ -266,13 +264,10 @@ exports.api = function(app) {
 			});
 		};
 
-		bodyDecoder()(request, response,function() {
-			updateAliveDoc();
-			parsePlayerInfos();
-			d10.realrest.success( [], request.ctx );
-			updateSessionTimestamp();
-		});
-
+		updateAliveDoc();
+		parsePlayerInfos();
+		d10.realrest.success( [], request.ctx );
+		updateSessionTimestamp();
 	});
 
 	app.post("/api/random",function(request,response) {
@@ -280,17 +275,15 @@ exports.api = function(app) {
 	});
 
 
-	app.post("/api/volume",function(request,response) {
-		bodyDecoder()(request, response,function() {
-			var volume = (request.body && "volume" in request.body) ? parseFloat(request.body.volume) : 0;
-			if ( isNaN(volume) )	volume=0;
-			d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
-				if ( err ) { return d10.realrest.err(423,err,request.ctx); }
-				doc.volume = volume;
-				d10.couch.d10wi.storeDoc(doc,function(err,resp) {
-					if ( err ) { d10.realrest.err(423,err,request.ctx); }
-					else { d10.realrest.success([],request.ctx); }
-				});
+	app.post("/api/volume", jsonParserMiddleware, function(request,response) {
+		var volume = (request.body && "volume" in request.body) ? parseFloat(request.body.volume) : 0;
+		if ( isNaN(volume) )	volume=0;
+		d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
+			if ( err ) { return d10.realrest.err(423,err,request.ctx); }
+			doc.volume = volume;
+			d10.couch.d10wi.storeDoc(doc,function(err,resp) {
+				if ( err ) { d10.realrest.err(423,err,request.ctx); }
+				else { d10.realrest.success([],request.ctx); }
 			});
 		});
 	});
@@ -304,41 +297,39 @@ exports.api = function(app) {
 		});
 	};
 
-	app.put("/api/preference/:name",function(request,response) {
+  app.put("/api/preference/:name", jsonParserMiddleware, function(request,response) {
 		var defaultCallback = function(err,resp) {
 			if ( err ) { d10.realrest.err(423,err,request.ctx); }
 			else { d10.realrest.success([],request.ctx); }
 		};
-		bodyDecoder()(request, response,function() {
-			var prefValue = (request.body && "value" in request.body) ? request.body.value : null;
-			if ( request.params.name == "hiddenExtendedInfos" || request.params.name == "hiddenReviewHelper" ) {
-				updateUserPreferences(
-					request,
-					function(doc) {
-						if ( prefValue && prefValue == "true" ) {
-							doc[request.params.name] = true;
-						} else {
-							delete doc[request.params.name];
-						}
-					},
-					defaultCallback
-				);
-			} else if ( request.params.name == "audioFade" ) {
-              prefValue = parseInt(prefValue,10);
-              if ( isNaN(prefValue) ) {
-                return d10.realrest.err(406,"preference "+request.params.name+" should be a number",request.ctx);
-              }
-              updateUserPreferences(
-                    request,
-                    function(doc) {
-                        doc[request.params.name] = prefValue;
-                    },
-                    defaultCallback
-                );
-            } else {
-				d10.realrest.err(404,"preference "+request.params.name+" is unknown",request.ctx);
-			}
-		});
+		var prefValue = (request.body && "value" in request.body) ? request.body.value : null;
+		if ( request.params.name == "hiddenExtendedInfos" || request.params.name == "hiddenReviewHelper" ) {
+			updateUserPreferences(
+				request,
+				function(doc) {
+					if ( prefValue && prefValue == "true" ) {
+						doc[request.params.name] = true;
+					} else {
+						delete doc[request.params.name];
+					}
+				},
+				defaultCallback
+			);
+		} else if ( request.params.name == "audioFade" ) {
+            prefValue = parseInt(prefValue,10);
+            if ( isNaN(prefValue) ) {
+              return d10.realrest.err(406,"preference "+request.params.name+" should be a number",request.ctx);
+            }
+            updateUserPreferences(
+                  request,
+                  function(doc) {
+                      doc[request.params.name] = prefValue;
+                  },
+                  defaultCallback
+              );
+          } else {
+			d10.realrest.err(404,"preference "+request.params.name+" is unknown",request.ctx);
+		}
 	});
 
 	app.put("/api/starring/likes/aa:id",function(request,response) {
@@ -477,51 +468,48 @@ exports.api = function(app) {
 		});
 	};
 
-	app.post("/api/details",function(request,response) {
-		bodyDecoder()(request, response,function() {
-
-			var artists = [], albums = [], jobs = {};
-			if ( request.body.artists ) {
-				if ( Object.prototype.toString.call(request.body.artists) === '[object Array]' ) {
-					artists = request.body.artists;
-				} else if ( request.body.artists.length ) {
-					artists = [ request.body.artists ];
+	app.post("/api/details", jsonParserMiddleware, function(request,response) {
+		var artists = [], albums = [], jobs = {};
+		if ( request.body.artists ) {
+			if ( Object.prototype.toString.call(request.body.artists) === '[object Array]' ) {
+				artists = request.body.artists;
+			} else if ( request.body.artists.length ) {
+				artists = [ request.body.artists ];
+			}
+		}
+		if ( request.body.albums ) {
+			if ( Object.prototype.toString.call(request.body.albums) === '[object Array]' ) {
+				albums = request.body.albums;
+			} else if ( request.body.albums.length ) {
+				albums = [ request.body.albums ];
+			}
+		}
+		if ( artists.length ) {
+			jobs.artists=function(cb) {
+				d10.couch.d10.view("artist/artist",{reduce: false, include_docs: true, keys: artists}, function(err,resp) {
+					if ( err )	{cb(err);}
+					else	cb(null,resp.rows);
+				});
+			};
+		}
+		if ( albums.length ) {
+			jobs.albums=function(cb) {
+				d10.couch.d10.view("album/album",{reduce: false, include_docs:true,keys: albums}, function(err,resp) {
+					if ( err )	{cb(err);}
+					else	cb(null,resp.rows);
+				});
+			};
+		}
+		when(
+			jobs,
+			function(err,resp) {
+				if ( err ){
+					d10.realrest.err(427,err,request.ctx);
+				} else {
+					d10.realrest.success(resp, request.ctx);
 				}
 			}
-			if ( request.body.albums ) {
-				if ( Object.prototype.toString.call(request.body.albums) === '[object Array]' ) {
-					albums = request.body.albums;
-				} else if ( request.body.albums.length ) {
-					albums = [ request.body.albums ];
-				}
-			}
-			if ( artists.length ) {
-				jobs.artists=function(cb) {
-					d10.couch.d10.view("artist/artist",{reduce: false, include_docs: true, keys: artists}, function(err,resp) {
-						if ( err )	{cb(err);}
-						else	cb(null,resp.rows);
-					});
-				};
-			}
-			if ( albums.length ) {
-				jobs.albums=function(cb) {
-					d10.couch.d10.view("album/album",{reduce: false, include_docs:true,keys: albums}, function(err,resp) {
-						if ( err )	{cb(err);}
-						else	cb(null,resp.rows);
-					});
-				};
-			}
-			when(
-				jobs,
-				function(err,resp) {
-					if ( err ){
-						d10.realrest.err(427,err,request.ctx);
-					} else {
-						d10.realrest.success(resp, request.ctx);
-					}
-				}
-			);
-		});
+		);
 	});
 
 	app.get("/api/relatedArtists/:artist",function(request,response,next) {

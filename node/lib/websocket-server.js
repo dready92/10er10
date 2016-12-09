@@ -13,7 +13,7 @@ function websocketServer ( httpServer, d10Server ) {
     ws.d10id = wsId++;
     this.bindWebSocketListeners(ws);
   }.bind(this));
-  
+
   d10wsServer.on('error', function(err) {
     if ( err.errno === 'EMFILE' ) {
       console.log("EMFILE !!!");
@@ -22,7 +22,7 @@ function websocketServer ( httpServer, d10Server ) {
       throw err;
     }
   });
-  
+
 };
 
 websocketServer.prototype.router = null;
@@ -32,15 +32,8 @@ websocketServer.prototype.createRouter = function() {
 };
 
 websocketServer.prototype.registerProtocols = function(httpServer, d10Server) {
-  this.registerWrestProtocol(httpServer, d10Server);
   this.registerPevtsProtocol(httpServer, d10Server);
   this.registerRemotProtocol(httpServer, d10Server);
-};
-
-websocketServer.prototype.registerWrestProtocol = function(httpServer, d10Server) {
-  var wrestProtocol = require("./websocket-protocol-wrest");
-  var wrestProtocolInstance = new wrestProtocol(httpServer, d10Server);
-  this.router.addType(wrestProtocolInstance.name, wrestProtocolInstance.handler);
 };
 
 websocketServer.prototype.registerPevtsProtocol = function(httpServer, d10Server) {
@@ -61,7 +54,5 @@ websocketServer.prototype.bindWebSocketListeners = function(ws) {
     this.router.route(message,ws);
   }.bind(this));
 };
-
-
 
 exports = module.exports = websocketServer;

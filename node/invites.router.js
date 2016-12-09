@@ -1,4 +1,5 @@
-var bodyDecoder = require("connect").bodyParser,
+var bodyParser = require('body-parser'),
+	jsonParserMiddleware = bodyParser.json(),
 	hash = require("./hash"),
 	fs=require("fs"),
 	d10 = require("./d10"),
@@ -18,7 +19,7 @@ var isValidCode = function(code, callback) {
 	if ( code.substr(0,2) !== "in" ) {
 		callback(400);
 	}
-	
+
 	d10.couch.auth.getDoc(code,function(err,doc) {
 		if ( err ) {
 			return callback(err);
@@ -69,81 +70,73 @@ var createAccount = function(request,response,invite) {
 	);
 }
 
-		
+
 exports.api = function(app) {
-	app.post("/code/checkLogin",function(request,response,next) {
-		bodyDecoder()(request, response,function() {
-			var db;
-			isValidCode( request.body.code,function(err,doc) {
-				if ( err ) { return next(); }
-				users.isValidLogin( request.body.login, function(err) {
-					if ( err ) {
-						if ( errCodes[err] ) {
-							response.writeHead(err,errCodes[err],{});
-						} else {
-							response.writeHead(err,{});
-						}
+	app.post("/code/checkLogin", jsonParserMiddleware, function(request,response,next) {
+		var db;
+		isValidCode( request.body.code,function(err,doc) {
+			if ( err ) { return next(); }
+			users.isValidLogin( request.body.login, function(err) {
+				if ( err ) {
+					if ( errCodes[err] ) {
+						response.writeHead(err,errCodes[err],{});
 					} else {
-							response.writeHead(200,{});
+						response.writeHead(err,{});
 					}
-					response.end();
-				});
+				} else {
+						response.writeHead(200,{});
+				}
+				response.end();
 			});
 		});
 	});
-	
-	app.post("/code/checkPassword",function(request,response,next) {
-		bodyDecoder()(request, response,function() {
-			isValidCode( request.body.code,function(err,doc) {
-				if ( err ) { return next(); }
-				users.isValidPassword( request.body.password, function(err) {
-					if ( err ) {
-						if ( errCodes[err] ) {
-							response.writeHead(err,errCodes[err],{});
-						} else {
-							response.writeHead(err,{});
-						}
-					} else {
-							response.writeHead(200,{});
-					}
-					response.end();
-				});
-			});
-		});
-	});
-	app.post("/code/createAccount",function(request,response,next) {
-		bodyDecoder()(request, response,function() {
-			isValidCode(request.body.code,function(err,doc) {
-				if ( err ) { return next(); }
 
-				when(
-					{
-						login: function(cb) {
-							users.isValidLogin(request.body.login,cb);
-						},
-						password: function(cb) {
-							users.isValidPassword(request.body.password,cb);
-						}
+	app.post("/code/checkPassword", jsonParserMiddleware, function(request,response,next) {
+		isValidCode( request.body.code,function(err,doc) {
+			if ( err ) { return next(); }
+			users.isValidPassword( request.body.password, function(err) {
+				if ( err ) {
+					if ( errCodes[err] ) {
+						response.writeHead(err,errCodes[err],{});
+					} else {
+						response.writeHead(err,{});
+					}
+				} else {
+						response.writeHead(200,{});
+				}
+				response.end();
+			});
+		});
+	});
+	app.post("/code/createAccount", jsonParserMiddleware, function(request,response,next) {
+		isValidCode(request.body.code,function(err,doc) {
+			if ( err ) { return next(); }
+
+			when(
+				{
+					login: function(cb) {
+						users.isValidLogin(request.body.login,cb);
 					},
-					function(errs) {
-						if ( errs ) {
-							var err;
-							if ( errs.login )	err = errs.login;
-							else				err = errs.password;
-							if ( errCodes[err] ) {
-								response.writeHead(err,errCodes[err],{});
-							} else {
-								response.writeHead(err,{});
-							}
-							response.end();
-							return ;
-						}
-						createAccount(request,response,doc);
+					password: function(cb) {
+						users.isValidPassword(request.body.password,cb);
 					}
-				);
-
-
-			});
+				},
+				function(errs) {
+					if ( errs ) {
+						var err;
+						if ( errs.login )	err = errs.login;
+						else				err = errs.password;
+						if ( errCodes[err] ) {
+							response.writeHead(err,errCodes[err],{});
+						} else {
+							response.writeHead(err,{});
+						}
+						response.end();
+						return ;
+					}
+					createAccount(request,response,doc);
+				}
+			);
 		});
 	});
 	app.get("/code/:id",function(request,response,next) {
@@ -153,8 +146,8 @@ exports.api = function(app) {
 				"Content-Type": "text/html; charset=utf-8",
 				"Charset": "utf-8"
 			};
-			// base_url, 
-			
+			// base_url,
+
 			fs.stat(d10.config.templates.invites+"/html/step1."+request.ctx.lang+".html",function(err,resp) {
 				var files = {}, lang = request.ctx.lang;
 				if ( err ) {
@@ -165,8 +158,8 @@ exports.api = function(app) {
 					files.step1 = d10.config.templates.invites+"/html/step1."+request.ctx.lang+".html";
 					files.step2 = d10.config.templates.invites+"/html/step2."+request.ctx.lang+".html";
 				}
-				
-				when( 
+
+				when(
 					{
 						step1: function(then) {
 							fs.readFile(files.step1,then);
@@ -209,11 +202,11 @@ exports.api = function(app) {
 					}
 				);
 			});
-			
+
 // 			request.ctx.langUtils.parseServerTemplate(request,"homepage.html",function(err,html) {
 
 // 			});
 		});
-		
+
 	});
 };

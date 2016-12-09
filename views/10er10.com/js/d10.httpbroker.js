@@ -1,16 +1,14 @@
 "use strict";
-define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket",
-        "js/d10.websocket.protocol.wrest"
-        ], 
-        function(config, toolbox, pubsub, websocket, websocketProtocolWrest) {
-    
+define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket"],
+        function(config, toolbox, pubsub, websocket) {
+
 	function httpmanager ( domainUrl ) {
 		// 	debug("worker base_url: ", domainUrl);
 		var worker = new Worker(domainUrl+'js/httpworker.js');
 		var that = this;
 		var cache = {};
 		var totalRequests = 1;
-		
+
 		this.active = function() {
 			return toolbox.count(cache);
 		}
@@ -36,7 +34,7 @@ define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket",
 			data.request = cache[data.request_id];
 			data.request._stopTime  = new Date().getTime();
 		//     debug(data);
-			
+
 			if ( typeof data.request.complete != 'function' ) {
 				delete cache[data.request_id];
 				return ;
@@ -80,11 +78,11 @@ define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket",
 			if ( typeof options.data == 'object' )  request.toSend = $.d10param(options.data);
 			else                                    request.toSend = options.data;
 			}
-			
+
 			if ( options.contentType ) {
 				request.contentType = options.contentType;
 			}
-			
+
 			//debug(request);
 			cache[request_id]._startTime  = new Date().getTime();
 			if ( config.debug && config.debug_options.network ) {
@@ -137,29 +135,10 @@ define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket",
 		this.request = function ( options ) {
 			this.run(options);
 		}
-		
-		this.sendViaWebSocket = function(options) {
-          if ( !websocket.isValidProtocol("wrest") ) {
-            return false;
-          }
-          if ( !websocket.socketReady() ) {
-            return false;
-          }
-          if ( 
-            websocket.send(websocketProtocolWrest.name,
-                              websocketProtocolWrest.prepare(options)) 
-             ) {
-            return true;
-          }
-          return false;
-        };
-		
+
 		this.run  = function ( options, fipo ) {
-          if ( options && options.ws && this.sendViaWebSocket(options) ) {
-            return ;
-          }
 			if ( typeof options == 'object' ) {
-				if ( fipo ) { cache.push(options); } 
+				if ( fipo ) { cache.push(options); }
 				else { cache.unshift(options); }
 			}
 			if ( cache.length == 0 ) {
@@ -202,4 +181,3 @@ define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket",
 
 	return new httpbroker(5);
 });
-

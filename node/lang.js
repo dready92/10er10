@@ -3,13 +3,13 @@ var fs = require("fs"),
 	debug = d10.debug("d10:lang"),
 	mustache = require("./mustache"),
 	when = require("./when"),
-	utils = require("connect").utils;
+	pause = require("pause");
 
 
 
 
 exports.middleware = function(langRoot, tplRoot, cb) {
-	
+
 	var langs = false;
 	var loadingLangs = false;
 	var loadingLangsCb = [];
@@ -78,9 +78,9 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 	* @param lng language
 	* @param type template type ("server", "client", "shared")
 	* @param cb callback ( called with args err & language object )
-	* 
+	*
 	* eg. : loadLang("en","server",function(err,resp) { console.log(resp["homepage.html"]["l:welcome"]); });
-	* 
+	*
 	*/
 	var loadLang = function ( lng, type, cb ) {
 		if ( ! lng in langs ) {
@@ -95,14 +95,14 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 	};
 
 	/**
-	* Parses the server template hash 
+	* Parses the server template hash
 	*
 	*
 	*/
 	var parseServerTemplate = function(request, tpl, cb) {
 	// 	getHeadersLang(request,function(lng) {
 	// 	var lng = request.ctx.lang ? request.ctx.lang : d10.config.templates.defaultLang;
-	// 	var lng = 
+	// 	var lng =
 		debug("LANG parseServerTemplate: ",tpl,request.url,request.ctx.lang);
 		loadLang(request.ctx.lang,"server",function(err,hash) {
 			if ( err ) {
@@ -134,21 +134,21 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 		cb(null,back);
 	};
 
-	
-	
-	
+
+
+
 	loadLangFiles(cb);
-	
+
 	return function(req,res,next) {
-	
-	
+
+
 		var fetchFromBrowser = function() {
 			var passTheCoochie = function() {
-				pause.end();
+				handle.end();
 				next();
-				pause.resume();
+				handle.resume();
 			};
-			var pause = utils.pause(req);
+			var handle = pause(req);
 			getHeadersLang(req,function(lng) {
 				debug("LANG middleware: browser sniff: ",lng);
 				req.ctx.lang = lng;
@@ -170,8 +170,8 @@ exports.middleware = function(langRoot, tplRoot, cb) {
 			loadLang: loadLang,
 			langExists: langExists
 		};
-		
-		
+
+
 	// 	if ( !req.ctx.user  || !req.ctx.user._id ) {
 	// 		return next();
 	// 	}

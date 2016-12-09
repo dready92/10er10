@@ -1,5 +1,7 @@
 var     d10 = require("./d10"),
-        bodyDecoder = require("connect").bodyParser,
+        bodyParser = require('body-parser'),
+        jsonParserMiddleware = bodyParser.json(),
+        urlencodedParserMiddleware = bodyParser.urlencoded({extended: true}),
         debug = d10.debug("d10:d10.router.rc"),
         fs = require("fs"),
         when = require("./when"),
@@ -35,17 +37,17 @@ var lsAndStatDir = function (dir, callback) {
   });
 };
 
-        
+
 var readFilesInDir = function(dir, opts, callback) {
   debug("readFilesInDir on ",dir);
   opts = opts || {};
-  
+
   var allShouldBeRead = function (readErrs, readResps) {
     if ( readErrs ) { debug(readErrs); return callback(readErrs); }
     var sortedCompletePath = [];
     for (var completePath in readResps) { sortedCompletePath.push(completePath); }
     sortedCompletePath.sort();
-    
+
     var allText = "";
     sortedCompletePath.forEach(function(completePath) {
       allText += readResps[completePath];
@@ -107,7 +109,7 @@ exports.publicApi = function(app) {
       }
     )+"});");
   });
-  
+
   app.put("/api/rc/logout", function(request, response, next) {
     debug("PUT /api/rc/logout");
     if ( !request.ctx.user || !request.ctx.remoteControlSession ) {
@@ -124,40 +126,38 @@ exports.publicApi = function(app) {
       d10.realrest.success({logout: true},request.ctx);
     });
   });
-  
-  app.post("/api/rc/login", function(request, response, next) {
+
+  app.post("/api/rc/login", jsonParserMiddleware, urlencodedParserMiddleware, function(request, response, next) {
     debug("POST /api/rc/login begin");
-    bodyDecoder()(request, response,function() {
-      if ( request.body.login && request.body.password ) {
-        debug("POST /api/rc/login: try to auth user ["+request.body.login+"]");
-        users.checkAuthFromLogin(request.body.login,request.body.password,function(err, uid, loginResponse) {
-          if ( err || !uid) {
-            return sessionErrorResponse(err, request.ctx);
+    if ( request.body.login && request.body.password ) {
+      debug("POST /api/rc/login: try to auth user ["+request.body.login+"]");
+      users.checkAuthFromLogin(request.body.login,request.body.password,function(err, uid, loginResponse) {
+        if ( err || !uid) {
+          return sessionErrorResponse(err, request.ctx);
+        }
+
+        debug("POST /api/rc/login: user ["+request.body.login+"] logged with login/password: ",uid);
+        users.makeRemoteControlSession(uid, function(err,sessionDoc) {
+          if ( !err ) {
+              d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
+              var cookie = { user: request.ctx.user.login, remoteControlSession: sessionDoc._id.substring(2) };
+              request.ctx.setCookie(cookie);
+              if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
+              return sessionSuccessResponse(sessionDoc._id, request.ctx);
           }
-          
-          debug("POST /api/rc/login: user ["+request.body.login+"] logged with login/password: ",uid);
-          users.makeRemoteControlSession(uid, function(err,sessionDoc) {
-            if ( !err ) {
-                d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
-                var cookie = { user: request.ctx.user.login, remoteControlSession: sessionDoc._id.substring(2) };
-                request.ctx.setCookie(cookie);
-                if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
-                return sessionSuccessResponse(sessionDoc._id, request.ctx);
-            }
-            return sessionErrorResponse(err, request.ctx);
-          });
+          return sessionErrorResponse(err, request.ctx);
         });
-        return ;
-      }
-      debug("POST /api/rc/login: no user/pass provided, lookup current session");
-      if ( request.ctx.remoteControlSession && request.ctx.remoteControlSession._id
-            && request.ctx.remoteControlSession._id.substr(0,2) == "rs" ) {
-        debug("Successfully logged from current session");
-        return sessionSuccessResponse(request.ctx.session._id, request.ctx);
-      }
-      debug("POST /api/rc/login: no current session");
-      return sessionErrorResponse("Nothing to log in", request.ctx);
-    });
+      });
+      return ;
+    }
+    debug("POST /api/rc/login: no user/pass provided, lookup current session");
+    if ( request.ctx.remoteControlSession && request.ctx.remoteControlSession._id
+          && request.ctx.remoteControlSession._id.substr(0,2) == "rs" ) {
+      debug("Successfully logged from current session");
+      return sessionSuccessResponse(request.ctx.session._id, request.ctx);
+    }
+    debug("POST /api/rc/login: no current session");
+    return sessionErrorResponse("Nothing to log in", request.ctx);
   });
 };
 
@@ -168,6 +168,6 @@ function sessionSuccessResponse (sessionId, ctx) {
 function sessionErrorResponse (err, ctx) {
   d10.realrest.err(401, {login: false}, ctx);
 };
-        
+
 exports.api = function(app) {
 };

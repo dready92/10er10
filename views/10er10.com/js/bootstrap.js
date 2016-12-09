@@ -1,11 +1,11 @@
 
-define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.localcache", "js/d10.templates", "js/d10.router", 
+define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.localcache", "js/d10.templates", "js/d10.router",
 	   "js/playlist", "js/d10.jobWorker","js/bgtask", "js/my.plm", "js/d10.events", "js/config", "js/d10.audioCapabilities"],
 	   function(bghttp, When, rest, user, localcache, tpl, router,
                 playlist, jobs, bgtask, plmCtlr, pubsub, config, audioCapabilities) {
-		   
+
     var startupTime = new Date().getTime();
-		   
+
 	var onWindowResize = function() {
 		var body = $("body"),
 			side = $("#side"),
@@ -25,26 +25,26 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		"use strict";
 
 		var side = $("#side");
-		
+
 		var pos = $("#search > div").eq(0).position();
 		var height = $("#search > div").eq(0).height();
 		$("#search > div").eq(1).css({"top": pos.top + height, "left": pos.left,"min-width": $("#search input").width() });
-		
+
 		require(["js/playlist.driver.rpl"], function() {
 			playlist.bootstrap();
 // 			$(document).trigger("bootstrap:playlist");
 		});
 		side.css("display","");
-		
-		
-		require(["js/welcome","js/upload", "js/my", "js/my.plm", "js/library", "js/results"], 
+
+
+		require(["js/welcome","js/upload", "js/my", "js/my.plm", "js/library", "js/results"],
 				function() {
 					router.startRouting(["welcome"]);
 				}
 			   );
-		
+
 		$.each(playlist.modules,function(k,mod) { mod.enable(); });
-		
+
 		$('#beautyFade').remove();
 		$("#containerWrap").css("position","");
 
@@ -56,23 +56,23 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 			"error": function(err,msg) {debug("enablePingError",err,msg);}
 		});
 		pubsub.topic("audioDump").subscribe(function(data) { jobs.push("player",data,{}); });
-		
+
         //
         // the footer displaying hours of music
         //
-        pubsub.topic("library.totalSecondsOfMusic").subscribe(function(secs) { 
+        pubsub.topic("library.totalSecondsOfMusic").subscribe(function(secs) {
           var length = parseInt(secs / 60 / 60);
           $("footer span.hours").html(length);
         });
-		
+
 		//
 		// init background tasks
 		//
 		setTimeout(function() { bgtask.init(); },7000);
-		
+
 		$(window).resize(onWindowResize);
 		onWindowResize();
-        
+
         var remoteControlWidget = $("#player .remoteControl");
         pubsub.topic("remot-connection").subscribe(function(status) {
           if ( status === "ON" && remoteControlWidget.hasClass("hidden") ) {
@@ -83,8 +83,8 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
           }
         });
 	};
-		
-		
+
+
 	var launchMeBaby = function() {
 		"use strict";
 		// language selector
@@ -112,12 +112,12 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		// preload la vue "playlists"
 		//
 		plmCtlr.init_topic_plm ();
-		
+
 		router._containers.main.tab.delegate("[action]","click",function() {
 			var elem = $(this), action = elem.attr("action");
 			if ( ! elem.hasClass("active") ) { router.navigate(action,true); }
 		});
-		
+
         var diffUntilStartup = (new Date().getTime() - startupTime );
         if ( diffUntilStartup < 1000 ) {
           $('#container').css({"opacity": 1, "display": "block"});
@@ -127,18 +127,17 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		$('#container').css("display","block").animate({"opacity": 1}, 400,visibleBaby);
 		$('#initialLoading').html(tpl.mustacheView("landing.letsgo"));
 		$('#beautyFade').fadeOut(700);
-		
+
 	};
 
-		
-	var step2 = function (websocket, pevts, wrest) {
+
+	var step2 = function (websocket, pevts) {
 		"use strict";
         //
         //webwocket protocols declaration
         //
-        websocket.addProtocol(wrest.name, wrest.onmessage);
         websocket.addProtocol(pevts.name, pevts.onmessage);
-        require(["js/d10.remot.slave.connection", 
+        require(["js/d10.remot.slave.connection",
                 "js/d10.remot.slave.events",
                 "js/d10.remot.slave.endpoints"
                 ],function(slave) { slave.init(); });
@@ -157,7 +156,7 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
         pubsub.topic("websocket:created").subscribe(function() {
           setTimeout(registerPevts,1000);
         });
-        
+
         websocket.init(location.host+config.base_url);
 		//
 		// initialisation des workers ajax
@@ -190,20 +189,20 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		},
 		launchMeBaby
 		);
-		
+
 		when.onResponse(function() {
 // 			debug("Complete: ",when.complete(),"on",when.total());
 			loadCount.html(when.complete());
 		});
-		
+
 		loadCount.html(when.complete());
 		loadTotal.html(when.total());
-		
+
         //
         // gestion du bouton + a gauche de chaque morceau
         //
 		require(["js/main.songpopin"]);
-		
+
 		$("#main").delegate("div.song > span.artist > span.mainArtist, "+
                             "div.song > span.artist > span.secondaryArtist",
                             "click",
@@ -222,7 +221,7 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 			if ( album.length ) { $(this).addClass("link"); }
 		});
 		$("#main").delegate("div.song > span.album","mouseleave",function(e) { $(this).removeClass("link"); });
-				
+
 		$("footer a.logout").click(function() {
 			$("footer .loggedin").hide();
 			$("footer .loggingOut").removeClass("hidden");
@@ -237,11 +236,11 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 			});
 			return false;
 		});
-		
+
 		$("header .logo, header .teaser").click(function() {
 			router.navigateTo("welcome");
 		});
-		
+
 
 	}
 
@@ -274,12 +273,9 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 		} else {
 			delete Modernizr;
 			$("#browserNotSupported").remove();
-            require(["js/d10.websocket", "js/d10.websocket.protocol.pevts", 
-                    "js/d10.websocket.protocol.wrest"], function(websocket, pevts, wrest) {
-              step2(websocket, pevts, wrest);
-            });
+            require(["js/d10.websocket", "js/d10.websocket.protocol.pevts"], step2);
 		}
 	});
-    
+
 	return {bootstrap: true};
 });
