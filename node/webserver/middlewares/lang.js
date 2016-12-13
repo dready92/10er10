@@ -115,10 +115,10 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
   function getSupportedLangs(getSupportedLangsCb) {
     const back = {};
     const keys = [];
-    Object.keys(langs).forEach((val, key) => keys.push(key));
+    Object.keys(langs).forEach(key => keys.push(key));
     keys.sort();
     debug('lang keys: ', keys);
-    keys.forEach((val, key) => { back[key] = val.langName; });
+    keys.forEach((val, key) => { back[val] = langs[val].langName; });
     getSupportedLangsCb(null, back);
   }
 

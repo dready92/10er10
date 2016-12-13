@@ -20,7 +20,7 @@ configParser.getConfig(function(foo,cfg) {
 var onConfig = function(isProduction) {
 
 	var express = require('express');
-	var d10Router = express.Router();
+	const d10Router = require('./webserver/d10').getD10Server(config);
 	var favicon = require('serve-favicon');
 	var morgan = require('morgan');
 	var logMiddleware = morgan('combined');
@@ -76,35 +76,6 @@ var onConfig = function(isProduction) {
 
 	var d10LangMiddleWare = lang.middleware("../views/10er10.com/lang",config.templates.node, startServer);
 	var invitesLangMiddleWare = lang.middleware("../views/invites.10er10.com/lang",config.templates.invites, function(){});
-
-
-
-	d10Router.use(contextMiddleware);
-	staticRoutes(d10Router);
-	d10Router.use(cookieSession.cookieSession);
-	d10Router.use(d10LangMiddleWare);
-	homepage.homepage(d10Router);
-	rc.publicApi(d10Router);
-	d10Router.use(function(request,response,next) {
-		if ( !request.ctx.session || !request.ctx.user || !request.ctx.user._id ) {
-			response.writeHead(404,{"Content-Type":"text/plain"});
-			response.end("Page not found");
-		}
-		else
-		{
-			next();
-		}
-	});
-	download.api(d10Router);
-	staticAudio(d10Router);
-	staticImages(d10Router);
-	api.api(d10Router);
-	plmApi.api(d10Router);
-	listingApi.api(d10Router);
-	songStuff.api(d10Router);
-	imagesStuff.api(d10Router);
-	rc.api(d10Router);
-	invites.api(d10Router);
 
 	function startServer() {
 
