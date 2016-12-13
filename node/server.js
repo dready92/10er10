@@ -1,116 +1,75 @@
-var config,
-	configParser = require(__dirname+"/configParser");
+let config;
+const configParser = require(__dirname + '/configParser');
+const d10 = require('./d10');
 
-
-configParser.getConfig(function(foo,cfg) {
-	config = cfg;
-	// production test
-	var prod = false;
-	if ( process.argv.length > 2 && process.argv[2] == "-p" ) {
-		prod = true;
-		configParser.switchProd();
-	} else {
-		configParser.switchDev();
-	}
-	require("./d10").setConfig(config);
-	onConfig(prod);
+configParser.getConfig((foo, cfg) => {
+  config = cfg;
+  // production test
+  let prod = false;
+  if (process.argv.length > 2 && process.argv[2] === '-p') {
+    prod = true;
+    configParser.switchProd();
+  } else {
+    configParser.switchDev();
+  }
+  d10.setConfig(config);
+  onConfig(prod);
 });
 
 
-var onConfig = function(isProduction) {
-
-	var express = require('express');
-	const d10Router = require('./webserver/d10').getD10Server(config);
-	var favicon = require('serve-favicon');
-	var morgan = require('morgan');
-	var logMiddleware = morgan('combined');
-	var compression = require('compression');
-	var vhost = require('vhost');
-	var	httpHelper = require(__dirname+"/httpHelper"),
-		homepage = require(__dirname+"/d10.router.homepage"),
-		cookieSession = require(__dirname+"/cookieSessionMiddleware"),
-		api = require(__dirname+"/d10.router.api"),
-		plmApi = require(__dirname+"/d10.router.api.plm"),
-		listingApi = require(__dirname+"/d10.router.api.listing"),
-		songStuff = require(__dirname+"/d10.router.song"),
-		imagesStuff = require(__dirname+"/d10.router.images"),
-		invites = require(__dirname+"/d10.router.invites"),
-		download = require(__dirname+"/d10.router.audio.download"),
-		rc = require(__dirname+"/d10.router.rc"),
-		invitesRouter = require(__dirname+"/invites.router"),
-		lang = require(__dirname+"/lang"),
-		contextMiddleware = require(__dirname+"/contextMiddleware").context,
-		webSocketServer = require(__dirname+"/lib/websocket-server"),
-		nodeVersion = require(__dirname+"/nodeVersion"),
-		dosWatchdog = require(__dirname+"/dosWatchdog");
+function onConfig(isProduction) {
+  const express = require('express');
+  const d10Router = require('./webserver/d10').getD10Server(config);
+  const invitesServer = require('./webserver/invites').getInvitesServer(config);
+  var favicon = require('serve-favicon');
+  var morgan = require('morgan');
+  var logMiddleware = morgan('combined');
+  var compression = require('compression');
+  var vhost = require('vhost');
+  var  httpHelper = require(__dirname+"/httpHelper"),
+    cookieSession = require(__dirname+"/cookieSessionMiddleware"),
+    webSocketServer = require(__dirname+"/lib/websocket-server"),
+    nodeVersion = require(__dirname+"/nodeVersion"),
+    dosWatchdog = require(__dirname+"/dosWatchdog");
 
 
-	process.chdir(__dirname);
+  process.chdir(__dirname);
 
-	var child = require('child_process').fork(__dirname + '/bgworker.js');
-	child.send({type: "configuration", production: isProduction});
+  var child = require('child_process').fork(__dirname + '/bgworker.js');
+  child.send({type: "configuration", production: isProduction});
 
-	console.log("Database binding: "+config.couch.d10.dsn+"/"+config.couch.d10.database);
+  console.log("Database binding: "+config.couch.d10.dsn+"/"+config.couch.d10.database);
 
-	// config.production = true;
-	function staticRoutes(app) {
-		app.use('/js/', express.static('../views/10er10.com/js'));
-		app.use('/css/', express.static('../views/10er10.com/css'));
-		app.use('/html/rc/', express.static('../views/10er10.com/html/rc'));
-	};
+  function staticInvites(app) {
+    app.use('/static/', express.static('../views/invites.10er10.com/static'));
+  };
 
-	function staticAudio (app) {
-		app.use('/audio/', express.static(config.audio.dir));
-	};
+  function startServer() {
 
-	function staticImages (app) {
-		app.use('/audioImages/', express.static(config.images.dir));
-	};
+    var d10Server = express();
+    d10Server.use(favicon('../views/10er10.com/favicon.ico'));
 
-	function staticInvites(app) {
-		app.use('/static/', express.static('../views/invites.10er10.com/static'));
-	};
+    if ( !config.production ) {
+      d10Server.use(logMiddleware);
+    }
 
-
-
-
-	var d10LangMiddleWare = lang.middleware("../views/10er10.com/lang",config.templates.node, startServer);
-	var invitesLangMiddleWare = lang.middleware("../views/invites.10er10.com/lang",config.templates.invites, function(){});
-
-	function startServer() {
-
-		var d10Server = express();
-		d10Server.use(favicon('../views/10er10.com/favicon.ico'));
-
-		if ( !config.production ) {
-			d10Server.use(logMiddleware);
-		}
-
-		if ( config.gzipContentEncoding ) {
+    if ( config.gzipContentEncoding ) {
       var compressFilter = function(req, res){
         var type = res.getHeader('Content-Type') || '';
         return type.match(/css|text|javascript|json|x-font-ttf/);
       };
       d10Server.use(compression({filter: compressFilter}));
-		}
-		d10Server.use(d10Router);
-//		stack.forEach(function(mw) { d10Server.use(mw); });
+    }
+    d10Server.use(d10Router);
+//    stack.forEach(function(mw) { d10Server.use(mw); });
 
-
-		var invitesServer = express.Router();
-		invitesServer.use(logMiddleware);
-		invitesServer.use(contextMiddleware);
-		invitesServer.use(invitesLangMiddleWare);
-		staticInvites(invitesServer);
-		invitesRouter.api(invitesServer);
-
-		var globalSrv = express();
-			// 10er10 vhosts
-			globalSrv.use(vhost(config.invites.domain,invitesServer));
-		// 	defaultServer
-			globalSrv.use(d10Server);
-		;
-		var nodeHTTPServer = globalSrv.listen(config.port);
+    var globalSrv = express();
+      // 10er10 vhosts
+      globalSrv.use(vhost(config.invites.domain,invitesServer));
+    //   defaultServer
+      globalSrv.use(d10Server);
+    ;
+    var nodeHTTPServer = globalSrv.listen(config.port);
     dosWatchdog.install(nodeHTTPServer);
     var wsServer = new webSocketServer(nodeHTTPServer, d10Server);
 
@@ -119,11 +78,11 @@ var onConfig = function(isProduction) {
     });
 
 
-		d10Server.on("clientError",function() {
-			console.log("CLIENT ERROR");
-			console.log(arguments);
-		});
-		console.log("Production mode ? ",config.production);
+    d10Server.on("clientError",function() {
+      console.log("CLIENT ERROR");
+      console.log(arguments);
+    });
+    console.log("Production mode ? ",config.production);
     console.log("Server listening on port", config.port);
-	};
+  };
 };
