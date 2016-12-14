@@ -1,6 +1,10 @@
 const express = require('express');
 const join = require('path').join;
+const favicon = require('serve-favicon');
+const morgan = require('morgan');
+const compression = require('compression');
 
+const logMiddleware = morgan('combined');
 const contextMiddleware = require('./middlewares/context');
 const cookieSessionMiddleware = require('./middlewares/cookie-session').cookieSession;
 const langMiddleware = require('./middlewares/lang');
@@ -24,6 +28,16 @@ module.exports = {
 
 function getD10Server(config) {
   const d10Router = express.Router();
+
+  d10Router.use(favicon(join(__dirname, '../../views/10er10.com/favicon.ico')));
+
+  if (!config.production) {
+    d10Router.use(logMiddleware);
+  }
+  if (config.gzipContentEncoding) {
+    d10Router.use(compression({ filter: compressFilter }));
+  }
+
   d10Router.use(contextMiddleware);
   d10Router.use('/js/', express.static('../views/10er10.com/js'));
   d10Router.use('/css/', express.static('../views/10er10.com/css'));
@@ -45,4 +59,9 @@ function getD10Server(config) {
   invitesApiRoutes(d10Router);
 
   return d10Router;
+}
+
+function compressFilter(req, res) {
+  const type = res.getHeader('Content-Type') || '';
+  return type.match(/css|text|javascript|json|x-font-ttf/);
 }
