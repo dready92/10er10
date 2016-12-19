@@ -1,11 +1,11 @@
-define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", "js/playlist.driver.default", "js/d10.templates", 
-	   "js/config", "js/d10.events"], 
+define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", "js/playlist.driver.default", "js/d10.templates",
+	   "js/config", "js/d10.events"],
 	   function(foo, user, rest, dnd, router, defaultDriver, tpl, config, pubsub) {
-	
+
 	/*
 	 * playlist
-	 * 
-	 * events : 
+	 *
+	 * events :
 	 * 		"playlist:drop": songs have been dropped into the playlist {songs: array of songs (<div class="song">...)}
 	 * 		"playlist:currentSongChanged": current playing song changed {previous: <div clas="song">..., current: <div class="song">}
 	 * 		"playlist:paused": the current song has been paused
@@ -13,9 +13,9 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 	 * 		"playlist:empty": the playlist has been cleared
 	 * 		"playlist:volume": the volume has been ajusted
 	 * 		"playlist:ended": the playlist reached its end
-	 * 
+	 *
 	 * constructor :
-	 * driver: 
+	 * driver:
 	 * 	should implement following events:
 	 * 	- currentSongChanged: the current playing song changed following the playlist workflow (not on user interaction)
 	 * 							data: {current: id of the current playing song}}
@@ -41,14 +41,14 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 	 * 	- enable(previous): called when this driver is plugged in to drive the playlist
 	 *	- disable(): called when this driver is plugged out from the playlist
 	 *	- listModified(): called when the playlist's list of song has been altered (addition, sorting, or removal)
-	 * 
+	 *
 	 * public methods:
 	 * 	songId(song): give unique identifier of song song in the playlist
 	 *  songsId(): return all songs id []
 	 * 	songWidget(id) returns the div.song id (or an empty jquery object)
 	 * 	current: returns the current playing song jquery obj
 	 * 	next: return the next song jquery object
-	 * 	all: return all songs 
+	 * 	all: return all songs
 	 *  allIds: returns an array of all songs name
 	 * 	getUrl(song): return the url object of song
 	 * 	volume(vol): returns / set the volume that the UI got,
@@ -60,35 +60,35 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 	 * 	driver(): returns current playlist driver
 	 * 	title(title): set/get the title of the current playlist
 	 *	container(): returns the global playlist container
-	 * 
+	 *
 	 */
-	
+
 	function playlist (ui, options) {
-		
+
 		var settings= $.extend({
 			currentClass: "current"
 		}, options);
-		
+
 		var list = $("#playlist",ui);
 		var driver = null;
 		var modules = this.modules = {};
-		
+
 		// the timeout id for operation of recording current playlist driver state to the database
 		var driverRecordTimeout = null;
-		
-		
+
+
 		/*
 		events binding :
 
 		1/ audio [all events] bound to proxyHandler
 		2/ proxyHandler calling CURRENT driver's handleEvent
-		3/ current driver calling this.trigger to feedback to the playlist 
+		3/ current driver calling this.trigger to feedback to the playlist
 		*/
 
 		var eventProxy = function() {
 			driver.handleEvent.apply(this,arguments);
 		};
-		
+
 		var container = this.container = function() {
 			return ui;
 		};
@@ -108,11 +108,13 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			});
 			return back+"-"+song.attr("name");
 		};
-		
-		var songsIds = this.songsId = function () {
+
+		function allIds() {
 			return list.children(".song").map(function() {      return $(this).attr('name');    }   ).get()
 		}
-		
+
+		var songsIds = this.songsId = this.allIds = allIds;
+
 		var songWidget = this.songWidget = function(identifier) {
 // 			debug("playlist:songWidget, id: ",identifier);
 			var id;
@@ -127,14 +129,14 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			if ( songs.length >= infos[0] )	return songs.eq(infos[0]);
 			return $();
 		};
-		
+
 		var current = this.current = function() {
 			return list.children("."+settings.currentClass).eq(0);
 		};
 		var next = this.next = function() {
 			return current().next();
 		};
-        
+
         var playNext = this.playNext = function() {
           var widget = current().next();
           if ( widget.length ) {
@@ -143,7 +145,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
           }
           return false;
         };
-        
+
         var playPrevious = this.playPrevious = function() {
           var widget = current().prev();
           if ( widget.length ) {
@@ -160,7 +162,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
           }
           return null;
         };
-        
+
         var playSongAtIndex = this.playSongAtIndex = function(index) {
           var widget = getSongAtIndex(index);
           if ( widget ) {
@@ -168,29 +170,27 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
           }
           return null;
         };
-        
+
 		var all = this.all = function() {
 			return list.children(".song");
 		};
-		var allIds = this.allIds = function() {
-			return list.children('.song').map(function() {      return $(this).attr('name');    }   ).get()
-		};
+
 		var title = this.title = function(t) {
 			if ( !arguments.length ) {
 				return $("#side > .playlisttitle > span").html();
 			}
 			$("#side > .playlisttitle > span").text(t);
 		};
-		
+
 		var getUrl = this.getUrl = function(song) {
             var url = function (id, extension) { return config.audio_root+id.substr(2,1)+"/"+id+"."+extension; } ;
             var urls = {};
-            
+
             if ( song.attr("data-originalfile-type") ) {
               urls[song.attr("data-originalfile-type")] = url(song.attr('name'), song.attr("data-originalfile-extension"));
             }
-            
-			
+
+
             urls["audio/ogg"] = url(song.attr('name'),"ogg");
 			return urls;
 		};
@@ -262,7 +262,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 				driverRecordTimeout=null;
 			},3000);
 		};
-		
+
 
 		/*
 		*
@@ -286,8 +286,8 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			}
 			sendPlaylistUpdate({ 'action': 'copy' });
 		};
-		
-		
+
+
 		var append = this.append = function (item, after) {
 			if ( !item || !item.length ) {
 				return false;
@@ -305,7 +305,7 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 
 			playlistAppendPost ();
 		};
-		
+
 		var appendToCurrent = this.appendToCurrent = function(items) {
 			var c = current();
 			if ( c && c.length ) {
@@ -320,20 +320,20 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 				playlistAppendPost();
 			}
 		};
-		
+
 		var empty = this.empty = function() {
 			pause();
 			pubsub.topic("playlist:ended").publish({current: current()});
 			list.empty();
 			sendPlaylistUpdate({ 'action': 'remove' });
 		};
-		
+
 		var volumeUpdateTimeout = null;
 		var volume = this.volume = function(vol,fromPrefs) {
 			if ( arguments.length ) {
 				//controls.volumeBar.adjustBar(vol);
 // 				debug ("playlist : should adjust volume to "+vol);
-				if ( !fromPrefs ) {  
+				if ( !fromPrefs ) {
 					user.set_volume(vol);
 				}
 				pubsub.topic("playlist:volumeChanged").publish({volume: vol});
@@ -341,15 +341,15 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			}
 			return user.get_volume();
 		};
-		
+
 		pubsub.topic("user.infos").one(function() {
           volume(user.get_volume(),true);
 		});
-		
+
 		var seek = this.seek = function(secs) {
 			driver.seek(secs);
 		};
-		
+
 		var appendRandomSongs = function(count, genres) {
 			count = count || 3;
 			genres = genres || [];
@@ -373,8 +373,8 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			if ( genres && genres.length )  opts.data["name[]"] = genres;
             rest.song.random(opts);
 		};
-		
-		
+
+
 		this.driver = function() { return driver; };
 
 		var setDriver = this.setDriver = function(newDriver) {
@@ -391,13 +391,13 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			//persist driver in database
 			recordPlaylistDriver();
 		};
-		
+
 		var availableDrivers = {default: defaultDriver};
 		var registerDriver = this.registerDriver = function(name, obj) {
 			availableDrivers[name] = obj;
 		};
-		
-		
+
+
 		var drivers = {};
 		var loadDriver = this.loadDriver = function(name, driverOptions, loadingOptions, cb) {
 			if ( !name || !name.length ) {
@@ -419,13 +419,13 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			options = options || {};
 			debug("playlist:loadDriver creating: ",name);
 			drivers[name] = new availableDrivers[name](this, eventProxy, driverOptions);
-			
+
 			drivers[name].bind("currentSongChanged",function(e,data) {
 				list.children("."+settings.currentClass).removeClass(settings.currentClass);
 				var widget = songWidget(data.current).addClass(settings.currentClass);
 // 				debug("playlist document event playlist:currentSongChanged");
 				pubsub.topic("playlist:currentSongChanged").publish({current: current()});
-				
+
 				// autoscroll
 				var startPx = list.scrollTop();
 				var height = list.height();
@@ -455,14 +455,14 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			debug("playlist: returning driver");
 			return drivers[name];
 		};
-		
+
 		var remove = this.remove = function(songs) {
 			var count = songs.length,
 			active = songs.filter("."+settings.currentClass);
 			if ( active.length ) {
 				driver.pause();
 			}
-			songs.data("removing",true).slideUp(100,function() 
+			songs.data("removing",true).slideUp(100,function()
 				{
 					$(this).remove();
 					sendPlaylistUpdate({ 'action': 'remove' });
@@ -478,10 +478,10 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 				}
 			}
 		};
-		
+
 		dnd.dropTarget (ui,list,{
 			"moveDrop": function (source,target, infos) {
-				if ( infos.wantedNode ) {  
+				if ( infos.wantedNode ) {
 					infos.wantedNode.after(source);
 				} else {
 					list.prepend(source);
@@ -494,14 +494,14 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 				if  ( infos.wantedNode  ) {
 					infos.wantedNode.after(item);
 				} else {
-					list.prepend(item);  
+					list.prepend(item);
 				}
 				playlistAppendPost();
 				return true;
 			},
 			"dropAllowed": function(e) {return driver.writable(e);}
 		});
-		
+
 		list.delegate("div.song","dragstart",
 			function(e) {
 				var dt = e.originalEvent.dataTransfer;
@@ -522,31 +522,31 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			if ( !$('span.remove',$(this)).hasClass('hidden') )   $('span.remove',$(this)).addClass('hidden');
 		})
 		.delegate("div.song span.remove",'click',function() {
-			$(this).closest("div.song").data("removing",true).slideUp(100,function() 
+			$(this).closest("div.song").data("removing",true).slideUp(100,function()
 				{
 					remove($(this));
 				}
 			);
 		})
 ;
-		
+
 		ui.find("div.manager button[name=new]").click(function() {
 			empty();
 		});
-		
+
 		ui.find(".emptyPlaylist span.link").bind("click",function () { appendRandomSongs(10); });
-		
+
 		ui.find(".showOtherOptions").click(function() {
 			ui.find(".otherOptionsContainer").slideDown("fast");
 			$(this).slideUp("fast");
 		});
-		
+
 		ui.find(".hideOtherOptions").click(function() {
 			ui.find(".showOtherOptions").slideDown("fast");
 			$(this).closest(".otherOptionsContainer").slideUp("fast");
 		});
-		
-		
+
+
 		this.bootstrap = function() {
 			var infos = user.get_preferences().playlist || {};
 			if ( infos.type && infos.type in availableDrivers ) {
@@ -573,10 +573,10 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 				});
 
 			}
-			
+
 		};
 	};
-	
+
 
 	var pl = new playlist( $("aside") , {} );
 

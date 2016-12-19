@@ -1,6 +1,13 @@
 let config;
+const express = require('express');
+const fork = require('child_process').fork;
+const join = require('path').join;
 const configParser = require('./configParser');
 const d10 = require('./d10');
+const vhost = require('vhost');
+const WebSocketServer = require('./lib/websocket-server');
+const dosWatchdog = require('./dosWatchdog');
+
 
 configParser.getConfig((foo, cfg) => {
   config = cfg;
@@ -18,31 +25,27 @@ configParser.getConfig((foo, cfg) => {
 
 
 function onConfig(isProduction) {
-  const express = require('express');
-  const d10Router = require('./webserver/d10').getD10Server(config);
-  const invitesServer = require('./webserver/invites').getInvitesServer(config);
-  var vhost = require('vhost');
-  var  httpHelper = require(__dirname+"/httpHelper"),
-    webSocketServer = require(__dirname+"/lib/websocket-server"),
-    dosWatchdog = require(__dirname+"/dosWatchdog");
-
+  const d10RouterModule = require('./webserver/d10');
+  const invitesServerModule = require('./webserver/invites');
+  const d10Router = d10RouterModule.getD10Server(config);
+  const invitesServer = invitesServerModule.getInvitesServer(config);
   process.chdir(__dirname);
 
-  var child = require('child_process').fork(__dirname + '/bgworker.js');
-  child.send({type: "configuration", production: isProduction});
+  const child = fork(join(__dirname, 'bgworker.js'));
+  child.send({ type: 'configuration', production: isProduction });
 
-  console.log("Database binding: "+config.couch.d10.dsn+"/"+config.couch.d10.database);
+  console.log(`Database binding: ${config.couch.d10.dsn}/${config.couch.d10.database}`);
 
-  var globalSrv = express();
+  const globalSrv = express();
     // 10er10 vhosts
-  globalSrv.use(vhost(config.invites.domain,invitesServer));
+  globalSrv.use(vhost(config.invites.domain, invitesServer));
   //   defaultServer
   globalSrv.use(d10Router);
-  var nodeHTTPServer = globalSrv.listen(config.port);
+  const nodeHTTPServer = globalSrv.listen(config.port);
   dosWatchdog.install(nodeHTTPServer);
-  var wsServer = new webSocketServer(nodeHTTPServer, d10Router);
+  new WebSocketServer(nodeHTTPServer, d10Router);
 
-  nodeHTTPServer.on("error", function(err) {
+  nodeHTTPServer.on('error', (err) => {
     console.log(err);
   });
 

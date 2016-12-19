@@ -55,13 +55,13 @@ onmessage = function(e){
 	if ( data.contentType ) {
 		xmlhttp.setRequestHeader("Content-Type", data.contentType);
 	} else if ( data.method == 'POST' || data.method == 'PUT' ) {
-		xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		xmlhttp.setRequestHeader("Content-Type", "application/json");
 	}
-  
-  
+
+
 	if ( data.toSend )	xmlhttp.send(data.toSend);
 	else									xmlhttp.send(null);
-	
+
 	var decoded = xmlhttp.responseText,
 		contentType = xmlhttp.getResponseHeader("Content-Type") || "text/html";
 	if ( data.dataType == 'json' || contentType.match(/json$/) ) {
@@ -77,14 +77,14 @@ onmessage = function(e){
 
 
 function sendError(request,error) {
-	postMessage ( 
-    JSON.stringify({ 'status': 'error', 'data': null, 'error': error,'request_id': request.request_id }) 
+	postMessage (
+    JSON.stringify({ 'status': 'error', 'data': null, 'error': error,'request_id': request.request_id })
   );
 }
 
 
 function sendRestResult (request, status, headers, result ) {
-	postMessage ( 
+	postMessage (
     JSON.stringify({ status: "success", code: status, headers: headers, 'data': result, 'request_id': request.request_id })
   );
 }

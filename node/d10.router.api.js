@@ -4,6 +4,7 @@ var d10 = require ("./d10"),
     debug = d10.debug("d10:d10.router.api"),
     bodyParser = require('body-parser'),
     jsonParserMiddleware = bodyParser.json(),
+    urlencodedParserMiddleware = bodyParser.urlencoded(),
   	querystring = require("querystring"),
   	qs = require("qs"),
   	fs = require("fs"),
@@ -135,13 +136,10 @@ exports.api = function(app) {
 	});
 
 
-	app.put("/api/current_playlist",function(request,response)
+	app.put("/api/current_playlist", urlencodedParserMiddleware, jsonParserMiddleware, function(request,response)
 	{
-		var body = "";
-		request.setEncoding("utf8");
-		request.on("data",function(chunk) { body+=chunk; });
-		request.on("end",function() {
-			var data = querystring.parse(body);
+    let body = request.body;
+			let data = body;
 			d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,userPreferences) {
 				if ( err ) { return d10.realrest.err(413,err,request.ctx);}
 
@@ -194,7 +192,6 @@ exports.api = function(app) {
 				}
 
 
-			});
 		});
 	}
 	);
@@ -270,7 +267,7 @@ exports.api = function(app) {
 		updateSessionTimestamp();
 	});
 
-	app.post("/api/random",function(request,response) {
+	app.post("/api/random", jsonParserMiddleware, function(request,response) {
 		dumbRadio("genre/unsorted", request, response);
 	});
 

@@ -179,5 +179,5 @@ define( ["js/config", "js/d10.toolbox", "js/d10.events", "js/d10.websocket"],
 		};
 	};
 
-	return new httpbroker(5);
+	return new httpbroker(1);
 });

@@ -4,22 +4,17 @@ var d10 = require ("../../d10"),
   qs = require("qs");
 
 var _random = function(view, request,response) {
-  var body = "";
-  request.setEncoding("utf8");
-  request.on("data",function(chunk) { body+=chunk; });
-  request.on("end",function() {
-    request.body = qs.parse(body);
-    var count = parseInt(request.body.count);
-    if ( isNaN(count) || count < 1 ){
-      return d10.realrest.err(427,"count",request.ctx);
+  var count = parseInt(request.body.count);
+  if ( isNaN(count) || count < 1 ){
+    return d10.realrest.err(427,"count",request.ctx);
+  }
+  randomWork(view, request.body, count, function(err, resp) {
+    if ( err ) {
+      return d10.realrest.err(err.code,err.message,request.ctx);
     }
-    randomWork(view, request.body, count, function(err, resp) {
-      if ( err ) {
-        return d10.realrest.err(err.code,err.message,request.ctx);
-      }
-      return d10.realrest.success(resp, request.ctx);
-    });
+    return d10.realrest.success(resp, request.ctx);
   });
+
 };
 
 var getRandomIds = function (resp,count,not,really_not) {

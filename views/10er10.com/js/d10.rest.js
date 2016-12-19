@@ -1,5 +1,5 @@
 define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitter, config) {
-	
+
 	var restQuery = function(endpoint, method, url, options) {
 			var query = {
 				method: method,
@@ -28,7 +28,7 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			bghttp.request(query);
 			emitter.topic("whenRestBegin").publish({ endpoint: endpoint });
 	};
-	
+
 	var rest = {};
 	rest.song = {
 		upload: function (file, filename, filesize, options, callback) {
@@ -84,14 +84,14 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			if ( $.isArray(song_id) ) {
 				options.data = {ids: song_id};
 				restQuery("song.get","POST",config.site_url+"/api/songs",options);
-				
+
 			} else {
 				restQuery("song.get","GET",config.site_url+"/api/song/"+song_id,options);
 			}
 		},
  		/*
 		 * @param start starting string of the song title
-		 * 
+		 *
 		 * @return ["song title 1","song title 2", ...]
 		 */
 		listByTitle: function(start, options) {
@@ -104,13 +104,13 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			}
 			restQuery("song.listByTitle","GET",config.site_url+"/api/title",options);
 		},
- 
+
 		uploadImage: function(song_id, file, filename, filesize, options) {
 			var endpoint = "song.uploadImage";
 			var xhr = new XMLHttpRequest();
 			var url ;
 			if ( $.isArray(song_id) ) {
-				url = config.site_url+"/api/songImage?"+$.d10param({filesize: file.size, filename: file.name, "ids[]": song_id});
+				url = config.site_url+"/api/songImage?"+$.d10param({filesize: file.size, filename: file.name, ids: song_id});
 				debug(url);
 			} else {
 				url = config.site_url+"/api/songImage/"+song_id+"?"+$.d10param({filesize: file.size, filename: file.name});
@@ -234,11 +234,11 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			}
 		}
 	};
-	
+
 	rest.templates = function(options) {
 		restQuery("templates","GET",config.site_url+"/api/htmlElements",options);
 	};
-	
+
 
 	rest.user = {
 		infos: function(options) {
@@ -250,7 +250,7 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 		},
 		logout: function(options) {
 			restQuery("user.logout","GET",config.site_url+"/welcome/goodbye",options);
-		},	
+		},
 		review: {
 			count: function(options) {
 				restQuery("user.review.count","GET",config.site_url+"/api/toReview",options);
@@ -265,7 +265,7 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 		},
 		invites: {
 			/*
-			 * 
+			 *
 			 * @return void
 			 */
 			send: function(email, options) {
@@ -328,9 +328,9 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 				}
 			}
 		}
- 		
+
 	};
-	
+
 	rest.server = {
 		length: function(options) {
 			restQuery("server.length","GET",config.site_url+"/api/length",options);
@@ -340,11 +340,11 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 		}
 	};
 
-	
+
 	rest.album = {
 		/*
 		 * @param start starting string of the album name
-		 * 
+		 *
 		 * @return ["album 1","album2", ...]
 		 */
 		list: function(start, options) {
@@ -359,7 +359,7 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 		},
 		/*
 		 * @param album String album name
-		 * 
+		 *
 		 * @return [ {key: [album, "artist 1"], value: 4}, ...]
 		 */
 		artists: function(album, options) {
@@ -374,11 +374,11 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 		}
 
 	};
-	
+
 	rest.artist = {
 		/*
 		 * @param start starting string of the artist name
-		 * 
+		 *
 		 * @return ["artist 1","artist 2", ...]
 		 */
 		list: function(start, options) {
@@ -391,48 +391,48 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			}
 			restQuery("artist.list","GET",config.site_url+"/api/artist",options);
 		},
- 
+
  		/*
-		 * 
+		 *
 		 * @return [ {key: ["ACDC"], value: 4} ]
 		 */
 		allByName: function(data, options) {
             options.data = data;
 			restQuery("artist.allByName","GET",config.site_url+"/api/artistsListing",options);
 		},
-  
+
 		/*
 		 * @param artist String artist name
-		 * 
+		 *
 		 * @return { artists: { "artist name": 45, "other name": 5, ... }, artistsRelated: { "other artist name": 5, ...}}
 		 */
 		related: function(artist, options) {
 			restQuery("artist.related","GET",config.site_url+"/api/relatedArtists/"+ encodeURIComponent(artist),options);
 		},
- 
+
 		/*
 		 * @param artist String artist name
-		 * 
-		 * @return [ {key: [artist, "album 1"], value: 4}, ...] 
+		 *
+		 * @return [ {key: [artist, "album 1"], value: 4}, ...]
 		 */
 		albums: function(artist, options) {
 			restQuery("artist.albums","GET",config.site_url+"/api/list/artists/albums/"+ encodeURIComponent(artist),options);
 		},
- 
+
         songsByAlbum: function(artist, options) {
           options = options || {};
           restQuery("artist.songsByAlbums","GET",config.site_url+"/api/list/artists/songsByAlbum/"+ encodeURIComponent(artist),options);
         },
-       
+
 		/*
 		 * @param artist String artist name
-		 * 
+		 *
 		 * @return [ {key: [artist, "genre 1"], value: 4}, ...]
 		 */
 		genres: function(artist, options) {
 			restQuery("artist.genres","GET",config.site_url+"/api/list/artists/genres/"+ encodeURIComponent(artist),options);
 		},
-       
+
         songHits: function(artist, options) {
             options = options || {};
             options.data = {artist: artist};
@@ -440,20 +440,20 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
             restQuery("artist.songHits","GET",config.site_url+"/api/list/artist/hits", options);
         },
 	};
-	
+
 	rest.genre = {
         /*
          * number of songs available by genre
-         * 
+         *
          * @return [ {key: ["genre1"], value: 12}, ... ]
          */
         available: function(options) {
           restQuery("genre.available","GET",config.site_url+"/api/genres/available",options);
         },
-       
+
 		/*
 		 * @param start starting string of the genre name
-		 * 
+		 *
 		 * @return ["genre 1","genre 2", ...]
 		 */
 		list: function(start, options) {
@@ -467,8 +467,8 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			restQuery("genre.list","GET",config.site_url+"/api/genre",options);
 		},
 		/*
-		 * 
-		 * 
+		 *
+		 *
 		 * @return [ {"key":["Dub"],"value":{"count":50,"artists":["Velvet Shadows","Tommy McCook & The Aggrovators","Thomsons All Stars"]}}, ... ]
 		 */
 		resume: function(options) {
@@ -476,16 +476,16 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 		},
 		/*
 		 * @param genre String genre the album should belong to
-		 * 
-		 * @return [ {key: [genre, "album1"], value: 4}, ...], 
+		 *
+		 * @return [ {key: [genre, "album1"], value: 4}, ...],
 		 */
 		albums: function(genre, options) {
 			restQuery("genre.albums","GET",config.site_url+"/api/list/genres/albums/"+encodeURIComponent(genre),options);
 		},
  		/*
 		 * @param genre String genre the artist should belong to
-		 * 
-		 * @return [ {key: [genre, "artist 1"], value: 4}, ...], 
+		 *
+		 * @return [ {key: [genre, "artist 1"], value: 4}, ...],
 		 */
 		artists: function(genre, query, options) {
           options.data = {};
@@ -551,10 +551,10 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 		},
 
 	};
-	
+
 	rest.rpl = {
 		/*
-		 * 
+		 *
 		 * @return {_id: "pl....", ...}
 		 */
 		get: function(id,options) {
@@ -564,31 +564,31 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 		create: function(name, songs, options) {
 			options.data = {
 				name: name,
-				"songs[]": songs ? songs : []
+				songs: songs || []
 			};
 			restQuery("rpl.create","PUT",config.site_url+"/api/plm/create",options);
 
 		},
 		/*
-		 * 
+		 *
 		 * @return {playlist: {_id: "pl...",...}, songs: [{_id: "aa...", ...}, ... ]}
 		 */
 		update: function(id, songs, options) {
 			options.data = {
 				playlist: id,
-				"songs[]": songs
+				songs: songs
 			};
 			restQuery("rpl.update","PUT",config.site_url+"/api/plm/update",options);
 		},
 		/*
-		 * 
+		 *
 		 * @return {_id: "pl....", ...}
-		 */		
+		 */
 		remove: function(id, options) {
 			restQuery("rpl.delete","DELETE",config.site_url+"/api/plm/"+id,options);
 		},
 		/*
-		 * 
+		 *
 		 * @return {_id: "pl....", ...}
 		 */
 		rename: function(id,name,options) {
@@ -599,9 +599,9 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			restQuery("rpl.rename","PUT",config.site_url+"/api/plm/rename/"+id,options);
 		},
 		/*
-		 * 
+		 *
 		 * @return {playlist: {_id: "pl...",...}, song: {_id: "aa...", ...}}
-		 */		
+		 */
 		append: function(id,song_id,options) {
 			options.data = {
 				song:song_id
@@ -610,7 +610,7 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			restQuery("rpl.append","PUT",config.site_url+"/api/plm/append/"+id,options);
 		}
 	};
-	
+
 	rest.search = {
 		all: function(query, options) {
 			options.data = { start: query };
@@ -621,7 +621,7 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			restQuery("search.details","POST",config.site_url+"/api/details",options);
 		}
 	};
-    
+
     rest.rc = {
       login: function(login, password, options) {
         options.data = {login: login, password: password};
@@ -634,6 +634,6 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
         restQuery("rc.logout","PUT",config.site_url+"/api/rc/logout",options);
       }
     };
-    
+
 	return rest;
 });
