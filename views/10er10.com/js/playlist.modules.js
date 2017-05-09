@@ -10,19 +10,20 @@ define([
 	"js/playlist.module.title",
 	"js/playlist.module.topinfos",
 	"js/playlist.module.volume",
-    "js/playlist.module.mix",
+  "js/playlist.module.mix",
+  'js/playlist.module.playbackRate'
 ], function() {
-  
+
   var controls = $("#controls");
   var container = $("#container");
-  
+
   var disableAll = function() {
     controls.find(".optionsTab > div.on").each(function() {
       var targetName = $(this).removeClass("on").attr("data-target");
       controls.find(".optionsPanel > ."+targetName).slideUp();
     });
   };
-  
+
   controls.delegate(".optionsTab > div", "click", function() {
     var self = $(this);
     var enabled = self.hasClass("on");
@@ -37,7 +38,7 @@ define([
       self.addClass("on");
     }
   });
-  
+
   function bindTabs() {
     var tabContainer = $("#player .playlistOptions");
     var disableAll = function() {
@@ -47,7 +48,7 @@ define([
         target.removeClass("active");
       });
     };
-    
+
     tabContainer.delegate("span","click",function() {
       var self = $(this);
       var enabled = $(this).hasClass("active");
@@ -60,9 +61,9 @@ define([
       }
     });
   };
-    
+
   bindTabs();
-  
-  
+
+
 	debug("playlist modules loaded ! ");
 });

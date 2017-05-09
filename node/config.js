@@ -39,7 +39,7 @@ exports.rpp = 30;
 exports.audio = {
 	tmpdir: "../audio/tmp",
 	dir: "../audio/files",
-    
+
     // when the source audio file is already encoded, and not on ogg format,
     // setting this to true will also record the original file
     keepOriginalFile: true
@@ -87,7 +87,8 @@ exports.javascript = {
 		"jquery.resizer.js",
 		"jquery.image.js",
 		"jquery.d10param.js",
-        "jquery.cookie.js",
+		"jquery.cookie.js",
+		"vendor/jquery.hotkeys.js",
 		"require.js",
 		"mustache.js"
 	]
@@ -120,8 +121,8 @@ exports.invites = {
 "A bientôt,\n\n"+
 "Le staff\n"
 }
-		
-		
+
+
 // set it to true if 10er10 should allow genres that aren't in the exports.genres list
 exports.allowCustomGenres = false;
 exports.genres = [

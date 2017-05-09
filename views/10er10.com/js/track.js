@@ -11,12 +11,12 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 	* 		onprogressUpdate: song availability, fired when something changed in the song loading infos
     *       onCreated: if this callback is set, the track will start buffering and then call the callback
     *       volume: set the default volume of the audio file
-	* 
+	*
 	* public properties
 	* - id : id of the wrapper
 	* - audio : the Audio HTML5 Object
 	* - duration : the seconds argument exposed
-	* 
+	*
 	* public methods
 	* - getProgressPC() : get perdentile of file loaded
 	* - destroy() : stop immmediately playing, destroy the inderlying <audio>
@@ -58,7 +58,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 			"ondurationchange",
 			"onvolumechange"
 		];
-		
+
 		var settings = {
 			"onprogressUpdate": function(){} // fired if the song loading progress event fired and computed length is different
 		};
@@ -73,7 +73,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 			return back;
 		};
 		var progressTimeout = null;
-			
+
 		var privateEvents = {
 			"onstalled": function() {
 				debug("STALLED !",audio);
@@ -173,22 +173,22 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 		var audio  =  null;
 		var fadeInterval = null;
 		var fadingOut = false;
-		
+
 		this.id = id;
 
 		this.duration = seconds;
-		
+
 		this.getCreationTimestamp = function() { return state.created; };
-		
+
 		this.fading = function() { return fadeInterval ? true : false; };
-		
-		this.getProgressPC = function() { 
+
+		this.getProgressPC = function() {
           if( typeof audio.buffered == "object" ) {
             return progressFromBuffered();
           }
-          return state.progressPC; 
+          return state.progressPC;
         };
-		
+
 		this.destroy = function() {
 			try { audio.pause(); } catch (e) {}
 			delete audio ;
@@ -214,6 +214,18 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 			}
 		}
 
+		this.playbackRate = function() {
+			return audio.playbackRate;
+		}
+
+		this.incrementPlaybackRate = function() {
+			audio.playbackRate += 0.02;
+		}
+
+		this.decrementPlaybackRate = function() {
+			audio.playbackRate -= 0.02;
+		}
+
 		this.fadeOut = function (secs,callback) {
 			if ( fadeInterval ) {
 				clearInterval(fadeInterval);
@@ -222,7 +234,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 			var target_volume = audio.volume;
 			var remaining = secs;
 			var step = target_volume / secs;
-			
+
 			var fadeStep = function () {
 				fadingOut=true;
 				if ( remaining == 0 ) {
@@ -254,7 +266,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 				clearInterval(fadeInterval);
 				fadeInterval = null;
 			}
-			
+
 			var remaining = secs;
 			var step = config.target_volume / secs;
 
@@ -277,7 +289,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 			}
 			audio.currentTime = config.startTime;
 			audio.volume = 0;
-			
+
 			audio.timestamp = new Date().getTime();
 			audio.play();
 			fadeStep();
@@ -292,13 +304,13 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 			var evts = state.events.slice(0);
 			state.events = [];
 			pubsub.topic("audioDump").publish({
-								"id": id, 
-								"creation": state.created, 
+								"id": id,
+								"creation": state.created,
 								"events": evts,
 								"duration": seconds
 								});
 		};
-        
+
 		var ael = function(evt) {
           var evtName = evt.replace(/^on/,'');
 			if ( evt != "ontimeupdate" && config.debug && config.debug_options.audio ) {
@@ -312,7 +324,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
               audio.addEventListener(evtName,settings[evt],false);
 			}
 		};
-        
+
         var preloadHack = function(then) {
           return then(this);
           var self = this;
@@ -329,7 +341,7 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
 
         // choose best audio type
         var bestType = audioCapabilities.chooseBestType(url);
-        
+
 		// create song
 		audio  = new Audio(bestType.url);
 		this.audio = audio;
@@ -347,5 +359,5 @@ define(["js/d10.toolbox", "js/config", "js/d10.events", "js/d10.audioCapabilitie
           preloadHack.call(this, settings.onCreated);
         }
 	};
-	return track; 
+	return track;
 });

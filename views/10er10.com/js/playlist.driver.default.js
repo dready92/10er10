@@ -1,8 +1,8 @@
 define(["js/d10.rest",
        "js/d10.eventEmitter",
        "js/track",
-       "js/d10.templates", 
-       "js/d10.events", 
+       "js/d10.templates",
+       "js/d10.events",
        "js/user",
        "js/d10.mix"
        ],
@@ -14,7 +14,7 @@ events binding :
 
 1/ audio [all events] bound to proxyHandler
 2/ proxyHandler calling CURRENT driver's handleEvent
-3/ current driver calling this.trigger to feedback to the playlist 
+3/ current driver calling this.trigger to feedback to the playlist
 
 */
 
@@ -48,7 +48,7 @@ var allEvents = [
 function playlistDriverDefault (playlist, proxyHandler, options) {
 	options = options || {};
 	var settings = $.extend({
-		fade: function() { 
+		fade: function() {
           var af = user.get_preferences().audioFade;
           if ( isNaN(af) || af < 0 ) {
             return 15;
@@ -69,7 +69,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 						"progressUpdate": function(e) {
 							if ( current && this === current.audio ) {
 								trigger("currentLoadProgress", {track:current});
-								
+
 								//                                              $(document).trigger('player.currentSongProgress', {'progress': { 'lengthComputable': true,'total': 100, 'loaded': getAudio(this.id).track.getProgressPC()} }  );
 							}
 						},
@@ -96,7 +96,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                                                 beginFade(createDefaultMix());
                                         }
                                 }
-                                
+
                         },
                         "canplaythrough":function() {
                                 if ( current && this === current.audio ) {
@@ -117,8 +117,8 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                                 }
                         }
                 };
-	
-	
+
+
 	var eventEmitter = new eventEmitterDef();
 	var bind = this.bind = eventEmitter.bind;
 	var trigger = this.trigger = eventEmitter.trigger;
@@ -134,7 +134,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		if ( widget.length )	return playlist.songId(widget);
 		return false;
 	};
-	
+
 	var createTrack = function(id,url,duration,options) {
 		options = options || {};
         options.volume = user.get_volume();
@@ -198,7 +198,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       next = createTrack.apply(this,infos);
       return true;
     }
-	
+
     var createDefaultMix = function() {
       var secs = settings.fade();
       var mixSteps = [];
@@ -226,7 +226,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       }
       return true;
     };
-    
+
     var isNextPreloaded = this.isNextPreloaded = function() {
       if ( !doesNextExists() ) {
         return false;
@@ -236,7 +236,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       }
       return true;
     };
-    
+
     var launchMixRelaxed = this.launchMixRelaxed = function(fadeMix, opts, onFadeEnded) {
       opts = opts||{};
       if ( opts.index ) {
@@ -247,7 +247,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       }
       return launchMix(fadeMix, opts, onFadeEnded);
     };
-    
+
     var launchMix = this.launchMix = function(fadeMix, opts, onFadeEnded) {
       if ( !onFadeEnded && $.isFunction(opts) ) {
         onFadeEnded = opts;
@@ -266,7 +266,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       }
       onFadeEnded = onFadeEnded || function(){};
       inTheMix = fadeMix;
-      
+
       if ( fadeMix.start(current.audio, next.audio, function() { inTheMix = false; onFadeEnded();}) ) {
         var previous = current;
         flipNextToCurrent();
@@ -278,8 +278,8 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
       }
       return true;
     };
-    
-    
+
+
     var beginFade = this.beginFade = function (fadeMix) {
       debug("Mix fade algorithm begins");
       if ( !doesNextExists() ) {
@@ -319,7 +319,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
         };
         return createTrack(id,url,duration,options);
       }
-      
+
       // we got current and current is our song
       _playCurrentFromStart();
       trigger("currentSongChanged",{current: current});
@@ -398,9 +398,9 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
     last = current;
     current = null;
   };
-  
-  
-	this.current = function(track) { 
+
+
+	this.current = function(track) {
 		if ( arguments.length ) {
             flipCurrentToLast();
 			current = track;
@@ -417,7 +417,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
     var currentLoadProgress = this.currentLoadProgress = function() {
         return current.getProgressPC();
     };
-    
+
 	var volume = this.volume = function(vol) {
       if ( vol < 0 || vol > 1 ) 	return false;
       [last, current, next].forEach(function(track) {
@@ -428,9 +428,17 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
         }
       });
 	};
-	
+
 	var seek = this.seek = function(secs) {
 		if ( current )	current.seek(secs);
+	};
+
+  var incrementPlaybackRate = this.incrementPlaybackRate = function() {
+		if ( current )	current.incrementPlaybackRate();
+	};
+
+  var decrementPlaybackRate = this.decrementPlaybackRate = function() {
+		if ( current )	current.decrementPlaybackRate();
 	};
 
 	var writable = this.writable = function() {
@@ -438,7 +446,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 	};
 
 	var subscribedEvents = [];
-	
+
 	var enable = this.enable = function(previousDriver) {
 		if ( previousDriver ) {
 			var track = previousDriver.current();
@@ -472,7 +480,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		if ( playlist.allIds().length == 0 ) {
 			return ;
 		}
-		
+
 		var checkNext = function() {
 			var nextWidget = widget.next();
 			if ( !nextWidget.length ) {
@@ -488,7 +496,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
                 next = null;
 			}
 		};
-		
+
 		debug("playlistDriverDefault list modified event: ",e);
 		// check widget of current track
 		var widget = playlist.current();
@@ -514,11 +522,11 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 		}
 		checkNext();
 	};
-	
+
 	var record = this.record = function() {
 		rest.user.playerList.default.store(playlist.allIds(),{});
 	};
-	
+
 	this.load = function(options,cb) {
 		debug("playlistDriverDefault load: ",options);
 		playlist.title(settings.title);
@@ -551,7 +559,7 @@ function playlistDriverDefault (playlist, proxyHandler, options) {
 			}
 		});
 	};
-	
+
 };
 
 return playlistDriverDefault;

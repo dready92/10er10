@@ -1,54 +1,52 @@
 <!DOCTYPE html>
-<html> 
-<head> 
-<title>((website_title))</title> 
-<META http-equiv="Content-Type" Content="text/html; charset=utf-8"> 
-<!--<link rel="stylesheet" type="text/css" href="/css/style.css" />--> 
- 
-<link rel="stylesheet" type="text/css" href="/css/style.css" /> 
-</head> 
-<body><div id="containerWrap"> 
-<div id="beautyFade"> 
-<div id="initialLoading"> 
-	<p>(({website_loading_message}))</p> 
-</div> 
-</div> 
-<div id="browserNotSupported"> 
-  <div> 
+<html>
+<head>
+<title>((website_title))</title>
+<META http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+<body><div id="containerWrap">
+<div id="beautyFade">
+<div id="initialLoading">
+	<p>(({website_loading_message}))</p>
+</div>
+</div>
+<div id="browserNotSupported">
+  <div>
     (({err_browser_not_supported}))
-  </div> 
-</div> 
-<div id="osd"></div> 
-<div id="container" style="display:none"> 
- 
-<nav> 
-	<div id="search" action="results" data-no-active-click="1" data-mm-in-effect="fadeIn"> 
-		<div> 
-			<input type="text" name="q" placeholder="((search_placeholder))" autocomplete="off"> <img class="middle" src="/css/16x16/actions/edit-find.png"> 
-		</div> 
-		<div class="label">((search_label))</div> 
-		<div>((search_teaser))</div> 
-	</div> 
-	<ul class="nomark"> 
-		<li  action="upload" actiontype="toggle"> 
-			<div><img class="middle" src="/css/22x22/actions/go-jump.png">((upload_title))</div> 
-			<div>((upload_teaser))</div> 
-		</li><li action="my" actiontype="toggle"> 
-			<div><img class="middle" src="/css/22x22/places/user-home.png">((my_title))</div> 
+  </div>
+</div>
+<div id="osd"></div>
+<div id="container" style="display:none">
+
+<nav>
+	<div id="search" action="results" data-no-active-click="1" data-mm-in-effect="fadeIn">
+		<div>
+			<input type="text" name="q" placeholder="((search_placeholder))" autocomplete="off"> <img class="middle" src="/css/16x16/actions/edit-find.png">
+		</div>
+		<div class="label">((search_label))</div>
+		<div>((search_teaser))</div>
+	</div>
+	<ul class="nomark">
+		<li  action="upload" actiontype="toggle">
+			<div><img class="middle" src="/css/22x22/actions/go-jump.png">((upload_title))</div>
+			<div>((upload_teaser))</div>
+		</li><li action="my" actiontype="toggle">
+			<div><img class="middle" src="/css/22x22/places/user-home.png">((my_title))</div>
 			<a href="#my/review" id="reviewReminder" class="hidden"> (({side_review_reminder_resume}))  </a>
-			<div>((my_teaser))</div> 
+			<div>((my_teaser))</div>
 		</li><li action="library" actiontype="toggle">
-			<div><img class="middle" src="/css/22x22/places/folder-sound.png">((library_title))</div> 
-			<div>((library_teaser))</div> 
-		</li><li action="welcome" actiontype="toggle"> 
-			<div><img class="middle" src="/css/22x22/categories/system-help.png">((welcome_title))</div> 
-			<div>((welcome_teaser))</div> 
-		</li> 
- 
-	</ul> 
-</nav> 
- 
-<aside id="side"> 
+			<div><img class="middle" src="/css/22x22/places/folder-sound.png">((library_title))</div>
+			<div>((library_teaser))</div>
+		</li><li action="welcome" actiontype="toggle">
+			<div><img class="middle" src="/css/22x22/categories/system-help.png">((welcome_title))</div>
+			<div>((welcome_teaser))</div>
+		</li>
+
+	</ul>
+</nav>
+
+<aside id="side">
   <div class="spectrumControl hidden">
     <div class="controls">
       <input type="checkbox" name="enable" id="spectrumCheck"/>
@@ -58,52 +56,52 @@
   </div>
 
   <div class="audioImage center"></div>
-  <div class="playlisttitle"><span></span></div> 
+  <div class="playlisttitle"><span></span></div>
   <div id="playlist"></div>
   <div id="playlistLoader">((side_playlistloader))</div>
-  <div class="emptyPlaylist">((side_playlist_empty))<BR><span class="link">((side_playlist_fill))</span></div> 
-  <div class="manager"> 
-    <button name="new" title="((side_playlist_empty_title))"> 
-      <img src="/css/22x22/actions/edit-clear.png" class="middle"> 
-((side_playlist_empty_button))</button> 
-    <button name="load" title="((side_playlist_load_title))"> 
-      <img src="/css/22x22/actions/document-open.png" class="middle"> 
-((side_playlist_load_button))</button> 
-    <button name="save" title="((side_playlist_record_title))"> 
-    <img src="/css/22x22/actions/document-save.png" class="middle"> 
-((side_playlist_record_button))</button> 
-  </div> 
-  <div class="saveplaylist hidden"> 
-    <div class="center"> 
-      <p class="airin"> 
-        ((side_playlistrecord_title))<input type="text" name="name" defaultvalue="((side_playlistrecord_placeholder))"> 
-      </p> 
-      <button><img src="/css/22x22/actions/document-save.png" class="middle">((side_playlistrecord_button))</button> 
-      <span class="link">((side_playlistrecord_cancel))</span> 
-    </div> 
-  </div> 
-  <div class="updateplaylist hidden center"> 
-    <p class="airin"> 
+  <div class="emptyPlaylist">((side_playlist_empty))<BR><span class="link">((side_playlist_fill))</span></div>
+  <div class="manager">
+    <button name="new" title="((side_playlist_empty_title))">
+      <img src="/css/22x22/actions/edit-clear.png" class="middle">
+((side_playlist_empty_button))</button>
+    <button name="load" title="((side_playlist_load_title))">
+      <img src="/css/22x22/actions/document-open.png" class="middle">
+((side_playlist_load_button))</button>
+    <button name="save" title="((side_playlist_record_title))">
+    <img src="/css/22x22/actions/document-save.png" class="middle">
+((side_playlist_record_button))</button>
+  </div>
+  <div class="saveplaylist hidden">
+    <div class="center">
+      <p class="airin">
+        ((side_playlistrecord_title))<input type="text" name="name" defaultvalue="((side_playlistrecord_placeholder))">
+      </p>
+      <button><img src="/css/22x22/actions/document-save.png" class="middle">((side_playlistrecord_button))</button>
+      <span class="link">((side_playlistrecord_cancel))</span>
+    </div>
+  </div>
+  <div class="updateplaylist hidden center">
+    <p class="airin">
       ((side_playlistrecord_playlist_name_exists))
-    </p> 
-    <button name="save"><img src="/css/22x22/actions/document-save.png" class="middle">((side_playlistrecord_playlist_name_exists_button</button> 
-    <span class="link">((side_playlistrecord_cancel))</span> 
-  </div> 
-</aside> 
- 
- 
- 
-<div id="main"> 
+    </p>
+    <button name="save"><img src="/css/22x22/actions/document-save.png" class="middle">((side_playlistrecord_playlist_name_exists_button</button>
+    <span class="link">((side_playlistrecord_cancel))</span>
+  </div>
+</aside>
+
+
+
+<div id="main">
 
 {{>libraryContainer}}
 {{>myContainer}}
 {{>uploadContainer}}
 {{>welcomeContainer}}
 {{>resultsContainer}}
-</div> 
- 
+</div>
+
 <footer> <span class="loggedin">
-((website_logged_as)) {{username}} - 
+((website_logged_as)) {{username}} -
 <a class="logout" href="#">((website_logout))</a></span>
 <span class="loggingOut hidden">((website_logging_out))</span> - 10er10 - <span class="hours"></span> ((website_total_playing_length))
 <div class="langChooser">
@@ -113,14 +111,14 @@
 		{{/langs}}
 	</select>
 </div>
-</footer> 
- 
+</footer>
+
 <div id="player">
   <div class="side">
-    <div class="logo"> 
-      <span class="d1">1</span><span class="d0">0</span><span class="e3">E</span><span class="r">R</span><span class="n1">1</span><span class="n0">0</span> 
-    </div> 
-    <div class="teaser">((website_teaser))</div> 
+    <div class="logo">
+      <span class="d1">1</span><span class="d0">0</span><span class="e3">E</span><span class="r">R</span><span class="n1">1</span><span class="n0">0</span>
+    </div>
+    <div class="teaser">((website_teaser))</div>
     <div class="remoteControl hidden"><img src="css/64x64/devices/input-gaming.png"></div>
   </div>
   <div class="player">
@@ -128,13 +126,13 @@
       <div class="volumeAndStarringControl">
         <div name="volume"><div name="volumein" ></div></div>
         <img src="/css/22x22/actions/get-hot-new-stuff.png" name="likes">
-        <img src="/css/22x22/actions/mail-mark-junk.png" name="dislikes"> 
+        <img src="/css/22x22/actions/mail-mark-junk.png" name="dislikes">
       </div>
       <div class="playerControls">
-        <img src="/css/48x48/actions/player_play.png" name="play" title="((side_play_title))"> 
-        <img src="/css/48x48/actions/player_pause.png" name="pause" class="hidden" title="((side_pause_title))"> 
-        <img src="/css/32x32/actions/player_start.png" name="previous" title="((side_previous_title))"> 
-        <img src="/css/32x32/actions/player_end.png" name="next" title="((side_next_title))"> 
+        <img src="/css/48x48/actions/player_play.png" name="play" title="((side_play_title))">
+        <img src="/css/48x48/actions/player_pause.png" name="pause" class="hidden" title="((side_pause_title))">
+        <img src="/css/32x32/actions/player_start.png" name="previous" title="((side_previous_title))">
+        <img src="/css/32x32/actions/player_end.png" name="next" title="((side_next_title))">
       </div>
     </div>
     <div class="playlistOptions">
@@ -146,10 +144,11 @@
       <div class="currentTime"></div>
       <div class="totalTime"></div>
       <div class="songTitle"></div>
-      <div name="progression"> 
-        <div class="netload"></div> 
-        <div class="timer"></div> 
-      </div> 
+      <div name="progression">
+        <div class="netload"></div>
+        <div class="timer"></div>
+      </div>
+      <div class="playbackRate"></div>
       <div class="otherSongFields">
         <span class="songArtist"></span>
         <span class="songAlbum"></span>
@@ -175,21 +174,21 @@
       </div>
     </div>
 </div>
-<div class="radio yellowOverlay controlOverlay" title="((side_options_radiomode_title))"> 
+<div class="radio yellowOverlay controlOverlay" title="((side_options_radiomode_title))">
   <div class="off">
     <div class="label">(({side_options_radiomode_disabled}))</div>
     <div class="link center expandable">((side_options_radiomode_enable))</div>
-  </div> 
-  <div class="on"> 
+  </div>
+  <div class="on">
     <div class="label">(({side_options_radiomode_enabled}))</div>
     <div class="disable center"><span class="link">((side_radiomode_disable))</span></div>
     <div class="center vertical-air">((side_radiomode_genre_selector_title))</div>
     <div class="list">{{#genres}}<div name="{{.}}">{{.}}</div>{{/genres}}</div>
-  </div> 
+  </div>
 </div>
 
-</div></div> 
-<div class="hidden" id="songitem"><img src="/css/22x22/apps/amarok.png"></div> 
+</div></div>
+<div class="hidden" id="songitem"><img src="/css/22x22/apps/amarok.png"></div>
 <div class="hidden" id="waititem"><img src="/css/plsmall.gif"></div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -210,9 +209,9 @@ define("js/config",[], function() {
 var cfg = {
 		site_url: "",
 		base_url: "{{base_url}}",
-        debug: {{dbg}}, 
-        debug_options: {}, 
-        audio_root: "{{audio_root}}", 
+        debug: {{dbg}},
+        debug_options: {},
+        audio_root: "{{audio_root}}",
         img_root: "{{img_root}}",
         img_size: "{{img_size}}",
         img_default: "{{img_default}}",
@@ -231,7 +230,7 @@ cfg.debug_options.audio = true;
 {{/debugAudio}}
 {{#debugNet}}
 cfg.debug_options.network = true;
-{{/debugNet}} 
+{{/debugNet}}
 return cfg;
 });
 
@@ -241,5 +240,5 @@ require(["js/bootstrap"],function() {
 require(["js/playlist.modules"],function() { debug("PLAYLIST MODULES LOADED "); });
 </script>
 
-</body> 
+</body>
 </html>

@@ -57,9 +57,9 @@ a:active { color: #FFCA40 }
 .floatright { float: right;}
 .floatleft { float: left;}
 .link, .linkOnHover:hover {	cursor: pointer;	color: #BF9730; }
-.linkHover:hover { 
+.linkHover:hover {
   border-radius: 3px;
-  background-color: rgba(255,255,255,0.1); 
+  background-color: rgba(255,255,255,0.1);
   -webkit-box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.1);
   box-shadow: 0px 0px 0px 2px rgba(255, 255, 255, 0.1);
   -moz-transition: all 0.3s;
@@ -82,18 +82,18 @@ footer {
 	clear: both;
 	margin-top: 5px;
 	padding: 2px 10px;
-	background: -webkit-linear-gradient(top,  
-				#444444 0%,  
+	background: -webkit-linear-gradient(top,
+				#444444 0%,
 				#343434 15%,
 				#343434 85%,
 				#121212 100%);
-	background: -moz-linear-gradient(top,  
-				#444444 0%,  
+	background: -moz-linear-gradient(top,
+				#444444 0%,
 				#343434 15%,
 				#343434 85%,
 				#121212 100%);
-    background: linear-gradient(top,  
-                #444444 0%,  
+    background: linear-gradient(top,
+                #444444 0%,
                 #343434 15%,
                 #343434 85%,
                 #121212 100%);
@@ -115,25 +115,25 @@ footer .langChooser select {
 button {
   text-shadow: #121212 0px 1px 1px;
   border-radius: 3px;
-    background: -webkit-linear-gradient(top,  
-                #595959 0%,  
+    background: -webkit-linear-gradient(top,
+                #595959 0%,
                 #454545 25%,
                 #454545 75%,
                 #393939 100%);
-  background: -moz-linear-gradient(top,  
-                #595959 0%,  
+  background: -moz-linear-gradient(top,
+                #595959 0%,
                 #454545 25%,
                 #454545 75%,
                 #393939 100%);
-  background: linear-gradient(top,  
-                #595959 0%,  
+  background: linear-gradient(top,
+                #595959 0%,
                 #454545 25%,
                 #454545 75%,
                 #393939 100%);
   padding: 2px 4px;
   cursor: pointer;
   background-color: #232323;
-  border: 1px solid rgba(200,200,200,0.3); 
+  border: 1px solid rgba(200,200,200,0.3);
   color: #9A9A9A;
   font-size: 0.95em;
   -moz-user-select: none;
@@ -154,7 +154,7 @@ button.risky {
 
 button[disabled] {
   background-color: #898989;
-  
+
 }
 
 button:hover {
@@ -272,7 +272,7 @@ section > h1 {
 	-moz-transition-property: background-color;
 	-moz-transition-duration: 0.8s;
 	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 0.8s;  
+	-webkit-transition-duration: 0.8s;
 }
 
 #container > nav > ul > li:hover {
@@ -305,10 +305,10 @@ section > h1 {
 
 #library article.songlist {
 	position: relative;
-	
-} 
 
-#library .showHideExtended { 
+}
+
+#library .showHideExtended {
 	padding: 5px 20px; background-color: #454545; text-align: center;
 	border-top-right-radius: 5px;border-top-left-radius: 5px;
 }
@@ -326,9 +326,9 @@ background-image: -moz-linear-gradient(-50deg,#343434,#3F3F3F 10%,#343434 30%);
 background-image: linear-gradient(-50deg,#343434,#3F3F3F 10%,#343434 30%);
 }
 #library article.songlist .extendedInfos .part > div {text-align: center; font-size: 1.2em; padding: 4px 0; color: #086FA1;}
-#library article.songlist .extendedInfos .part > ul {list-style: none; height: 140px; overflow: auto; 
+#library article.songlist .extendedInfos .part > ul {list-style: none; height: 140px; overflow: auto;
 background-color: rgba(200,200,200,0.05);padding: 5px 3px;text-align: left;}
-#library article.songlist .extendedInfos .part li {font-size: 0.9em; cursor: pointer; 
+#library article.songlist .extendedInfos .part li {font-size: 0.9em; cursor: pointer;
 transition: color 0.5s linear; -moz-transition: color 0.5s linear; -webkit-transition: color 0.5s linear; }
 #library article.songlist .extendedInfos .part li:hover { color: #BF9730; }
 
@@ -486,7 +486,7 @@ article.review .form_error {
 	background-color: #FF6840;
 	color: #121212;
 	border: 1px solid #A62300;
-	border-radius: 3px;	
+	border-radius: 3px;
 }
 
 /* library !!!*/
@@ -516,7 +516,7 @@ article.review .form_error {
   content: ", ";
 }
 
-#my article.review.empty, #library .list.empty, #my .list.empty { padding: 20px 0 20px 10px; font-size: 1.2em;} 
+#my article.review.empty, #library .list.empty, #my .list.empty { padding: 20px 0 20px 10px; font-size: 1.2em;}
 #library .song, #my .song, #results .song { display: table-row; }
 #library .song, #my .song, #results .song {
 transition-property: opacity,background-color;
@@ -532,7 +532,7 @@ transition-duration: 0.3s;
 #library .song.selected:nth-child(even), #my .song.selected:nth-child(even), #playlist .song.selected:nth-child(even),#results .song.selected:nth-child(even) { background-color: #03334A; }
 #library .song.selected:nth-child(odd), #my .song.selected:nth-child(odd), #playlist .song.selected:nth-child(odd),#results .song.selected:nth-child(odd) { background-color: #054768; }
 
-#library .song.dragging, #my .song.dragging, #playlist .song.dragging { 
+#library .song.dragging, #my .song.dragging, #playlist .song.dragging {
 	opacity: 0.3;
     transition-property: opacity;
     transition-duration: 0.3s;
@@ -554,15 +554,15 @@ transition-duration: 0.3s;
 
 #library .add, #my .add, #my span.review  { cursor: pointer; }
 
-#library > nav ul, #my > nav ul, #welcome > nav ul { 
+#library > nav ul, #my > nav ul, #welcome > nav ul {
   border-radius: 3px;
 /*  background: linear-gradient(top,
                 rgb(100,100,100) 0%,
                 rgb(52,52,52) 10px);
-   background: -webkit-linear-gradient(top,  
+   background: -webkit-linear-gradient(top,
                 rgb(100,100,100) 0%,
                 rgb(52,52,52) 10px);
-  background: -moz-linear-gradient(top,  
+  background: -moz-linear-gradient(top,
                 rgb(100,100,100) 0%,
                 rgb(52,52,52) 10px);*/
 }
@@ -578,10 +578,10 @@ transition-duration: 0.3s;
   -webkit-transition: background-color 0.4s;
 }
 
-#main > div > nav ul li:hover { background-color: rgba(200,200,200,0.15);} 
+#main > div > nav ul li:hover { background-color: rgba(200,200,200,0.15);}
 
 #main > div > nav ul li.active {
-  cursor: auto; 
+  cursor: auto;
   color: #9A9A9A;
   text-shadow: #121212 0 1px 1px;
   background: rgb(8,111,161);
@@ -646,8 +646,8 @@ article div.refreshList {
   border: 4px solid rgba(0,0,0,0.2);
   -webkit-animation-duration: 2s;
   -webkit-animation-name: bgcolor;
-  -webkit-animation-iteration-count: infinite;  
-  -webkit-animation-direction: alternate;  
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-direction: alternate;
 }
 
  @-webkit-keyframes bgcolor {
@@ -821,7 +821,7 @@ article div.refreshList {
 #library .albumMini img{
     transition: transform 0.3s;
     -webkit-transition: -webkit-transform 0.3s;
-	-webkit-transform: scale(0.8); 
+	-webkit-transform: scale(0.8);
 	-webkit-transform-origin: center;
     transform: scale(0.8);
     transform-origin: center center;
@@ -852,7 +852,7 @@ article div.refreshList {
   white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
 }
 
-#library .albumMini .arrow { 
+#library .albumMini .arrow {
   opacity: 0;
   position: absolute;
   margin-left: -7px;
@@ -878,7 +878,7 @@ article div.refreshList {
   -webkit-transition: all 0.3s;
   transition: all 0.3s;
 }
-  
+
 #library .albumMini.opened .arrow {
   opacity: 1;
   bottom: -13px;
@@ -925,7 +925,7 @@ article div.refreshList {
     transform: scale(1.5);
 	-webkit-transform: scale(1.5);
 	-moz-transform: scale(1.5);
-	
+
 }
 
 #library .albumsLanding .letter.active {
@@ -959,7 +959,7 @@ article div.refreshList {
 }
 
 #library .albumCoversContent .albumDetails .head .infos{
-  margin-right: 130px; 
+  margin-right: 130px;
 }
 #library .albumCoversContent .albumDetails .albumTitle{
   font-size: 1.4em;
@@ -1025,9 +1025,9 @@ article div.refreshList {
 	background: #343434; padding: 0; font-size:0.85em;
 }
 
-#my .plm-content-container { 
-  margin-left: 112px; 
-  margin-right: 1px; 
+#my .plm-content-container {
+  margin-left: 112px;
+  margin-right: 1px;
   padding-left: 1px;
   background-color: #232323;
   transition: all 0.3s;
@@ -1071,7 +1071,7 @@ article div.refreshList {
 #my .plm-content-container .rpl .list .song .album,
 #my .plm-content-container .rpl .list .song .length,
 #my .plm-content-container .rpl .list .song .remove,
-#my .plm-content-container .rpl .list .song .add 
+#my .plm-content-container .rpl .list .song .add
 { display: table-cell; }
 
 #my .rpl .controls {
@@ -1118,9 +1118,9 @@ article div.refreshList {
 	width: 128px;
 	height: 128px;
 	position: relative;
-	
+
 }
-#my div.uploadDropBox .remove { 
+#my div.uploadDropBox .remove {
 	position: absolute;
 	top: 48px;
 	left: 48px;
@@ -1128,11 +1128,11 @@ article div.refreshList {
 	cursor: pointer;
 }
 
-#my div.uploadDropBox .imageReview:hover .remove { 
+#my div.uploadDropBox .imageReview:hover .remove {
 	display: block;
 }
 
-#my div.uploadDropBox .imageReview:hover img:first-child { 
+#my div.uploadDropBox .imageReview:hover img:first-child {
 	opacity: 0.7;
 }
 
@@ -1182,7 +1182,7 @@ body.noplaylist aside {
     transition: opacity 0.5s;
 	-webkit-transition:  opacity 0.5s;
 	-moz-transition: opacity 0.5s;
-	
+
 }
 
 aside.highlighted {
@@ -1261,7 +1261,7 @@ aside div.emptyPlaylist {
 
 #my .overlay, #library .overlay {
   width: 298px;
-  border-width: 1px;  
+  border-width: 1px;
   border-top: none;
   padding: 1px;
   -moz-box-shadow: rgba(255,255,255,0.3) 0px 2px 2px;
@@ -1370,7 +1370,7 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
   -moz-transition-property: background-color,color,opacity;
   -moz-transition-duration: 0.5s;
   -webkit-transition-property: background-color,color,opacity;
-  -webkit-transition-duration: 0.5s;  
+  -webkit-transition-duration: 0.5s;
 
 }
 
@@ -1402,7 +1402,7 @@ aside.hoverbottom #playlist { border-bottom: 2px solid #BF9730; }
   -moz-transition-property: background-color,color;
   -moz-transition-duration: 0.5s;
   -webkit-transition-property: background-color,color;
-  -webkit-transition-duration: 0.5s;  
+  -webkit-transition-duration: 0.5s;
 }
 
 #playlist .remove { position: absolute;  right: 0;  top: 0; }
@@ -1441,7 +1441,7 @@ aside .spectrumControl input{
   font-size: 0.8em;
   margin-right: 10px;
   width: auto;
-  background: none; 
+  background: none;
 }
 
 aside .spectrumControl canvas{
@@ -1476,8 +1476,8 @@ aside .audioImage img {
 	-webkit-transform: scale(1.5);
 }
 
-#search {	
-	display: inline-block; 
+#search {
+	display: inline-block;
 	padding: 6px 10px 0 10px;
 	vertical-align:top;
     transition-property: transform;
@@ -1747,7 +1747,7 @@ div.hoverbox hr {
 
 #welcome div[name=introduction] div.items> div:first-child{
 	text-align: center;
-	
+
 }
 
 #welcome div[name=introduction] div.welcomeBox {
@@ -1763,12 +1763,12 @@ div.hoverbox hr {
 	box-shadow: 0 0 1px 2px rgba(84,155,190,0.7);
 	vertical-align: middle;
 	border-radius: 10px;
-	
+
 }
 
 #welcome .whatsNew { display: none; }
 #welcome .whatsNew>.head{ text-align: center; font-size: 1.4em; padding: 20px 0;}
-#welcome .whatsNew>.body { 
+#welcome .whatsNew>.body {
 	-moz-column-count: 2;
 	-webkit-column-count: 2;
 }
@@ -1935,7 +1935,7 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
     transition: all 0.6s;
 	-webkit-transition: all 0.6s;
 	-moz-transition: all 0.6s;
-	border-radius: 9px;	
+	border-radius: 9px;
 }
 
 
@@ -1948,7 +1948,7 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 #results div.resultContainer div div.enlarge {
 	float: right;
 	padding: 5px 5px 0 0;
-} 
+}
 
 #results div.resultContainer div.rSum1 div.items, #results div.resultContainer div.rSum2 div.items {
 	margin: auto;
@@ -2010,16 +2010,16 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
   }
   #results div.resultContainer div.rCenter, #results div.resultContainer div.rCenter div.items {
       width: 889px;
-  } 
+  }
   #results div.resultContainer div.rSum1 {
     width: 400px;
   }
-  
+
   #results div.resultContainer div.rSum2 {
     left: 460px;
     width: 400px;
   }
-  
+
   #results div.resultContainer div.rSum1 div.items, #results div.resultContainer div.rSum2 div.items {
     width: 390px;
   }
@@ -2047,7 +2047,7 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	padding: 1px 0 1px 5px;
 	border-bottom: 1px solid #9A9A9A;
 	margin-bottom: 1px;
-	
+
 }
 
 #results div.resultContainer div.rItem div.head button.openInLibrary{
@@ -2109,15 +2109,15 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 	display: none;
 }
 
-#results div.resultContainer div.rSum1.albums div.head>span.duration, 
+#results div.resultContainer div.rSum1.albums div.head>span.duration,
 #results div.resultContainer div.rSum2.albums div.head>span.duration,
-#results div.resultContainer div.rSum1.albums div.head>span.count, 
+#results div.resultContainer div.rSum1.albums div.head>span.count,
 #results div.resultContainer div.rSum2.albums div.head>span.count,
 #results div.resultContainer div.rCenter.albums div.rItem div.head>span.count,
 #results div.resultContainer div.rCenter.albums div.rItem div.head>span.duration,
-#results div.resultContainer div.rSum1.artists div.head>span.duration, 
+#results div.resultContainer div.rSum1.artists div.head>span.duration,
 #results div.resultContainer div.rSum2.artists div.head>span.duration,
-#results div.resultContainer div.rSum1.artists div.head>span.count, 
+#results div.resultContainer div.rSum1.artists div.head>span.count,
 #results div.resultContainer div.rSum2.artists div.head>span.count,
 #results div.resultContainer div.rCenter.artists div.rItem div.head>span.count,
 #results div.resultContainer div.rCenter.artists div.rItem div.head>span.duration{
@@ -2125,9 +2125,9 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 }
 
 
-#results div.resultContainer div.rSum1.albums div.rItem.details div.head>span.count, 
+#results div.resultContainer div.rSum1.albums div.rItem.details div.head>span.count,
 #results div.resultContainer div.rSum2.albums div.rItem.details div.head>span.count ,
-#results div.resultContainer div.rSum1.artists div.rItem.details div.head>span.count, 
+#results div.resultContainer div.rSum1.artists div.rItem.details div.head>span.count,
 #results div.resultContainer div.rSum2.artists div.rItem.details div.head>span.count{
 	display: inline;
 	padding-left: 20px;
@@ -2160,12 +2160,12 @@ html.csstransitions #welcome div[name=introduction] div.welcomeBox:hover {
 
 
 
-#results div.resultContainer div.rSum1.songs div.song span.add, 
+#results div.resultContainer div.rSum1.songs div.song span.add,
 #results div.resultContainer div.rSum2.songs div.song span.add{
 	display: none;
 }
 
-#results div.resultContainer div.rSum1.songs div.song span.title, 
+#results div.resultContainer div.rSum1.songs div.song span.title,
 #results div.resultContainer div.rSum2.songs div.song span.title{
 	font-weight: normal;
 	padding: 0;
@@ -2480,7 +2480,7 @@ background-image:-moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);backgr
   -moz-transition:background-position 0.1s linear;
   -o-transition:background-position 0.1s linear;
   transition:background-position 0.1s linear;
-  
+
 }
 .btn:focus{outline:thin dotted;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px;}
 .btn.active,.btn:active{background-image:none;-webkit-box-shadow:inset 0 2px 4px rgba(0, 0, 0, 0.15),0 1px 2px rgba(0, 0, 0, 0.05);
@@ -2496,44 +2496,44 @@ background-image:-moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);backgr
 }
 
 
-.btn-beyond-the-invisible-5 { text-shadow: 0px -1px 0px #004573; color: #BFBFBF; background-color: #006391; 
-background-image: -moz-linear-gradient(top, #1e81af, #004573); 
-background-image: -webkit-linear-gradient(top, #1e81af, #004573); 
-background-image: -o-linear-gradient(top, #1e81af, #004573); 
-background-image: linear-gradient(top, #1e81af, #004573); 
+.btn-beyond-the-invisible-5 { text-shadow: 0px -1px 0px #004573; color: #BFBFBF; background-color: #006391;
+background-image: -moz-linear-gradient(top, #1e81af, #004573);
+background-image: -webkit-linear-gradient(top, #1e81af, #004573);
+background-image: -o-linear-gradient(top, #1e81af, #004573);
+background-image: linear-gradient(top, #1e81af, #004573);
 border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.25); }
-.btn-beyond-the-invisible-5:hover, .btn-beyond-the-invisible-5:active, .btn-beyond-the-invisible-5.active, .btn-beyond-the-invisible-5.disabled, .btn-beyond-the-invisible-5[disabled] { 
-  background-color: #004573; 
+.btn-beyond-the-invisible-5:hover, .btn-beyond-the-invisible-5:active, .btn-beyond-the-invisible-5.active, .btn-beyond-the-invisible-5.disabled, .btn-beyond-the-invisible-5[disabled] {
+  background-color: #004573;
 }
-.btn-beyond-the-invisible-5:hover { 
-  color: #CFCFCF; 
-  text-shadow: 0px -1px 0px #002755; 
-  background-image: linear-gradient(top, #1e81af, #004573); 
-  background-image: -moz-linear-gradient(top, #1e81af, #004573); 
-  background-image: -webkit-linear-gradient(top, #1e81af, #004573); 
-  
+.btn-beyond-the-invisible-5:hover {
+  color: #CFCFCF;
+  text-shadow: 0px -1px 0px #002755;
+  background-image: linear-gradient(top, #1e81af, #004573);
+  background-image: -moz-linear-gradient(top, #1e81af, #004573);
+  background-image: -webkit-linear-gradient(top, #1e81af, #004573);
+
 }
 .btn-beyond-the-invisible-5:focus { color: #64c7f5; -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.25); }
 .btn-beyond-the-invisible-5.active, .btn-beyond-the-invisible-5:active { background-image: none; -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); color: #64c7f5; }
 
 
 /* class: .btn-beyond-the-invisible-4,  color theme: Beyond The Invisible */
-.btn-beyond-the-invisible-4 { 
-  text-shadow: 0px -1px 0px #0e3148; 
-  color: #BFBFBF; 
-  background-color: #2C4F66; 
-  background-image: -moz-linear-gradient(top, #4a6d84, #0e3148); 
-  background-image: -webkit-linear-gradient(top, #4a6d84, #0e3148); 
-  background-image: -o-linear-gradient(top, #4a6d84, #0e3148); 
-  background-image: linear-gradient(top, #4a6d84, #0e3148); 
+.btn-beyond-the-invisible-4 {
+  text-shadow: 0px -1px 0px #0e3148;
+  color: #BFBFBF;
+  background-color: #2C4F66;
+  background-image: -moz-linear-gradient(top, #4a6d84, #0e3148);
+  background-image: -webkit-linear-gradient(top, #4a6d84, #0e3148);
+  background-image: -o-linear-gradient(top, #4a6d84, #0e3148);
+  background-image: linear-gradient(top, #4a6d84, #0e3148);
   border-color: #2C4F66 #0e3148 #0e3148 #2C4F66; border-color: rgba(0, 0, 0, 0.25) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.25); }
-.btn-beyond-the-invisible-4:hover, .btn-beyond-the-invisible-4:active, .btn-beyond-the-invisible-4.active, .btn-beyond-the-invisible-4.disabled, .btn-beyond-the-invisible-4[disabled] { 
-  background-color: #0e3148; 
-  background-image: -moz-linear-gradient(top, #4a6d84, #0e3148); 
-  background-image: -webkit-linear-gradient(top, #4a6d84, #0e3148); 
-  background-image: -o-linear-gradient(top, #4a6d84, #0e3148); 
-  background-image: linear-gradient(top, #4a6d84, #0e3148); 
-  
+.btn-beyond-the-invisible-4:hover, .btn-beyond-the-invisible-4:active, .btn-beyond-the-invisible-4.active, .btn-beyond-the-invisible-4.disabled, .btn-beyond-the-invisible-4[disabled] {
+  background-color: #0e3148;
+  background-image: -moz-linear-gradient(top, #4a6d84, #0e3148);
+  background-image: -webkit-linear-gradient(top, #4a6d84, #0e3148);
+  background-image: -o-linear-gradient(top, #4a6d84, #0e3148);
+  background-image: linear-gradient(top, #4a6d84, #0e3148);
+
 }
 .btn-beyond-the-invisible-4:hover { color: #CFCFCF; text-shadow: 0px -1px 0px #00132a; }
 .btn-beyond-the-invisible-4:focus { color: #90b3ca; -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); border-color: #2C4F66 #0e3148 #0e3148 #2C4F66; border-color: rgba(0, 0, 0, 0.25) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.25); }
@@ -2595,7 +2595,7 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
        border: 10px solid transparent;
        border-top-color: rgb(191, 151, 48);
        position:absolute;
-       
+
 }
 
 .yellowOverlay.currentTimeContainer.upArrow:after {
@@ -2608,7 +2608,7 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
        border: 10px solid transparent;
        border-bottom-color: rgb(191, 151, 48);
        position:absolute;
-       
+
 }
 
 #player {
@@ -2643,10 +2643,10 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
 #player div.mainScreen {
   margin-right: 300px;
   position: relative;
-  
+
 }
 
-#player .currentTime, #player .totalTime, #player .songTitle, #player .otherSongFields {
+#player .currentTime, #player .totalTime, #player .songTitle, #player .otherSongFields, #player .playbackRate {
   height: 18px;
   padding-top: 2px;
   padding-bottom: 2px;
@@ -2666,16 +2666,8 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
   max-width: 40px;
 }
 
-#player .songTitle {
+#player .songTitle, #player .otherSongFields {
   margin: 0 40px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-}
-
-#player .otherSongFields {
-  overflow: hidden;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2685,6 +2677,14 @@ border-color: #006391 #004573 #004573 #006391; border-color: rgba(0, 0, 0, 0.25)
 #player .otherSongFields span:not(:last-child):after {
     content: " - ";
 }
+
+#player .playbackRate {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  max-width: 40px;
+}
+
 
 #player div[name=progression] {
   background-color: #466777;

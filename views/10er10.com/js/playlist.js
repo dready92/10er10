@@ -33,6 +33,8 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 	 * 	- currentLoadProgress(): returns the percentile of loaded date of the current playing song
 	 *	- volume(vol): immediately ajust volume of playing song(s)
 	 *	- seek(secs): immediately switch playback of currently playing song to secs (float)
+	 *  - incrementPlaybackRate(): tell the underlying driver to increment the playbak rate of the current song
+	 *  - decrementPlaybackRate(): tell the underlying driver to decrement the playbak rate of the current song
 	 * 	- load(playlist, {purge: boolean}): tell the driver that we switched to playlist playlist
 	 * 										if option purge is true, the driver should also stop all playbacks,
 	 * 										destroy all objects and references
@@ -350,6 +352,14 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			driver.seek(secs);
 		};
 
+		var incrementPlaybackRate = this.incrementPlaybackRate = function() {
+			driver.incrementPlaybackRate();
+		};
+
+		var decrementPlaybackRate = this.decrementPlaybackRate = function() {
+			driver.decrementPlaybackRate();
+		};
+
 		var appendRandomSongs = function(count, genres) {
 			count = count || 3;
 			genres = genres || [];
@@ -545,7 +555,6 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			ui.find(".showOtherOptions").slideDown("fast");
 			$(this).closest(".otherOptionsContainer").slideUp("fast");
 		});
-
 
 		this.bootstrap = function() {
 			var infos = user.get_preferences().playlist || {};
