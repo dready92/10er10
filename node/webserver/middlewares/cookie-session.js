@@ -36,7 +36,7 @@ d10.couch.auth.on('delete', (err, doc) => {
 
   Object.keys(sessionCache).forEach((key) => {
     if (sessionCache[key][type] && sessionCache[key][type]._id === doc._id) {
-      delete sessionCache[key][type];
+      delete sessionCache[key];
     }
   });
 });
