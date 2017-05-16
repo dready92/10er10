@@ -48,6 +48,7 @@ onmessage = function(e){
   var url = data.url;
   if ( data.method == 'GET' && data.toSend ) {
     url+='?'+ data.toSend;
+		delete data.toSend;
   }
 
 	xmlhttp.open(data.method, url,false);
