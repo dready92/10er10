@@ -3,6 +3,7 @@ var d10 = require ("./d10"),
 	querystring = require("querystring"),
   bodyParser = require('body-parser'),
   jsonParserMiddleware = bodyParser.json(),
+	urlencodedParserMiddleware = bodyParser.urlencoded({extended: true}),
 	fs = require("fs"),
 	files = require("./files"),
 	when = require("./when"),
@@ -51,7 +52,7 @@ exports.api = function(app) {
 		});
 	});
 
-	app.put("/api/meta/:id", jsonParserMiddleware, function(request,response,next) {
+	app.put("/api/meta/:id", urlencodedParserMiddleware, function(request,response,next) {
 		if ( request.params.id.substr(0,2) != "aa" ) {
 			return next();
 		}
