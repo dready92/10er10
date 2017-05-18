@@ -38,7 +38,7 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 				options = null;
 			}
 			var xhr = new XMLHttpRequest();
-			var url = config.site_url+"/api/song?"+$.d10param({"filesize": filesize, "filename": filename, bgencoding: "true" } );
+			var url = config.site_url+"/api/song?"+$.param({"filesize": filesize, "filename": filename, bgencoding: "true" } );
 			xhr.upload.onprogress = function(event) {
 				if ( options.progress ) options.progress.call(this,event);
 				emitter.topic("whenRestUploadProgress").publish({endpoint: endpoint, event: event});
