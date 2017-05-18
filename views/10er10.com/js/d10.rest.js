@@ -258,7 +258,7 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			list: function(options) {
 				restQuery("user.review.list","GET",config.site_url+"/api/review/list",options);
 			},
-			post: function(id, data,options) {
+			post: function(id, data, options) {
 				options.data = data;
 				restQuery("user.review.post", "PUT", config.site_url+"/api/meta/"+id,options);
 			}

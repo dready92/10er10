@@ -1,4 +1,4 @@
-define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/d10.dnd", "js/playlist", "js/d10.restHelpers", 
+define(["js/domReady", "js/user","js/d10.rest","js/d10.templates", "js/d10.dnd", "js/playlist", "js/d10.restHelpers",
 	   "js/d10.router", "js/d10.toolbox", "js/d10.osd", "js/d10.imageUtils", "js/config", "js/d10.events", "js/d10.widgetHelpers",
        "js/d10.artistTokenizer"],
 	   function(foo, user, rest, tpl, dnd, playlist, restHelpers, router, toolbox, osd, imageUtils, config, pubsub, widgetHelpers,
@@ -9,16 +9,16 @@ function myCtrl (ui) {
     // reminder click
     //
     $("#reviewReminder").click(function() { router.navigateTo(["my","review"]); });
-    
+
 	pubsub.topic("review.count").subscribe(function(data) {
 	  require(["js/my.reviewHelper"],function(helper) {
 		helper(data);
 	  });
 	});
-	
 
-	
-	
+
+
+
 	pubsub.topic("user.infos").one(function() {
 		if ( !user.get_invites_count() ) { $("ul li[action=invites]",ui).hide(); }
 	});
@@ -37,13 +37,13 @@ function myCtrl (ui) {
 		playlist.driver().play( playlist.getTrackParameters(toAppend) );
 // 		playlist.append($(this).clone());
 	});
-	
-	
+
+
 	var display = function(label, sublabel) {
 		sublabel = sublabel ? [ sublabel ] : [];
 		routeAction(label, sublabel);
 	};
-	
+
   var routeAction = function (label, segments) {
       debug("routeAction starts",label,segments);
       var topicdiv=$('div[name='+label+']',ui);
@@ -89,10 +89,10 @@ function myCtrl (ui) {
 			}
 		}
 	};
-  
-  
+
+
 	var bindControls = function(endpoint, topicdiv, section, parseResults) {
-		
+
 		topicdiv.find(".pushAll").click(function() {
 			playlist.append(topicdiv.find(".song").clone().removeClass("selected"));
 		});
@@ -125,7 +125,7 @@ function myCtrl (ui) {
 		if ( parseResults ) { callbacks.parseResults = parseResults; }
         section.data("infiniteScroll", widgetHelpers.createInfiniteScroll(topicdiv, cursor, callbacks) );
 	};
-	
+
 	var init_topic_likes = function(topicdiv,args) {
 		var section = topicdiv.find("section");
 		if ( !section.length ) {
@@ -172,15 +172,15 @@ function myCtrl (ui) {
 			});
 			bindControls (endpoint, topicdiv, section, parseResults);
 			createInfiniteScroll(endpoint,topicdiv,section,parseResults);
-			
-			
+
+
 		}
-		
+
 	}
 
-	
-	
-	
+
+
+
   var sendInvite = function(topicdiv,email) {
     rest.user.invites.send(email, {
       load: function (err, data) {
@@ -194,9 +194,9 @@ function myCtrl (ui) {
       }
     });
   }
-  
+
   var init_topic_invites = function(topicdiv,args) {
-	  
+
 	rest.user.invites.count({
 		load: function(err,count) {
 			if ( err ) return ;
@@ -207,7 +207,7 @@ function myCtrl (ui) {
 				$("input[name=email]",topicdiv).keyup(function() {
 			//           debug("email reg testing ",$(this).val());
 					if ( toolbox.isValidEmailAddress($(this).val()) ) {
-						if ( invalidLabel.is(":visible") ) invalidLabel.hide(); 
+						if ( invalidLabel.is(":visible") ) invalidLabel.hide();
 						if ( button.not(":visible") )      button.fadeIn();
 					} else {
 						if ( invalidLabel.not(":visible") ) invalidLabel.show();
@@ -227,7 +227,7 @@ function myCtrl (ui) {
 
 
 	var init_topic_review = function (topicdiv, arg ) {
-		
+
 		rest.user.review.list({
 			load: function(err,songs) {
 				if ( err  ) {
@@ -248,9 +248,23 @@ function myCtrl (ui) {
 	}
 
   var postSongReview = function (topicdiv, success, complete ) {
+		var songMetaArray = $('form',topicdiv).serializeArray();
+		var formData = {};
+		songMetaArray.forEach(function(meta) {
+			formData[meta.name] = meta.value;
+		});
+		var songMeta = {
+			_id: formData._id,
+			title: formData.title,
+			artist: formData.artist,
+			album: formData.album,
+			tracknumber: formData.tracknumber,
+			genre: formData.genre,
+			date: formData.date
+		};
 	rest.user.review.post(
 		$('input[name=_id]',topicdiv).val(),
-		$('form',topicdiv).serialize(),
+		songMeta,
 		{
 			load: function(err,data) {
 				complete.call();
@@ -277,20 +291,20 @@ function myCtrl (ui) {
 	var init_songreview_imagesbox = function(topicdiv, song_id) {
 		var dropbox = topicdiv.find(".uploadDropBox");
 		dropbox.get(0).addEventListener("dragenter", dragenter, false);
-		dropbox.get(0).addEventListener("dragleave", dragleave, false);    
-		dropbox.get(0).addEventListener("dragover", dragover, false);  
-		dropbox.get(0).addEventListener("drop", drop, false);  
+		dropbox.get(0).addEventListener("dragleave", dragleave, false);
+		dropbox.get(0).addEventListener("dragover", dragover, false);
+		dropbox.get(0).addEventListener("drop", drop, false);
 
 		function dragenter(e) {
 			dropbox.addClass("hover");
 			e.stopPropagation();
 			e.preventDefault();
-		}  
-			
+		}
+
 		function dragover(e) {
 			e.stopPropagation();
 			e.preventDefault();
-		}  
+		}
 
 		function dragleave (e) {
 			dropbox.removeClass("hover");
@@ -304,7 +318,7 @@ function myCtrl (ui) {
 			var files = dt.files;
 			handleFiles(files);
 		}
-		
+
 
 		var sendImageToServer = function(file, api, canvas, cb) {
 			rest.song.uploadImage(song_id, file, file.name, file.size, {
@@ -323,18 +337,18 @@ function myCtrl (ui) {
 					);
 					cb();
 				},
-				progress: function(e) { 
+				progress: function(e) {
 					if (e.lengthComputable) {
 						var percentage = Math.round((e.loaded * 100) / e.total);
 						api.loadProgress(percentage);
-					}  
+					}
 				},
-				end: function(e) {  
+				end: function(e) {
 					api.loadProgress(100);
 				}
 			});
 		};
-		
+
 		function readImage (file) {
 			var reader = new FileReader();
 			reader.onload = function(e) {
@@ -342,7 +356,7 @@ function myCtrl (ui) {
 					.attr("width",config.img_size+"px")
 					.attr("height",config.img_size+"px")
 					.css({width: config.img_size, height: config.img_size, border: "1px solid #7F7F7F"});
-				var api = canvas.loadImage(e, 
+				var api = canvas.loadImage(e,
 					{
 						onReady: function() {
 							debug("ready ! ");
@@ -367,7 +381,7 @@ function myCtrl (ui) {
 			};
 			reader.readAsDataURL(file);
 		};
-		
+
 		var jobs = {
 			running: 0,
 			queue: [],
@@ -378,21 +392,21 @@ function myCtrl (ui) {
 				if ( this.running  ) {
 					return ;
 				}
-				
+
 				var next = this.queue.shift(), that = this;
 				this.running += 1 ;
 				next(function() {
 					that.running -= 1;
 					that.run();
 				});
-				
-				
+
+
 			}
 		};
-		
+
 		function handleFiles(files) {
 			debug("handling file upload, nr of files: ",files.length);
-			for (var i = 0; i < files.length; i++) { 
+			for (var i = 0; i < files.length; i++) {
 				debug("reading ",i);
 				var file = files[i];
 				if ( !imageUtils.isImage(file) ) {
@@ -410,7 +424,7 @@ function myCtrl (ui) {
 			if ( !filename || !filename.length ) {
 				return ;
 			}
-			
+
 			rest.song.removeImage(song_id, filename, {
 				load: function(err,data) {
 					if ( err ) {osd.send("error",err+" "+resp);}
@@ -419,12 +433,12 @@ function myCtrl (ui) {
 			});
 		});
 	};
-	
-	
+
+
 	var deleteSong = function(id, then ) {
 		rest.song.remove(id, {load: then});
 	};
-	
+
 	var init_topic_songreview = function (topicdiv, song_id ) {
 		topicdiv.html(tpl.mustacheView("loading"));
 		rest.song.get(song_id, {
@@ -445,10 +459,10 @@ function myCtrl (ui) {
 				topicdiv.html( tpl.mustacheView("review.song",doc)  );
 				init_songreview_imagesbox (topicdiv,song_id);
 				init_reviewImage_remove (topicdiv,song_id);
-				$("button[name=my]",topicdiv).click(function() { 
+				$("button[name=my]",topicdiv).click(function() {
 					router.navigateTo(["my","review"]);
 				});
-				$('button[name=upload]',topicdiv).click(function() { 
+				$('button[name=upload]',topicdiv).click(function() {
 					router.navigateTo(["upload"]);
 				});
 
@@ -457,43 +471,43 @@ function myCtrl (ui) {
 					$('input[name=album]',topicdiv).parent().find(".overlay"),
 					{
 						"autocss": true,
-						"varname": 'start', 
-						"minlength" : 1 
+						"varname": 'start',
+						"minlength" : 1
 					}
 				);
-				
+
 				$('input[name=artist]',topicdiv).permanentOvlay(
 					rest.artist.list,
 					$('input[name=artist]',topicdiv).parent().find(".overlay"),
 					{
 						"autocss": true,
-						"varname": 'start', 
-						"minlength" : 1 
+						"varname": 'start',
+						"minlength" : 1
 					}
 				);
-				
+
 				$('input[name=genre]',topicdiv).permanentOvlay(
 					rest.genre.list,
 					$('input[name=genre]',topicdiv).parent().find(".overlay"),
 					{
 						"autocss": true,
-						"varname": 'start', 
-						"minlength" : 1 
+						"varname": 'start',
+						"minlength" : 1
 					}
 				);
-				
+
 				$("button[name=remove]",topicdiv).click(function(e) {
 					topicdiv.find("div[name=form]").hide();
 					topicdiv.find("div[name=delete]").show();
 					return false;
 				});
-				
+
 				topicdiv.find("button[name=cancelDelete]").click(function() {
 					topicdiv.find("div[name=delete]").hide();
 					topicdiv.find("div[name=form]").show();
 					return false;
 				});
-				
+
 				topicdiv.find("button[name=doDelete]").click(function() {
 					$(this).attr("disabled","true");
 					deleteSong(song_id,function(err) {
@@ -506,7 +520,7 @@ function myCtrl (ui) {
 					});
 					return false;
 				});
-				
+
 
 				$('button[name=review]',topicdiv).click(function() {
 					// disappear
@@ -535,7 +549,7 @@ function myCtrl (ui) {
 					return false;
 				});
 
-				
+
 				rest.user.review.list({
 					load: function(err,rows) {
 						if ( err )	return ;
@@ -569,7 +583,7 @@ function myCtrl (ui) {
 						}
 					}
 				});
-              
+
               function ucwords(str) {
                   // originally from :
                   // discuss at: http://phpjs.org/functions/ucwords    // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
@@ -580,16 +594,16 @@ function myCtrl (ui) {
                   // *     example 1: ucwords('kevin van  zonneveld');
                   // *     returns 1: 'Kevin Van  Zonneveld'
                   // *     example 2: ucwords('HELLO WORLD');
-                  // *     returns 2: 'HELLO WORLD'    
+                  // *     returns 2: 'HELLO WORLD'
                   return (str + '').replace(/^([a-z])|[\s\[\(\.0-9-]+([a-z])/g, function ($1) {
                       return $1.toUpperCase();
                   });
               }
-              
+
               function sanitizeString(s) {
                 return ucwords(s.replace(/^\s+/,"").replace(/\s+$/,"").replace(/</g,"").replace(/>/g,"").toLowerCase());
               }
-              
+
               topicdiv.find('input[name=title], input[name=artist]').bind("input",tokenize);
               var tokenContainer = topicdiv.find('[data-content=artists]');
               function tokenize() {
@@ -614,17 +628,17 @@ function myCtrl (ui) {
 			}
 		});
 	}
-  
+
 	return {
 		display: display
 	};
-	  
-  
+
+
 };
 
-var 
+var
 	my = new myCtrl($("#my")),
-	myRouteHandler = function(topic,id) { 
+	myRouteHandler = function(topic,id) {
 		if ( !topic ) {
 			if ( this._containers["my"].currentActive ) {
 				this._activate("main","my",this.switchMainContainer);
@@ -635,14 +649,14 @@ var
 		}
 
 		my.display(topic,id);
-		this._activate("main","my",this.switchMainContainer); 
+		this._activate("main","my",this.switchMainContainer);
 		if ( topic ) { this._activate("my",topic); }
 	};
-	router._containers["my"] = 
+	router._containers["my"] =
 	{
-		tab: $("#my > nav > ul"), 
-		container: $("#my"), 
-		select: function(name) {return this.container.children("div[name="+name+"]"); }, 
+		tab: $("#my > nav > ul"),
+		container: $("#my"),
+		select: function(name) {return this.container.children("div[name="+name+"]"); },
 		lastActive: null,
 		currentActive: null
 	};
