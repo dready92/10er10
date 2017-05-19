@@ -135,6 +135,11 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 		var current = this.current = function() {
 			return list.children("."+settings.currentClass).eq(0);
 		};
+
+		var currentIndex = this.currentIndex = function() {
+			return list.children("."+settings.currentClass).eq(0).prevAll().length;
+		}
+
 		var next = this.next = function() {
 			return current().next();
 		};
