@@ -25,11 +25,11 @@ var overlay = function(panel, options) {
   };
 
   var alignments = ["left","right","top","bottom", "bottomright"];
-  
+
   $.extend(settings,options);
 
   var evtsClass="ovlay"+settings.family;
-  
+
   var panelIsIn = function (target) {
     var panelIn = false;
     var all = target.parents().andSelf().each(function() {
@@ -40,7 +40,7 @@ var overlay = function(panel, options) {
     });
     return panelIn;
   }
-  
+
   var elemSize = function(elem) {
 	return {
 	  width: elem.width(),
@@ -71,7 +71,7 @@ var overlay = function(panel, options) {
 	var popinTop = rrOffset.top + rrSize.outerHeight;
 	return {left: popinLeft, top: popinTop};
   };
-  
+
   var alignLeft = function(reference) {
 	var popinSize = elemSize(panel);
 	var rrSize = elemSize(reference);
@@ -81,7 +81,7 @@ var overlay = function(panel, options) {
 	var popinTop = rrCenter - popinSize.outerHeight / 2 ;
 	return {left: popinLeft, top: popinTop};
   };
-  
+
   var alignRight = function(reference) {
 	var popinSize = elemSize(panel);
 	var rrSize = elemSize(reference);
@@ -113,11 +113,11 @@ var overlay = function(panel, options) {
     }
     return effect;
   };
-  
+
   this.getOverlay = function() { return panel; };
   this.close = function() {
     settings.onBeforeClose.call(this);
-	
+
     var effect = getEffect("hide"),
     callback = function() {
       settings.onClose.call(that);
@@ -129,8 +129,8 @@ var overlay = function(panel, options) {
     } else {
       effect.call(panel,callback);
     }
-    
-	
+
+
     $(document).unbind("click."+evtsClass+" keyup."+evtsClass);
 	opened[settings.family] = null;
   }
@@ -146,7 +146,7 @@ var overlay = function(panel, options) {
   }
 
   panel.data("ovlay",this);
-  
+
   if ( settings.align.reference && alignments.indexOf(settings.align.position) >= 0 ) {
 	//get panel size
 	panel.css({position: "absolute", left: -10000, visibility: "hidden", display: "block"});
@@ -163,14 +163,14 @@ var overlay = function(panel, options) {
 	  position.top += settings.align.topOffset
 	}
 	panel.css({display: "none", visibility: "visible", top: position.top, left: position.left});
- 
+
   }
-  
-  
+
+
   this.open();
 
 
-  // delaying event bindings allow to 
+  // delaying event bindings allow to
   setTimeout(function() {
   // click outside handler
     if ( settings.closeOnClick ) {
@@ -252,11 +252,11 @@ var fullOverlay = function(panel, options) {
   };
 
   var alignments = ["left","right","top","bottom"];
-  
+
   $.extend(settings,options);
 
   var evtsClass="ovlay"+settings.family;
-  
+
   var panelIsIn = function (target) {
     var panelIn = false;
     var all = target.parents().andSelf().each(function() {
@@ -267,7 +267,7 @@ var fullOverlay = function(panel, options) {
     });
     return panelIn;
   };
-  
+
   var w = $(window);
   var background = $("<div></div>").addClass(settings.cssClass);
   panel.css({display: "inline-block", "vertical-align": "middle"});
@@ -287,21 +287,21 @@ var fullOverlay = function(panel, options) {
   w.bind("resize."+evtsClass,function() {
 	background.css({width: w.width(),height: w.height(), "line-height": w.height()+"px"});
   });
-  
-  
+
+
   this.getOverlay = function() { return panel; };
   this.close = function() {
-	
+
 	var closeCb = function() {
 	  $(document).unbind("click."+evtsClass+" keyup."+evtsClass);
 	  w.unbind("resize."+evtsClass);
 	  opened[settings.family] = null;
-	  
+
 	  background.remove();
 	  settings.onClose.call(that);
 	  panel.removeData("ovlay");
 	};
-	
+
     settings.onBeforeClose.call(this);
 	settings.onDomRemove(background, closeCb);
 
@@ -314,11 +314,11 @@ var fullOverlay = function(panel, options) {
   }
 
   panel.data("ovlay",this);
-  
+
   this.open();
 
 
-  // delaying event bindings allow to 
+  // delaying event bindings allow to
   setTimeout(function() {
   // click outside handler
     if ( settings.closeOnClick ) {
@@ -380,7 +380,7 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 		"searchStop": function() {
 			$(".loading",overlayNode).hide();
 		},
-		"searchResults": function (response) { 
+		"searchResults": function (response) {
 			$(".loading",overlayNode).hide();
 			$(".noResult",overlayNode).hide();
 			$("ul",overlayNode).show();
@@ -396,7 +396,7 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 	$.extend(settings,options);
 	if ( !overlayNode || !overlayNode.jquery ) { return this; }
 	if ( searchinput.attr('defaultvalue') && searchinput.val() == '' )  searchinput.val( searchinput.attr('defaultvalue') );
- 
+
 	searchinput.focus(function() {
 		focused = true;
 		if ( searchinput.attr('defaultvalue') && searchinput.val() == searchinput.attr('defaultvalue') )  searchinput.val('');
@@ -463,13 +463,13 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 				return false;
 			}
 		}
-		
+
 	})
 	.keyup(function(e) {
 		checkTextSync();
 	})
 	;
-	
+
 	overlayNode.mouseenter(function() {
 		keepOpen = true;
 		if ( mouseTimeout ) {
@@ -488,7 +488,7 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 	.delegate("li","click",function() {
 		searchinput.get(0).focus();
 		launchResultSelected();
-		
+
 	})
 	.delegate("li","mouseover",function(e) {
 		var node=$(this);
@@ -514,7 +514,7 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 			$("ul",overlayNode).empty().hide();
 		}
 	};
-	
+
 	var ajaxCall = function ( data, with_results, no_results ) {
 		settings.searchStart.call(searchinput);
 		url(data, {
@@ -537,7 +537,7 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 			}
 		});
 	};
-	
+
 	var parseAjaxResponse = function (response) {
 		var html = '';
 		for ( var index in response ) {
@@ -550,7 +550,7 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 		$("ul",overlayNode).html(html);
 		$("ul li:first-child",overlayNode).addClass("current");
 	};
-	
+
 	var getSearchText = function () {
 		if ( searchinput.attr('defaultvalue') && searchinput.val() == searchinput.attr('defaultvalue') ) {
 			return "";
@@ -567,7 +567,7 @@ $.fn.permanentOvlay = function (url, overlayNode, options) {
 		else { params = {text: row.text, json: row.json}; }
 		searchinput.val( settings.select(params.text,params.json) );
 	};
-	
+
 	return {
 		setUrl: function(value) {
 			url = value;

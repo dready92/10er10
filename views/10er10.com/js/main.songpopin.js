@@ -59,9 +59,17 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
 //            overlay.ovlay().close();
            handleStarring('dislikes',id);
        });
-      pubsub.topic('songStarring').subscribe(function(resp) { 
+
+      function onSongStarred(resp) {
         starringUpdated(resp.id, resp.star);
-      });
+      }
+
+      pubsub.topic('songStarring').subscribe(onSongStarred);
+
+      function unsubscribeEvent() {
+        pubsub.topic('songStarring').unsubscribe(onSongStarred);
+      }
+
        overlay.find("button[data-action=addToPlayer]").click(function() {
            overlay.ovlay().close();
            playlist.append(song.clone());
@@ -154,6 +162,8 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
 
            return false;
        });
+
+       return unsubscribeEvent;
    };
 
    var buildTemplateData = function(song, id) {
@@ -178,11 +188,11 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
        if ( song.attr("data-owner") || user.is_superman() ) {
            templateData.editButton=[true];
        }
-       
+
        if ( song.attr("data-originalfile-extension") ) {
          templateData.multiType.push({ id: id, extension: song.attr("data-originalfile-extension") });
        }
-       
+
         return templateData;
    };
 
@@ -193,7 +203,7 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
            .css({visibility: "hidden"})
            .addClass("leftArrow")
            .appendTo($("body"));
-       addEventsBinding(overlay,id, song);
+       var unsubscribeEvent = addEventsBinding(overlay,id, song);
 
        overlay.ovlay(
            {
@@ -201,6 +211,7 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
                closeOnMouseOut: false,
                closeOnEsc: true,
                align:{position: "right", reference: plus, leftOffset: 9, topOffset: 4},
+               onBeforeClose: unsubscribeEvent,
                onClose: function() {
                    overlay.remove();
                },
@@ -234,7 +245,7 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
            .addClass("rightArrow")
            .appendTo($("body"));
 
-       addEventsBinding(overlay,id, song);
+       var unsubscribeEvent = addEventsBinding(overlay,id, song);
 
        overlay.find("button[data-action=removeAllNext]").click(function() {
            overlay.ovlay().close();
@@ -252,6 +263,7 @@ define(["js/d10.imageUtils","js/d10.templates", "js/user", "js/my.plm", "js/d10.
                closeOnMouseOut: false,
                closeOnEsc: true,
                align:{position: "left", reference: plus, leftOffset: -11, topOffset: 5},
+               onBeforeClose: unsubscribeEvent,
                onClose: function() {
                    overlay.remove();
                },
