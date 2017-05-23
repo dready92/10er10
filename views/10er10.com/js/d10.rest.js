@@ -110,10 +110,10 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			var xhr = new XMLHttpRequest();
 			var url ;
 			if ( $.isArray(song_id) ) {
-				url = config.site_url+"/api/songImage?"+$.d10param({filesize: file.size, filename: file.name, ids: song_id});
+				url = config.site_url+"/api/songImage?"+$.param({filesize: file.size, filename: file.name, ids: song_id});
 				debug(url);
 			} else {
-				url = config.site_url+"/api/songImage/"+song_id+"?"+$.d10param({filesize: file.size, filename: file.name});
+				url = config.site_url+"/api/songImage/"+song_id+"?"+$.param({filesize: file.size, filename: file.name});
 			}
 			xhr.upload.onprogress = function(event) {
 				if ( options.progress ) options.progress.call(this,event);
