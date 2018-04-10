@@ -1,6 +1,6 @@
 var debug = require("../d10").debug("d10:websocket-protocol-pevts");
 var emitter = require("./song-processor/song-processor-events");
-var sessionMiddleware = require("../cookieSessionMiddleware");
+var sessionService = require('../session');
 var protocol = require("./websocket-protocol");
 
 var protocolName = "pevts";
@@ -11,13 +11,13 @@ function onMessage(message, socket, callback) {
   } catch (e) {
     debug("Badly formatted JSON payload");
     debug(message);
-    return ;
+    return;
   }
   if ( !query.session ) {
     debug("No session parameter in query");
     return ;
   }
-  sessionMiddleware.getUser(query.session, function(err,userId) {
+  sessionService.getUser(query.session, function(err,userId) {
     if ( err ) {
       debug("Error fetching userId from session",err);
       return ;

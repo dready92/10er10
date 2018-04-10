@@ -1,6 +1,6 @@
 var debug = require("../d10").debug("d10:websocket-protocol-remot");
 var emitter = require("./rc-events");
-var sessionMiddleware = require("../cookieSessionMiddleware");
+var sessionService = require("../session");
 var protocol = require("./websocket-protocol");
 var websocketStore = require("./websocket-store");
 
@@ -130,7 +130,7 @@ function authRequest (socket, query, then) {
     currentAuthRequests--;
     return then(true);
   }
-  sessionMiddleware.getUser(query.session, function(err,userId) {
+  sessionService.getUser(query.session, function(err,userId) {
     debug("authRequest.getUser() currentAuthRequests: ",currentAuthRequests);
     if ( err ) {
       debug("Error fetching userId from session",err);

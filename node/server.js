@@ -7,6 +7,7 @@ const d10 = require('./d10');
 const vhost = require('vhost');
 const WebSocketServer = require('./lib/websocket-server');
 const dosWatchdog = require('./dosWatchdog');
+const session = require('./session');
 
 
 configParser.getConfig((foo, cfg) => {
@@ -25,6 +26,7 @@ configParser.getConfig((foo, cfg) => {
 
 
 function onConfig(isProduction) {
+  session.init();
   const d10RouterModule = require('./webserver/d10');
   const invitesServerModule = require('./webserver/invites');
   const d10Router = d10RouterModule.getD10Server(config);
