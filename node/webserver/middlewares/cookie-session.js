@@ -75,11 +75,16 @@ function checkAuth(ctx, passTheCoochie) {
 }
 
 exports.cookieSession = function cookieSession(req, res, next) {
+  if (req.ctx.hasSession()) {
+    return next();
+  }
+
   function passTheCoochie() {
     handle.end();
     next();
     handle.resume();
   }
   let handle = pause(req);
-  checkAuth(req.ctx, passTheCoochie);
+
+  return checkAuth(req.ctx, passTheCoochie);
 };
