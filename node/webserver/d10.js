@@ -7,6 +7,8 @@ const compression = require('compression');
 const logMiddleware = morgan('combined');
 const contextMiddleware = require('./middlewares/context');
 const cookieSessionMiddleware = require('./middlewares/cookie-session').cookieSession;
+const apikeyHeaderMiddleware = require('./middlewares/apikeys').loginUsingHeader;
+const apikeyPathMiddleware = require('./middlewares/apikeys').loginUsingPath;
 const langMiddleware = require('./middlewares/lang');
 const ensureLoginMiddleware = require('./middlewares/ensure-login');
 
@@ -19,6 +21,7 @@ const listingApiRoutes = require('../d10.router.api.listing').api;
 const songApiRoutes = require('../d10.router.song').api;
 const imagesApiRoutes = require('../d10.router.images').api;
 const invitesApiRoutes = require('../d10.router.invites').api;
+const apiKeysRoutes = require('../d10.router.apikeys').api;
 const rcApiRoutes = require('../d10.router.rc').api;
 
 
@@ -43,6 +46,10 @@ function getD10Server(config) {
   d10Router.use('/css/', express.static('../views/10er10.com/css'));
   d10Router.use('/html/rc/', express.static('../views/10er10.com/html/rc'));
   d10Router.use(cookieSessionMiddleware);
+  d10Router.use(apikeyHeaderMiddleware);
+  if (!config.production) {
+    d10Router.use(apikeyPathMiddleware);
+  }
   d10Router.use(langMiddleware(join(__dirname, '../../views/10er10.com/lang'), config.templates.node, () => {}));
   homepageRoutes(d10Router);
   rcPublicRoutes(d10Router);
@@ -57,6 +64,7 @@ function getD10Server(config) {
   imagesApiRoutes(d10Router);
   rcApiRoutes(d10Router);
   invitesApiRoutes(d10Router);
+  apiKeysRoutes(d10Router);
 
   return d10Router;
 }
