@@ -3,7 +3,6 @@ class ApiKey {
     this.key = keyAsString;
     this.creation = Date.now();
     this.disabled = false;
-    this._id = null;
   }
 
   active() {
@@ -14,7 +13,6 @@ class ApiKey {
     const apiKey = new ApiKey(apiKeyObject.key);
     apiKey.creation = apiKeyObject.creation;
     apiKey.disabled = apiKeyObject.disabled;
-    if (apiKeyObject._id) apiKey._id = apiKeyObject._id;
   }
 }
 
