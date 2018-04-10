@@ -18,7 +18,7 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
   function getHeadersLang(request, callback) {
     const accepted = request.headers['accept-language'] ? request.headers['accept-language'].split(',') : null;
     if (accepted === null || !accepted.length) {
-      return cb(d10.config.templates.defaultLang);
+      return callback(d10.config.templates.defaultLang);
     }
     function checkNext() {
       if (accepted.length === 0) {
