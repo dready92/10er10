@@ -1,7 +1,7 @@
 const d10 = require("./d10");
 const ApiKey = require('./lib/api-key');
 
-module.exports = (app) => {
+module.exports.api = (app) => {
   app.post('/apikeys', (req) => {
     const uid = d10.uid();
     const apiKey = new ApiKey(uid);

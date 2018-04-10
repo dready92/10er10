@@ -13,6 +13,7 @@ module.exports = {
   removeSession,
   makeSession,
   makeRemoteControlSession,
+  getOrMakeSession,
   getUser
 };
 
@@ -64,32 +65,82 @@ function getSessionDataFromCache(cookieData) {
   if (sessionCache[cookieData.user]) {
     if (cookieData.session && sessionCache[cookieData.user].se._id === `se${cookieData.session}`) {
       return sessionCache[cookieData.user];
-    } else if (cookieData.remoteControlSession &&
-                sessionCache[cookieData.user].rs._id === `rs${cookieData.remoteControlSession}`) {
+    } else if (cookieData.remoteControlSession && sessionCache[cookieData.user].rs._id === `rs${cookieData.remoteControlSession}`) {
       return sessionCache[cookieData.user];
     }
   }
   return false;
 }
 
-function getSessionDataFromDatabase(cookieData, then) {
+/**
+ *
+ * @param {Object} of - The data to help lookup the session
+ * @param {String} of.user - The user login
+ * @param {String} of.userId - The user login id (with prepent 'us')
+ * @param {String} [of.session] - The session id (without 'se')
+ * @param {String} [of.remoteControlSession] - The remote control session id (without 'rs')
+ * @param {Function} then - asynchronous callback
+ */
+function getOrMakeSession(of, then) {
 
-  function sessionMatch(row) {
-    return ((cookieData.session && row.doc._id === `se${cookieData.session}`) ||
-              (cookieData.remoteControlSession && row.doc._id === `rs${cookieData.remoteControlSession}`));
+  function filter(doc) {
+    return row.doc._id.substr(0, 2) === 'se';
   }
 
-  d10.db.loginInfos(
-    cookieData.user,
-    (response) => {
-      let found = false;
-      response.rows.forEach((v) => {
-        if (!found && sessionMatch(v)) {
-          found = { response, doc: v.doc };
-        }
-      });
-      return then(null, found);
-    }, then);
+  getSession(of.login, filter, (err, sessionResponse) => {
+    if (err) {
+      return then(err);
+    }
+
+    if (sessionResponse) {
+      return then(null, sessionResponse);
+    }
+
+    return makeSession(of.userId, (err2) => {
+      if (err2) {
+        return then(err2);
+      }
+
+      return getOrMakeSession(of, then);
+    });
+  });
+}
+
+/**
+ * Get the first session answering to criteria evaluated in the filter function
+ *
+ *
+ * @param {string} userLogin - user's login
+ * @param {Function} filter - the filter function, that should return true when the session object matches
+ * @param {Function} then - callback {response: the whole CouchDB datastore response, doc: the session doc matching the criteria}
+ */
+function getSession(userLogin, filter, then) {
+  d10.db.loginInfos(userLogin, (response) => {
+    let found = false;
+    response.rows.forEach((v) => {
+      if (!found && filter(v)) {
+        found = { response, doc: v.doc };
+      }
+    });
+    return then(null, found);
+  }, then);
+}
+
+/**
+ *
+ * @param {Object} of - The data to help lookup the session
+ * @param {String} of.user - The user login
+ * @param {String} [of.session] - The session id (without 'se')
+ * @param {String} [of.remoteControlSession] - The remote control session id (without 'rs')
+ * @param {Function} then - asynchronous callback
+ */
+function getSessionDataFromDatabase(of, then) {
+  function sessionMatch(row) {
+    return ((of.session && row.doc._id === `se${of.session}`) ||
+              (of.remoteControlSession && row.doc._id === `rs${of.remoteControlSession}`));
+  }
+
+  getSession(of.user, sessionMatch, then);
 }
 
 function getUser(sessionId, then) {
