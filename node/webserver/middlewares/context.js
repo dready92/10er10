@@ -19,6 +19,9 @@ module.exports = function contextMiddleware(req, res, next) {
       this.headers['Set-Cookie'] = `${d10.config.cookieName}=${cookieName}; expires=${expires}; path=${d10.config.cookiePath}`;
       this.headers['X-10er10-Auth-Token'] = escape(JSON.stringify(cookie));
     },
+    hasSession() {
+      return this.session && this.session._id;
+    },
   };
 
   const u = url.parse('http://' + req.headers.host + req.url);
