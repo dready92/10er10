@@ -8,6 +8,8 @@ var     d10 = require("./d10"),
         emitter = require('./lib/rc-events'),
         users = require("./d10.users");
 
+const session = require('./session');
+
 var readOneFileOrDir = function(stats, fileName, completePath, opts) {
   if ( stats.isDirectory() ) {
     return function(then) {
@@ -121,7 +123,7 @@ exports.publicApi = function(app) {
       user: request.ctx.user._id,
       session: request.ctx.remoteControlSession._id
     };
-    users.removeSession(id.session, function() {
+    session.removeSession(id.session, function() {
       emitter.emit("logout",id);
       d10.realrest.success({logout: true},request.ctx);
     });
@@ -137,9 +139,9 @@ exports.publicApi = function(app) {
         }
 
         debug("POST /api/rc/login: user ["+request.body.login+"] logged with login/password: ",uid);
-        users.makeRemoteControlSession(uid, function(err,sessionDoc) {
+        session.makeRemoteControlSession(uid, function(err,sessionDoc) {
           if ( !err ) {
-              d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
+              session.fillUserCtx(request.ctx,loginResponse,sessionDoc);
               var cookie = { user: request.ctx.user.login, remoteControlSession: sessionDoc._id.substring(2) };
               request.ctx.setCookie(cookie);
               if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }

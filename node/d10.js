@@ -54,7 +54,7 @@ exports.db.loginInfos = function(login, cb, ecb) {
 			"infos/all",
 			{
 				include_docs: true,
-				startkey: [resp.rows[0].doc._id.replace(/^us/,""),""], 
+				startkey: [resp.rows[0].doc._id.replace(/^us/,""),""],
 				endkey: [resp.rows[0].doc._id.replace(/^us/,""),[]]
 			}, function(err,resp) {
 				if ( err ) {
@@ -140,12 +140,12 @@ var	httpStatusCodes = {
 exports.uid = function() {
 // 	return ((0x100000000 * Math.random()).toString(32) + "" + (0x100000000 * Math.random()).toString(32));
 	return (
-		(0x100000000 * Math.random()).toString(32) + "" 
+		(0x100000000 * Math.random()).toString(32) + ""
 		+ (0x100000000 * Math.random()).toString(32)+ ""
 		+ (0x100000000 * Math.random()).toString(32)
 		   ).replace(/\./g,"")
 };
-	
+
 exports.count = function(obj) {
 	var count = 0;
 	for ( var k in obj ) {
@@ -168,10 +168,10 @@ exports.view = function(n,d,p,cb) {
 		cb = p;
 		p = null;
 	}
-	
+
 	fileCache.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
 		if (err) throw err;
-		data = 
+		data =
 		data = exports.mustache.to_html(data,d,p);
 		if ( cb )	cb.call(data,data);
 	});
@@ -182,11 +182,11 @@ exports.lngView = function(request, n, d, p, cb) {
 		cb = p;
 		p = null;
 	}
-	
+
 	if ( n.match(/^inline\//) ) {
 		return inlineView(request,n,d,p,cb);
 	}
-	
+
 	request.ctx.langUtils.parseServerTemplate(request, n+".html",function(err,data) {
 // 	fileCache.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
 		if (err) throw err;
@@ -213,8 +213,8 @@ var icuCollation = [
 var icuCollation = [
     " ", "`" , "^", "_", "-", ",", ";", ":", "!", "?", "." ,"'", "\"", "(", ")", "[", "]", "{", "}",
     "@", "*", "/", "\\", "&", "#", "%", "+", "<", "=", ">", "|", "~", "$", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-    "a", "b", "c",  "d", "e",  "f",  "g", "h",  "i", "j",  "k", "l", 
-    "m", "n",  "o",  "p",  "q",  "r",  "s",  "t", "u",  "v",  "w", "x", 
+    "a", "b", "c",  "d", "e",  "f",  "g", "h",  "i", "j",  "k", "l",
+    "m", "n",  "o",  "p",  "q",  "r",  "s",  "t", "u",  "v",  "w", "x",
     "y",  "z", "ZZZZZZZZ"
 ];
 
@@ -225,7 +225,7 @@ var nextLetterJS = function(l) {
 
 exports.nextWord = function(w) {
     var l = w[ (w.length -1) ];
-    var index = icuCollation.indexOf(l.toLowerCase()), 
+    var index = icuCollation.indexOf(l.toLowerCase()),
       next = ( index > -1 && index+1 < icuCollation.length ) ? icuCollation[ (index+1) ] : nextLetterJS(l);
 	return w.substring(0,w.length - 1) + next;
 };
@@ -240,39 +240,11 @@ exports.ucwords = function(str) {
     // *     example 1: ucwords('kevin van  zonneveld');
     // *     returns 1: 'Kevin Van  Zonneveld'
     // *     example 2: ucwords('HELLO WORLD');
-    // *     returns 2: 'HELLO WORLD'    
+    // *     returns 2: 'HELLO WORLD'
     return (str + '').replace(/^([a-z])|[\s\[\(\.0-9-]+([a-z])/g, function ($1) {
         return $1.toUpperCase();
     });
 };
-
-
-/*
- * setup ctx.session
- * ctx.user
- * ctx.userPrivateConfig
- */
-exports.fillUserCtx = function (ctx,response,session) {
-    if ( session._id.indexOf("se") === 0 ) {
-      ctx.session = session;
-    } else {
-      ctx.remoteControlSession = session;
-    }
-	response.rows.forEach(function(v,k) {
-		if ( v.doc._id.indexOf("se") === 0 && session._id.indexOf("se") === 0 && v.doc._id != session._id ) {
-			debug("deleting session ",v.doc._id);
-			exports.saveSession(v.doc,true);
-		} else if ( v.doc._id.indexOf("rs") === 0 && session._id.indexOf("rs") === 0 && v.doc._id != session._id ) {
-            debug("deleting session ",v.doc._id);
-            exports.saveSession(v.doc,true);
-        } else if ( v.doc._id.indexOf("us") === 0 ) {
-			ctx.user = v.doc;
-		} else if ( v.doc._id.indexOf("pr") === 0 ) {
-			ctx.userPrivateConfig = v.doc;
-		}
-	});
-};
-
 
 exports.fileType = function(file,cb) {
   var magic = new Magic(mmmagic.MAGIC_MIME_TYPE);
@@ -358,7 +330,7 @@ exports.realrest = {
 		ctx.response.end(data ? JSON.stringify(data) : null);
 	},
 	success: function(data,ctx) {
-		
+
 		ctx.headers["Content-Type"] = "application/json";
 		if ( data ) {
 			data = JSON.stringify(data);
@@ -367,25 +339,7 @@ exports.realrest = {
 		ctx.response.writeHead(200, ctx.headers );
 		ctx.response.end (data);
 	}
-	
-};
 
-
-exports.saveSession = function(doc,deleteIt) {
-	if ( deleteIt ) {
-		exports.couch.auth.deleteDoc(doc,function(err) {
-			if ( err ) {
-				debug("failed to delete session "+doc._id);
-			} else {
-				debug("session deleted "+doc._id);
-			}
-		});
-	} else {
-		if ( doc._rev ) {
-			exports.couch.auth.storeDoc(doc,function(err,resp) {
-			});
-		}
-	}
 };
 
 exports.saveUser = function(doc,deleteIt) {

@@ -10,14 +10,14 @@ var errCodes = {
 
 var isValidLogin = function(login, callback) {
 	if ( login.length < 3 ) {	return callback(431); }
-	if ( 
+	if (
 		login.indexOf("<") >= 0 ||
 		login.indexOf(">") >= 0 ||
 		login.indexOf("/") >= 0 ||
 		login.indexOf("\\") >= 0 ||
 		login.indexOf("\"") >= 0 ||
 		login.indexOf("'") >= 0 ||
-		login.indexOf("&") >= 0 
+		login.indexOf("&") >= 0
 	)	return callback(432);
 	if ( login.toLowerCase() == "admin" ||
 		 login.toLowerCase() == "administrateur" ||
@@ -92,7 +92,7 @@ var createUser = function(login,password,opts) {
 				}
 				return sendResponse(err,resp);
 			}
-			
+
 			var authUserDoc = {
 				_id: "us"+uuid,
 				login: login,
@@ -105,7 +105,7 @@ var createUser = function(login,password,opts) {
 			};
 			var d10PreferencesDoc = {_id: "up"+uuid};
 			var d10PrivateDoc = {_id: "pr"+uuid};
-			
+
 			when({
 				auth: function(cb) {
 					d10.couch.auth.storeDocs( [ authUserDoc, authPrivDoc ], function(err,resp) {
@@ -180,47 +180,13 @@ var checkAuthFromLogin = function(login, password, cb) {
 	);
 };
 
-/*
- * create a session for uid and returns the session document
- */
-var makeSession = function(uid, cb ) {
-  return makeSessionForType(uid, "se", cb);
-};
-
-var makeRemoteControlSession = function(uid, cb ) {
-  return makeSessionForType(uid, "rs", cb);
-};
-
-var makeSessionForType = function(uid, type, cb ) {
-    var sessionId = d10.uid();
-    var d = new Date();
-    // create session and send cookie
-    var doc = { 
-        _id:type+sessionId ,
-        userid: uid.substr(2),
-        ts_creation: d.getTime(),
-        ts_last_usage: d.getTime()
-    };
-    d10.couch.auth.storeDoc(doc,function(err,storeResponse) {
-        if ( err ) {
-            return cb(new Error("Session recording error"));
-        }
-        return cb(null,doc);
-    });
-};
-
-var removeSession = function(sessionId, cb) {
-  d10.couch.auth.deleteDoc(sessionId, cb);
-};
-
-
 var getListenedSongsByDate = function(uid, opts, callback) {
 	if ( opts.startkey && opts.startkey.length && opts.startkey[0]!=uid ) {
 		opts.startkey[0]=uid;
 	}
-	
+
 	d10.couch.track.view("tracking/userDateTracking",opts, callback);
-	
+
 };
 
 
@@ -228,8 +194,5 @@ exports.isValidLogin = isValidLogin;
 exports.isValidPassword = isValidPassword;
 exports.createUser = createUser;
 exports.checkAuthFromLogin = checkAuthFromLogin;
-exports.makeSession = makeSession;
-exports.removeSession = removeSession;
-exports.makeRemoteControlSession = makeRemoteControlSession;
 exports.getListenedSongsByDate = getListenedSongsByDate;
 

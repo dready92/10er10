@@ -54,6 +54,7 @@ function checkAuth(ctx, passTheCoochie) {
   // get from sessionCache
   const userSessionCache = sessionService.getSessionDataFromCache(cookieData);
   if (userSessionCache) {
+    debug('Found session in cache');
     ctx.user = userSessionCache.us;
     ctx.userPrivateConfig = userSessionCache.pr;
     ctx.session = userSessionCache.se || {};
@@ -66,7 +67,8 @@ function checkAuth(ctx, passTheCoochie) {
     if (err || !data) {
       return passTheCoochie();
     }
-    d10.fillUserCtx(ctx, data.response, data.doc);
+    debug('Found session in datastore');
+    sessionService.fillUserCtx(ctx, data.response, data.doc);
     sessionService.sessionCacheAdd(ctx.user, ctx.userPrivateConfig, ctx.session, ctx.remoteControlSession);
     return passTheCoochie();
   });

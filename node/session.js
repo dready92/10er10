@@ -1,4 +1,5 @@
 const d10 = require('./d10');
+const debug = d10.debug('d10:session');
 const when = require('./when');
 
 let sessionCache = {};
@@ -8,6 +9,10 @@ module.exports = {
   getSessionDataFromCache,
   getSessionDataFromDatabase,
   sessionCacheAdd,
+  fillUserCtx,
+  removeSession,
+  makeSession,
+  makeRemoteControlSession,
   getUser
 };
 
@@ -125,3 +130,75 @@ function getUser(sessionId, then) {
 
   return true;
 };
+
+function saveSession(doc, deleteIt) {
+  if (deleteIt) {
+    d10.couch.auth.deleteDoc(doc, (err) => {
+      if (err) {
+        debug(`failed to delete session ${doc._id}`);
+      } else {
+        debug(`session deleted ${doc._id}`);
+      }
+    });
+  } else if (doc._rev) {
+    d10.couch.auth.storeDoc(doc, () => {});
+  }
+  return true;
+}
+
+function removeSession(sessionId, cb) {
+  d10.couch.auth.deleteDoc(sessionId, cb);
+}
+
+function makeSession (uid, cb) {
+  return makeSessionForType(uid, 'se', cb);
+}
+
+function makeRemoteControlSession (uid, cb) {
+  return makeSessionForType(uid, 'rs', cb);
+}
+
+function makeSessionForType (uid, type, cb) {
+  const sessionId = d10.uid();
+  const d = new Date();
+  // create session and send cookie
+  const doc = {
+    _id: `${type}${sessionId}`,
+    userid: uid.substr(2),
+    ts_creation: d.getTime(),
+    ts_last_usage: d.getTime()
+  };
+  d10.couch.auth.storeDoc(doc, (err) => {
+    if (err) {
+      return cb(new Error('Session recording error'));
+    }
+    return cb(null, doc);
+  });
+}
+
+/*
+ * setup ctx.session
+ * ctx.user
+ * ctx.userPrivateConfig
+ */
+function fillUserCtx(ctx, response, session) {
+  if (session._id.indexOf('se') === 0) {
+    ctx.session = session;
+  } else {
+    ctx.remoteControlSession = session;
+  }
+  response.rows.forEach((v) => {
+    if (v.doc._id.indexOf('se') === 0 && session._id.indexOf('se') === 0 && v.doc._id !== session._id) {
+      debug('deleting session ', v.doc._id);
+      saveSession(v.doc, true);
+    } else if (v.doc._id.indexOf('rs') === 0 && session._id.indexOf('rs') === 0 && v.doc._id !== session._id) {
+      debug('deleting session ', v.doc._id);
+      saveSession(v.doc, true);
+    } else if (v.doc._id.indexOf('us') === 0) {
+      ctx.user = v.doc;
+    } else if (v.doc._id.indexOf('pr') === 0) {
+      ctx.userPrivateConfig = v.doc;
+    }
+  });
+}
+

@@ -7,6 +7,7 @@ var	bodyParser = require('body-parser'),
 		when = require("./when"),
 		users = require("./d10.users");
 
+const session = require('./session');
 
 exports.homepage = function(app) {
 
@@ -139,9 +140,9 @@ exports.homepage = function(app) {
 				}
 
 				debug("POST/: user logged with login/password:",uid);
-				users.makeSession(uid, function(err,sessionDoc) {
+				session.makeSession(uid, function(err,sessionDoc) {
 					if ( !err ) {
-						d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
+						session.fillUserCtx(request.ctx,loginResponse,sessionDoc);
 						var cookie = { user: request.ctx.user.login, session: sessionDoc._id.substring(2) };
             request.ctx.setCookie(cookie);
 						if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
@@ -173,9 +174,9 @@ exports.homepage = function(app) {
 					return d10.realrest.err(500,{error: "login failed",reason: "invalid credentials"},request.ctx);
 				}
 				debug("POST /api/session: user logged with login/password: ",uid);
-				users.makeSession(uid, function(err,sessionDoc) {
+				session.makeSession(uid, function(err,sessionDoc) {
 					if ( !err ) {
-						d10.fillUserCtx(request.ctx,loginResponse,sessionDoc);
+						session.fillUserCtx(request.ctx,loginResponse,sessionDoc);
 						var cookie = { user: request.ctx.user.login, session: sessionDoc._id.substring(2) };
 						request.ctx.setCookie(cookie);
 						if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
