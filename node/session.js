@@ -83,11 +83,11 @@ function getSessionDataFromCache(cookieData) {
  */
 function getOrMakeSession(of, then) {
 
-  function filter(doc) {
+  function filter(row) {
     return row.doc._id.substr(0, 2) === 'se';
   }
 
-  getSession(of.login, filter, (err, sessionResponse) => {
+  getSession(of.user, filter, (err, sessionResponse) => {
     if (err) {
       return then(err);
     }
