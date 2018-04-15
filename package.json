@@ -31,6 +31,7 @@
     "nodemailer": "~0.5.3",
     "pause": "^0.1.0",
     "prompt": "^0.2.14",
+    "q": "^1.5.1",
     "qs": "^6.3.0",
     "serve-favicon": "^2.3.2",
     "swagger-jsdoc": "^1.9.7",

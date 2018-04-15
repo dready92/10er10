@@ -4,6 +4,7 @@ const d10 = require('./d10');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const os = require('os');
+const Q = require('q');
 const when = require('./when');
 const dumbRadio = require('./lib/radio/dumb');
 
@@ -30,7 +31,7 @@ exports.api = function (app) {
    *          items:
    *            type: string
    *    responses:
-   *      201:
+   *      200:
    *        description: OK
    */
   app.post('/api/songs', jsonParserMiddleware, (request) => {
@@ -66,99 +67,197 @@ exports.api = function (app) {
       });
   });
 
-
-  app.get("/api/song/aa:id",function(request,response) {
-    d10.couch.d10.getDoc("aa"+request.params.id, function(err,doc) {
-      if ( err ) {
-        return d10.realrest.err(404,{error: "Document not found", reason: "id aa"+request.params.id+" not found"},request.ctx);
+  /**
+   * @swagger
+   *
+   * /api/song/{songId}:
+   *  get:
+   *    summary: Get a song by its id
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: SongId
+   *        in: path
+   *        description: ID of the song to fetch. Should begin with "aa"
+   *        required: true
+   *    responses:
+   *      200:
+   *        description: Song object
+   *        schema:
+   *          $ref: "#/definitions/Song"
+   */
+  app.get('/api/song/aa:id', (request) => {
+    d10.couch.d10.getDoc(`aa${request.params.id}`, (err, doc) => {
+      if (err) {
+        return d10.realrest.err(
+          404,
+          {
+            error: 'Document not found',
+            reason: `id aa${request.params.id} not found`
+          },
+          request.ctx);
       }
-      return d10.realrest.success(doc,request.ctx);
+
+      return d10.realrest.success(doc, request.ctx);
     });
   });
 
-  app.get("/api/userinfos", function(request,response) {
-    when (
-      {
-        preferences: function(cb) {
-          d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,data) {
-              cb(err,data);
-            });
-        },
-        playlists: function(cb) {
-          d10.couch.d10.view("user/all_infos",{key: [request.ctx.user._id.replace(/^us/,""), "pl"],include_docs: true},
-            function(err,data,meta) {
-              if ( err ) return cb(err);
-              var back = [];
-              data.rows.forEach(function(v) { back.push(v.doc); });
-              cb(null,back);
-            }
-          );
-        }
-      },
-      function(errors,responses) {
-        if ( errors ) {
-          debug(errors);
-          d10.realrest.err(423,null,request.ctx);
+  /**
+   * @swagger
+   *
+   * /api/userinfos:
+   *  get:
+   *    summary: Get a bunch of information about user currently connected
+   *    produces:
+   *      - application/json
+   *    responses:
+   *      200:
+   *        description: User informations
+   *        schema:
+   *          $ref: "#/definitions/Userinfos"
+   */
+  app.get('/api/userinfos', (request) => {
+    const preferences = Q.Promise((resolve, reject) => {
+      d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/, "up"), (err, data) => {
+        if (err) {
+          reject(err);
         } else {
-          responses.user = request.ctx.user;
-          d10.realrest.success(responses,request.ctx);
+          resolve(data);
         }
-      }
-    );
+      });
+    });
+
+    const playlists = Q.Promise((resolve, reject) => {
+      d10.couch.d10.view("user/all_infos", { key: [request.ctx.user._id.replace(/^us/, ""), "pl"], include_docs: true },
+        (err, data) => {
+          if (err) return reject(err);
+
+          return resolve(data.rows.map(row => row.doc));
+        });
+    });
+
+    Q.all([preferences, playlists])
+    .then((responses) => {
+      responses.user = request.ctx.user;
+      d10.realrest.success({
+        preferences: responses[0],
+        playlists: responses[1],
+        user: request.ctx.user
+      }, request.ctx);
+    })
+    .catch(e => {
+      debug(e);
+      d10.realrest.err(423, null, request.ctx);
+    });
   }); // /api/userinfos
 
-  app.get("/api/htmlElements", function(request,response) {
+  app.get('/api/htmlElements', (request) => {
+    const clientList = d10.config.templates.clientList;
+    const jobs = {};
 
-    var jobs = {}
-    for ( var jobname in d10.config.templates.clientList ) {
-      jobs[jobname] = (function(tpl,j) {
-                return function(cb) {
-                  request.ctx.langUtils.parseServerTemplate(request,tpl,cb);
-                };
-              })(d10.config.templates.clientList[jobname],jobname);
-    }
-    jobs.dynamic = function(cb) { request.ctx.langUtils.loadLang(request.ctx.lang, "client",cb); };
+    Object.keys(clientList).forEach((key) => {
+      const templateName = clientList[key];
+      jobs[key] = (cb) => {
+        request.ctx.langUtils.parseServerTemplate(request, templateName, cb);
+      };
+    });
+
+    jobs.dynamic = (cb) => { request.ctx.langUtils.loadLang(request.ctx.lang, 'client', cb); };
     when(
       jobs,
-      function(e,responses) {
-        if ( e ) {
-          debug("/api/htmlElements error(s):",e);
-          d10.realrest.err(500,e,request.ctx);
+      (e, responses) => {
+        if (e) {
+          debug('/api/htmlElements error(s):', e);
+          d10.realrest.err(500, e, request.ctx);
         } else {
-          var dynamic = responses.dynamic;
+          const dynamic = responses.dynamic;
           delete responses.dynamic;
-          for ( var i in dynamic ) {
-            responses[i] = dynamic[i];
-          }
-          d10.realrest.success(responses,request.ctx);
+
+          Object.keys(dynamic).forEach((key) => {
+            responses[key] = dynamic[key];
+          });
+          d10.realrest.success(responses, request.ctx);
         }
       }
     );
   });
 
-  app.get("/api/length", function(request,response) {
-    d10.couch.d10.view("song/length",function(err,resp) {
-      if ( err ) d10.realrest.err(423,resp,request.ctx);
-      var len = 0;
+  /**
+   * @swagger
+   *
+   * /api/length:
+   *  get:
+   *    summary: Get the total number of seconds of music available
+   *    produces:
+   *      - application/json
+   *    responses:
+   *      200:
+   *        description: User informations
+   *        schema:
+   *          type: object
+   *          properties:
+   *            length:
+   *              type: integer
+   *              description: the total length available to listen, in seconds
+   */
+  app.get('/api/length', (request) => {
+    d10.couch.d10.view('song/length', (err, resp) => {
+      if (err) d10.realrest.err(423, resp, request.ctx);
       try {
-        len = resp.rows.shift().value;
-        d10.realrest.success( {"length": len}, request.ctx );
+        const len = resp.rows.shift().value;
+        d10.realrest.success({ length: len }, request.ctx);
       } catch (e) {
-        d10.realrest.success( {"length": 0}, request.ctx );
+        d10.realrest.success({ length: 0 }, request.ctx);
       }
     });
   });
 
-
-  app.get("/api/serverLoad", function(request,response) {
-    d10.realrest.success( {load: os.loadavg()}, request.ctx );
-
+  /**
+   * @swagger
+   *
+   * /api/serverLoad:
+   *  get:
+   *    summary: Get the current server's load
+   *    produces:
+   *      - application/json
+   *    responses:
+   *      200:
+   *        description: Server load on 1, 5 and 15 minutes
+   *        schema:
+   *          type: object
+   *          properties:
+   *            load:
+   *              type: array
+   *              description: the total length available to listen, in seconds
+   *              items:
+   *                type: float
+   */
+  app.get('/api/serverLoad', (request) => {
+    d10.realrest.success({ load: os.loadavg() }, request.ctx);
   });
 
-  app.get("/api/toReview",function(request,response) {
-    d10.couch.d10.view("user/song",{key: [ request.ctx.user._id, false ]},function(err,resp) {
-      if ( err )	d10.realrest.err(423,err,request.ctx)
-      else		d10.realrest.success( {count: resp.rows.length}, request.ctx );
+    /**
+   * @swagger
+   *
+   * /api/toReview:
+   *  get:
+   *    summary: Get the number of songs waiting for review
+   *    produces:
+   *      - application/json
+   *    responses:
+   *      200:
+   *        description: Server load on 1, 5 and 15 minutes
+   *        schema:
+   *          type: object
+   *          properties:
+   *            count:
+   *              type: integer
+   *              description: the numbe of songs  to review
+   */
+  app.get('/api/toReview', (request) => {
+    d10.couch.d10.view('user/song', { key: [request.ctx.user._id, false] }, (err, resp) => {
+      if (err) d10.realrest.err(423, err, request.ctx);
+      else d10.realrest.success({ count: resp.rows.length }, request.ctx);
     });
   });
 
