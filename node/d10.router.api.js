@@ -236,7 +236,7 @@ exports.api = function (app) {
     d10.realrest.success({ load: os.loadavg() }, request.ctx);
   });
 
-    /**
+  /**
    * @swagger
    *
    * /api/toReview:
@@ -261,140 +261,204 @@ exports.api = function (app) {
     });
   });
 
+  /**
+   * @swagger
+   *
+   * /api/current_playlist:
+   *  put:
+   *    summary: record the playlist of the user
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: list
+   *        in: body
+   *        description: Ids of songs contained in the playlist
+   *        schema:
+   *          type: array
+   *          items:
+   *            type: string
+   *      - name: type
+   *        in: body
+   *        description: the type of playlist. Used by the playlist loader to later be able to load back the list
+   *        required: false
+   *        default: "default"
+   *        schema:
+   *          type: string
+   *    responses:
+   *      200:
+   *        description: Playlist is recorded
+   */
+  app.put('/api/current_playlist', urlencodedParserMiddleware, jsonParserMiddleware, (request) => {
+    const data = request.body;
 
-  app.put("/api/current_playlist", urlencodedParserMiddleware, jsonParserMiddleware, function(request,response)
-  {
-    let body = request.body;
-      let data = body;
-      d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/,"up"),function(err,userPreferences) {
-        if ( err ) { return d10.realrest.err(413,err,request.ctx);}
+    d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/, 'up'), (err, userPreferences) => {
+      if (err) { return d10.realrest.err(413, err, request.ctx); }
 
-        var recordDoc = function() {
-          userPreferences.playlist = {};
-          for ( var k in data) {
-            userPreferences.playlist[k.replace("[]","")] = data[k];
-          }
-          if ( userPreferences.playlist.list && typeof userPreferences.playlist.list == "string" ) {
-            userPreferences.playlist.list = [ userPreferences.playlist.list ];
-          }
-          d10.couch.d10wi.storeDoc(userPreferences,function(err,response) {
-            if ( err )	d10.realrest.err(413,err,request.ctx);
-            else		d10.realrest.success( [], request.ctx );
+      function recordDoc() {
+        userPreferences.playlist = {};
+        for (const k in data) {
+          userPreferences.playlist[k.replace('[]', '')] = data[k];
+        }
+        if (userPreferences.playlist.list && typeof userPreferences.playlist.list === 'string') {
+          userPreferences.playlist.list = [userPreferences.playlist.list];
+        }
+        d10.couch.d10wi.storeDoc(userPreferences, (err2) => {
+          if (err2) d10.realrest.err(413, err2, request.ctx);
+          else d10.realrest.success([], request.ctx);
+        });
+      };
+
+
+      if (!data.type) data.type = 'default';
+      const actions = {};
+      if (data.id) {
+        actions.checkId = function (cb) {
+          d10.couch.d10.getDoc(data.id, (err2) => {
+            cb(err2 ? false : true);
+          });
+        }
+      }
+      if (data.list) {
+        actions.checkList = (cb) => {
+          d10.couch.d10.allDocs({ keys: data.list }, (err2) =>  {
+            if (err2) return cb(false);
+            if (userPreferences.rows.length !== data.list.length) {
+              return cb(false);
+            }
+            return cb(true);
           });
         };
+      }
 
-
-        if ( !data.type )	data.type == "default";
-        var actions = {};
-        if ( data.id ) {
-          actions["checkId"] = function(cb) {
-            d10.couch.d10.getDoc(data.id,function(err,resp) {
-              cb( err ? false : true);
-            });
+      if (actions.length) {
+        when(actions, (err2) => {
+          if (err2) {
+            d10.realrest.err(413, err2, request.ctx);
+          } else {
+            recordDoc();
           }
-        }
-        if ( data.list ) {
-          actions["checkList"] = function(cb) {
-            d10.couch.d10.allDocs({keys: data.list},function(err,resp) {
-              if ( err )	return cb(false);
-              if ( userPreferences.rows.length != data.list.length ) {
-                return cb(false);
-              }
-              return cb(true);
-            });
-          };
-        }
-
-        if ( actions.length ) {
-          when(actions,function(err,responses) {
-            if ( err ) {
-              d10.realrest.err(413,err,request.ctx);
-            } else {
-              recordDoc()
-            }
-          });
-        } else {
-          recordDoc();
-        }
-
-
+        });
+      } else {
+        recordDoc();
+      }
     });
-  }
-  );
+  });
 
-  app.post("/api/ping", jsonParserMiddleware, function(request,response) {
-    var updateAliveDoc = function() {
-      d10.couch.track.updateDoc("tracking/ping/"+request.ctx.user._id.replace(/^us/,"pi"),function(err,resp) {
-        if ( err ) debug("/api/ping error on db request:",err);
+  app.post('/api/ping', jsonParserMiddleware, (request) => {
+    function updateAliveDoc() {
+      d10.couch.track.updateDoc(`tracking/ping/${request.ctx.user._id.replace(/^us/, 'pi')}`, (err) => {
+        if (err) debug('/api/ping error on db request:', err);
       });
-    };
+    }
 
-    var parsePlayerInfos = function() {
-      var infos = null;
-      if ( !request.body.player || !request.body.player.length ) {
-        return ;
+    function parsePlayerInfos() {
+      let infos = null;
+      if (!request.body.player || !request.body.player.length) {
+        return;
       }
       try {
         infos = JSON.parse(request.body.player);
-      } catch(e) {
-        return ;
+      } catch (e) {
+        return;
       }
 
-      var updateHits = function ( id ) {
-        d10.couch.d10wi.getDoc(id, function(err,doc) {
+      function updateHits(id) {
+        d10.couch.d10wi.getDoc(id, (err, doc) => {
           if (err) {
-            doc = {_id: id, hits: 0};
+            doc = { _id: id, hits: 0 };
           }
-          if ( doc.hits ) doc.hits++;
-          else			doc.hits = 1;
-          d10.couch.d10wi.storeDoc(doc,function(err,resp) {});
+          if (doc.hits) doc.hits++;
+          else  doc.hits = 1;
+          d10.couch.d10wi.storeDoc(doc, () => {});
         });
-      };
+      }
 
-      var updateUserData = function(id) {
-        d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/,"pr"),function(err,doc) {
-          if ( err ) {
-            return ;
+      function updateUserData(id) {
+        d10.couch.d10wi.getDoc(request.ctx.user._id.replace(/^us/, 'pr'), (err, doc) => {
+          if (err) {
+            return;
           }
-          if (!doc.listen)	doc.listen = {};
-          if ( doc.listen[id] )	doc.listen[id]++;
-          else					doc.listen[id]=1;
-          d10.couch.d10wi.storeDoc(doc,function() {});
+          if (!doc.listen)  doc.listen = {};
+          if (doc.listen[id]) doc.listen[id]++;
+          else  doc.listen[id] = 1;
+          d10.couch.d10wi.storeDoc(doc, () => {});
         });
-      };
+      }
 
-      infos.forEach(function(v,k) {
-        if ( v.id.substr(0,2) != "aa" ) {
-          return ;
+      infos.forEach((v) => {
+        if (v.id.substr(0, 2) !== 'aa') {
+          return;
         }
         updateHits(v.id);
         updateUserData(v.id);
         v.song = v.id;
         delete v.id;
-        v._id="pt"+d10.uid();
+        v._id = `pt${d10.uid()}`;
         v.user = request.ctx.user._id;
-        d10.couch.track.storeDoc(v,function(){});
+        d10.couch.track.storeDoc(v, () => {});
       });
+    }
 
-    };
-
-    var updateSessionTimestamp = function() {
+    function updateSessionTimestamp() {
       request.ctx.session.ts_last_usage = new Date().getTime();
-      d10.couch.auth.storeDoc(request.ctx.session, function(err) {
-        if ( err ) {
-          debug("Session timestamp updated, error:",err);
+      d10.couch.auth.storeDoc(request.ctx.session, (err) => {
+        if (err) {
+          debug('Session timestamp updated, error:', err);
         }
       });
-    };
+    }
 
     updateAliveDoc();
     parsePlayerInfos();
-    d10.realrest.success( [], request.ctx );
+    d10.realrest.success([], request.ctx);
     updateSessionTimestamp();
   });
 
-  app.post("/api/random", jsonParserMiddleware, function(request,response) {
-    dumbRadio("genre/unsorted", request, response);
+  /**
+   * @swagger
+   *
+   * /api/random:
+   *  post:
+   *    description: Get random songs
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: count
+   *        in: body
+   *        description: the number of songs to return
+   *        schema:
+   *          type: integer
+   *      - name: not
+   *        in: body
+   *        description: Ids of the song to try not to return
+   *        schema:
+   *          type: array
+   *          items:
+   *            type: string
+   *      - name: really_not
+   *        in: body
+   *        description: Ids of the song to absolutely not return
+   *        schema:
+   *          type: array
+   *          items:
+   *            type: string
+   *      - name: name
+   *        in: body
+   *        description: genre of the songs to return
+   *        schema:
+   *          type: string
+   *    responses:
+   *      200:
+   *        description: OK
+   *        schema:
+   *          type: array
+   *          items:
+   *            type: object
+   *            schema:
+   *              $ref: "#/definitions/Song"
+   */
+  app.post('/api/random', jsonParserMiddleware, (request, response) => {
+    dumbRadio('genre/unsorted', request, response);
   });
 
 
