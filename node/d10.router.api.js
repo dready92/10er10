@@ -461,16 +461,34 @@ exports.api = function (app) {
     dumbRadio('genre/unsorted', request, response);
   });
 
-
-  app.post("/api/volume", jsonParserMiddleware, function(request,response) {
-    var volume = (request.body && "volume" in request.body) ? parseFloat(request.body.volume) : 0;
-    if ( isNaN(volume) )	volume=0;
-    d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
-      if ( err ) { return d10.realrest.err(423,err,request.ctx); }
+  /**
+   * @swagger
+   *
+   * /api/volume:
+   *  post:
+   *    description: Set volume preference for user
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: volume
+   *        in: body
+   *        description: the volume to record, between 0 and 1
+   *        schema:
+   *          type: float
+   *    responses:
+   *      200:
+   *        description: OK
+   */
+  app.post('/api/volume', jsonParserMiddleware, (request) => {
+    let volume = (request.body && 'volume' in request.body) ? parseFloat(request.body.volume) : 0;
+    if (isNaN(volume)) volume = 0;
+    d10.couch.d10wi.getDoc(`up${request.ctx.user._id.substr(2)}`, (err, doc) => {
+      if (err) { return d10.realrest.err(423, err, request.ctx); }
       doc.volume = volume;
-      d10.couch.d10wi.storeDoc(doc,function(err,resp) {
-        if ( err ) { d10.realrest.err(423,err,request.ctx); }
-        else { d10.realrest.success([],request.ctx); }
+
+      return d10.couch.d10wi.storeDoc(doc, (err2) => {
+        if (err) d10.realrest.err(423, err2, request.ctx);
+        else d10.realrest.success([], request.ctx);
       });
     });
   });
