@@ -494,79 +494,117 @@ exports.api = function (app) {
   });
 
 
-  var updateUserPreferences = function(request, onDoc, callback) {
-    d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
-      if ( err ) { return callback(err); }
+  function updateUserPreferences(request, onDoc, callback) {
+    d10.couch.d10wi.getDoc(`up${request.ctx.user._id.substr(2)}`, (err, doc) => {
+      if (err) { return callback(err); }
       onDoc(doc);
-      d10.couch.d10wi.storeDoc(doc,callback);
+      d10.couch.d10wi.storeDoc(doc, callback);
     });
-  };
+  }
 
-  app.put("/api/preference/:name", jsonParserMiddleware, function(request,response) {
-    var defaultCallback = function(err,resp) {
-      if ( err ) { d10.realrest.err(423,err,request.ctx); }
+  /**
+   * @swagger
+   *
+   * /api/preference/{preferenceName}:
+   *  put:
+   *    description: Record a user preference
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: preferenceName
+   *        in: path
+   *        description: the preference name. Could be "hiddenExtendedInfos", "hiddenReviewHelper", "audioFade"
+   *        schema:
+   *          type: boolean|integer
+   *    responses:
+   *      200:
+   *        description: OK
+   */
+  app.put('/api/preference/:name', jsonParserMiddleware, (request) => {
+    function defaultCallback(err) {
+      if (err) { d10.realrest.err(423, err, request.ctx); }
       else { d10.realrest.success([],request.ctx); }
-    };
-    var prefValue = (request.body && "value" in request.body) ? request.body.value : null;
-    if ( request.params.name == "hiddenExtendedInfos" || request.params.name == "hiddenReviewHelper" ) {
+    }
+
+    let prefValue = (request.body && 'value' in request.body) ? request.body.value : null;
+    if (request.params.name === 'hiddenExtendedInfos' || request.params.name === 'hiddenReviewHelper') {
       updateUserPreferences(
         request,
-        function(doc) {
-          if ( prefValue && prefValue == "true" ) {
+        (doc) => {
+          if (prefValue && prefValue === 'true') {
             doc[request.params.name] = true;
           } else {
             delete doc[request.params.name];
           }
         },
-        defaultCallback
-      );
-    } else if ( request.params.name == "audioFade" ) {
-            prefValue = parseInt(prefValue,10);
-            if ( isNaN(prefValue) ) {
-              return d10.realrest.err(406,"preference "+request.params.name+" should be a number",request.ctx);
-            }
-            updateUserPreferences(
-                  request,
-                  function(doc) {
-                      doc[request.params.name] = prefValue;
-                  },
-                  defaultCallback
-              );
-          } else {
-      d10.realrest.err(404,"preference "+request.params.name+" is unknown",request.ctx);
+        defaultCallback);
+
+    } else if (request.params.name === 'audioFade') {
+      prefValue = parseInt(prefValue, 10);
+      if (isNaN(prefValue)) {
+        return d10.realrest.err(406, `preference ${request.params.name} should be a number`, request.ctx);
+      }
+      updateUserPreferences(
+        request,
+        (doc) => {
+            doc[request.params.name] = prefValue;
+        },
+        defaultCallback);
+    } else {
+      d10.realrest.err(404, `preference ${request.params.name} is unknown`, request.ctx);
     }
   });
 
-  app.put("/api/starring/likes/aa:id",function(request,response) {
-    var starring = function() {
-      d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
-        if ( err) { return d10.realrest.err(423,err,request.ctx); }
-        var star = null;
-        if ( !doc.dislikes ) {
+  /**
+   * @swagger
+   *
+   * /api/starring/likes/{songId}:
+   *  put:
+   *    description: Toggle a user's star (I like that song) on a song
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: songId
+   *        in: path
+   *        description: the song name, without aa
+   *        schema:
+   *          type: string
+   *    responses:
+   *      200:
+   *        description: OK
+   */
+  app.put('/api/starring/likes/aa:id', (request) => {
+    function starring() {
+      d10.couch.d10wi.getDoc(`up${request.ctx.user._id.substr(2)}`, (err, doc) => {
+        if (err) { return d10.realrest.err(423, err, request.ctx); }
+
+        let star = null;
+        if (!doc.dislikes) {
           doc.dislikes = {};
         }
-        if ( !doc.likes ) {
+        if (!doc.likes) {
           doc.likes = {};
         }
-        if ( doc.dislikes["aa"+request.params.id] ) {
-          delete doc.dislikes["aa"+request.params.id];
+        if (doc.dislikes[`aa${request.params.id}`]) {
+          delete doc.dislikes[`aa${request.params.id}`];
         }
-        if ( doc.likes["aa"+request.params.id] ) {
-          delete doc.likes["aa"+request.params.id];
 
+        if (doc.likes[`aa${request.params.id}`]) {
+          delete doc.likes[`aa${request.params.id}`];
         } else {
-          doc.likes["aa"+request.params.id] = true;
-          star = "likes";
+          doc.likes[`aa${request.params.id}`] = true;
+          star = 'likes';
         }
-        d10.couch.d10wi.storeDoc(doc, function(err,resp) {
-          if ( err ) { d10.realrest.err(423,err,request.ctx); }
-          else { d10.realrest.success({id: "aa"+request.params.id, star: star },request.ctx); }
+        d10.couch.d10wi.storeDoc(doc, (err2) => {
+          if (err2) { d10.realrest.err(423, err2, request.ctx); }
+          else { d10.realrest.success({ id: `aa${request.params.id}`, star }, request.ctx); }
         });
       });
     };
-    d10.couch.d10.getDoc("aa"+request.params.id, function(err,resp) {
-      if ( err ) { d10.realrest.err(427,err,request.ctx); }
-      else {  starring(); }
+
+    d10.couch.d10.getDoc(`aa${request.params.id}`, (err) => {
+      if (err) { d10.realrest.err(427, err, request.ctx); }
+      else { starring(); }
     });
   });
 
