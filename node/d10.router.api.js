@@ -566,7 +566,7 @@ exports.api = function (app) {
    *    parameters:
    *      - name: songId
    *        in: path
-   *        description: the song name, without aa
+   *        description: the song name, beginning with "aa"
    *        schema:
    *          type: string
    *    responses:
@@ -600,7 +600,7 @@ exports.api = function (app) {
           else { d10.realrest.success({ id: `aa${request.params.id}`, star }, request.ctx); }
         });
       });
-    };
+    }
 
     d10.couch.d10.getDoc(`aa${request.params.id}`, (err) => {
       if (err) { d10.realrest.err(427, err, request.ctx); }
@@ -608,108 +608,127 @@ exports.api = function (app) {
     });
   });
 
-  app.put("/api/starring/dislikes/aa:id",function(request,response) {
-    var starring = function() {
-      d10.couch.d10wi.getDoc("up"+request.ctx.user._id.substr(2),function(err,doc) {
-        if ( err ) { return d10.realrest.err(423,err,request.ctx); }
-        var star = null;
-        if ( !doc.dislikes ) {
+    /**
+   * @swagger
+   *
+   * /api/starring/dislikes/{songId}:
+   *  put:
+   *    description: Toggle a user's dislikes (I dislike that song) on a song
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: songId
+   *        in: path
+   *        description: the song name, beginning with "aa"
+   *        schema:
+   *          type: string
+   *    responses:
+   *      200:
+   *        description: OK
+   */
+  app.put('/api/starring/dislikes/aa:id', (request) => {
+    function starring() {
+      d10.couch.d10wi.getDoc(`up${request.ctx.user._id.substr(2)}`, (err, doc) => {
+        if (err) { return d10.realrest.err(423, err, request.ctx); }
+        let star = null;
+        if (!doc.dislikes) {
           doc.dislikes = {};
         }
-        if ( !doc.likes ) {
+        if (!doc.likes) {
           doc.likes = {};
         }
-        if ( doc.likes["aa"+request.params.id] ) {
-          delete doc.likes["aa"+request.params.id];
+        if (doc.likes[`aa${request.params.id}`]) {
+          delete doc.likes[`aa${request.params.id}`];
         }
-        if ( doc.dislikes["aa"+request.params.id] ) {
-          delete doc.dislikes["aa"+request.params.id];
-
+        if (doc.dislikes[`aa${request.params.id}`] ) {
+          delete doc.dislikes[`aa${request.params.id}`];
         } else {
-          doc.dislikes["aa"+request.params.id] = true;
-          star = "dislikes";
+          doc.dislikes[`aa${request.params.id}`] = true;
+          star = 'dislikes';
         }
-        d10.couch.d10wi.storeDoc(doc,function(err,resp) {
-          if ( err ) { d10.realrest.err(423,err,request.ctx);}
-          else { d10.realrest.success({id: "aa"+request.params.id, star: star },request.ctx); }
+        d10.couch.d10wi.storeDoc(doc, (err2) => {
+          if (err2) { d10.realrest.err(423, err2, request.ctx); }
+          else { d10.realrest.success({id: `aa${request.params.id}`, star }, request.ctx); }
         });
       });
-    };
-    d10.couch.d10.getDoc("aa"+request.params.id, function(err,resp) {
-      if ( err ) { d10.realrest.err(427,err,request.ctx); }
-      else {  starring(); }
+    }
+
+    d10.couch.d10.getDoc(`aa${request.params.id}`, (err) => {
+      if (err) { d10.realrest.err(427, err, request.ctx); }
+      else { starring(); }
     });
   });
 
-  app.get("/api/search",function(request,response) {
-    _songSearch("song/search", request, response);
+  app.get('/api/search', (request, response) => {
+    songSearch('song/search', request, response);
   });
-  var _songSearch = function(view, request,response) {
-    var options = {include_docs: true};
-    if ( request.query.start ) {
-      var start = d10.ucwords( request.query.start.replace(/^\s+/,"").replace(/\s+$/,"") );
-      var end = d10.nextWord(start);
+
+  function songSearch(view, request) {
+    const options = { include_docs: true };
+    if (request.query.start) {
+      const start = d10.ucwords(request.query.start.replace(/^\s+/, '').replace(/\s+$/, ''));
+      const end = d10.nextWord(start);
       options.startkey = start;
       options.endkey = end;
       options.inclusive_end = false;
     }
-    d10.couch.d10.view(view, options, function(err,resp) {
-      if ( err ) { return d10.realrest.err(423,err,request.ctx); }
-      var results = {title: [], artist: [], album: []};
-      resp.rows.forEach(function(v,k) {
-        var doc = v.doc;
-        var field = v.value.json.field;
-        if ( field == "album" ) {
-          var put = false;
-          for (i=0,len=results[field].length; i<len; i++ ) {
-            if ( results[field][i].doc[field] ==  doc[field] ) {
-              put = true;
-              break;
-            } else if ( results[field][i].doc[field] > doc[field] ) {
-              put = true;
-              results[field].splice(i,0,{doc: doc, value: v.value});
-              break;
-            }
-          }
-          if ( !put ) {
-            results[field].push( {doc: doc, value: v.value} );
-          }
-        } else if ( field == "artist" ) {
-          var put = false;
-          for (i=0,len=results[field].length; i<len; i++ ) {
-            if ( results[field][i].value.json.value ==  v.value.json.value ) {
-              put = true;
-              break;
-            } else if ( results[field][i].value.json.value > v.value.json.value ) {
-              put = true;
-              results[field].splice(i,0,{doc: doc, value: v.value});
-              break;
-            }
-          }
-          if ( !put ) {
-            results[field].push( {doc: doc, value: v.value} );
-          }
 
-        } else {
-          var put = false;
-          for (i=0,len=results[field].length; i<len; i++ ) {
-            if ( results[field][i].doc[field]+" "+results[field][i].doc._id == doc[field]+" "+ doc._id ) {
+    d10.couch.d10.view(view, options, (err, resp) => {
+      if (err) { return d10.realrest.err(423, err, request.ctx); }
+      const results = { title: [], artist: [], album: [] };
+      resp.rows.forEach((v) => {
+        const doc = v.doc;
+        const field = v.value.json.field;
+        if (field === 'album') {
+          let put = false;
+          for (let i = 0, len = results[field].length; i < len; i++) {
+            if (results[field][i].doc[field] === doc[field]) {
               put = true;
               break;
-            } else if ( results[field][i].doc[field]+" "+results[field][i].doc._id > doc[field]+" "+ doc._id ) {
+            } else if (results[field][i].doc[field] > doc[field]) {
               put = true;
-              results[field].splice(i,0,{doc: doc, value: v.value});
+              results[field].splice(i, 0, { doc, value: v.value });
               break;
             }
           }
-          if ( !put ) {
-            results[field].push({doc: doc, value: v.value});
+          if (!put) {
+            results[field].push({ doc, value: v.value });
+          }
+        } else if (field === 'artist') {
+          let put = false;
+          for (let i = 0, len = results[field].length; i < len; i++) {
+            if (results[field][i].value.json.value === v.value.json.value) {
+              put = true;
+              break;
+            } else if (results[field][i].value.json.value > v.value.json.value) {
+              put = true;
+              results[field].splice(i, 0, { doc, value: v.value });
+              break;
+            }
+          }
+          if (!put) {
+            results[field].push({ doc, value: v.value });
+          }
+        } else {
+          let put = false;
+          for (let i = 0, len = results[field].length; i < len; i++) {
+            if (`${results[field][i].doc[field]} ${results[field][i].doc._id}` === `${doc[field]} ${doc._id}`) {
+              put = true;
+              break;
+            } else if (`${results[field][i].doc[field]} ${results[field][i].doc._id}` > `${doc[field]} ${doc._id}`) {
+              put = true;
+              results[field].splice(i, 0, { doc, value: v.value });
+              break;
+            }
+          }
+          if (!put) {
+            results[field].push({ doc, value: v.value });
           }
         }
       });
       d10.realrest.success(results, request.ctx);
     });
-  };
+  }
 
   app.post("/api/details", jsonParserMiddleware, function(request,response) {
     var artists = [], albums = [], jobs = {};
