@@ -172,6 +172,49 @@ exports.api = function(app) {
 		d10.couch.d10.view(view,query,listDefaultCallback.bind(request.ctx));
 	};
 	
+	function getCouchQuery (query) {
+		const couchQuery = { include_docs: true, descending: true, limit: d10.config.rpp + 1 };
+		if (query.genre) {
+			if (!validGenre(query.genre)) {
+				return false;
+			}
+			couchQuery.genre = query.genre;
+			couchQuery.view = 'genre/creation';
+			qouchQuery.endkey = couchQuery.genre;
+		} else {
+			couchQuery.view = 'ts_creation/name';
+			couchQuery.reduce = false;
+		}
+		if ( query.startkey ) {
+			couchQuery.startkey = JSON.parse(query.startkey);
+			if (query.startkey_docid) {
+				couchQuery.startkey_docid = query.startkey_docid;
+			}
+		}
+
+		if (couchQuery.genre && !couchQuery.startkey) {
+			couchQuery.startkey = [couchQuery.genre, {}];
+		}
+
+		return couchQuery;
+	}
+
+
+
+	app.get("/api/list/creations/mergeAlbums", function (request, response) {
+		const couchQuery = getCouchQuery (request.query);
+		if (!couchQuery) {
+			return d10.realrest.err(428, request.query.genre, request.ctx);
+		}
+
+		const ignoredAlbums = request.query.ignoredAlbums ? JSON.parse(request.query.ignoredAlbums) : [];
+		getAndParseByAlbum(couchQuery, ignoredAlbums)
+		.then(response => {
+			d10.realrest.success(respone, request.ctx);
+			}).catch(e => d10.realrest.success(respone, request.ctx));
+	});
+
+
 	app.get("/api/list/hits",function(request,response) {
 		var query = {reduce: false, descending: true, limit: d10.config.rpp+1};
 		if ( request.query.startkey ) {
