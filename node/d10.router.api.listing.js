@@ -212,7 +212,7 @@ exports.api = function(app) {
 		getAndParseByAlbum(couchQuery, ignoredAlbums)
 		.then(response => {
 			d10.realrest.success(response, request.ctx);
-			}).catch(e => d10.realrest.success(response, request.ctx));
+			}).catch(e => d10.realrest.err(500, e, request.ctx));
 	});
 
 

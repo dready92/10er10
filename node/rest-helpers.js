@@ -81,7 +81,7 @@ function getAndParseByAlbum(couchQuery, ignoredAlbums = []) {
 
   function incrementAndExpiresAlbumTTL(albumList, albumMaxTTL) {
     const response = { ...albumList };
-    response.keys().map(name => response[name])
+    Object.keys(response).map(name => response[name])
       .forEach((album) => {
         album.ttl += 1;
         if (album.ttl > albumMaxTTL) {
