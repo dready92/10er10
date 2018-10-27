@@ -23,10 +23,6 @@ function loginUsingHeader(req, res, next) {
 }
 
 function loginUsingPath(req, res, next) {
-  if (req && req.ctx && req.ctx.hasSession()) {
-    return next();
-  }
-
   const regmatch = req.url.split('/');
   if (regmatch.length < 4) {
     return next();
@@ -37,11 +33,11 @@ function loginUsingPath(req, res, next) {
 
   const apikey = regmatch[2];
 
-  regmatch.splice(1, 2);
-
-  return setupEnvUsingApikey(req, apikey, () => {
-    console.log(req);
-    req.url = regmatch.join('/');
+  return setupEnvUsingApikey(req, apikey, (success) => {
+    if (success) {
+      regmatch.splice(0, 3);
+      req.url = `/${regmatch.join('/')}`;
+    }
     next();
   });
 }
@@ -70,7 +66,7 @@ function setupEnvUsingApikey(req, apikey, next) {
 
       sessionService.fillUserCtx(ctx, response.response, response.doc);
       sessionService.sessionCacheAdd(ctx.user, ctx.userPrivateConfig, ctx.session, ctx.remoteControlSession);
-      return next();
+      return next(true);
     });
   });
 }
