@@ -209,7 +209,7 @@ exports.api = function(app) {
 				return ;
 			}
 			try {
-				infos = JSON.parse(request.body.player);
+				infos = request.body.player;
 			} catch(e) {
 				return ;
 			}

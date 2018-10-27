@@ -27,7 +27,9 @@ var xmlHTTP = function (data,success,error) {
   
   xmlhttp.open(data.method, url,false);
   
-  if ( data.method == 'POST' ) {
+  if (data.json) {
+    xmlhttp.setRequestHeader("Content-Type", "application/json");
+  } else if (data.method === 'POST') {
     xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
   }
   
@@ -172,13 +174,14 @@ var jobs = {
 
 var pingReporter = function () {
   var ajax = {
-    "url": jobs.enablePing.url,
-    "method": "POST",
-    "data": null
+    url: jobs.enablePing.url,
+    method: 'POST',
+    data: null,
+    json: true
   };
   
   if ( jobs.player.buffer.length ) {
-    ajax.data = "player="+encodeURIComponent( JSON.stringify(jobs.player.buffer) );
+    ajax.data = JSON.stringify({ player: jobs.player.buffer });
     jobs.player.buffer = [];
   }
   
