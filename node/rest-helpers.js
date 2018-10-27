@@ -67,9 +67,8 @@ function getAndParseByAlbum(couchQuery, ignoredAlbums = []) {
             if (row.id) {
               nextQuery.startkey_docid = row.id;
             }
+            totalReached = 1;
           }
-
-          totalReached = 1;
         }
       });
 
