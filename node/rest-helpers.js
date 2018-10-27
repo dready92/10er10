@@ -55,7 +55,7 @@ function getAndParseByAlbum(couchQuery, ignoredAlbums = []) {
             */
 
           if (!totalReached) {
-            byAlbum.push(song);
+            byAlbum.push(orphan(song));
             albums = incrementAndExpiresAlbumTTL(albums, albumMaxTTL);
           }
         }
@@ -105,5 +105,12 @@ function getAndParseByAlbum(couchQuery, ignoredAlbums = []) {
     albumList[name] = album;
 
     return album;
+  }
+
+  function orphan(song) {
+    return {
+      name: '',
+      songs: [song]
+    };
   }
 }
