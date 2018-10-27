@@ -200,20 +200,20 @@ exports.api = function(app) {
 		return couchQuery;
 	}
 
-
-
-	app.get("/api/list/creations/mergeAlbums", function (request, response) {
-		const couchQuery = getCouchQuery (request.query);
+	function mixedAlbumsSongsHandler(request) {
+		const couchQuery = getCouchQuery(request.query);
 		if (!couchQuery) {
 			return d10.realrest.err(428, request.query.genre, request.ctx);
 		}
 
 		const ignoredAlbums = request.query.ignoredAlbums ? JSON.parse(request.query.ignoredAlbums) : [];
 		getAndParseByAlbum(couchQuery, ignoredAlbums)
-		.then(response => {
-			d10.realrest.success(response, request.ctx);
+			.then(response => {
+				d10.realrest.success(response, request.ctx);
 			}).catch(e => d10.realrest.err(500, e, request.ctx));
-	});
+	}
+
+	app.get("/api/list/creations/mergeAlbums", mixedAlbumsSongsHandler);
 
 
 	app.get("/api/list/hits",function(request,response) {
@@ -620,5 +620,5 @@ exports.api = function(app) {
 		
 	});
 	
-
+	app.get("/api/list/mixed/songs/creation", mixedAlbumsSongsHandler);
 }; // exports.api
