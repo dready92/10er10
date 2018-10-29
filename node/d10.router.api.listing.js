@@ -561,7 +561,48 @@ exports.api = function(app) {
 
 		d10.couch.d10.view("genre/song-hits",opts,listDefaultCallback.bind(request.ctx));
 	});
-	
+
+	app.get("/api/own/list/mixed/lastPlayed", function (request) {
+		const requestLength = d10.config.rpp;
+		const opts = {
+			reduce: false,
+			descending: true,
+			include_docs: true,
+			startkey: request.query.startkey ?
+				JSON.parse(request.query.startkey) :
+				[ request.ctx.user._id, {} ],
+			endkey: [ request.ctx.user._id ],
+			limit: requestLength 
+		};
+
+		if (request.query.startkey_docid)  {
+			opts.startkey_docid = request.query.startkey_docid;
+		}
+
+		users.getListenedSongsByDate(request.ctx.user._id, opts, function (err, hits) {
+			if (err) {
+				return d10.realrest.err(423, err, request.ctx);
+			}
+			if (!hits.rows.length) {
+				return d10.realrest.success([], request.ctx);
+			}
+			const ids = hits.rows.map((row) => row.value);
+
+			d10.couch.d10.getAllDocs({ include_docs: true, keys: ids }, function (err, docs) {
+				if (err) {
+					return d10.realrest.err(423, err, request.ctx);
+				}
+				const response = hits.rows.map((row) => {
+					const element = { ...row};
+					element.song = docs.rows.find(song => song.doc._id === row.value).doc;
+					return element;
+				});
+
+				d10.realrest.success(response, request.ctx);
+			});
+		});
+	});
+
 	app.get("/api/own/list/genre/lastPlayed/:genre",function(request,response) {
 		if ( !validGenre(request.params.genre) ) {
 			return d10.realrest.err(428, request.params.genre, request.ctx);
