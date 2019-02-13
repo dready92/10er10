@@ -8,8 +8,7 @@ var d10 = require ("../d10"),
     spawn = require('child_process').spawn,
     exec = require('child_process').exec,
     EventEmitter = require("events").EventEmitter,
-    debug = d10.debug("d10:song-processor"),
-    supportedAudioTypes = audioUtils.supportedAudioTypes;
+    debug = d10.debug("d10:song-processor");
 
 function processSong(songId, songFilename, songFilesize, userId, readableStream, emitter) {
 
@@ -213,7 +212,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           job.decoder = spawn(d10.config.cmds.flac, d10.config.cmds.flac_opts);
           job.spawns.push(job.decoder);
           job.run("oggEncode");
-      } else if ( resp == "audio/mp4" ) {
+      } else if (resp === "audio/mp4" || resp === "audio/x-m4a") {
           debug(songId, "It's m4a, will launch decoder later");
       } else {
           job.inputFileBuffer.status = false;
@@ -225,10 +224,13 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
   });
 
   internalEmitter.on("uploadCompleteAndFileTypeAvailable", function() {
-      if ( job.tasks.fileType.response == "audio/mp4" ) {
+      if (job.tasks.fileType.response === "audio/mp4" || job.tasks.fileType.response === "audio/x-m4a") {
           var args = d10.config.cmds.faad_opts.join("\n").split("\n");
           args.push(d10.config.audio.tmpdir+"/"+job.fileName);
           job.decoder = spawn(d10.config.cmds.faad, args);
+          job.decoder.on('error', (data) => {
+              debug(songId, 'error: ' + data);
+          });
           job.decoder.stderr.on('data', function (data) {
               debug(songId,'stderr: ' + data);
           });

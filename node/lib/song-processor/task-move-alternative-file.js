@@ -17,7 +17,7 @@ exports = module.exports = function moveAlternativeFileTask (then) {
   debug(this.id,"file type : ",fileType);
   if ( fileType == "audio/mpeg" ) {
     alternativeExtension = "mp3";
-  } else if ( fileType == "audio/mp4" ) {
+  } else if (fileType === 'audio/mp4' || fileType === 'audio/x-m4a') {
     alternativeExtension = "m4a";
   }
   if ( !alternativeExtension ) {

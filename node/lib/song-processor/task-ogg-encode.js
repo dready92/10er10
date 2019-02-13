@@ -33,11 +33,11 @@ exports = module.exports = function oggEncodeTask(then) {
     oggWriterError=true;
   });
   job.decoder.stdout.pipe(job.oggWriter.stdin);
-  
-  if ( job.tasks.fileType.response != "audio/mp4" ) {// faad does not support stdin streaming
+
+  if (job.tasks.fileType.response !== "audio/mp4" && job.tasks.fileType.response !== "audio/x-m4a") {// faad does not support stdin streaming
     writeBuffer();
   }
-  
+
   function sendProgressEvent() {
     debug("Encoded: ",bytesEncodedCount," out of ",job.songFilesize);
     job.emitter.emit("progress",{
@@ -47,7 +47,7 @@ exports = module.exports = function oggEncodeTask(then) {
       complete: bytesEncodedCount
     });
   };
-  
+
   function writeBuffer() {
     if ( ! job.inputFileBuffer.buffer.length ) {
       if ( job.requestEnd ) {
@@ -60,17 +60,17 @@ exports = module.exports = function oggEncodeTask(then) {
       }
       return ;
     }
-        
+
     debug(job.id,"Size: ",job.inputFileBuffer.buffer.length," bufferJoin: ",job.bufferJoin);
     var buffer = files.bufferSum(
       job.inputFileBuffer.buffer.splice(0, job.inputFileBuffer.buffer.length <= job.bufferJoin ? job.inputFileBuffer.buffer.length : job.bufferJoin)
     );
     bytesEncodedCount+=buffer.length;
     var writeOk = job.decoder.stdin.write(buffer);
-    if ( writeOk ) { 
-      writeBuffer(); 
+    if ( writeOk ) {
+      writeBuffer();
       sendProgressEvent();
-    } 
+    }
     else {
       job.decoder.stdin.once("drain",function() {
         writeBuffer();
@@ -80,4 +80,3 @@ exports = module.exports = function oggEncodeTask(then) {
   };
 
 }
-          

@@ -93,4 +93,3 @@ exports.isOggFileType = function(mimeType) {
   return mimeType === 'application/ogg' || mimeType === 'audio/ogg';
 }
 
-exports.supportedAudioTypes = [ "audio/mpeg", "audio/mp4", "application/ogg", "audio/x-flac", 'audio/ogg' ];
