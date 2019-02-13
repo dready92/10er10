@@ -6,7 +6,16 @@ define(["js/domReady", "js/d10.templates", "js/d10.router", "js/d10.rest",
 		var that = this;
 		
 		var $dropbox = $('div.uploadDropBox',ui);
-		var audioTypes = ["audio/mp3","audio/ogg","video/ogg","audio/mpeg", "audio/x-flac","audio/flac", "audio/x-m4a"];
+		var audioTypes = [
+		  "audio/mp3",
+		  "audio/ogg",
+		  "video/ogg",
+		  "audio/mpeg",
+		  "audio/x-flac",
+		  "audio/flac",
+	 	  "audio/x-m4a",
+		  "audio/mp4"
+		];
 		var uploader = new uploadManager();
 		var uploadCandidates = [];
 		var intervalID = null;
