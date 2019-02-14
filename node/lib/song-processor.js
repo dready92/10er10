@@ -249,8 +249,8 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
   job.complete("sha1Check",function(err,resp) {
       if ( err ) {
           safeErrResp(433,err);
-          fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName);
-          job.complete("oggEncode",function() {fs.unlink(d10.config.audio.tmpdir+"/"+job.oggName);});
+          fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName, () => {});
+          job.complete("oggEncode",function() {fs.unlink(d10.config.audio.tmpdir+"/"+job.oggName, () => {});});
           if ( job.oggWriter && job.oggWriter.kill ) {
             job.oggWriter.kill();
           }
