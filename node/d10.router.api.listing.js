@@ -171,7 +171,7 @@ exports.api = function api(app) {
   app.get('/api/genre', (request) => {
     if (request.query.start && request.query.start.length) {
       const reg = new RegExp(request.query.start, 'i');
-      const resp = d10.config.genres.map(genre => genre.search(reg) === 0);
+      const resp = d10.config.genres.filter(genre => genre.search(reg) === 0);
       d10.realrest.success(resp, request.ctx);
     } else {
       d10.realrest.success(d10.config.genres, request.ctx);

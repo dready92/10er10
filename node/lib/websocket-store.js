@@ -24,7 +24,6 @@ websocketStore.prototype.store = function (socket, user, type) {
     return ;
   }
   debug("storing new socket, user=",user,", type=",type);
-  console.log(socket.upgradeReq.headers);
   socket.d10user = user;
   socket.d10type = type;
   socket.on('close', function() {
