@@ -193,6 +193,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
         job.complete(v, () => {
           // eslint-disable-next-line no-plusplus
           complete++;
+          job.dumpTasksStatus();
           if (complete === steps.length) {
             onAllComplete();
           }

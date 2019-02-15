@@ -59,8 +59,12 @@ class Job {
     if (this.canRun(taskName)) {
       this.queue.push(taskName);
       debug(this.id, 'Launch task ', taskName);
-      this.tasks[taskName].run.call(this, (err, resp) => {
-        this.endOfTask(taskName, err, resp);
+      this.tasks[taskName].run(this).then((resp) => {
+        this.endOfTask(taskName, null, resp);
+      })
+      .catch((err) => {
+        this.endOfTask(taskName, err);
+        debug('ERROR: promise failed', taskName, err);
       });
     }
   }
@@ -138,8 +142,13 @@ class Job {
 
   dumpTasksStatus() {
     debug(this.id, '--------- Encoding failure ----------');
-    Object.keys(this.tasks).forEach(k => {
-      debug(this.id, k, this.tasks[k].err ? this.tasks[k].err : '');
+    Object.keys(this.tasks).forEach((k) => {
+      debug(
+        this.id,
+        k,
+        this.tasks[k].status === false ? 'complete' : 'not complete',
+        this.tasks[k].err ? this.tasks[k].err : '',
+      );
     });
     debug(this.id, '-------------------------------------');
   }

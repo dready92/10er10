@@ -1,38 +1,35 @@
-var d10 = require ("../../d10");
-var debug=d10.debug("d10:song-processor:task-move-alternative-file");
-var fs = require("fs");
+const d10 = require('../../d10');
+const fs = require('fs');
 
-exports = module.exports = function moveAlternativeFileTask (then) {
+const debug = d10.debug('d10:song-processor:task-move-alternative-file');
 
-  if ( !d10.config.audio.keepOriginalFile ) {
-    return then();
-  }
-
-  var c = this.id[2],
-  filename = this.oggName,
-  tmpFile = d10.config.audio.tmpdir+"/"+this.fileName,
-  id = this.id,
-  fileType = this.tasks.fileType.response,
-  alternativeExtension = null;
-  debug(this.id,"file type : ",fileType);
-  if ( fileType == "audio/mpeg" ) {
-    alternativeExtension = "mp3";
-  } else if (fileType === 'audio/mp4' || fileType === 'audio/x-m4a') {
-    alternativeExtension = "m4a";
-  }
-  if ( !alternativeExtension ) {
-    return then();
-  }
-  var targetFile = d10.config.audio.dir+"/"+id[2]+"/"+id+"."+alternativeExtension;
-  debug(this.id,"moveAlternativeFile : ",tmpFile," -> ",targetFile);
-  fs.rename(
-    tmpFile,
-    targetFile,
-    function(err,resp) {
-      if ( err ) {
-        return then(err);
-      }
-      return then(null, {type: fileType, extension: alternativeExtension});
+exports = module.exports = function moveAlternativeFileTask(job) {
+  // eslint-disable-next-line consistent-return
+  return new Promise((resolve, reject) => {
+    if (!d10.config.audio.keepOriginalFile) {
+      return resolve();
     }
-  );
-}
+
+    const tmpFile = `${d10.config.audio.tmpdir}/${job.fileName}`;
+    const id = job.id;
+    const fileType = job.tasks.fileType.response;
+    let alternativeExtension = null;
+    debug(job.id, 'file type : ', fileType);
+    if (fileType === 'audio/mpeg') {
+      alternativeExtension = 'mp3';
+    } else if (fileType === 'audio/mp4' || fileType === 'audio/x-m4a') {
+      alternativeExtension = 'm4a';
+    }
+    if (!alternativeExtension) {
+      return resolve();
+    }
+    const targetFile = `${d10.config.audio.dir}/${id[2]}/${id}.${alternativeExtension}`;
+    debug(job.id, 'moveAlternativeFile : ', tmpFile, ' -> ', targetFile);
+    fs.rename(tmpFile, targetFile, (err) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve({ type: fileType, extension: alternativeExtension });
+    });
+  });
+};

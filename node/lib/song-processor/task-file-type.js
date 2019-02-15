@@ -1,14 +1,21 @@
-var d10 = require("../../d10");
-var debug = d10.debug("d10:song-processor-task-file-type");
+const d10 = require('../../d10');
 
-exports = module.exports = function fileTypeTask (then) {
-  if ( this.songFilename.match(/mp3$/i) ) {
-    debug(this.id, "fileType task returns",  "audio/mpeg");
-    return then(null,"audio/mpeg");
-  }
-  var songId = this.id;
-  d10.fileType(d10.config.audio.tmpdir+"/"+this.fileName, function(err,type) {
-    debug(songId, "fileType task returns", type);
-    then(err,type);
+const debug = d10.debug('d10:song-processor-task-file-type');
+
+exports = module.exports = function fileTypeTask(job) {
+  // eslint-disable-next-line consistent-return
+  return new Promise((resolve, reject) => {
+    if (job.songFilename.match(/mp3$/i)) {
+      debug(job.id, 'fileType task returns', 'audio/mpeg');
+      return resolve('audio/mpeg');
+    }
+    d10.fileType(`${d10.config.audio.tmpdir}/${job.fileName}`, function (err, type) {
+      if (err) {
+        reject(err);
+      } else {
+        debug(job.id, 'fileType task returns', type);
+        resolve(type);
+      }
+    });
   });
 };

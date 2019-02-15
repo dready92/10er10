@@ -1,19 +1,22 @@
-var d10 = require ("../../d10");
+const d10 = require('../../d10');
 
 
-exports = module.exports = function sha1CheckTask(then) {
-  if ( this.tasks.sha1File.err ) {
-    return then(err);
-  } else if ( !this.tasks.sha1File.response || !this.tasks.sha1File.response.length ) {
-    return then("Sha1 not available");
-  }
-  d10.couch.d10.view("song/sha1",{key: this.tasks.sha1File.response}, function(err,resp) {
-    if ( err ) {
-      then(501);
-    } else if (!resp.rows || resp.rows.length) {
-      then(433);
-    } else {
-      then(null,null);
+exports = module.exports = function sha1CheckTask(job) {
+  // eslint-disable-next-line consistent-return
+  return new Promise((resolve, reject) => {
+    if (job.tasks.sha1File.err) {
+      return reject(job.tasks.sha1File.err);
+    } else if (!job.tasks.sha1File.response || !job.tasks.sha1File.response.length) {
+      return reject('Sha1 not available');
     }
+    d10.couch.d10.view('song/sha1', { key: job.tasks.sha1File.response }, (err, resp) => {
+      if (err) {
+        reject(501);
+      } else if (!resp.rows || resp.rows.length) {
+        reject(433);
+      } else {
+        resolve();
+      }
+    });
   });
-}
+};
