@@ -7,8 +7,9 @@ var d10 = require ("../d10"),
     gu = require("../graphicsUtils"),
     spawn = require('child_process').spawn,
     exec = require('child_process').exec,
-    EventEmitter = require("events").EventEmitter,
     debug = d10.debug("d10:song-processor");
+
+const Job = require('./song-processor/job');
 
 function processSong(songId, songFilename, songFilesize, userId, readableStream, emitter) {
 
@@ -63,123 +64,8 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
   var uploadComplete = false, // the flag telling if the data uploaded is complete
       bytesIval = null   // bytes checker interval
       ;
-  var internalEmitter = new EventEmitter();
-  var job = {
-      readableStream: readableStream,
-      id: songId,
-      userId: userId,
-      songFilename: songFilename,
-      songFilesize: songFilesize,
-      emitter: emitter,
-      fileName: songId+".mp3",
-      fileSha1: null,
-      oggName: songId+".ogg",
-      oggLength: null,
-      fileWriter: null,
-      spawns: [],
-      requestEnd: false,
-      decoder: null,
-      oggWriter: null,
-      bufferJoin: 8,
-      inputFileBuffer: {status: true, buffer: []},
-      tasks: {
-          oggEncode: {
-              status: null, // null (rien), true (running) or false (stopped)
-              run: require("./song-processor/task-ogg-encode")
-          },
-          fileType: {
-              status: null,
-              run: require("./song-processor/task-file-type")
-          },
-          fileMeta: {
-              status: null,
-              run: require("./song-processor/task-file-meta")
-          },
-          oggLength: {
-              status: null,
-              run: require("./song-processor/task-ogg-length")
-          },
-          sha1File: {
-              status: null,
-              run: require("./song-processor/task-sha1-file")
-          },
-          sha1Check: {
-              status: null,
-              run: require("./song-processor/task-sha1-check")
-          },
-          cleanupTags: {
-              status: null,
-              run: require("./song-processor/task-cleanup-tags")
-          },
-          moveAlternativeFile: {
-            status: null,
-            run: require("./song-processor/task-move-alternative-file")
-          },
-          moveFile: {
-              status: null,
-              run: require("./song-processor/task-move-file")
-          },
-          applyTagsToFile: {
-              status: null,
-              run: require("./song-processor/task-apply-tags-to-file")
-          },
-          createDocument: {
-              status: null,
-              run: require("./song-processor/task-create-document")
-          }
-      },
-      queue: [],
-      run: function(taskName) {
-          if ( this.tasks[taskName] && this.tasks[taskName].status === null &&  this.queue.indexOf(taskName) < 0 ) {
-              this.queue.push(taskName);
-              debug(songId,"Launch task ", taskName);
-              this.tasks[taskName].run.call(this, function(err,resp) { job.endOfTask.call(job,taskName,err,resp); });
-          }
-      },
-      endOfTask: function(taskName, err,resp) {
-          if ( err ) {
-            debug(songId, "End of task ",taskName," in error:", err);
-          } else {
-            debug(songId, "End of task ",taskName," without error");
-          }
-          var i = this.queue.indexOf(taskName);
-          if ( i >= 0 ) {
-              this.queue.splice(i,1);
-          }
-          this.tasks[taskName].status = false;
-          this.tasks[taskName].err = err;
-          this.tasks[taskName].response = resp;
-          internalEmitter.emit(taskName+":complete",err,resp);
-          if ( this.allCompleteCallbacks.length && !this.running() ) {
-              while ( cb = this.allCompleteCallbacks.shift() ) {
-                  cb.call(this);
-              }
-          }
-      },
-      callbacks: {},
-      complete: function(task, cb) {
-          if ( !this.tasks[task] ) { return false; }
-          if ( this.tasks[task].status === false ) {
-              cb.call(this,this.tasks[task].err, this.tasks[task].response);
-          }
-          internalEmitter.on(task+":complete",cb.bind(this));
-      },
-      running: function() {
-          var count = 0;
-          for ( var t in this.tasks ) {
-              if ( this.tasks[t].status === true ) count++;
-          }
-          return count;
-      },
-      allCompleteCallbacks: [],
-      allComplete: function(cb) {
-          if ( this.running() ) {
-              this.allCompleteCallbacks.push(cb);
-          } else {
-              cb.call(this);
-          }
-      }
-  };
+
+  const job = new Job(userId, songId, songFilename, songFilesize, readableStream, emitter);
 
   var printEncodingFailure = function() {
       debug(songId,"--------- Encoding failure ----------");
@@ -195,7 +81,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           debug(songId,"SEVERE: error on oggEncode task",err);
           job.allComplete(function() { safeErrResp(422,err); });
       } else {
-          internalEmitter.emit("oggAvailable",[]);
+          job.internalEmitter.emit("oggAvailable",[]);
       }
   });
   job.complete("fileType",function(err,resp) {
@@ -223,7 +109,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       }
   });
 
-  internalEmitter.on("uploadCompleteAndFileTypeAvailable", function() {
+  job.internalEmitter.on("uploadCompleteAndFileTypeAvailable", function() {
       if (job.tasks.fileType.response === "audio/mp4" || job.tasks.fileType.response === "audio/x-m4a") {
           var args = d10.config.cmds.faad_opts.join("\n").split("\n");
           args.push(d10.config.audio.tmpdir+"/"+job.fileName);
@@ -288,7 +174,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
   });
 
 
-  internalEmitter.once("oggAvailable",function() {
+  job.internalEmitter.once("oggAvailable",function() {
       debug(songId,"OGG FILE IS AVAILABLE ! ");
       job.run("oggLength");
       var steps = ["oggLength","sha1File","fileMeta"],
@@ -404,16 +290,16 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
               uploadComplete = true;
               if ( job.tasks.fileType.status === null ) {
                   job.complete("fileType",function(err,resp) {
-                      internalEmitter.emit("uploadCompleteAndFileTypeAvailable");
+                      job.internalEmitter.emit("uploadCompleteAndFileTypeAvailable");
                       if ( audioUtils.isOggFileType(job.tasks.fileType.response) ) {
-                        internalEmitter.emit("oggAvailable",[]);
+                        job.internalEmitter.emit("oggAvailable",[]);
                       }
                   });
               } else {
                   if ( audioUtils.isOggFileType(job.tasks.fileType.response) ) {
-                    internalEmitter.emit("oggAvailable",[]);
+                    job.internalEmitter.emit("oggAvailable",[]);
                   }
-                  internalEmitter.emit("uploadCompleteAndFileTypeAvailable");
+                  job.internalEmitter.emit("uploadCompleteAndFileTypeAvailable");
               }
           });
       }

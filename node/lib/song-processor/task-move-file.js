@@ -36,7 +36,7 @@ exports = module.exports = function moveFileTask (then) {
     if ( err && err.errno != 2 && err.code != "ENOENT" ) { // err.code == ENOENT = no such file on node > 0.5.10
       then(err);
     } else if ( err ) {
-      fs.mkdir(d10.config.audio.dir+"/"+c,0775, function(err,stat) {
+      fs.mkdir(d10.config.audio.dir + "/" + c, { mode: 0o777 }, function(err,stat) {
         if ( err ) {
           then(err);
         } else {
