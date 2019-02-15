@@ -10,64 +10,67 @@ const debug = d10.debug('d10:song-processor');
 function processSong(songId, songFilename, songFilesize, userId, readableStream, emitter) {
 
   /* do we already sent back a songProcessor:end event */
-  var answered = false;
-  var safeErrResp = function(code,data) {
-      job.dumpTasksStatus();
-      debug(songId," sending errorResponse ",code);
-      debug(songId,data);
-      if ( answered ) { return false;}
-      answered = true;
-      if ( job.requestEnd ) {_sendErr(code,data);}
-      else    { readableStream.on("end",function() {_sendErr(code,data)}); }
-  };
-
-  var _sendErr = function(code, data) {
-    emitter.emit("end",
-                 {
-                   userId: userId,
-                   songId: songId,
-                   status: "error",
-                   code: code,
-                   data: data
-                 }
-            );
-  };
-
-  var safeSuccessResp = function(data) {
-    if ( answered ) { return false;}
+  let answered = false;
+  function safeErrResp(code, data) {
+    job.dumpTasksStatus();
+    debug(songId, ' sending errorResponse ', code);
+    debug(songId, data);
+    if (answered) { return false; }
     answered = true;
-    emitter.emit("end",
-                  {
-                    userId: userId,
-                    songId: songId,
-                    status: "success",
-                    data: data,
-                    code: 200
-                  }
-            );
-  };
+    if (job.requestEnd) {
+      sendErr(code, data);
+    } else {
+      readableStream.on('end', () => sendErr(code, data));
+    }
 
-  var bytesCheck = function() {
-      var min = 5000;
-      debug(songId,job.fileWriter.bytesWritten());
-      if ( job.fileWriter.bytesWritten() > min ) {
-          clearInterval(bytesIval);
-          bytesIval = null;
-          job.run('fileType');
-      }
-  };
+    return true;
+  }
 
-  var bytesIval = null;   // bytes checker interval
+  function sendErr(code, data) {
+    emitter.emit('end', {
+      userId,
+      songId,
+      status: 'error',
+      code,
+      data,
+    });
+  }
+
+  function safeSuccessResp(data) {
+    if (answered) { return false; }
+    answered = true;
+    emitter.emit('end', {
+      userId,
+      songId,
+      status: 'success',
+      data,
+      code: 200,
+    });
+
+    return true;
+  }
+
+  function bytesCheck() {
+    const min = 5000;
+    debug(songId, job.fileWriter.bytesWritten());
+    if (job.fileWriter.bytesWritten() > min) {
+      clearInterval(bytesIval);
+      bytesIval = null;
+      job.run('fileType');
+    }
+  }
+
+  let bytesIval = null;   // bytes checker interval
 
   const job = new Job(userId, songId, songFilename, songFilesize, readableStream, emitter);
 
-  job.complete("oggEncode",function(err,resp) {
-      if ( err ) {
-          debug(songId,"SEVERE: error on oggEncode task",err);
-          job.allComplete(function() { safeErrResp(422,err); });
-      } else {
-          job.internalEmitter.emit("oggAvailable",[]);
-      }
+  job.complete('oggEncode', (err) => {
+    if (err) {
+      debug(songId, 'SEVERE: error on oggEncode task', err);
+      job.allComplete(() => safeErrResp(422, err));
+    } else {
+      job.internalEmitter.emit('oggAvailable', []);
+    }
   });
   job.complete("fileType",function(err,resp) {
       debug(songId,"filetype complete : ",resp);
