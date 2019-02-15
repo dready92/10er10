@@ -1,22 +1,18 @@
-var d10 = require ("../d10"),
-    querystring = require("querystring"),
-    fs = require("fs"),
-    files = require("../files"),
-    when = require("../when"),
-    audioUtils = require("../audioFileUtils"),
-    gu = require("../graphicsUtils"),
-    spawn = require('child_process').spawn,
-    exec = require('child_process').exec,
-    debug = d10.debug("d10:song-processor");
-
+const d10 = require('../d10');
+const fs = require('fs');
+const files = require('../files');
+const audioUtils = require('../audioFileUtils');
+const spawn = require('child_process').spawn;
 const Job = require('./song-processor/job');
+
+const debug = d10.debug('d10:song-processor');
 
 function processSong(songId, songFilename, songFilesize, userId, readableStream, emitter) {
 
   /* do we already sent back a songProcessor:end event */
   var answered = false;
   var safeErrResp = function(code,data) {
-      printEncodingFailure();
+      job.dumpTasksStatus();
       debug(songId," sending errorResponse ",code);
       debug(songId,data);
       if ( answered ) { return false;}
@@ -57,24 +53,13 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       if ( job.fileWriter.bytesWritten() > min ) {
           clearInterval(bytesIval);
           bytesIval = null;
-          job.run("fileType");
+          job.run('fileType');
       }
   };
 
-  var uploadComplete = false, // the flag telling if the data uploaded is complete
-      bytesIval = null   // bytes checker interval
-      ;
+  var bytesIval = null;   // bytes checker interval
 
   const job = new Job(userId, songId, songFilename, songFilesize, readableStream, emitter);
-
-  var printEncodingFailure = function() {
-      debug(songId,"--------- Encoding failure ----------");
-      for ( var i in job.tasks ) {
-          debug(songId, i, job.tasks[i].err ? job.tasks[i].err : "");
-      }
-      debug(songId,"-------------------------------------");
-
-  };
 
   job.complete("oggEncode",function(err,resp) {
       if ( err ) {
@@ -91,12 +76,12 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       }
       if ( resp == "audio/mpeg" ) {
           job.decoder = spawn(d10.config.cmds.lame, d10.config.cmds.lame_opts);
-          job.spawns.push(job.decoder);
+          job.addChildProcess(job.decoder);
           job.run("oggEncode");
   //              job.run("fileMeta");
       } else if ( resp == "audio/x-flac" ) {
           job.decoder = spawn(d10.config.cmds.flac, d10.config.cmds.flac_opts);
-          job.spawns.push(job.decoder);
+          job.addChildProcess(job.decoder);
           job.run("oggEncode");
       } else if (resp === "audio/mp4" || resp === "audio/x-m4a") {
           debug(songId, "It's m4a, will launch decoder later");
@@ -120,7 +105,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
           job.decoder.stderr.on('data', function (data) {
               debug(songId,'stderr: ' + data);
           });
-          job.spawns.push(job.decoder);
+          job.addChildProcess(job.decoder);
           job.run("oggEncode");
       }
   });
@@ -229,20 +214,9 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       }
   });
   var cleanupFileSystem = function() {
-      if ( job.spawns.length ) {
-          var j;
-          while ( j = job.spawns.pop() ) {
-              try {
-                  j.kill();
-              } catch(e) {}
-          }
-      }
-
-      if ( job.oggWriter ) {
-          job.oggWriter.kill();
-      }
-      fs.unlink(d10.config.audio.tmpdir+"/"+job.oggName);
-      fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName);
+    job.clearProcesses();
+    fs.unlink(`${d10.config.audio.tmpdir}/${job.oggName}`, () => {});
+    fs.unlink(`${d10.config.audio.tmpdir}/${job.fileName}`, () => {});
   };
 
   readableStream.on("end",function() {
@@ -287,7 +261,6 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
 
               job.run("sha1File");
               job.run("fileMeta");
-              uploadComplete = true;
               if ( job.tasks.fileType.status === null ) {
                   job.complete("fileType",function(err,resp) {
                       job.internalEmitter.emit("uploadCompleteAndFileTypeAvailable");

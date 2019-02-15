@@ -113,6 +113,36 @@ class Job {
       callback.call(this);
     }
   }
+
+  addChildProcess(process) {
+    this.spawns.push(process);
+  }
+
+  clearProcesses() {
+    [this.decoder, this.oggWriter].forEach((proc) => {
+      try {
+        proc.kill();
+        // eslint-disable-next-line no-empty
+      } catch (e) { }
+    });
+    this.decoder = null;
+    this.oggWriter = null;
+  }
+
+  setDecoder(decoder) {
+    if (this.decoder) {
+      throw new Error('Job error: decoder already set');
+    }
+    this.decoder = decoder;
+  }
+
+  dumpTasksStatus() {
+    debug(this.id, '--------- Encoding failure ----------');
+    Object.keys(this.tasks).forEach(k => {
+      debug(this.id, k, this.tasks[k].err ? this.tasks[k].err : '');
+    });
+    debug(this.id, '-------------------------------------');
+  }
 }
 
 module.exports = Job;
