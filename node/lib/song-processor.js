@@ -8,7 +8,6 @@ const Job = require('./song-processor/job');
 const debug = d10.debug('d10:song-processor');
 
 function processSong(songId, songFilename, songFilesize, userId, readableStream, emitter) {
-
   /* do we already sent back a songProcessor:end event */
   let answered = false;
   function safeErrResp(code, data) {
@@ -72,216 +71,221 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       job.internalEmitter.emit('oggAvailable', []);
     }
   });
-  job.complete("fileType",function(err,resp) {
-      debug(songId,"filetype complete : ",resp);
-      if ( err ) {
-          job.allComplete(function() { safeErrResp(421,err); });
-      }
-      if ( resp == "audio/mpeg" ) {
-          job.decoder = spawn(d10.config.cmds.lame, d10.config.cmds.lame_opts);
-          job.addChildProcess(job.decoder);
-          job.run("oggEncode");
+  job.complete('fileType', (err, resp) => {
+    debug(songId, 'filetype complete : ', resp);
+    if (err) {
+      job.allComplete(() => { safeErrResp(421, err); });
+    }
+    if (resp === 'audio/mpeg') {
+      job.decoder = spawn(d10.config.cmds.lame, d10.config.cmds.lame_opts);
+      job.addChildProcess(job.decoder);
+      job.run('oggEncode');
   //              job.run("fileMeta");
-      } else if ( resp == "audio/x-flac" ) {
-          job.decoder = spawn(d10.config.cmds.flac, d10.config.cmds.flac_opts);
-          job.addChildProcess(job.decoder);
-          job.run("oggEncode");
-      } else if (resp === "audio/mp4" || resp === "audio/x-m4a") {
-          debug(songId, "It's m4a, will launch decoder later");
-      } else {
-          job.inputFileBuffer.status = false;
-          job.inputFileBuffer.buffer = [];
-          if ( !audioUtils.isOggFileType(resp) ) {
-              job.allComplete(function() { safeErrResp(415,resp); });
-          }
+    } else if (resp === 'audio/x-flac') {
+      job.decoder = spawn(d10.config.cmds.flac, d10.config.cmds.flac_opts);
+      job.addChildProcess(job.decoder);
+      job.run('oggEncode');
+    } else if (resp === 'audio/mp4' || resp === 'audio/x-m4a') {
+      debug(songId, "It's m4a, will launch decoder later");
+    } else {
+      job.inputFileBuffer.status = false;
+      job.inputFileBuffer.buffer = [];
+      if (!audioUtils.isOggFileType(resp)) {
+        job.allComplete(() => { safeErrResp(415, resp); });
       }
+    }
   });
 
-  job.internalEmitter.on("uploadCompleteAndFileTypeAvailable", function() {
-      if (job.tasks.fileType.response === "audio/mp4" || job.tasks.fileType.response === "audio/x-m4a") {
-          var args = d10.config.cmds.faad_opts.join("\n").split("\n");
-          args.push(d10.config.audio.tmpdir+"/"+job.fileName);
-          job.decoder = spawn(d10.config.cmds.faad, args);
-          job.decoder.on('error', (data) => {
-              debug(songId, 'error: ' + data);
-          });
-          job.decoder.stderr.on('data', function (data) {
-              debug(songId,'stderr: ' + data);
-          });
-          job.addChildProcess(job.decoder);
-          job.run("oggEncode");
-      }
+  job.internalEmitter.on('uploadCompleteAndFileTypeAvailable', () => {
+    if (job.tasks.fileType.response === 'audio/mp4' || job.tasks.fileType.response === 'audio/x-m4a') {
+      const args = d10.config.cmds.faad_opts.join('\n').split('\n');
+      args.push(`${d10.config.audio.tmpdir}/${job.fileName}`);
+      job.decoder = spawn(d10.config.cmds.faad, args);
+      job.decoder.on('error', (data) => {
+        debug(songId, `error: ${data}`);
+      });
+      job.decoder.stderr.on('data', (data) => {
+        debug(songId, `stderr: ${data}`);
+      });
+      job.addChildProcess(job.decoder);
+      job.run('oggEncode');
+    }
   });
 
-  job.complete("sha1File",function(err,resp) {
-      if ( err ) {
-          return safeErrResp(433,err);
-      }
-      job.run("sha1Check");
+  // eslint-disable-next-line consistent-return
+  job.complete('sha1File', (err) => {
+    if (err) {
+      return safeErrResp(433, err);
+    }
+    job.run('sha1Check');
   });
 
-  job.complete("sha1Check",function(err,resp) {
-      if ( err ) {
-          safeErrResp(433,err);
-          fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName, () => {});
-          job.complete("oggEncode",function() {fs.unlink(d10.config.audio.tmpdir+"/"+job.oggName, () => {});});
-          if ( job.oggWriter && job.oggWriter.kill ) {
-            job.oggWriter.kill();
-          }
-          return ;
+  job.complete('sha1Check', (err) => {
+    if (err) {
+      safeErrResp(433, err);
+      fs.unlink(`${d10.config.audio.tmpdir}/${job.fileName}`, () => {});
+      job.complete('oggEncode', () => { fs.unlink(`${d10.config.audio.tmpdir}/${job.oggName}`, () => {}); });
+      if (job.oggWriter && job.oggWriter.kill) {
+        job.oggWriter.kill();
       }
+    }
   });
-  job.complete("moveFile",function(err,resp) {
-      if ( err ) {
-          return safeErrResp(432,err);
-      }
-      if ( !audioUtils.isOggFileType(job.tasks.fileType.response) ) { // if the file is not an ogg we move it
-          debug(songId, "unlink file ",d10.config.audio.tmpdir+"/"+job.fileName);
-          fs.unlink(d10.config.audio.tmpdir+"/"+job.fileName,function()  {});
-      }
-      if ( job.tasks.fileMeta.status === null ) {
-          job.complete("fileMeta",function() {  job.run("cleanupTags"); });
-      } else {
-          job.run("cleanupTags");
-      }
-  });
-
-  job.complete("cleanupTags",function(err,resp) {
-      job.run("createDocument");
-      job.run("applyTagsToFile");
+  // eslint-disable-next-line consistent-return
+  job.complete('moveFile', (err) => {
+    if (err) {
+      return safeErrResp(432, err);
+    }
+    if (!audioUtils.isOggFileType(job.tasks.fileType.response)) {
+      // if the file is not an ogg we move it
+      debug(songId, 'unlink file ', `${d10.config.audio.tmpdir}/${job.fileName}`);
+      fs.unlink(`${d10.config.audio.tmpdir}/${job.fileName}`, () => {});
+    }
+    if (job.tasks.fileMeta.status === null) {
+      job.complete('fileMeta', () => { job.run('cleanupTags'); });
+    } else {
+      job.run('cleanupTags');
+    }
   });
 
-  job.complete("createDocument",function(err,resp) {
-    if ( err ) {
-      safeErrResp(432,err);
+  job.complete('cleanupTags', () => {
+    job.run('createDocument');
+    job.run('applyTagsToFile');
+  });
+
+  job.complete('createDocument', (err, resp) => {
+    if (err) {
+      safeErrResp(432, err);
       cleanupFileSystem();
       return;
     }
-    debug(songId,"db document recorded, sending success");
+    debug(songId, 'db document recorded, sending success');
     safeSuccessResp(resp);
   });
 
 
-  job.internalEmitter.once("oggAvailable",function() {
-      debug(songId,"OGG FILE IS AVAILABLE ! ");
-      job.run("oggLength");
-      var steps = ["oggLength","sha1File","fileMeta"],
-          complete = 0,
-          onAllComplete = function() {
-              if ( job.tasks.sha1File.err ) {
-                  safeErrResp(503,job.tasks.sha1File.err);
-              } else if ( job.tasks.oggLength.err || job.tasks.oggLength.response == 0 ) {
-                  safeErrResp(436,job.tasks.oggLength.err);
-              } else {
-                  debug(songId,"GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG");
+  job.internalEmitter.once('oggAvailable', () => {
+    debug(songId, 'OGG FILE IS AVAILABLE ! ');
+    job.run('oggLength');
+    const steps = ['oggLength', 'sha1File', 'fileMeta'];
+    let complete = 0;
+    function onAllComplete() {
+      if (job.tasks.sha1File.err) {
+        safeErrResp(503, job.tasks.sha1File.err);
+      } else if (job.tasks.oggLength.err || job.tasks.oggLength.response === 0) {
+        safeErrResp(436, job.tasks.oggLength.err);
+      } else {
+        debug(songId, 'GOT EVERYTHING I NEED TO PROCEED WITH RECORDING OF THE SONG');
 
-                  job.complete("sha1Check",function(err,resp) {
-                      debug(songId,"sha1check is complete, let's go recording the song !");
-                      if ( !err ){
-                          job.run("moveFile");
-                      }
-                  });
-                  job.run("sha1Check");
-              }
-          };
-      steps.forEach(function(v,k) {
-          if ( job.tasks[v].status === false ) {
-              complete++;
-          } else {
-              job.complete(v,function() {
-                  complete++;
-                  if ( complete == steps.length ) {
-                      onAllComplete();
-                  }
-              });
-              if ( job.tasks[v].status === null ) {
-                  job.run(v);
-              }
-
+        job.complete('sha1Check', (err) => {
+          debug(songId, "sha1check is complete, let's go recording the song !");
+          if (!err) {
+            job.run('moveFile');
           }
-      });
-      if ( complete == steps.length ) {
-          onAllComplete();
+        });
+        job.run('sha1Check');
       }
+    }
+    steps.forEach((v) => {
+      if (job.tasks[v].status === false) {
+        // eslint-disable-next-line no-plusplus
+        complete++;
+      } else {
+        job.complete(v, () => {
+          // eslint-disable-next-line no-plusplus
+          complete++;
+          if (complete === steps.length) {
+            onAllComplete();
+          }
+        });
+        if (job.tasks[v].status === null) {
+          job.run(v);
+        }
+      }
+    });
+    if (complete === steps.length) {
+      onAllComplete();
+    }
   });
 
-  readableStream.on("error",function(){
-      debug(songId,"request ERROR !");
+  readableStream.on('error', () => {
+    debug(songId, 'request ERROR !');
+    cleanupFileSystem();
+  });
+
+  readableStream.on('close', () => {
+    debug(songId, 'request CLOSE !');
+    if (!job.requestEnd) {
       cleanupFileSystem();
+    }
   });
 
-  readableStream.on("close",function(){
-      debug(songId,"request CLOSE !");
-      if ( ! job.requestEnd ) {
-        cleanupFileSystem();
-      }
-  });
-  var cleanupFileSystem = function() {
+  function cleanupFileSystem() {
     job.clearProcesses();
     fs.unlink(`${d10.config.audio.tmpdir}/${job.oggName}`, () => {});
     fs.unlink(`${d10.config.audio.tmpdir}/${job.fileName}`, () => {});
-  };
+  }
 
-  readableStream.on("end",function() {
-      job.requestEnd = true;
-      debug(songId,"got readableStream end");
-      if ( bytesIval ) { clearInterval(bytesIval); }
-      if ( job.fileWriter  ) {
-          if ( job.tasks.fileType.status === null ) {
-              job.fileWriter.close(function() {
-                  debug(songId,"launching fileType job after filewriter close");
-                  job.run("fileType");
-              });
-          } else {
-              job.fileWriter.close();
-          }
-          emitter.emit("uploadEnd",
-                {
-                  userId: userId,
-                  songId: songId
-                }
-          );
+  readableStream.on('end', () => {
+    job.requestEnd = true;
+    debug(songId, 'got readableStream end');
+    if (bytesIval) { clearInterval(bytesIval); }
+    if (job.fileWriter) {
+      if (job.tasks.fileType.status === null) {
+        job.fileWriter.close(() => {
+          debug(songId, 'launching fileType job after filewriter close');
+          job.run('fileType');
+        });
       } else {
-        safeErrResp(400, "Nothing sent");
+        job.fileWriter.close();
       }
+      emitter.emit('uploadEnd',
+        {
+          userId,
+          songId,
+        },
+          );
+    } else {
+      safeErrResp(400, 'Nothing sent');
+    }
   });
 
-  readableStream.on("data",function(chunk) {
-      if ( !job.fileWriter  ) {
+  readableStream.on('data', (chunk) => {
+    if (!job.fileWriter) {
+      debug(songId, 'creating fileWriter');
+      // eslint-disable-next-line new-cap
+      job.fileWriter = new files.fileWriter(`${d10.config.audio.tmpdir}/${job.fileName}`);
+      debug(songId, 'settings bytescheck interval');
+      bytesIval = setInterval(bytesCheck, 500);
+      job.fileWriter.open();
 
-          debug(songId,"creating fileWriter");
-          job.fileWriter  = new files.fileWriter(d10.config.audio.tmpdir+"/"+job.fileName);
-          debug(songId,"settings bytescheck interval");
-          bytesIval = setInterval(bytesCheck,500);
-          job.fileWriter.open();
+      // eslint-disable-next-line consistent-return
+      job.fileWriter.on('end', () => {
+        debug(songId, 'fileWriter end event');
+        if (parseInt(songFilesize, 10) !== job.fileWriter.bytesWritten()) {
+          return safeErrResp(421, `${songFilesize} != ${job.fileWriter.bytesWritten()}`);
+        }
+        job.bufferJoin = 20;
 
-          job.fileWriter.on("end", function() {
-              debug(songId,"fileWriter end event");
-              if ( parseInt(songFilesize) != job.fileWriter.bytesWritten() ) {
-                  return safeErrResp(421, songFilesize+" != "+n);
-              }
-              job.bufferJoin = 20;
-
-              job.run("sha1File");
-              job.run("fileMeta");
-              if ( job.tasks.fileType.status === null ) {
-                  job.complete("fileType",function(err,resp) {
-                      job.internalEmitter.emit("uploadCompleteAndFileTypeAvailable");
-                      if ( audioUtils.isOggFileType(job.tasks.fileType.response) ) {
-                        job.internalEmitter.emit("oggAvailable",[]);
-                      }
-                  });
-              } else {
-                  if ( audioUtils.isOggFileType(job.tasks.fileType.response) ) {
-                    job.internalEmitter.emit("oggAvailable",[]);
-                  }
-                  job.internalEmitter.emit("uploadCompleteAndFileTypeAvailable");
-              }
+        job.run('sha1File');
+        job.run('fileMeta');
+        if (job.tasks.fileType.status === null) {
+          job.complete('fileType', () => {
+            job.internalEmitter.emit('uploadCompleteAndFileTypeAvailable');
+            if (audioUtils.isOggFileType(job.tasks.fileType.response)) {
+              job.internalEmitter.emit('oggAvailable', []);
+            }
           });
-      }
-      if ( job.inputFileBuffer.status ) { job.inputFileBuffer.buffer.push(chunk); }
-      job.fileWriter.write(chunk);
+        } else {
+          if (audioUtils.isOggFileType(job.tasks.fileType.response)) {
+            job.internalEmitter.emit('oggAvailable', []);
+          }
+          job.internalEmitter.emit('uploadCompleteAndFileTypeAvailable');
+        }
+      });
+    }
+    if (job.inputFileBuffer.status) { job.inputFileBuffer.buffer.push(chunk); }
+    job.fileWriter.write(chunk);
   });
-};
+}
 
 exports = module.exports = processSong;
