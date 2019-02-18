@@ -69,7 +69,8 @@ function checkAuth(ctx, passTheCoochie) {
     }
     debug('Found session in datastore');
     sessionService.fillUserCtx(ctx, data.response, data.doc);
-    sessionService.sessionCacheAdd(ctx.user, ctx.userPrivateConfig, ctx.session, ctx.remoteControlSession);
+    sessionService.sessionCacheAdd(ctx.user, ctx.userPrivateConfig,
+      ctx.session, ctx.remoteControlSession);
     return passTheCoochie();
   });
 }

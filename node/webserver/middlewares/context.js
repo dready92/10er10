@@ -4,7 +4,7 @@ const qs = require('qs');
 const d10 = require('../../d10');
 
 module.exports = function contextMiddleware(req, res, next) {
-  req.ctx = { /* eslint no-param-reassign: 0*/
+  req.ctx = { /* eslint no-param-reassign: 0 */
     request: req,
     response: res,
     headers: {},
@@ -24,7 +24,7 @@ module.exports = function contextMiddleware(req, res, next) {
     },
   };
 
-  const u = url.parse('http://' + req.headers.host + req.url);
+  const u = url.parse(`http://${req.headers.host}${req.url}`);
   req.query = u.query ? qs.parse(u.query) : {};
   req.basepath = path.dirname(u.pathname);
   next();
