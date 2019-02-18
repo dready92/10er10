@@ -1,11 +1,10 @@
-const { URL } = require('url');
 const d10 = require('../../d10');
-const debug = d10.debug('d10:apikeysMiddleware');
+
 const sessionService = require('../../session');
 
 module.exports = {
   loginUsingHeader,
-  loginUsingPath
+  loginUsingPath,
 };
 
 function loginUsingHeader(req, res, next) {
@@ -43,6 +42,7 @@ function loginUsingPath(req, res, next) {
 }
 
 function setupEnvUsingApikey(req, apikey, next) {
+  // eslint-disable-next-line prefer-destructuring
   const ctx = req.ctx;
 
   d10.couch.auth.view('apikeys/id', { key: apikey, include_docs: true }, (err, resp) => {
@@ -51,21 +51,22 @@ function setupEnvUsingApikey(req, apikey, next) {
       return next();
     }
 
-    if ( resp.rows.length === 0) {
+    if (resp.rows.length === 0) {
       return next();
     }
 
     const user = resp.rows[0].doc;
     return sessionService.getOrMakeSession({
       user: user.login,
-      userId: user._id
+      userId: user._id,
     }, (err2, response) => {
       if (err2) {
         return next();
       }
 
       sessionService.fillUserCtx(ctx, response.response, response.doc);
-      sessionService.sessionCacheAdd(ctx.user, ctx.userPrivateConfig, ctx.session, ctx.remoteControlSession);
+      sessionService.sessionCacheAdd(ctx.user, ctx.userPrivateConfig,
+        ctx.session, ctx.remoteControlSession);
       return next(true);
     });
   });
