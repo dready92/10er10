@@ -1,10 +1,9 @@
 const fs = require('fs');
-const d10 = require('../../d10');
-
-const	debug = d10.debug('d10:lang');
-
-const mustache = require('../../mustache');
 const pause = require('pause');
+const d10 = require('../../d10');
+const mustache = require('../../mustache');
+
+const debug = d10.debug('d10:lang');
 
 module.exports = function langMiddleware(langRoot, tplRoot, cb) {
 
@@ -46,13 +45,13 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
       return null;
     }
     loadingLangs = true;
-    fs.readdir(langRoot, (err, files) => {
+    return fs.readdir(langRoot, (err, files) => {
       langs = {};
       files.filter(f => f.match(/\.js$/))
-      .forEach((f) => {
-        debug(`LANG: including ${langRoot}/${f}`);
-        langs[f.replace(/\.js$/, '')] = require(`${langRoot}/${f}`);
-      });
+        .forEach((f) => {
+          debug(`LANG: including ${langRoot}/${f}`);
+          langs[f.replace(/\.js$/, '')] = require(`${langRoot}/${f}`);
+        });
       loadingLangs = false;
       loadingLangsCb.forEach(loadingLangCb => loadingLangCb());
     });
@@ -74,7 +73,8 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
   * @param type template type ('server', 'client', 'shared')
   * @param cb callback ( called with args err & language object )
   *
-  * eg. : loadLang('en','server',function(err,resp) { console.log(resp['homepage.html']['l:welcome']); });
+  * eg. : loadLang('en','server',
+  *        function(err,resp) { console.log(resp['homepage.html']['l:welcome']); });
   *
   */
   function loadLang(lng, type, loadLangCb) {
@@ -95,9 +95,9 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
   *
   */
   function parseServerTemplate(request, tpl, parseServerTemplateCb) {
-    // 	getHeadersLang(request,function(lng) {
-    // 	var lng = request.ctx.lang ? request.ctx.lang : d10.config.templates.defaultLang;
-    // 	var lng =
+    // getHeadersLang(request,function(lng) {
+    // var lng = request.ctx.lang ? request.ctx.lang : d10.config.templates.defaultLang;
+    // var lng =
     debug('LANG parseServerTemplate: ', tpl, request.url, request.ctx.lang);
     loadLang(request.ctx.lang, 'server', (err, hash) => {
       if (err) {
@@ -118,15 +118,13 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
     Object.keys(langs).forEach(key => keys.push(key));
     keys.sort();
     debug('lang keys: ', keys);
-    keys.forEach((val, key) => { back[val] = langs[val].langName; });
+    keys.forEach((val) => { back[val] = langs[val].langName; });
     getSupportedLangsCb(null, back);
   }
 
   loadLangFiles(cb);
 
   return function langMiddlewareHandler(req, res, next) {
-
-
     function fetchFromBrowser() {
       function passTheCoochie() {
         handle.end();
@@ -164,11 +162,12 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
       debug('LANG middleware: set from user');
       req.ctx.lang = req.ctx.user.lang;
       return next();
-    } else if (req.ctx.session && req.ctx.session.lang) {
+    }
+    if (req.ctx.session && req.ctx.session.lang) {
       debug('LANG middleware: set from session');
       req.ctx.lang = req.ctx.session.lang;
       return next();
     }
-    fetchFromBrowser();
+    return fetchFromBrowser();
   };
 };
