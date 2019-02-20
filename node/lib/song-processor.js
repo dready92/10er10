@@ -1,8 +1,8 @@
-const d10 = require('../d10');
 const fs = require('fs');
+const { spawn } = require('child_process');
+const d10 = require('../d10');
 const files = require('../files');
 const audioUtils = require('../audioFileUtils');
-const spawn = require('child_process').spawn;
 const Job = require('./song-processor/job');
 
 const debug = d10.debug('d10:song-processor');
@@ -59,7 +59,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
     }
   }
 
-  let bytesIval = null;   // bytes checker interval
+  let bytesIval = null; // bytes checker interval
 
   const job = new Job(userId, songId, songFilename, songFilesize, readableStream, emitter);
 
@@ -80,7 +80,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
       job.decoder = spawn(d10.config.cmds.lame, d10.config.cmds.lame_opts);
       job.addChildProcess(job.decoder);
       job.run('oggEncode');
-  //              job.run("fileMeta");
+      //              job.run("fileMeta");
     } else if (resp === 'audio/x-flac') {
       job.decoder = spawn(d10.config.cmds.flac, d10.config.cmds.flac_opts);
       job.addChildProcess(job.decoder);
@@ -243,8 +243,7 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
         {
           userId,
           songId,
-        },
-          );
+        });
     } else {
       safeErrResp(400, 'Nothing sent');
     }
@@ -289,4 +288,4 @@ function processSong(songId, songFilename, songFilesize, userId, readableStream,
   });
 }
 
-exports = module.exports = processSong;
+module.exports = processSong;
