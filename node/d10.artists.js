@@ -1,25 +1,24 @@
-var d10 = require ("./d10");
+const d10 = require('./d10');
 
-exports.getSongsByHits = function(artist, callback, options) {
-  var rpp = d10.config.rpp+1;
-  var viewName = options.genre ? "genre/artist-hits" : "artist/hits";
-  var query = {
+exports.getSongsByHits = function getSongsByHits(artist, callback, options) {
+  const rpp = d10.config.rpp + 1;
+  const viewName = options.genre ? 'genre/artist-hits' : 'artist/hits';
+  const query = {
     reduce: false,
     descending: true,
     include_docs: true,
     startkey: options.startkey ? options.startkey : [artist, {}],
     endkey: [artist],
-    limit: rpp
+    limit: rpp,
   };
-  if ( options.startkey_docid ) {
+  if (options.startkey_docid) {
     query.startkey_docid = options.startkey_docid;
   }
-  if ( options.genre ) {
-	  query.startkey = options.startkey ? options.startkey : [options.genre, artist, {}];
-	  query.endkey = [options.genre, artist];
+  if (options.genre) {
+    query.startkey = options.startkey ? options.startkey : [options.genre, artist, {}];
+    query.endkey = [options.genre, artist];
   }
-  
-  
-  d10.couch.d10.view(viewName,query,callback);
-};
 
+
+  d10.couch.d10.view(viewName, query, callback);
+};
