@@ -1,58 +1,57 @@
-var debug = require("debug")("d10:websocket-server");
-var util = require("util");
-var dosWatchdog = require("../dosWatchdog");
-var webSocketStore = require("./websocket-store");
+const { Server } = require('ws');
+const { garbage } = require('../dosWatchdog');
 
-function websocketServer ( httpServer, d10Server ) {
-  var wsId = 1;
-  var wsServer = require('ws').Server;
-  var d10wsServer = new wsServer({server: httpServer});
-  this.createRouter();
-  this.registerProtocols(httpServer, d10Server);
-  d10wsServer.on('connection', function(ws) {
-    ws.d10id = wsId++;
-    this.bindWebSocketListeners(ws);
-  }.bind(this));
-
-  d10wsServer.on('error', function(err) {
-    if ( err.errno === 'EMFILE' ) {
-      console.log("EMFILE !!!");
-      dosWatchdog.garbage();
-    } else {
-      throw err;
-    }
-  });
-
-};
-
-websocketServer.prototype.router = null;
-websocketServer.prototype.createRouter = function() {
-  var wsRouter = require("./websocket-router");
-  this.router = new wsRouter();
-};
-
-websocketServer.prototype.registerProtocols = function(httpServer, d10Server) {
-  this.registerPevtsProtocol(httpServer, d10Server);
-  this.registerRemotProtocol(httpServer, d10Server);
-};
-
-websocketServer.prototype.registerPevtsProtocol = function(httpServer, d10Server) {
-  var pevtsProtocol = require("./websocket-protocol-pevts");
-  var pevtsProtocolInstance = new pevtsProtocol(httpServer, d10Server);
-  this.router.addType(pevtsProtocolInstance.name, pevtsProtocolInstance.handler);
-};
-
-websocketServer.prototype.registerRemotProtocol = function(httpServer, d10Server) {
-  var remotProtocol = require("./websocket-protocol-remot");
-  var remotProtocolInstance = new remotProtocol(httpServer, d10Server);
-  this.router.addType(remotProtocolInstance.name, remotProtocolInstance.handler);
-};
+const Router = require('./websocket-router');
+const PevtsProtocol = require('./websocket-protocol-pevts');
+const RemoteProtocol = require('./websocket-protocol-remot');
 
 
-websocketServer.prototype.bindWebSocketListeners = function(ws) {
-  ws.on('message', function(message) {
-    this.router.route(message,ws);
-  }.bind(this));
-};
+class WebsocketServer {
+  constructor(httpServer, d10Server) {
+    this.router = null;
+    let wsId = 1;
+    const d10wsServer = new Server({ server: httpServer });
+    this.createRouter();
+    this.registerProtocols(httpServer, d10Server);
+    d10wsServer.on('connection', (ws) => {
+      // eslint-disable-next-line no-param-reassign,no-plusplus
+      ws.d10id = wsId++;
+      this.bindWebSocketListeners(ws);
+    });
 
-exports = module.exports = websocketServer;
+    d10wsServer.on('error', (err) => {
+      if (err.errno === 'EMFILE') {
+        garbage();
+      } else {
+        throw err;
+      }
+    });
+  }
+
+  createRouter() {
+    this.router = new Router();
+  }
+
+  registerProtocols(httpServer, d10Server) {
+    this.registerPevtsProtocol(httpServer, d10Server);
+    this.registerRemotProtocol(httpServer, d10Server);
+  }
+
+  registerPevtsProtocol(httpServer, d10Server) {
+    const pevtsProtocolInstance = new PevtsProtocol(httpServer, d10Server);
+    this.router.addType(pevtsProtocolInstance.name, pevtsProtocolInstance.handler);
+  }
+
+  registerRemotProtocol(httpServer, d10Server) {
+    const remotProtocolInstance = new RemoteProtocol(httpServer, d10Server);
+    this.router.addType(remotProtocolInstance.name, remotProtocolInstance.handler);
+  }
+
+  bindWebSocketListeners(ws) {
+    ws.on('message', (message) => {
+      this.router.route(message, ws);
+    });
+  }
+}
+
+module.exports = WebsocketServer;

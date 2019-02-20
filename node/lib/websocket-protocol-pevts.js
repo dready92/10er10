@@ -1,76 +1,76 @@
-var debug = require("../d10").debug("d10:websocket-protocol-pevts");
-var emitter = require("./song-processor/song-processor-events");
-var sessionService = require('../session');
-var protocol = require("./websocket-protocol");
+/* eslint-disable no-param-reassign */
+const debug = require('../d10').debug('d10:websocket-protocol-pevts');
+const emitter = require('./song-processor/song-processor-events');
+const sessionService = require('../session');
+const protocol = require('./websocket-protocol');
 
-var protocolName = "pevts";
+const protocolName = 'pevts';
 
-function onMessage(message, socket, callback) {
+function onMessage(message, socket) {
+  let query;
   try {
-    var query = JSON.parse(message.payload);
+    query = JSON.parse(message.payload);
   } catch (e) {
-    debug("Badly formatted JSON payload");
+    debug('Badly formatted JSON payload');
     debug(message);
     return;
   }
-  if ( !query.session ) {
-    debug("No session parameter in query");
-    return ;
+  if (!query.session) {
+    debug('No session parameter in query');
+    return;
   }
-  sessionService.getUser(query.session, function(err,userId) {
-    if ( err ) {
-      debug("Error fetching userId from session",err);
-      return ;
+  sessionService.getUser(query.session, (err, userId) => {
+    if (err) {
+      debug('Error fetching userId from session', err);
+      return;
     }
-    debug("userId = "+userId);
+    debug(`userId = ${userId}`);
     this.listenServerEvents(socket, userId);
-  }.bind(this));
-};
+  });
+}
 
-function websocketProtocolPevts (httpServer, d10Server) {
+function websocketProtocolPevts() {
   this.handler = onMessage.bind(this);
-};
+}
 
 websocketProtocolPevts.prototype.name = protocolName;
-websocketProtocolPevts.prototype.handler = function() {};
+websocketProtocolPevts.prototype.handler = () => {};
 
-websocketProtocolPevts.prototype.listenServerEvents = function(socket, userId) {
-  var events = {
-    "progress": function(data) {
-      if ( data.userId == userId ) {
-        data.event = "song-processor:progress";
+websocketProtocolPevts.prototype.listenServerEvents = function listenServerEvents(socket, userId) {
+  const events = {
+    progress: (data) => {
+      if (data.userId === userId) {
+        data.event = 'song-processor:progress';
         sendProgressEvent(socket, data);
       }
     },
-    "end": function(data) {
-      if ( data.userId == userId ) {
-        data.event = "song-processor:end";
+    end: (data) => {
+      if (data.userId === userId) {
+        data.event = 'song-processor:end';
         sendProgressEvent(socket, data);
       }
     },
-    "uploadEnd": function(data) {
-      if ( data.userId == userId ) {
-        data.event = "song-processor:uploadEnd";
+    uploadEnd: (data) => {
+      if (data.userId === userId) {
+        data.event = 'song-processor:uploadEnd';
         sendProgressEvent(socket, data);
       }
-    }
+    },
   };
-  for (var i in events ) {
-    emitter.on(i, events[i]);
-    socket.on("close", function() {
-      emitter.removeListener(i, events[i]);
-    });
-  }
+  Object.keys(events).forEach((name) => {
+    emitter.on(name, events[name]);
+    socket.on('close', () => emitter.removeListener(name, events[name]));
+  });
 };
 
 function sendProgressEvent(socket, data) {
-  var line = protocol.formatMessage({type: protocolName, payload: JSON.stringify(data)});
+  const line = protocol.formatMessage({ type: protocolName, payload: JSON.stringify(data) });
   try {
-    socket.send(line, function() {});
+    socket.send(line, () => {});
   } catch (e) {
-    debug("error while sending message");
+    debug('error while sending message');
   }
-};
+}
 
 
-exports = module.exports = websocketProtocolPevts;
+module.exports = websocketProtocolPevts;
