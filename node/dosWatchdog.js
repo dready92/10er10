@@ -1,76 +1,81 @@
-var socketsBuffer = {};
-var watchdogId = 1;
-var socketsWithoutDataLimit = 100;
+/* eslint-disable no-plusplus */
+const d10 = require('./d10');
 
-var installWatchdog = function(server) {
-  server.on("connection", function(socket) {
-    var remoteAddress = socket.remoteAddress;
+const debug = d10.debug('d10:dosWatchdog');
+const socketsBuffer = {};
+let watchdogId = 1;
+const socketsWithoutDataLimit = 100;
+
+function installWatchdog(server) {
+  server.on('connection', (socket) => {
+    const { remoteAddress } = socket;
+    // eslint-disable-next-line no-param-reassign,no-plusplus
     socket.d10watchdogId = watchdogId++;
-//     console.log("connection", remoteAddress, socket.bytesRead);
-    if ( ! (remoteAddress in socketsBuffer) ) {
+    if (!(remoteAddress in socketsBuffer)) {
       socketsBuffer[remoteAddress] = [];
     }
-    
+
     freeSocketsOf(remoteAddress);
-    
+
     socketsBuffer[remoteAddress].push(socket);
-    socket.on("close", function() {
+    socket.on('close', () => {
       removeSocketById(socket.d10watchdogId);
     });
   });
-};
+}
 
-var removeSocketById = function(id) {
-  if ( !id ) {
-    console.log("id is undefined");
-    return ;
+function removeSocketById(id) {
+  if (!id) {
+    debug('id is undefined');
+    return;
   }
-  for (var remoteAddress in socketsBuffer ) {
-    for (var i=0; i<socketsBuffer[remoteAddress].length; i++) {
-      if ( socketsBuffer[remoteAddress][i].d10watchdogId == id ) {
-        socketsBuffer[remoteAddress].splice(i,1);
-        return ;
+
+  const remoteAddresses = Object.keys(socketsBuffer);
+  for (let i = 0; i < remoteAddresses.length; i++) {
+    for (let j = 0; j < socketsBuffer[i].length; j++) {
+      if (socketsBuffer[i][j].d10watchdogId === id) {
+        socketsBuffer[i].splice(j, 1);
+        return;
       }
-    }
-  }
-};
-
-var freeSockets = function() {
-  for (var i in socketsBuffer) {
-    freeSocketsOf(i);
-  }
-};
-
-var freeSocketsOf = function(remoteAddress) {
-  if ( ! (remoteAddress in socketsBuffer) ) {
-    return ;
-  }
-  if ( socketsBuffer[remoteAddress].length > socketsWithoutDataLimit ) {
-    for (var i = 0; i < socketsWithoutDataLimit; i++) {
-      var s = socketsBuffer[remoteAddress][i];
-      if ( !s ) {
-        continue;
-      }
-      if ( s.bytesRead < 5 ) {
-        removeSocketById(s.d10watchdogId);
-        s.end()
-        s.destroy();
-      }
-    }
-  }
-};
-
-var garbageBufferKeys = function() {
-  for (var i in socketsBuffer ) {
-    if ( !socketsBuffer[i].length ) {
-      delete socketsBuffer[i];
     }
   }
 }
 
-setInterval(garbageBufferKeys,1000*60*60*12);
+function freeSockets() {
+  Object.keys(socketsBuffer).forEach(i => freeSocketsOf(i));
+}
 
-exports = module.exports = {
+function freeSocketsOf(remoteAddress) {
+  if (!(remoteAddress in socketsBuffer)) {
+    return;
+  }
+  if (socketsBuffer[remoteAddress].length > socketsWithoutDataLimit) {
+    for (let i = 0; i < socketsWithoutDataLimit; i++) {
+      const s = socketsBuffer[remoteAddress][i];
+      if (!s) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+      if (s.bytesRead < 5) {
+        removeSocketById(s.d10watchdogId);
+        s.end();
+        s.destroy();
+      }
+    }
+  }
+}
+
+function garbageBufferKeys() {
+  Object.keys(socketsBuffer).forEach((i) => {
+    if (!socketsBuffer[i].length) {
+      delete socketsBuffer[i];
+    }
+  });
+}
+
+setInterval(garbageBufferKeys, 1000 * 60 * 60 * 12);
+
+module.exports = {
   install: installWatchdog,
-  garbage: freeSockets
+  garbage: freeSockets,
 };
