@@ -32,9 +32,10 @@ function removeSocketById(id) {
 
   const remoteAddresses = Object.keys(socketsBuffer);
   for (let i = 0; i < remoteAddresses.length; i++) {
-    for (let j = 0; j < socketsBuffer[i].length; j++) {
-      if (socketsBuffer[i][j].d10watchdogId === id) {
-        socketsBuffer[i].splice(j, 1);
+    const addr = remoteAddresses[i];
+    for (let j = 0; j < socketsBuffer[addr].length; j++) {
+      if (socketsBuffer[addr][j].d10watchdogId === id) {
+        socketsBuffer[addr].splice(j, 1);
         return;
       }
     }

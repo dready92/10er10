@@ -1,8 +1,7 @@
 var bodyParser = require('body-parser'),
     jsonParserMiddleware = bodyParser.json(),
     nodemailer = require("nodemailer"),
-	d10 = require("./d10"),
-	mailTransport = nodemailer.createTransport(d10.config.emailTransport.type, d10.config.emailTransport.options);
+	d10 = require("./d10");
 
 exports.api = function(app) {
 
@@ -20,6 +19,7 @@ exports.api = function(app) {
 	};
 
 	var reallySendMail = function (email,body,then) {
+		const mailTransport = nodemailer.createTransport(d10.config.emailTransport.type, d10.config.emailTransport.options);
       mailTransport.sendMail({
         from: d10.config.emailSenderLabel+" <"+d10.config.emailSender+">",
         to: email,
