@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 const d10 = require('./d10');
 const debug = d10.debug('d10:session');
 const when = require('./when');
@@ -14,7 +15,7 @@ module.exports = {
   makeSession,
   makeRemoteControlSession,
   getOrMakeSession,
-  getUser
+  getUser,
 };
 
 function init() {
@@ -65,7 +66,8 @@ function getSessionDataFromCache(cookieData) {
   if (sessionCache[cookieData.user]) {
     if (cookieData.session && sessionCache[cookieData.user].se._id === `se${cookieData.session}`) {
       return sessionCache[cookieData.user];
-    } else if (cookieData.remoteControlSession && sessionCache[cookieData.user].rs._id === `rs${cookieData.remoteControlSession}`) {
+    }
+    if (cookieData.remoteControlSession && sessionCache[cookieData.user].rs._id === `rs${cookieData.remoteControlSession}`) {
       return sessionCache[cookieData.user];
     }
   }
@@ -82,7 +84,6 @@ function getSessionDataFromCache(cookieData) {
  * @param {Function} then - asynchronous callback
  */
 function getOrMakeSession(of, then) {
-
   function filter(row) {
     return row.doc._id.substr(0, 2) === 'se';
   }
@@ -144,11 +145,13 @@ function getSessionDataFromDatabase(of, then) {
 }
 
 function getUser(sessionId, then) {
-  for (let i in sessionCache) {
-    if (sessionCache[i].se && sessionCache[i].se._id === `se${sessionId}`) {
-      return then(null, sessionCache[i].us._id);
-    } else if (sessionCache[i].rs && sessionCache[i].rs._id === `rs${sessionId}`) {
-      return then(null, sessionCache[i].us._id);
+  for (let i = 0; i < sessionCache.length; i++) {
+    const element = sessionCache[i];
+    if (element.se && element.se._id === `se${sessionId}`) {
+      return then(null, element.us._id);
+    }
+    if (element.rs && element.rs._id === `rs${sessionId}`) {
+      return then(null, element.us._id);
     }
   }
 
@@ -170,17 +173,18 @@ function getUser(sessionId, then) {
     });
   }
 
-  when({se: searchSession, rs: searchRemoteSession }, (errs, resps) => {
+  when({ se: searchSession, rs: searchRemoteSession }, (errs, resps) => {
     if (resps.se) {
       return then(null, resps.se);
-    } else if (resps.rs) {
+    }
+    if (resps.rs) {
       return then(null, resps.rs);
     }
     return then(errs, resps);
   });
 
   return true;
-};
+}
 
 function saveSession(doc, deleteIt) {
   if (deleteIt) {
@@ -201,15 +205,15 @@ function removeSession(sessionId, cb) {
   d10.couch.auth.deleteDoc(sessionId, cb);
 }
 
-function makeSession (uid, cb) {
+function makeSession(uid, cb) {
   return makeSessionForType(uid, 'se', cb);
 }
 
-function makeRemoteControlSession (uid, cb) {
+function makeRemoteControlSession(uid, cb) {
   return makeSessionForType(uid, 'rs', cb);
 }
 
-function makeSessionForType (uid, type, cb) {
+function makeSessionForType(uid, type, cb) {
   const sessionId = d10.uid();
   const d = new Date();
   // create session and send cookie
@@ -217,7 +221,7 @@ function makeSessionForType (uid, type, cb) {
     _id: `${type}${sessionId}`,
     userid: uid.substr(2),
     ts_creation: d.getTime(),
-    ts_last_usage: d.getTime()
+    ts_last_usage: d.getTime(),
   };
   d10.couch.auth.storeDoc(doc, (err) => {
     if (err) {
@@ -252,4 +256,3 @@ function fillUserCtx(ctx, response, session) {
     }
   });
 }
-

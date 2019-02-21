@@ -1,6 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
-const join = require('path').join;
+const { join } = require('path');
 
 const logMiddleware = morgan('combined');
 const contextMiddleware = require('./middlewares/context');

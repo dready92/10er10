@@ -1,5 +1,5 @@
 const express = require('express');
-const join = require('path').join;
+const { join } = require('path');
 const favicon = require('serve-favicon');
 const morgan = require('morgan');
 const compression = require('compression');
