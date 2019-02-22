@@ -1,20 +1,21 @@
+/* eslint-disable prefer-promise-reject-errors */
+/* eslint-disable no-restricted-globals */
 const d10 = require('../../d10');
 const gu = require('../../graphicsUtils');
 
 const debug = d10.debug('d10:song-processor:task-create-document');
 
-exports = module.exports = function createDocumentTask(job) {
+module.exports = function createDocumentTask(job) {
   return new Promise((resolve, reject) => {
-
     const resp = job.tasks.oggLength.response;
     let duration = 0;
     const sha1 = job.tasks.sha1File.response;
     const songId = job.id;
     if (
-      Object.prototype.toString.call(resp) === '[object Array]' &&
-      resp.length > 2 &&
-      !isNaN(parseFloat(resp[1])) &&
-      !isNaN(parseFloat(resp[2]))
+      Object.prototype.toString.call(resp) === '[object Array]'
+      && resp.length > 2
+      && !isNaN(parseFloat(resp[1]))
+      && !isNaN(parseFloat(resp[2]))
     ) {
       duration = parseFloat(resp[1]) * 60;
       duration += parseFloat(resp[2]);
@@ -48,8 +49,8 @@ exports = module.exports = function createDocumentTask(job) {
       }
     });
 
-    if (typeof doc.title === 'string' && doc.title.length &&
-      typeof doc.artist === 'string' && doc.artist.length) {
+    if (typeof doc.title === 'string' && doc.title.length
+      && typeof doc.artist === 'string' && doc.artist.length) {
       doc.valid = true;
     }
 
@@ -61,13 +62,13 @@ exports = module.exports = function createDocumentTask(job) {
       }
     }
 
-  //                          return then(null,doc);
     function recordDoc() {
       // eslint-disable-next-line consistent-return
       d10.couch.d10.view('song/sha1', { key: sha1 }, (err, resp2) => {
         if (err) {
           return reject(501);
-        } else if (!resp2.rows || resp2.rows.length) {
+        }
+        if (!resp2.rows || resp2.rows.length) {
           return reject(433);
         }
         d10.couch.d10.storeDoc(doc, (err2, resp4) => {
@@ -81,9 +82,9 @@ exports = module.exports = function createDocumentTask(job) {
       });
     }
 
-    if (job.tasks.fileMeta.response &&
-      job.tasks.fileMeta.response.PICTURES &&
-      job.tasks.fileMeta.response.PICTURES.length) {
+    if (job.tasks.fileMeta.response
+      && job.tasks.fileMeta.response.PICTURES
+      && job.tasks.fileMeta.response.PICTURES.length) {
       gu.imageFromMeta(job.tasks.fileMeta.response, (err, resp2) => {
         debug(songId, 'imageFromMeta response', err, resp2);
         if (!err) {

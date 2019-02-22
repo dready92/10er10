@@ -1,10 +1,10 @@
+const { spawn } = require('child_process');
 const d10 = require('../../d10');
-const spawn = require('child_process').spawn;
 const files = require('../../files');
 
 const debug = d10.debug('d10:song-processor:task-ogg-encode');
 
-exports = module.exports = function oggEncodeTask(job) {
+module.exports = function oggEncodeTask(job) {
   return new Promise((resolve, reject) => {
     let oggWriterError = false;
     let bytesEncodedCount = 0;

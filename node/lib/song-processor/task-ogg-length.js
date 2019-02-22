@@ -1,7 +1,7 @@
 const d10 = require('../../d10');
 const audioUtils = require('../../audioFileUtils');
 
-exports = module.exports = function oggLengthTask(job) {
+module.exports = function oggLengthTask(job) {
   return new Promise((resolve, reject) => {
     const file = audioUtils.isOggFileType(job.tasks.fileType.response) ? job.fileName : job.oggName;
     audioUtils.oggLength(`${d10.config.audio.tmpdir}/${file}`, (err, len) => {

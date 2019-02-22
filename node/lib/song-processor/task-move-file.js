@@ -1,10 +1,10 @@
+const fs = require('fs');
 const d10 = require('../../d10');
 const audioUtils = require('../../audioFileUtils');
-const fs = require('fs');
 
 const debug = d10.debug('d10:song-processor:task-move-file');
 
-exports = module.exports = function moveFileTask(job) {
+module.exports = function moveFileTask(job) {
   return new Promise((resolve, reject) => {
     const c = job.id[2];
     const filename = job.oggName;

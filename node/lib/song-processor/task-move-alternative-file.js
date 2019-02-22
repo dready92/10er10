@@ -1,9 +1,10 @@
-const d10 = require('../../d10');
 const fs = require('fs');
+
+const d10 = require('../../d10');
 
 const debug = d10.debug('d10:song-processor:task-move-alternative-file');
 
-exports = module.exports = function moveAlternativeFileTask(job) {
+module.exports = function moveAlternativeFileTask(job) {
   // eslint-disable-next-line consistent-return
   return new Promise((resolve, reject) => {
     if (!d10.config.audio.keepOriginalFile) {
@@ -11,7 +12,7 @@ exports = module.exports = function moveAlternativeFileTask(job) {
     }
 
     const tmpFile = `${d10.config.audio.tmpdir}/${job.fileName}`;
-    const id = job.id;
+    const { id } = job;
     const fileType = job.tasks.fileType.response;
     let alternativeExtension = null;
     debug(job.id, 'file type : ', fileType);

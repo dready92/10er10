@@ -1,8 +1,9 @@
 const d10 = require('../../d10');
 
-exports = module.exports = function cleanupTagsTask(job) {
+module.exports = function cleanupTagsTask(job) {
   return new Promise((resolve) => {
-    if (!job.tasks.fileMeta.response) {job.tasks.fileMeta.response = {}; }
+    // eslint-disable-next-line no-param-reassign
+    if (!job.tasks.fileMeta.response) { job.tasks.fileMeta.response = {}; }
     const tags = {};
 
     if (job.tasks.fileMeta.response.GENRE) {
