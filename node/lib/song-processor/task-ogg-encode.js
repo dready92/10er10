@@ -13,6 +13,7 @@ module.exports = function oggEncodeTask(job) {
     debug(job.id, '-----------------------------------------------');
     if (!job.decoder) {
       debug(job.id, 'error: job.decoder not set');
+      // eslint-disable-next-line prefer-promise-reject-errors
       reject({ message: 'decoder not initialized' });
       return;
     }

@@ -13,8 +13,10 @@ module.exports = function sha1CheckTask(job) {
     }
     d10.couch.d10.view('song/sha1', { key: job.tasks.sha1File.response }, (err, resp) => {
       if (err) {
+        // eslint-disable-next-line prefer-promise-reject-errors
         reject(501);
       } else if (!resp.rows || resp.rows.length) {
+        // eslint-disable-next-line prefer-promise-reject-errors
         reject(433);
       } else {
         resolve();
