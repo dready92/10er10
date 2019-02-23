@@ -53,7 +53,7 @@ exports.debug = function (identifier) {
   return function () {
     let str = '';
     for (const i in arguments) {
-      if (typeof arguments[i] === 'object') {
+      if (arguments[i] && typeof arguments[i] === 'object') {
         if (arguments[i].stack) {
           str += arguments[i].stack;
         } else {
