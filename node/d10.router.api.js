@@ -481,6 +481,7 @@ exports.api = (app) => {
         responses.forEach((response) => {
           back[response.field] = response.results;
         });
+        d10.realrest.success(back, request.ctx);
       })
       .catch(err => d10.realrest.err(427, err, request.ctx));
   });
