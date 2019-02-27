@@ -31,6 +31,7 @@ function makePromisesDb(couch) {
   db.d10StoreDoc = toPromise(couch.d10.storeDoc, couch.d10);
   db.d10StoreDocs = toPromise(couch.d10.storeDocs, couch.d10);
   db.d10View = toPromise(couch.d10.view, couch.d10);
+  db.d10List = toPromise(couch.d10.list, couch.d10);
   db.d10UpdateDoc = toPromise(couch.d10.updateDoc, couch.d10);
   db.d10wiGetAllDocs = toPromise(couch.d10wi.getAllDocs, couch.d10wi);
   db.d10wiGetDoc = toPromise(couch.d10wi.getDoc, couch.d10wi);

@@ -1,6 +1,6 @@
 const d10 = require('./d10');
 
-exports.getSongsByHits = function getSongsByHits(artist, callback, options) {
+exports.getSongsByHits = function getSongsByHits(artist, options) {
   const rpp = d10.config.rpp + 1;
   const viewName = options.genre ? 'genre/artist-hits' : 'artist/hits';
   const query = {
@@ -19,6 +19,5 @@ exports.getSongsByHits = function getSongsByHits(artist, callback, options) {
     query.endkey = [options.genre, artist];
   }
 
-
-  d10.couch.d10.view(viewName, query, callback);
+  return d10.dbp.d10View(viewName, query);
 };

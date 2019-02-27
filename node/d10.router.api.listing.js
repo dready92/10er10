@@ -1,19 +1,18 @@
+/* eslint-disable no-restricted-globals */
 const d10 = require('./d10');
 
 const debug = d10.debug('d10:d10.router.api.listing');
 const artists = require('./d10.artists');
 const users = require('./d10.users');
-const getAndParseByAlbum = require('./rest-helpers').getAndParseByAlbum;
+const { getAndParseByAlbum } = require('./rest-helpers');
 
 function validGenre(genre) {
   return d10.config.allowCustomGenres === true || d10.config.genres.indexOf(genre) >= 0;
 }
 
 exports.api = function api(app) {
-  app.get('/api/title',
-    gotd10QueryMiddleware,
-    mayHaveStartStringMiddleware,
-    request => titleSearch('title/search/search', request));
+  const { d10View } = d10.dbp;
+
   app.get('/api/artist',
     gotd10QueryMiddleware,
     mayHaveStartStringMiddleware,
@@ -76,35 +75,20 @@ exports.api = function api(app) {
   app.get('/api/list/albums/artists/:album', request => albumArtists('album/artists', request));
   app.get('/api/list/mixed/songs/creation', mixedAlbumsSongsHandler);
 
-  function titleSearch(view, request) {
-    const query = { ...request.d10query, inclusive_end: false };
-    d10.couch.d10.list(view, query, (err, resp) => {
-      if (err) {
-        d10.realrest.success([], request.ctx);
-      } else {
-        d10.realrest.success(resp.titles, request.ctx);
-      }
-    });
-  }
-
   function artistSearch(view, request) {
     const query = { ...request.d10query, group: true };
 
-    d10.couch.d10.view(view, query, (err, resp) => {
-      if (err) {
-        d10.realrest.success([], request.ctx);
-      } else {
+    d10.dbp.d10View(view, query)
+      .then((resp) => {
         const buffer = {};
-        const back = [];
-
-// remove doubles
+        // remove doubles
         resp.rows.forEach((row) => {
           buffer[row.key[1]] = { text: row.key[1], json: row.key[1] };
         });
-        Object.keys(buffer).forEach(key => back.push(buffer[key]));
+        const back = Object.keys(buffer).map(key => buffer[key]);
         d10.realrest.success(back, request.ctx);
-      }
-    });
+      })
+      .catch(() => d10.realrest.success([], request.ctx));
   }
 
   function albumSearch(view, request) {
@@ -114,13 +98,9 @@ exports.api = function api(app) {
       query.startkey = [q];
       query.endkey = [d10.nextWord(q)];
     }
-    d10.couch.d10.list(view, query, (err, resp) => {
-      if (err) {
-        d10.realrest.success([], request.ctx);
-      } else {
-        d10.realrest.success(resp.albums, request.ctx);
-      }
-    });
+    d10.dbp.d10List(view, query)
+      .then(resp => d10.realrest.success(resp.albums, request.ctx))
+      .catch(() => d10.realrest.success([], request.ctx));
   }
 
   function gotd10QueryMiddleware(request, response, next) {
@@ -187,12 +167,12 @@ exports.api = function api(app) {
         query.limit = limit;
       }
     }
-    d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function genreArtist(view, request) {
     const query = { group: true, group_level: 1 };
-    d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function artistBaseName(view, request) {
@@ -206,8 +186,7 @@ exports.api = function api(app) {
         query.startkey = [request.query.artist];
       }
     }
-
-    d10.couch.d10.view(view + viewPart, query, listDefaultCallback.bind(request.ctx));
+    listPromiseRespond(d10View(`${view}${viewPart}`, query), request.ctx);
   }
 
   function listByCreation(request, response) {
@@ -232,7 +211,8 @@ exports.api = function api(app) {
     if (!query.startkey) {
       query.startkey = [request.query.genre, {}];
     }
-    d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+
+    listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function tsCreationName(view, request) {
@@ -243,7 +223,7 @@ exports.api = function api(app) {
       descending: true,
       limit: d10.config.rpp + 1,
     };
-    d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function getCouchQuery(query) {
@@ -279,9 +259,9 @@ exports.api = function api(app) {
       return d10.realrest.err(428, request.query.genre, request.ctx);
     }
 
-    const ignoredAlbums = request.query.ignoredAlbums ?
-                          JSON.parse(request.query.ignoredAlbums) :
-                          [];
+    const ignoredAlbums = request.query.ignoredAlbums
+      ? JSON.parse(request.query.ignoredAlbums)
+      : [];
 
     return getAndParseByAlbum(couchQuery, ignoredAlbums)
       .then(response => d10.realrest.success(response, request.ctx))
@@ -295,27 +275,28 @@ exports.api = function api(app) {
       descending: true,
       limit: d10.config.rpp + 1,
     };
-    d10.couch.d10wi.view('hits/name', query, (err, resp) => {
-      if (err) {
-        return d10.realrest.err(423, request.params.sort, request.ctx);
-      }
-      const keys = Object.keys(resp.rows)
-        .map(k => resp.rows[k].id);
-      return d10.couch.d10.getAllDocs({ keys, include_docs: true }, (err2, resp2) => {
-        if (err2) {
-          return d10.realrest.err(423, request.params.sort, request.ctx);
-        }
-        const back = [];
-        resp.rows.forEach((v, i) => {
-          back.push({
-            id: v.id,
-            key: v.key,
-            doc: resp2.rows[i].doc,
+
+    d10View('hits/name', query)
+      .then((resp) => {
+        const keys = Object.keys(resp.rows).map(k => resp.rows[k].id);
+
+        return d10.dbp.d10GetAllDocs({ keys, include_docs: true })
+          .then((resp2) => {
+            const back = [];
+            resp.rows.forEach((v, i) => {
+              back.push({
+                id: v.id,
+                key: v.key,
+                doc: resp2.rows[i].doc,
+              });
+            });
+            return d10.realrest.success(back, request.ctx);
           });
-        });
-        return d10.realrest.success(back, request.ctx);
+      })
+      .catch((err) => {
+        debug(err);
+        d10.realrest.err(423, request.params.sort, request.ctx);
       });
-    });
   }
 
   function genreName(view, request) {
@@ -332,7 +313,8 @@ exports.api = function api(app) {
     if (!query.startkey) {
       query.startkey = [request.query.genre];
     }
-    return d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+
+    return listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function titleName(view, request) {
@@ -348,7 +330,7 @@ exports.api = function api(app) {
         query.startkey = [request.query.title];
       }
     }
-    d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function albumName(view, request) {
@@ -369,7 +351,7 @@ exports.api = function api(app) {
     if (request.query.endkey) {
       query.endkey = JSON.parse(request.query.endkey);
     }
-    d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function userSongs(request) {
@@ -380,8 +362,7 @@ exports.api = function api(app) {
       endkey: [request.ctx.user._id, []],
       limit: d10.config.rpp + 1,
     };
-
-    d10.couch.d10.view('s_user/name', query, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View('s_user/name', query), request.ctx);
   }
 
   function getLikes(request) {
@@ -397,25 +378,14 @@ exports.api = function api(app) {
       }
     }
 
-    d10.couch.d10wi.view('s_user_likes/name', query, (err, resp) => {
-      if (err) {
-        return d10.realrest.err(423, err, request.ctx);
-      }
-      const keys = Object.keys(resp.rows).map(k => resp.rows[k].value);
-
-      return d10.couch.d10.getAllDocs({ include_docs: true, keys }, (err2, resp2) => {
-        if (err2) {
-          return d10.realrest.err(423, err2, request.ctx);
-        }
-        const back = [];
-        resp.rows.forEach((v, k) => {
-          back.push(
-            { doc: resp2.rows[k].doc, key: v.key },
-          );
-        });
-        return d10.realrest.success(back, request.ctx);
-      });
-    });
+    d10.dbp.d10wiView('s_user_likes/name', query)
+      .then((resp) => {
+        const keys = Object.keys(resp.rows).map(k => resp.rows[k].value);
+        return d10.dbp.d10GetAllDocs({ keys, include_docs: true })
+          .then(resp2 => resp.rows.map((row, k) => ({ doc: resp2.rows[k].doc, key: row.key })));
+      })
+      .then(resp => d10.realrest.success(resp, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function genreArtists(view, request) {
@@ -431,7 +401,7 @@ exports.api = function api(app) {
     if (!query.startkey) {
       query.startkey = [request.params.genre];
     }
-    return d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function genreAlbums(view, request) {
@@ -446,25 +416,25 @@ exports.api = function api(app) {
       group_level: 2,
     };
 
-    return d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function genreAlbumsSongs(view, request) {
-    if (!request.params.genre ||
-      !validGenre(request.params.genre)) {
+    if (!request.params.genre
+      || !validGenre(request.params.genre)) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
-    const opts = {
+    const query = {
       ...request.d10query,
       endkey: [request.params.genre, []],
       reduce: false,
       include_docs: true,
       limit: d10.config.rpp + 1,
     };
-    if (!opts.startkey) {
-      opts.startkey = [request.params.genre];
+    if (!query.startkey) {
+      query.startkey = [request.params.genre];
     }
-    return d10.couch.d10.view(view, opts, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function artistAlbums(view, request) {
@@ -478,7 +448,7 @@ exports.api = function api(app) {
       group_level: 2,
     };
 
-    return d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function artistSongsOrderedByAlbums(view, request) {
@@ -492,7 +462,7 @@ exports.api = function api(app) {
       include_docs: true,
     };
 
-    return d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function artistGenres(view, request) {
@@ -506,7 +476,7 @@ exports.api = function api(app) {
       group: true,
       group_level: 2,
     };
-    return d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View(view, query), request.ctx);
   }
 
   function albumArtists(view, request) {
@@ -522,61 +492,61 @@ exports.api = function api(app) {
       group_level: 2,
     };
 
-    return d10.couch.d10.view(view, query, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View(view, query), request.ctx);
   }
 
-
-  function listDefaultCallback(err, resp) {
-    if (err) {
-      debug('error: ', err);
-      return d10.realrest.err(423, err, this);
-    }
-    return d10.realrest.success(resp.rows, this);
+  function listPromiseRespond(promise, context) {
+    return promise
+      .then(resp => d10.realrest.success(resp.rows, context))
+      .catch((err) => {
+        debug('error: ', err);
+        return d10.realrest.err(423, err, context);
+      });
   }
 
   app.get('/api/list/artist/hits', (request) => {
     let startkey;
     let startkeyDocid;
 
-    const opts = {};
+    const query = {};
     if (request.query.genre) {
       if (!validGenre(request.query.genre)) {
         return d10.realrest.err(428, request.query.genre, request.ctx);
       }
-      opts.genre = request.query.genre;
+      query.genre = request.query.genre;
     }
 
     if (!request.query.artist) {
       debug('no artist');
       return d10.realrest.err(428, request.query.artist, request.ctx);
     }
-    const artist = request.query.artist;
+    const { artist } = request.query;
     if (request.query.startkey) {
       startkey = JSON.parse(request.query.startkey);
       if (request.query.startkey_docid) {
         startkeyDocid = request.query.startkey_docid;
       }
     }
-    opts.startkey = startkey;
-    opts.startkey_docid = startkeyDocid;
+    query.startkey = startkey;
+    query.startkey_docid = startkeyDocid;
 
-    return artists.getSongsByHits(artist, listDefaultCallback.bind(request.ctx), opts);
+    return listPromiseRespond(artists.getSongsByHits(artist, query), request.ctx);
   });
 
   app.get('/api/genre/artistsByHits/:genre', (request) => {
     if (!validGenre(request.params.genre)) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
-    const opts = { descending: true, endkey: [request.params.genre] };
+    const query = { descending: true, endkey: [request.params.genre] };
     if (request.query.startkey) {
-      opts.startkey = JSON.parse(request.query.startkey);
+      query.startkey = JSON.parse(request.query.startkey);
       if (request.query.startkey_docid) {
-        opts.startkey_docid = request.query.startkey_docid;
+        query.startkey_docid = request.query.startkey_docid;
       }
     } else {
-      opts.startkey = [request.params.genre, {}];
+      query.startkey = [request.params.genre, {}];
     }
-    return d10.couch.d10.view('artistHits/artists', opts, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View('artistHits/artists', query), request.ctx);
   });
 
   app.get('/api/genre/albumsByHits/:genre', (request) => {
@@ -593,44 +563,42 @@ exports.api = function api(app) {
       opts.startkey = [request.params.genre, {}];
     }
 
-    return d10.couch.d10.view('albumHits/albums', opts, (err, list) => {
-      if (err || !list.rows.length) {
-        return listDefaultCallback.call(request.ctx, err, list);
-      }
-      const albumSongs = {};
-      const keys = [];
-      list.rows.forEach((row) => {
-        albumSongs[row.key[2]] = [];
-        // eslint-disable-next-line no-param-reassign
-        row.value = albumSongs[row.key[2]];
-        keys.push(row.key[2]);
+    const promise = d10View('albumHits/albums', opts)
+      .then((list) => {
+        const albumSongs = {};
+        const keys = [];
+        list.rows.forEach((row) => {
+          albumSongs[row.key[2]] = [];
+          // eslint-disable-next-line no-param-reassign
+          row.value = albumSongs[row.key[2]];
+          keys.push(row.key[2]);
+        });
+
+        return d10View('album/album', { reduce: false, include_docs: true, keys })
+          .then((docs) => {
+            docs.rows.forEach((row) => { albumSongs[row.doc.album].push(row.doc); });
+            return list;
+          });
       });
-      debug('going to second view', { reduce: false, include_docs: true, keys });
-      return d10.couch.d10.view('album/album', { reduce: false, include_docs: true, keys }, (err2, docs) => {
-        if (err2) {
-          return listDefaultCallback.call(request.ctx, err2, docs);
-        }
-        docs.rows.forEach((row) => { albumSongs[row.doc.album].push(row.doc); });
-        return listDefaultCallback.call(request.ctx, err, list);
-      });
-    });
+
+    return listPromiseRespond(promise, request.ctx);
   });
 
   app.get('/api/genre/songsByHits/:genre', (request) => {
     if (!validGenre(request.params.genre)) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
-    const opts = { include_docs: true, descending: true, endkey: [request.params.genre] };
+    const query = { include_docs: true, descending: true, endkey: [request.params.genre] };
     if (request.query.startkey) {
-      opts.startkey = JSON.parse(request.query.startkey);
+      query.startkey = JSON.parse(request.query.startkey);
       if (request.query.startkey_docid) {
-        opts.startkey_docid = request.query.startkey_docid;
+        query.startkey_docid = request.query.startkey_docid;
       }
     } else {
-      opts.startkey = [request.params.genre, {}];
+      query.startkey = [request.params.genre, {}];
     }
 
-    return d10.couch.d10.view('genre/song-hits', opts, listDefaultCallback.bind(request.ctx));
+    return listPromiseRespond(d10View('genre/song-hits', query), request.ctx);
   });
 
   app.get('/api/own/list/mixed/lastPlayed', (request) => {
@@ -639,9 +607,9 @@ exports.api = function api(app) {
       reduce: false,
       descending: true,
       include_docs: true,
-      startkey: request.query.startkey ?
-        JSON.parse(request.query.startkey) :
-        [request.ctx.user._id, {}],
+      startkey: request.query.startkey
+        ? JSON.parse(request.query.startkey)
+        : [request.ctx.user._id, {}],
       endkey: [request.ctx.user._id],
       limit: requestLength,
     };
@@ -659,18 +627,17 @@ exports.api = function api(app) {
       }
       const ids = hits.rows.map(row => row.value);
 
-      return d10.couch.d10.getAllDocs({ include_docs: true, keys: ids }, (err2, docs) => {
-        if (err2) {
-          return d10.realrest.err(423, err2, request.ctx);
-        }
-        const response = hits.rows.map((row) => {
-          const element = { ...row };
-          element.song = docs.rows.find(song => song.doc._id === row.value).doc;
-          return element;
-        });
+      return d10.dbp.d10GetAllDocs({ include_docs: true, keys: ids })
+        .then((docs) => {
+          const response = hits.rows.map((row) => {
+            const element = { ...row };
+            element.song = docs.rows.find(song => song.doc._id === row.value).doc;
+            return element;
+          });
 
-        return d10.realrest.success(response, request.ctx);
-      });
+          return d10.realrest.success(response, request.ctx);
+        })
+        .catch(err2 => d10.realrest.err(423, err2, request.ctx));
     });
   });
 
