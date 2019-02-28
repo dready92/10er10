@@ -11,19 +11,6 @@ const debug = d10.debug('d10:d10.router.api');
 const jsonParserMiddleware = bodyParser.json();
 const urlencodedParserMiddleware = bodyParser.urlencoded();
 
-function toPromise(fn, context) {
-  return (...args) => new Promise((resolve, reject) => {
-    args.push((err, response) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(response);
-      }
-    });
-    fn.apply(context, args);
-  });
-}
-
 exports.api = (app) => {
   app.post('/api/songs', jsonParserMiddleware, (request) => {
     request.ctx.headers['Content-type'] = 'application/json';
@@ -711,6 +698,69 @@ exports.api = (app) => {
     }, request.ctx)).catch((err) => {
       d10.realrest.err(423, err, request.ctx);
     });
+  });
+
+  app.get('/api/genres/date/:genre', (request) => {
+    if (!isGenreValid(request.params.genre)) {
+      return d10.realrest.err(428, request.params.genre, request.ctx);
+    }
+
+    const { genre } = request.params;
+    const query = {
+      startkey: [genre],
+      endkey: [genre, []],
+      group: true,
+      group_level: 2,
+    };
+
+    /*
+      {"rows":[
+        {"key":["Pop",2016],"value":1},
+        {"key":["Pop",2017],"value":20}
+      ]}
+    */
+    d10.dbp.d10View('genre/date', query)
+      .then(resp => resp.rows.map(row => ({ date: row.key[1], count: row.value })))
+      .then(resp => d10.realrest.success(resp, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
+  });
+
+  app.get('/api/genres/date-artist/:genre', (request) => {
+    if (!isGenreValid(request.params.genre)) {
+      return d10.realrest.err(428, request.params.genre, request.ctx);
+    }
+
+    const { genre } = request.params;
+    const query = {
+      startkey: [genre],
+      endkey: [genre, []],
+      group: true,
+      group_level: 3,
+    };
+    if (request.query && request.query.limit) {
+      query.limit = request.query.limit;
+    }
+    if (request.query && request.query.startkey) {
+      query.startkey = request.query.startkey;
+    } else if (request.query && request.query.startdate) {
+      query.startkey.push(request.query.startdate);
+    }
+
+    /*
+      {"rows":[
+        {"key":["Pop",2016,"artist"],"value":1},
+        {"key":["Pop",2017,"artist1"],"value":18},
+        {"key":["Pop",2017,"artist2"],"value":2}
+      ]}
+    */
+    d10.dbp.d10View('genre/date-artist', query)
+      .then(resp => resp.rows.map(row => ({
+        date: row.key[1],
+        artist: row.key[2],
+        count: row.value,
+      })))
+      .then(resp => d10.realrest.success(resp, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   });
 }; // exports.api
 
