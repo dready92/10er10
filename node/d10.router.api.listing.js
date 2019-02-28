@@ -57,6 +57,7 @@ exports.api = function api(app) {
     gotd10QueryMiddleware,
     mayHaveStartKeyAndDocId,
     request => genreAlbums('genre/albums', request));
+  app.get('/api/list/genres/dateArtist/:genre', genreDateArtist);
   app.get('/api/list/s_user',
     gotd10QueryMiddleware,
     mayHaveStartKeyAndDocId,
@@ -435,6 +436,55 @@ exports.api = function api(app) {
       query.startkey = [request.params.genre];
     }
     return listPromiseRespond(d10View(view, query), request.ctx);
+  }
+
+  function genreDateArtist(request) {
+    if (!request.params.genre) {
+      return d10.realrest.err(428, request.params.genre, request.ctx);
+    }
+    let date;
+    if (request.query.date) {
+      date = parseInt(request.query.date, 10);
+      if (isNaN(date)) {
+        date = null;
+      }
+    }
+
+    let limit;
+    if (request.query.limit) {
+      limit = parseInt(request.query.limit, 10);
+      if (isNaN(limit)) {
+        limit = null;
+      }
+    }
+
+    const query = {
+      startkey: [request.params.genre],
+      endkey: [request.params.genre, []],
+      reduce: false,
+      include_docs: true,
+      limit: limit || 30,
+    };
+
+    if (request.query.startkey) {
+      query.startkey = JSON.parse(request.query.startkey);
+      if (request.query.startkey_docid) {
+        query.startkey_docid = request.query.startkey_docid;
+      }
+    } else if (date) {
+      query.startkey.push(date);
+      if (request.query.artist) {
+        query.startkey.push(request.query.artist);
+      }
+    }
+    if (date) {
+      query.endkey = [request.params.genre, date, []];
+      if (request.query.artist) {
+        query.endkey = [request.params.genre, date, `${request.query.artist}0`];
+      }
+    }
+
+    return listPromiseRespond(d10View('genre/date-artist', query), request.ctx);
   }
 
   function artistAlbums(view, request) {
