@@ -2,8 +2,13 @@ process.env.MAGIC = process.env.MAGIC || `${__dirname}/magic/magic.mgc`;
 
 const debugModule = require('debug');
 const ncouch = require('ncouch');
-const { Magic } = require('mmmagic');
+const mmmagic = require('mmmagic');
 const files = require('./files');
+
+const { Magic } = mmmagic;
+
+let config;
+let fileCache;
 
 function toPromise(fn, context) {
   return (...args) => new Promise((resolve, reject) => {
@@ -49,22 +54,21 @@ function makePromisesDb(couch) {
   return db;
 }
 
-exports.debug = function (identifier) {
+exports.debug = function debugProvider(identifier) {
   const dbg = debugModule(identifier);
-  return function () {
+  return (...args) => {
     let str = '';
-    for (const i in arguments) {
-      if (arguments[i] && typeof arguments[i] === 'object') {
-        if (arguments[i].stack) {
-          str += arguments[i].stack;
+    args.forEach((arg) => {
+      if (arg && typeof arg === 'object') {
+        if (arg.stack) {
+          str += arg.stack;
         } else {
-          str += JSON.stringify(arguments[i]);
+          str += JSON.stringify(arg);
         }
       } else {
-        str += arguments[i];
+        str += arg;
       }
-      str += ' ';
-    }
+    });
     dbg(str);
   };
 };
@@ -72,10 +76,9 @@ exports.debug = function (identifier) {
 const debug = exports.debug('d10:d10');
 exports.mustache = require('./mustache');
 
-let config; let
-  fileCache;
-exports.setConfig = function (cfg) {
-  config = exports.config = cfg;
+exports.setConfig = function setConfig(cfg) {
+  exports.config = cfg;
+  config = cfg;
   fileCache = files.fileCache(config.production ? null : { bypass: true });
   exports.couch = {
     d10: ncouch.server(config.couch.d10.dsn).debug(false).database(config.couch.d10.database),
@@ -88,41 +91,39 @@ exports.setConfig = function (cfg) {
 
 exports.db = {};
 
-exports.db.loginInfos = function (login, cb, ecb) {
-  exports.couch.auth.view('infos/all', { include_docs: true, key: ['login', login] }, function (err, resp) {
-    if (err) {
-      if (ecb) {
-        ecb.call(this, err, resp);
+exports.db.loginInfos = function loginInfos(login, cb, ecb) {
+  exports.dbp.authView('infos/all', { include_docs: true, key: ['login', login] })
+    .then((resp) => {
+      if (!resp.rows) {
+        ecb(null, resp);
+        return null;
       }
-      return;
-    }
-    if (resp.rows.length < 1) {
-      return ecb.call(this, err, resp);
-    }
-    exports.couch.auth.view(
-      'infos/all',
-      {
-        include_docs: true,
-        startkey: [resp.rows[0].doc._id.replace(/^us/, ''), ''],
-        endkey: [resp.rows[0].doc._id.replace(/^us/, ''), []],
-      }, function (err, resp) {
-        if (err) {
-          if (ecb) ecb.call(this, err, resp);
-        } else if (cb) cb.call(this, resp);
-      },
-    );
-  });
+      return resp.rows[0].doc._id.replace(/^us/, '');
+    })
+    .then((id) => {
+      if (!id) {
+        return null;
+      }
+      return exports.dbp.authView('infos/all', { include_docs: true, startkey: [id, ''], endkey: [id, []] });
+    })
+    .then((resp) => {
+      if (resp) {
+        cb(resp);
+      }
+      return null;
+    })
+    .catch(err => ecb(err));
 };
 
-exports.db.d10Infos = function (login, cb, ecb) {
-  exports.couch.d10.view('user/all_infos', { include_docs: true, startkey: [login, null], endkey: [login, []] }, function (err, resp) {
+exports.db.d10Infos = function d10Infos(login, cb, ecb) {
+  exports.couch.d10.view('user/all_infos', { include_docs: true, startkey: [login, null], endkey: [login, []] }, (err, resp) => {
     if (err) {
-      if (ecb)	ecb.call(this, err, resp);
-    } else if (cb)	cb.call(this, resp);
+      if (ecb) ecb(err, resp);
+    } else if (cb) cb(resp);
   });
 };
 
-const	httpStatusCodes = {
+const httpStatusCodes = {
   100: 'Continue',
   101: 'Switching Protocols',
   200: 'OK',
@@ -182,48 +183,48 @@ const	httpStatusCodes = {
   505: 'HTTP Version Not Supported',
 };
 
-exports.uid = function () {
-// 	return ((0x100000000 * Math.random()).toString(32) + "" + (0x100000000 * Math.random()).toString(32));
+exports.uid = function uid() {
   return (
     `${(0x100000000 * Math.random()).toString(32)}${
-     (0x100000000 * Math.random()).toString(32)}${
-     (0x100000000 * Math.random()).toString(32)}`
-       ).replace(/\./g, '');
+      (0x100000000 * Math.random()).toString(32)}${
+      (0x100000000 * Math.random()).toString(32)}`
+  ).replace(/\./g, '');
 };
 
-exports.count = function (obj) {
-  let count = 0;
-  for (const k in obj) {
-    count++;
-  }
-  return count;
+exports.count = function count(obj) {
+  return Object.keys(obj).length;
 };
 exports.http = {};
-exports.http.statusMessage = function (code) {
+exports.http.statusMessage = function statusMessage(code) {
   if (code in httpStatusCodes) {
     return httpStatusCodes[code];
   }
   return 'Generic error';
 };
 
-exports.view = function (n, d, p, cb) {
+exports.view = function view(n, d, p, cb) {
   debug('view');
   debug(d, p);
   if (!cb && p) {
+    // eslint-disable-next-line no-param-reassign
     cb = p;
+    // eslint-disable-next-line no-param-reassign
     p = null;
   }
 
   fileCache.readFile(`${config.templates.node + n}.html`, 'utf-8', (err, data) => {
     if (err) throw err;
-    data =		data = exports.mustache.to_html(data, d, p);
-    if (cb)	cb.call(data, data);
+    // eslint-disable-next-line no-param-reassign
+    data = exports.mustache.to_html(data, d, p);
+    if (cb) cb.call(data, data);
   });
 };
 
-exports.lngView = function (request, n, d, p, cb) {
+exports.lngView = function lngView(request, n, d, p, cb) {
   if (!cb && p) {
+    // eslint-disable-next-line no-param-reassign
     cb = p;
+    // eslint-disable-next-line no-param-reassign
     p = null;
   }
 
@@ -231,15 +232,15 @@ exports.lngView = function (request, n, d, p, cb) {
     return inlineView(request, n, d, p, cb);
   }
 
-  request.ctx.langUtils.parseServerTemplate(request, `${n}.html`, (err, data) => {
-    // 	fileCache.readFile(config.templates.node+n+".html","utf-8", function (err, data) {
+  return request.ctx.langUtils.parseServerTemplate(request, `${n}.html`, (err, data) => {
     if (err) throw err;
+    // eslint-disable-next-line no-param-reassign
     data = exports.mustache.to_html(data, d, p);
-    if (cb)	cb.call(data, data);
+    if (cb) cb.call(data, data);
   });
 };
 
-var inlineView = function (request, n, d, p, cb) {
+const inlineView = function inlineView(request, n, d, p, cb) {
   request.ctx.langUtils.loadLang(request.ctx.lang, 'server', (err, resp) => {
     if (err) { return cb(err); }
     return cb(null, resp.inline[n.replace('inline/', '')]);
@@ -248,9 +249,12 @@ var inlineView = function (request, n, d, p, cb) {
 /*
 var icuCollation = [
     " ", "`" , "^", "_", "-", ",", ";", ":", "!", "?", "." ,"'", "\"", "(", ")", "[", "]", "{", "}",
-    "@", "*", "/", "\\", "&", "#", "%", "+", "<", "=", ">", "|", "~", "$", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-    "a", "A", "b", "B", "c", "C", "d", "D", "e", "E", "f", "F", "g", "G", "h", "H", "i", "I", "j", "J", "k", "K", "l", "L",
-    "m", "M", "n", "N", "o", "O", "p", "P", "q", "Q", "r", "R", "s", "S", "t", "T", "u", "U", "v", "V", "w", "W", "x", "X",
+    "@", "*", "/", "\\", "&", "#", "%", "+", "<", "=", ">", "|", "~", "$", "0", "1", "2", "3", "4",
+    "5", "6", "7", "8", "9",
+    "a", "A", "b", "B", "c", "C", "d", "D", "e", "E", "f", "F", "g", "G", "h", "H", "i", "I", "j",
+    "J", "k", "K", "l", "L",
+    "m", "M", "n", "N", "o", "O", "p", "P", "q", "Q", "r", "R", "s", "S", "t", "T", "u", "U", "v",
+    "V", "w", "W", "x", "X",
     "y", "Y", "z", "Z", "ZZZZZZZZ"
 ];
 */
@@ -263,20 +267,22 @@ const icuCollation = [
 ];
 
 
-const nextLetterJS = function (l) {
+const nextLetterJS = function nextLetterJS(l) {
   return String.fromCharCode((l.charCodeAt(0) + 1));
 };
 
-exports.nextWord = function (w) {
+exports.nextWord = function nextWord(w) {
   const l = w[ (w.length - 1) ];
   const index = icuCollation.indexOf(l.toLowerCase());
 
 
-  const next = (index > -1 && index + 1 < icuCollation.length) ? icuCollation[ (index + 1) ] : nextLetterJS(l);
+  const next = (index > -1 && index + 1 < icuCollation.length)
+    ? icuCollation[ (index + 1) ]
+    : nextLetterJS(l);
   return w.substring(0, w.length - 1) + next;
 };
 
-exports.ucwords = function (str) {
+exports.ucwords = function ucwords(str) {
   // originally from :
   // discuss at: http://phpjs.org/functions/ucwords    // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
   // +   improved by: Waldo Malqui Silva
@@ -287,10 +293,11 @@ exports.ucwords = function (str) {
   // *     returns 1: 'Kevin Van  Zonneveld'
   // *     example 2: ucwords('HELLO WORLD');
   // *     returns 2: 'HELLO WORLD'
+  // eslint-disable-next-line no-useless-escape
   return (`${str}`).replace(/^([a-z])|[\s\[\(\.0-9-]+([a-z])/g, $1 => $1.toUpperCase());
 };
 
-exports.fileType = function (file, cb) {
+exports.fileType = function fileType(file, cb) {
   const magic = new Magic(mmmagic.MAGIC_MIME_TYPE);
   magic.detectFile(file, (err, result) => {
     debug('fileType : ', result);
@@ -305,15 +312,18 @@ exports.sanitize = {
       .toLowerCase());
   },
   number(s) {
+    // eslint-disable-next-line no-param-reassign
     s = parseFloat(s);
-    if (isNaN(s))	return 0;
+    // eslint-disable-next-line no-restricted-globals
+    if (isNaN(s)) return 0;
     return s;
   },
   genre(s) {
+    // eslint-disable-next-line no-param-reassign
     s = s.toLowerCase();
     let back = '';
-    config.genres.forEach((v, k) => {
-      if (s == v.toLowerCase()) {
+    config.genres.forEach((v) => {
+      if (s === v.toLowerCase()) {
         back = v;
       }
     });
@@ -325,13 +335,15 @@ exports.valid = {
   title(s) { return (s.length); },
   artist(s) { return (s.length); },
   genre(s) { return (config.genres.indexOf(s) >= 0); },
-  id(s) { return s.substr(0, 2) == 'aa'; },
+  id(s) { return s.substr(0, 2) === 'aa'; },
 };
 
 exports.rest = {
   err(code, data, ctx) {
     if (!ctx) {
+      // eslint-disable-next-line no-param-reassign
       ctx = data;
+      // eslint-disable-next-line no-param-reassign
       data = null;
     }
     const back = {
@@ -366,7 +378,9 @@ exports.rest = {
 exports.realrest = {
   err(code, data, ctx) {
     if (!ctx) {
+      // eslint-disable-next-line no-param-reassign
       ctx = data;
+      // eslint-disable-next-line no-param-reassign
       data = null;
     }
     debug('response : ', code, exports.http.statusMessage(code), ctx.headers, data);
@@ -377,6 +391,7 @@ exports.realrest = {
   success(data, ctx) {
     ctx.headers['Content-Type'] = 'application/json';
     if (data) {
+      // eslint-disable-next-line no-param-reassign
       data = JSON.stringify(data);
       ctx.headers['Content-Length'] = Buffer.byteLength(data);
     }
@@ -386,25 +401,25 @@ exports.realrest = {
 
 };
 
-exports.saveUser = function (doc, deleteIt) {
+exports.saveUser = function saveUser(doc, deleteIt) {
   if (deleteIt) {
     exports.couch.auth.deleteDoc(doc, (err) => {
       if (err) {
-        debug(`failed to delete user ${  doc._id}`);
+        debug(`failed to delete user ${doc._id}`);
       } else {
-        debug(`user deleted ${  doc._id}`);
+        debug(`user deleted ${doc._id}`);
       }
     });
   }
 };
 
-exports.saveUserPrivate = function (doc, deleteIt) {
+exports.saveUserPrivate = function saveUserPrivate(doc, deleteIt) {
   if (deleteIt) {
     exports.couch.auth.deleteDoc(doc, (err) => {
       if (err) {
-        debug(`failed to delete user private infos ${  doc._id}`);
+        debug(`failed to delete user private infos ${doc._id}`);
       } else {
-        debug(`user private infos deleted ${  doc._id}`);
+        debug(`user private infos deleted ${doc._id}`);
       }
     });
   }
