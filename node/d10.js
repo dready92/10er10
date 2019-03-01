@@ -3,12 +3,11 @@ process.env.MAGIC = process.env.MAGIC || `${__dirname}/magic/magic.mgc`;
 const debugModule = require('debug');
 const ncouch = require('ncouch');
 const mmmagic = require('mmmagic');
-const files = require('./files');
+const mustache = require('./mustache');
 
 const { Magic } = mmmagic;
 
 let config;
-let fileCache;
 
 function toPromise(fn, context) {
   return (...args) => new Promise((resolve, reject) => {
@@ -31,6 +30,7 @@ function makePromisesDb(couch) {
   db.trackStoreDocs = toPromise(couch.track.storeDocs, couch.track);
   db.trackView = toPromise(couch.track.view, couch.track);
   db.trackUpdateDoc = toPromise(couch.track.updateDoc, couch.track);
+  db.trackDeleteDoc = toPromise(couch.track.deleteDoc, couch.track);
   db.d10GetAllDocs = toPromise(couch.d10.getAllDocs, couch.d10);
   db.d10GetDoc = toPromise(couch.d10.getDoc, couch.d10);
   db.d10StoreDoc = toPromise(couch.d10.storeDoc, couch.d10);
@@ -38,23 +38,26 @@ function makePromisesDb(couch) {
   db.d10View = toPromise(couch.d10.view, couch.d10);
   db.d10List = toPromise(couch.d10.list, couch.d10);
   db.d10UpdateDoc = toPromise(couch.d10.updateDoc, couch.d10);
+  db.d10DeleteDoc = toPromise(couch.d10.deleteDoc, couch.d10);
   db.d10wiGetAllDocs = toPromise(couch.d10wi.getAllDocs, couch.d10wi);
   db.d10wiGetDoc = toPromise(couch.d10wi.getDoc, couch.d10wi);
   db.d10wiStoreDoc = toPromise(couch.d10wi.storeDoc, couch.d10wi);
   db.d10wiStoreDocs = toPromise(couch.d10wi.storeDocs, couch.d10wi);
   db.d10wiView = toPromise(couch.d10wi.view, couch.d10wi);
   db.d10wiUpdateDoc = toPromise(couch.d10wi.updateDoc, couch.d10wi);
+  db.d10wiDeleteDoc = toPromise(couch.d10wi.deleteDoc, couch.d10wi);
   db.authGetAllDocs = toPromise(couch.auth.getAllDocs, couch.auth);
   db.authGetDoc = toPromise(couch.auth.getDoc, couch.auth);
   db.authStoreDoc = toPromise(couch.auth.storeDoc, couch.auth);
   db.authStoreDocs = toPromise(couch.auth.storeDocs, couch.auth);
   db.authView = toPromise(couch.auth.view, couch.auth);
   db.authUpdateDoc = toPromise(couch.auth.updateDoc, couch.auth);
+  db.authDeleteDoc = toPromise(couch.auth.deleteDoc, couch.auth);
 
   return db;
 }
 
-exports.debug = function debugProvider(identifier) {
+function debugProvider(identifier) {
   const dbg = debugModule(identifier);
   return (...args) => {
     let str = '';
@@ -71,28 +74,24 @@ exports.debug = function debugProvider(identifier) {
     });
     dbg(str);
   };
-};
+}
 
-const debug = exports.debug('d10:d10');
-exports.mustache = require('./mustache');
+const debug = debugProvider('d10:d10');
 
-exports.setConfig = function setConfig(cfg) {
-  exports.config = cfg;
+function setConfig(cfg) {
+  module.exports.config = cfg;
   config = cfg;
-  fileCache = files.fileCache(config.production ? null : { bypass: true });
-  exports.couch = {
+  module.exports.couch = {
     d10: ncouch.server(config.couch.d10.dsn).debug(false).database(config.couch.d10.database),
     auth: ncouch.server(config.couch.auth.dsn).debug(false).database(config.couch.auth.database),
     track: ncouch.server(config.couch.track.dsn).debug(false).database(config.couch.track.database),
     d10wi: ncouch.server(config.couch.d10wi.dsn).debug(false).database(config.couch.d10wi.database),
   };
-  exports.dbp = makePromisesDb(exports.couch);
-};
+  module.exports.dbp = makePromisesDb(module.exports.couch);
+}
 
-exports.db = {};
-
-exports.db.loginInfos = function loginInfos(login, cb, ecb) {
-  exports.dbp.authView('infos/all', { include_docs: true, key: ['login', login] })
+function loginInfos(login, cb, ecb) {
+  module.exports.dbp.authView('infos/all', { include_docs: true, key: ['login', login] })
     .then((resp) => {
       if (!resp.rows) {
         ecb(null, resp);
@@ -104,7 +103,7 @@ exports.db.loginInfos = function loginInfos(login, cb, ecb) {
       if (!id) {
         return null;
       }
-      return exports.dbp.authView('infos/all', { include_docs: true, startkey: [id, ''], endkey: [id, []] });
+      return module.exports.dbp.authView('infos/all', { include_docs: true, startkey: [id, ''], endkey: [id, []] });
     })
     .then((resp) => {
       if (resp) {
@@ -113,15 +112,13 @@ exports.db.loginInfos = function loginInfos(login, cb, ecb) {
       return null;
     })
     .catch(err => ecb(err));
-};
+}
 
-exports.db.d10Infos = function d10Infos(login, cb, ecb) {
-  exports.couch.d10.view('user/all_infos', { include_docs: true, startkey: [login, null], endkey: [login, []] }, (err, resp) => {
-    if (err) {
-      if (ecb) ecb(err, resp);
-    } else if (cb) cb(resp);
-  });
-};
+function d10Infos(login, cb, ecb) {
+  module.exports.dbp.d10View('user/all_infos', { include_docs: true, startkey: [login, null], endkey: [login, []] })
+    .then(resp => cb(resp))
+    .catch((err) => { if (ecb) ecb(err); });
+}
 
 const httpStatusCodes = {
   100: 'Continue',
@@ -183,44 +180,26 @@ const httpStatusCodes = {
   505: 'HTTP Version Not Supported',
 };
 
-exports.uid = function uid() {
+function uid() {
   return (
     `${(0x100000000 * Math.random()).toString(32)}${
       (0x100000000 * Math.random()).toString(32)}${
       (0x100000000 * Math.random()).toString(32)}`
   ).replace(/\./g, '');
-};
+}
 
-exports.count = function count(obj) {
+function count(obj) {
   return Object.keys(obj).length;
-};
-exports.http = {};
-exports.http.statusMessage = function statusMessage(code) {
+}
+
+function statusMessage(code) {
   if (code in httpStatusCodes) {
     return httpStatusCodes[code];
   }
   return 'Generic error';
-};
+}
 
-exports.view = function view(n, d, p, cb) {
-  debug('view');
-  debug(d, p);
-  if (!cb && p) {
-    // eslint-disable-next-line no-param-reassign
-    cb = p;
-    // eslint-disable-next-line no-param-reassign
-    p = null;
-  }
-
-  fileCache.readFile(`${config.templates.node + n}.html`, 'utf-8', (err, data) => {
-    if (err) throw err;
-    // eslint-disable-next-line no-param-reassign
-    data = exports.mustache.to_html(data, d, p);
-    if (cb) cb.call(data, data);
-  });
-};
-
-exports.lngView = function lngView(request, n, d, p, cb) {
+function lngView(request, n, d, p, cb) {
   if (!cb && p) {
     // eslint-disable-next-line no-param-reassign
     cb = p;
@@ -235,17 +214,17 @@ exports.lngView = function lngView(request, n, d, p, cb) {
   return request.ctx.langUtils.parseServerTemplate(request, `${n}.html`, (err, data) => {
     if (err) throw err;
     // eslint-disable-next-line no-param-reassign
-    data = exports.mustache.to_html(data, d, p);
+    data = mustache.to_html(data, d, p);
     if (cb) cb.call(data, data);
   });
-};
+}
 
-const inlineView = function inlineView(request, n, d, p, cb) {
+function inlineView(request, n, d, p, cb) {
   request.ctx.langUtils.loadLang(request.ctx.lang, 'server', (err, resp) => {
     if (err) { return cb(err); }
     return cb(null, resp.inline[n.replace('inline/', '')]);
   });
-};
+}
 /*
 var icuCollation = [
     " ", "`" , "^", "_", "-", ",", ";", ":", "!", "?", "." ,"'", "\"", "(", ")", "[", "]", "{", "}",
@@ -267,11 +246,11 @@ const icuCollation = [
 ];
 
 
-const nextLetterJS = function nextLetterJS(l) {
+function nextLetterJS(l) {
   return String.fromCharCode((l.charCodeAt(0) + 1));
-};
+}
 
-exports.nextWord = function nextWord(w) {
+function nextWord(w) {
   const l = w[ (w.length - 1) ];
   const index = icuCollation.indexOf(l.toLowerCase());
 
@@ -280,9 +259,9 @@ exports.nextWord = function nextWord(w) {
     ? icuCollation[ (index + 1) ]
     : nextLetterJS(l);
   return w.substring(0, w.length - 1) + next;
-};
+}
 
-exports.ucwords = function ucwords(str) {
+function ucwords(str) {
   // originally from :
   // discuss at: http://phpjs.org/functions/ucwords    // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
   // +   improved by: Waldo Malqui Silva
@@ -295,20 +274,20 @@ exports.ucwords = function ucwords(str) {
   // *     returns 2: 'HELLO WORLD'
   // eslint-disable-next-line no-useless-escape
   return (`${str}`).replace(/^([a-z])|[\s\[\(\.0-9-]+([a-z])/g, $1 => $1.toUpperCase());
-};
+}
 
-exports.fileType = function fileType(file, cb) {
+function fileType(file, cb) {
   const magic = new Magic(mmmagic.MAGIC_MIME_TYPE);
   magic.detectFile(file, (err, result) => {
     debug('fileType : ', result);
     debug('fileType error ?', err);
     cb(err, result);
   });
-};
+}
 
-exports.sanitize = {
+const sanitize = {
   string(s) {
-    return exports.ucwords(s.replace(/^\s+/, '').replace(/\s+$/, '').replace(/</g, '').replace(/>/g, '')
+    return ucwords(s.replace(/^\s+/, '').replace(/\s+$/, '').replace(/</g, '').replace(/>/g, '')
       .toLowerCase());
   },
   number(s) {
@@ -331,14 +310,14 @@ exports.sanitize = {
   },
 };
 
-exports.valid = {
+const valid = {
   title(s) { return (s.length); },
   artist(s) { return (s.length); },
   genre(s) { return (config.genres.indexOf(s) >= 0); },
   id(s) { return s.substr(0, 2) === 'aa'; },
 };
 
-exports.rest = {
+const realrest = {
   err(code, data, ctx) {
     if (!ctx) {
       // eslint-disable-next-line no-param-reassign
@@ -346,46 +325,9 @@ exports.rest = {
       // eslint-disable-next-line no-param-reassign
       data = null;
     }
-    const back = {
-      status: 'error',
-      data: {
-        code,
-        message: exports.http.statusMessage(code),
-      },
-    };
-    if (data) {
-      back.data.infos = data;
-    }
+    debug('response : ', code, statusMessage(code), ctx.headers, data);
     ctx.headers['Content-Type'] = 'application/json';
-    ctx.response.writeHead(200, ctx.headers);
-    ctx.response.end(
-      JSON.stringify(back),
-    );
-  },
-  success(data, ctx) {
-    const back = {
-      status: 'success',
-      data,
-    };
-    ctx.headers['Content-Type'] = 'application/json';
-    ctx.response.writeHead(200, ctx.headers);
-    ctx.response.end(
-      JSON.stringify(back),
-    );
-  },
-};
-
-exports.realrest = {
-  err(code, data, ctx) {
-    if (!ctx) {
-      // eslint-disable-next-line no-param-reassign
-      ctx = data;
-      // eslint-disable-next-line no-param-reassign
-      data = null;
-    }
-    debug('response : ', code, exports.http.statusMessage(code), ctx.headers, data);
-    ctx.headers['Content-Type'] = 'application/json';
-    ctx.response.writeHead(code, exports.http.statusMessage(code), ctx.headers);
+    ctx.response.writeHead(code, statusMessage(code), ctx.headers);
     ctx.response.end(data ? JSON.stringify(data) : null);
   },
   success(data, ctx) {
@@ -401,26 +343,43 @@ exports.realrest = {
 
 };
 
-exports.saveUser = function saveUser(doc, deleteIt) {
+function saveUser(doc, deleteIt) {
   if (deleteIt) {
-    exports.couch.auth.deleteDoc(doc, (err) => {
-      if (err) {
-        debug(`failed to delete user ${doc._id}`);
-      } else {
-        debug(`user deleted ${doc._id}`);
-      }
-    });
+    module.exports.dbp.authDeleteDoc(doc)
+      .then(() => debug(`user deleted ${doc._id}`))
+      .catch(() => debug(`failed to delete user ${doc._id}`));
   }
-};
+}
 
-exports.saveUserPrivate = function saveUserPrivate(doc, deleteIt) {
+function saveUserPrivate(doc, deleteIt) {
   if (deleteIt) {
-    exports.couch.auth.deleteDoc(doc, (err) => {
-      if (err) {
-        debug(`failed to delete user private infos ${doc._id}`);
-      } else {
-        debug(`user private infos deleted ${doc._id}`);
-      }
-    });
+    module.exports.dbp.authDeleteDoc(doc)
+      .then(() => debug(`user private infos deleted ${doc._id}`))
+      .catch(() => debug(`failed to delete user private infos ${doc._id}`));
   }
+}
+
+module.exports = {
+  debug: debugProvider,
+  mustache,
+  setConfig,
+  uid,
+  count,
+  lngView,
+  inlineView,
+  nextWord,
+  ucwords,
+  fileType,
+  sanitize,
+  valid,
+  realrest,
+  saveUser,
+  saveUserPrivate,
+  http: {
+    statusMessage,
+  },
+  db: {
+    loginInfos,
+    d10Infos,
+  },
 };
