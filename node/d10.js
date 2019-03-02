@@ -90,6 +90,28 @@ function setConfig(cfg) {
   module.exports.dbp = makePromisesDb(module.exports.couch);
 }
 
+function getAuthDocsFromLogin(login) {
+  return module.exports.dbp.authView('infos/all', { include_docs: true, key: ['login', login] })
+    .then((resp) => {
+      if (!resp.rows) {
+        return null;
+      }
+      return resp.rows[0].doc._id.replace(/^us/, '');
+    })
+    .then((id) => {
+      if (!id) {
+        return null;
+      }
+      return module.exports.dbp.authView('infos/all', { include_docs: true, startkey: [id, ''], endkey: [id, []] });
+    })
+    .then((resp) => {
+      if (resp) {
+        return resp.rows;
+      }
+      return null;
+    });
+}
+
 function loginInfos(login, cb, ecb) {
   module.exports.dbp.authView('infos/all', { include_docs: true, key: ['login', login] })
     .then((resp) => {
@@ -379,6 +401,7 @@ module.exports = {
     statusMessage,
   },
   db: {
+    getAuthDocsFromLogin,
     loginInfos,
     d10Infos,
   },
