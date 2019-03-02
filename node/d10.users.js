@@ -136,18 +136,18 @@ function checkAuthFromLogin(login, password, cb) {
       if (!docs) {
         return cb();
       }
-      const privateDoc = docs.filter(doc => doc._id.indexOf('pr') === 0).pop();
+      const privateDoc = docs.filter(row => row.doc._id.indexOf('pr') === 0).pop();
       if (!privateDoc) {
         debug(`No private doc for ${login}`, docs);
         return cb();
       }
       const passwordSha1 = hash.sha1(password);
       let uid;
-      if (privateDoc.password === passwordSha1) {
-        uid = privateDoc._id.replace(/^pr/, 'us');
+      if (privateDoc.doc.password === passwordSha1) {
+        uid = privateDoc.doc._id.replace(/^pr/, 'us');
       }
 
-      return cb(null, uid);
+      return cb(null, uid, docs);
     })
     .catch(cb);
 }
