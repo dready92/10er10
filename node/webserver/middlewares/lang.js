@@ -99,27 +99,48 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
     // var lng = request.ctx.lang ? request.ctx.lang : d10.config.templates.defaultLang;
     // var lng =
     debug('LANG parseServerTemplate: ', tpl, request.url, request.ctx.lang);
-    loadLang(request.ctx.lang, 'server', (err, hash) => {
-      if (err) {
-        return parseServerTemplateCb(err);
-      }
-      return fs.readFile(`${tplRoot}/${tpl}`, (err2, template) => {
-        const saneTemplate = template.toString();
-        if (err2) { return parseServerTemplateCb(err); }
-        if (!(tpl in hash)) { return parseServerTemplateCb(null, saneTemplate); }
-        return parseServerTemplateCb(null, mustache.lang_to_html(saneTemplate, hash[tpl]));
+    const prom = new Promise((resolve, reject) => {
+      loadLang(request.ctx.lang, 'server', (err, hash) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        fs.readFile(`${tplRoot}/${tpl}`, (err2, template) => {
+          if (err2) {
+            reject(err2);
+            return;
+          }
+          const saneTemplate = template.toString();
+          if (!(tpl in hash)) {
+            resolve(saneTemplate);
+          } else {
+            resolve(mustache.lang_to_html(saneTemplate, hash[tpl]));
+          }
+        });
       });
     });
+    if (parseServerTemplateCb) {
+      prom.then(resp => parseServerTemplateCb(null, resp))
+        .catch(parseServerTemplateCb);
+    }
+    return prom;
   }
 
   function getSupportedLangs(getSupportedLangsCb) {
-    const back = {};
-    const keys = [];
-    Object.keys(langs).forEach(key => keys.push(key));
-    keys.sort();
-    debug('lang keys: ', keys);
-    keys.forEach((val) => { back[val] = langs[val].langName; });
-    getSupportedLangsCb(null, back);
+    const prom = new Promise((resolve) => {
+      const back = {};
+      const keys = [];
+      Object.keys(langs).forEach(key => keys.push(key));
+      keys.sort();
+      debug('lang keys: ', keys);
+      keys.forEach((val) => { back[val] = langs[val].langName; });
+      resolve(back);
+    });
+    if (getSupportedLangsCb) {
+      prom.then(supportedLangs => getSupportedLangsCb(null, supportedLangs))
+        .catch(getSupportedLangsCb);
+    }
+    return prom;
   }
 
   loadLangFiles(cb);
