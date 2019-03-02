@@ -1,56 +1,62 @@
-var d10 = require("./d10"), when = require("./when"), hash = require("./hash");
+const d10 = require('./d10');
+const hash = require('./hash');
 
-var errCodes = {
-	430: "Login already registered",
-	431: "Login too short",
-	432: "Login contains invalid characters",
-	440: "Password does not contain enough characters",
-	441: "Password does not contain enough different characters"
+const PASSWORD_MIN_DISTINCT_CHARS = 4;
+const PASSWORD_MIN_LENGTH = 8;
+const errCodes = {
+  430: 'Login already registered',
+  431: 'Login too short',
+  432: 'Login contains invalid characters',
+  440: 'Password does not contain enough characters',
+  441: 'Password does not contain enough different characters',
 };
+const debug = d10.debug('d10:d10.users');
 
-var isValidLogin = function(login, callback) {
-	if ( login.length < 3 ) {	return callback(431); }
-	if (
-		login.indexOf("<") >= 0 ||
-		login.indexOf(">") >= 0 ||
-		login.indexOf("/") >= 0 ||
-		login.indexOf("\\") >= 0 ||
-		login.indexOf("\"") >= 0 ||
-		login.indexOf("'") >= 0 ||
-		login.indexOf("&") >= 0
-	)	return callback(432);
-	if ( login.toLowerCase() == "admin" ||
-		 login.toLowerCase() == "administrateur" ||
-		  login.toLowerCase() == "administrator" ||
-		   login.toLowerCase() == "root"
-	)	return callback(430);
-	d10.couch.auth.view("infos/all", {key: ["login",login]}, function(err,back) {
-		if ( err ) {
-			callback(503);
-		} else if ( back.rows.length ) {
-			callback(430);
-		} else {
-			callback();
-		}
-	});
-};
+function isValidLogin(login) {
+  return new Promise((resolve) => {
+    if (login.length < 3) { return resolve(431); }
+    if (
+      login.indexOf('<') >= 0
+      || login.indexOf('>') >= 0
+      || login.indexOf('/') >= 0
+      || login.indexOf('\\') >= 0
+      || login.indexOf('"') >= 0
+      || login.indexOf("'") >= 0
+      || login.indexOf('&') >= 0
+    ) return resolve(432);
+    if (login.toLowerCase() === 'admin'
+      || login.toLowerCase() === 'administrateur'
+      || login.toLowerCase() === 'administrator'
+      || login.toLowerCase() === 'root'
+    ) return resolve(430);
+    return d10.dbp.authView('infos/all', { key: ['login', login] })
+      .then((back) => {
+        if (back.rows.length) {
+          return resolve(430);
+        }
+        return resolve();
+      })
+      .catch(() => resolve(503));
+  });
+}
 
 
-
-var isValidPassword = function(password, callback) {
-	if ( password.length < 8 ) {
-		return callback(440);
-	}
-	var hash = [];
-	for ( var i = 0; i<password.length ; i++ ) {
-		var c = password.charCodeAt(i);
-		if ( hash.indexOf(c) < 0 )	hash.push(c);
-	}
-	if ( hash.length < 4 ) {
-		return callback(441);
-	}
-	callback();
-};
+function isValidPassword(password) {
+  return new Promise((resolve) => {
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      return resolve(440);
+    }
+    const pwdhash = new Set();
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < password.length; i++) {
+      pwdhash.add(password.charCodeAt(i));
+    }
+    if (pwdhash.size < PASSWORD_MIN_DISTINCT_CHARS) {
+      return resolve(441);
+    }
+    return resolve();
+  });
+}
 
 
 /**
@@ -61,133 +67,99 @@ var isValidPassword = function(password, callback) {
 * opts.callback = function(err,resp)
 *
 */
-var createUser = function(login,password,opts) {
-	var parent = opts.parent && opts.depth ? opts.parent : null;
-	var depth = opts.parent && opts.depth ? parseInt(opts.depth,10) : 1;
-	var uuid = opts.uuid ? opts.uuid : d10.uid();
+function createUser(login, password, opts) {
+  const parent = opts.parent && opts.depth ? opts.parent : null;
+  const depth = opts.parent && opts.depth ? parseInt(opts.depth, 10) : 1;
+  const uuid = opts.uuid ? opts.uuid : d10.uid();
 
 
-	var sendResponse = function(err,resp) {
-		if ( opts.callback ) {
-			opts.callback(err,resp);
-		}
-	};
+  function sendResponse(err, resp) {
+    if (opts.callback) {
+      opts.callback(err, resp);
+    }
+  }
 
-	when (
-		{
-			login: function(cb) {
-				isValidLogin(login, cb);
-			},
-			password: function(cb) {
-				isValidPassword(password,cb);
-			}
-		},
-		function(err,resp) {
-			if ( err ) {
-				if ( err.password ) {
-					err.password = errCodes[ err.password ];
-				}
-				if ( err.login ) {
-					err.login = errCodes[ err.login ];
-				}
-				return sendResponse(err,resp);
-			}
+  function createDocuments() {
+    const authUserDoc = { _id: `us${uuid}`, login, parent };
+    const authPrivDoc = { _id: `pr${uuid}`, password: hash.sha1(password), depth };
+    const d10PreferencesDoc = { _id: `up${uuid}` };
+    const d10PrivateDoc = { _id: `pr${uuid}` };
 
-			var authUserDoc = {
-				_id: "us"+uuid,
-				login: login,
-				parent: parent
-			};
-			var authPrivDoc = {
-				_id: "pr"+uuid,
-				password: hash.sha1(password),
-				depth: depth
-			};
-			var d10PreferencesDoc = {_id: "up"+uuid};
-			var d10PrivateDoc = {_id: "pr"+uuid};
+    const authQuery = d10.dbp.authStoreDocs([authUserDoc, authPrivDoc]);
+    const wiQuery = d10.dbp.d10wiStoreDocs([d10PreferencesDoc, d10PrivateDoc]);
 
-			when({
-				auth: function(cb) {
-					d10.couch.auth.storeDocs( [ authUserDoc, authPrivDoc ], function(err,resp) {
-						if ( err ) {
-							cb(500,err);
-						} else {
-							cb();
-						}
-					});
-				},
-				d10wi: function(cb) {
-					d10.couch.d10wi.storeDocs( [ d10PreferencesDoc, d10PrivateDoc ], function(err,resp) {
-						if ( err ) {
-							cb(500,err);
-						} else {
-							cb();
-						}
-					});
-				}
-			},
-			function(err,resp) {
-				if ( err ) {
-					sendResponse(err,resp);
-					d10.couch.auth.deleteDoc(authUserDoc._id);
-					d10.couch.auth.deleteDoc(authPrivDoc._id);
-					d10.couch.d10wi.deleteDoc(d10PreferencesDoc._id);
-					d10.couch.d10wi.deleteDoc(d10PrivateDoc._id);
-				} else {
-					sendResponse(null,uuid);
-				}
-			});
-		}
-	);
+    return Promise.all([authQuery, wiQuery])
+      .catch((err) => {
+        debug('User documents creation failed', err);
+        d10.dbp.authDeleteDoc(authUserDoc._id)
+          .catch(derr => debug(`unable to delete doc auth:${authUserDoc._id}`, derr));
+        d10.dbp.authDeleteDoc(authPrivDoc._id)
+          .catch(derr => debug(`unable to delete doc auth:${authPrivDoc._id}`, derr));
+        d10.dbp.d10wiDeleteDoc(d10PreferencesDoc._id)
+          .catch(derr => debug(`unable to delete doc d10wi:${d10PreferencesDoc._id}`, derr));
+        d10.dbp.d10wiDeleteDoc(d10PrivateDoc._id)
+          .catch(derr => debug(`unable to delete doc d10wi:${d10PrivateDoc._id}`, derr));
+        throw err;
+      });
+  }
 
-
-};
+  Promise.all([isValidLogin(login), isValidPassword(password)])
+    .then(([loginResponse, passwordResponse]) => {
+      const errs = {};
+      if (loginResponse) {
+        errs.login = errCodes[loginResponse];
+      }
+      if (passwordResponse) {
+        errs.password = errCodes[passwordResponse];
+      }
+      if (loginResponse || passwordResponse) {
+        return sendResponse(errs);
+      }
+      return createDocuments()
+        .then(() => sendResponse(null, uuid));
+    })
+    .catch(sendResponse);
+}
 
 /*
  * cb args: error, uid, loginResponse
  * if error is null:
  * if response is not null, uid is the user id
  */
-var checkAuthFromLogin = function(login, password, cb) {
-	if ( login.trim().length < 1 ) {
-		return cb(new Error("Login too short"));
-	}
-	// get login informations
-	d10.db.loginInfos(
-		login,
-		function(loginResponse) {
-			password = hash.sha1(password);
-			var	valid = false,
-				uid = null;
-			loginResponse.rows.forEach (function(v,k) {
-				if ( !valid && v.doc._id.indexOf("pr") === 0 ) {
-					if ( v.doc.password == password ) {
-						valid = true;
-						uid = v.doc._id.replace(/^pr/,"");
-						return false;
-					}
-				}
-			});
-			if ( valid == true && uid ) {
-				return cb(null, "us"+uid, loginResponse);
-			} else {
-				return cb();
-			}
-		},
-		function(err) {
-			return cb(err);
-		}
-	);
-};
+function checkAuthFromLogin(login, password, cb) {
+  if (login.trim().length < 1) {
+    return cb(new Error('Login too short'));
+  }
 
-var getListenedSongsByDate = function(uid, opts, callback) {
-	if ( opts.startkey && opts.startkey.length && opts.startkey[0]!=uid ) {
-		opts.startkey[0]=uid;
-	}
+  return d10.db.getAuthDocsFromLogin(login)
+    .then((docs) => {
+      if (!docs) {
+        return cb();
+      }
+      const privateDoc = docs.filter(doc => doc._id.indexOf('pr') === 0).pop();
+      if (!privateDoc) {
+        debug(`No private doc for ${login}`, docs);
+        return cb();
+      }
+      const passwordSha1 = hash.sha1(password);
+      let uid;
+      if (privateDoc.password === passwordSha1) {
+        uid = privateDoc._id.replace(/^pr/, 'us');
+      }
 
-	d10.couch.track.view("tracking/userDateTracking",opts, callback);
+      return cb(null, uid);
+    })
+    .catch(cb);
+}
 
-};
+function getListenedSongsByDate(uid, opts, callback) {
+  if (opts.startkey && opts.startkey.length && opts.startkey[0] !== uid) {
+    // eslint-disable-next-line no-param-reassign
+    opts.startkey[0] = uid;
+  }
+
+  d10.couch.track.view('tracking/userDateTracking', opts, callback);
+}
 
 
 exports.isValidLogin = isValidLogin;
@@ -195,4 +167,3 @@ exports.isValidPassword = isValidPassword;
 exports.createUser = createUser;
 exports.checkAuthFromLogin = checkAuthFromLogin;
 exports.getListenedSongsByDate = getListenedSongsByDate;
-
