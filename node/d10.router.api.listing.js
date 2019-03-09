@@ -757,40 +757,39 @@ exports.api = function api(app) {
         }
         const ids = hits.rows.map(row => row.value);
         // eslint-disable-next-line consistent-return
-        d10.couch.d10.getAllDocs({ include_docs: true, keys: ids }, (err2) => {
-          if (err2) {
-            return d10.realrest.err(423, err2, request.ctx);
-          }
-          const docHash = {};
-          Object.keys(hits.rows)
-            .filter(i => samegenreFilter(hits.rows[i]))
-            .forEach((i) => {
-              if (responses.length < responseLength) {
-                responses.push({
-                  doc: docHash[hits.rows[i].value],
-                  id: hits.rows[i].id,
-                  key: hits.rows[i].key,
-                  value: hits.rows[i].value,
-                });
-              }
-            });
+        d10.dbp.d10GetAllDocs({ include_docs: true, keys: ids })
+          .then(() => {
+            const docHash = {};
+            Object.keys(hits.rows)
+              .filter(i => samegenreFilter(hits.rows[i]))
+              .forEach((i) => {
+                if (responses.length < responseLength) {
+                  responses.push({
+                    doc: docHash[hits.rows[i].value],
+                    id: hits.rows[i].id,
+                    key: hits.rows[i].key,
+                    value: hits.rows[i].value,
+                  });
+                }
+              });
 
-          if (responses.length === responseLength) {
-            return d10.realrest.success(responses, request.ctx);
-          }
+            if (responses.length === responseLength) {
+              return d10.realrest.success(responses, request.ctx);
+            }
 
-          if (hits.rows.length < requestLength) {
-            return d10.realrest.success(responses, request.ctx);
-          }
+            if (hits.rows.length < requestLength) {
+              return d10.realrest.success(responses, request.ctx);
+            }
 
-          opts.startkey = hits.rows[(hits.rows.length - 1)].key;
-          opts.startkey_docid = hits.rows[(hits.rows.length - 1)].id;
-          fetchLastPlayed();
+            opts.startkey = hits.rows[(hits.rows.length - 1)].key;
+            opts.startkey_docid = hits.rows[(hits.rows.length - 1)].id;
+            return fetchLastPlayed();
 
-          function samegenreFilter(row) {
-            return row.value in docHash && docHash[row.value].genre === request.params.genre;
-          }
-        });
+            function samegenreFilter(row) {
+              return row.value in docHash && docHash[row.value].genre === request.params.genre;
+            }
+          })
+          .catch(err2 => d10.realrest.err(423, err2, request.ctx));
       });
     }
 
