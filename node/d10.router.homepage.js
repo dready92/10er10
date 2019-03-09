@@ -90,12 +90,12 @@ exports.homepage = (app) => {
     request.ctx.headers['Content-Type'] = 'text/html; charset=utf-8';
     response.writeHead(200, request.ctx.headers);
 
-    if (request.ctx.session && '_id' in request.ctx.session && request.ctx.user) {
+    if (request.ctx.session && '_id' in request.ctx.session && request.ctx.user) {
       if (request.query.lang) {
         request.ctx.langUtils.langExists(request.query.lang, (exists) => {
           if (exists) {
             request.ctx.user.lang = request.query.lang;
-            d10.couch.auth.storeDoc(request.ctx.user, (err, resp) => {
+            d10.couch.auth.storeDoc(request.ctx.user, () => {
               request.ctx.lang = request.query.lang;
               display10er10(request, response, next);
             });
@@ -114,75 +114,93 @@ exports.homepage = (app) => {
   }
   app.get('/welcome/goodbye', (request, response, next) => {
     d10.couch.auth.deleteDoc(request.ctx.session, () => {});
-      delete request.ctx.session;
-      delete request.ctx.user;
-      delete request.ctx.userPrivateConfig;
+    delete request.ctx.session;
+    delete request.ctx.user;
+    delete request.ctx.userPrivateConfig;
     request.ctx.headers['Set-Cookie'] = `${d10.config.cookieName}=no; path=${d10.config.cookiePath}`;
     displayHomepage(request, response, next);
   });
 
   app.get('/', displayHomepage);
   app.post('/', urlencodedParserMiddleware, (request, response, next) => {
-    const checkPass = function () {
-      users.checkAuthFromLogin(request.body.username, request.body.password, (err, uid, loginResponse) => {
-        if (err || !uid) {
-          return displayHomepage(request, response, next);
-        }
-
-        debug('POST/: user logged with login/password:', uid);
-        session.makeSession(uid, (err, sessionDoc) => {
-          if ( !err ) {
-            session.fillUserCtx(request.ctx,{ rows: loginResponse },sessionDoc);
-            var cookie = { user: request.ctx.user.login, session: sessionDoc._id.substring(2) };
-            request.ctx.setCookie(cookie);
-            if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
-          }
-          displayHomepage(request,response,next);
-        });
-      });
-    };
-
-
     // login try
-    if (request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length) {
+    if (request.body && request.body.username && request.body.password
+      && request.body.username.length && request.body.password.length) {
       // get uid with login
       debug('got a username & password : try to find uid with username');
       checkPass();
     } else {
       displayHomepage(request, response, next);
     }
+
+    function checkPass() {
+      users.authFromLoginPass(request.body.username, request.body.password)
+        .then((loginResponse) => {
+          if (!loginResponse) {
+            debug('POST/: bad loggin or password');
+            return displayHomepage(request, response, next);
+          }
+          debug('POST/: user logged with login/password:', loginResponse.uid);
+          return setSessionAndLang(request.ctx, loginResponse)
+            .catch(() => {
+              debug('ignoring session error');
+            });
+        })
+        .then(() => displayHomepage(request, response, next));
+    }
   });
 
-  app.post('/api/session', jsonParserMiddleware, (request, response, next) => {
-    const checkPass = function () {
-      users.checkAuthFromLogin(request.body.username, request.body.password, (err, uid, loginResponse) => {
-        if (err) {
-          return d10.realrest.err(500, { error: 'login failed', reason: 'server messed up' }, request.ctx);
-        }
-        if (!uid) {
-          return d10.realrest.err(500, { error: 'login failed', reason: 'invalid credentials' }, request.ctx);
-        }
-        debug('POST /api/session: user logged with login/password: ', uid);
-        session.makeSession(uid, (err,sessionDoc) => {
-          if ( !err ) {
-            session.fillUserCtx(request.ctx,loginResponse,sessionDoc);
-            var cookie = { user: request.ctx.user.login, session: sessionDoc._id.substring(2) };
-            request.ctx.setCookie(cookie);
-            if ( request.ctx.user.lang ) { request.ctx.lang = request.ctx.user.lang; }
-            return d10.realrest.err(200,{ok: true},request.ctx);
-          } else {
-            return d10.realrest.err(500,{error: "login failed",reason: "invalid credentials"},request.ctx);
-          }
-        });
-      });
-    };
+  app.post('/api/session', jsonParserMiddleware, (request) => {
     // login try
-    if (request.body && request.body.username && request.body.password && request.body.username.length && request.body.password.length) {
+    if (request.body && request.body.username && request.body.password
+      && request.body.username.length && request.body.password.length) {
       // get uid with login
       debug('got a username & password : try to find uid with username');
-      checkPass();
-    } else {
-      return d10.realrest.err(500, { error: 'login failed', reason: 'invalid parameters' }, request.ctx);
+      return checkPass();
+    }
+    return d10.realrest.err(500, { error: 'login failed', reason: 'invalid parameters' }, request.ctx);
+
+    function checkPass() {
+      users.authFromLoginPass(request.body.username, request.body.password)
+        .then((loginResponse) => {
+          if (!loginResponse) {
+            const e = new Error('login failed');
+            e.statusCode = 500;
+            e.data = { error: 'login failed', reason: 'invalid credentials' };
+            throw e;
+          }
+          debug('POST /api/session: user logged with login/password: ', loginResponse.uid);
+
+          return setSessionAndLang(request.ctx, loginResponse)
+            .catch(() => {
+              const e = new Error('Session storage failed');
+              e.statusCode = 500;
+              e.data = { error: 'session storage failed', reason: 'datastore failure' };
+            });
+        })
+        .then(() => d10.realrest.err(200, { ok: true }, request.ctx))
+        .catch((e) => {
+          if (e.statusCode) {
+            return d10.realrest.err(e.statusCode, e.data, request.ctx);
+          }
+          return d10.realrest.err(500, { error: 'login failed', reason: 'server messed up' }, request.ctx);
+        });
     }
   });
 };
+
+function setSessionAndLang(ctx, loginResponse) {
+  return new Promise((resolve, reject) => {
+    session.makeSession(loginResponse.uid, (err, sessionDoc) => {
+      if (err) {
+        debug('POST/: bad response from makeSession', err);
+        return reject(err);
+      }
+      session.fillUserCtx(ctx, { rows: loginResponse.docs }, sessionDoc);
+      const cookie = { user: ctx.user.login, session: sessionDoc._id.substring(2) };
+      ctx.setCookie(cookie);
+      if (ctx.user.lang) { ctx.lang = ctx.user.lang; }
+      return resolve(ctx);
+    });
+  });
+}
