@@ -152,6 +152,31 @@ function checkAuthFromLogin(login, password, cb) {
     .catch(cb);
 }
 
+function authFromLoginPass(login, password) {
+  if (login.trim().length < 1) {
+    return Promise.reject(new Error('Login too short'));
+  }
+
+  return d10.db.getAuthDocsFromLogin(login)
+    .then((docs) => {
+      if (!docs) {
+        return null;
+      }
+      const privateDoc = docs.filter(row => row.doc._id.indexOf('pr') === 0).pop();
+      if (!privateDoc) {
+        debug(`No private doc for ${login}`, docs);
+        return null;
+      }
+      const passwordSha1 = hash.sha1(password);
+      let uid;
+      if (privateDoc.doc.password === passwordSha1) {
+        uid = privateDoc.doc._id.replace(/^pr/, 'us');
+      }
+
+      return { uid, docs };
+    });
+}
+
 function getListenedSongsByDate(uid, opts, callback) {
   if (opts.startkey && opts.startkey.length && opts.startkey[0] !== uid) {
     // eslint-disable-next-line no-param-reassign
@@ -166,4 +191,5 @@ exports.isValidLogin = isValidLogin;
 exports.isValidPassword = isValidPassword;
 exports.createUser = createUser;
 exports.checkAuthFromLogin = checkAuthFromLogin;
+exports.authFromLoginPass = authFromLoginPass;
 exports.getListenedSongsByDate = getListenedSongsByDate;
