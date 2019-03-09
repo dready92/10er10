@@ -121,37 +121,6 @@ function createUser(login, password, opts) {
     .catch(sendResponse);
 }
 
-/*
- * cb args: error, uid, loginResponse
- * if error is null:
- * if response is not null, uid is the user id
- */
-function checkAuthFromLogin(login, password, cb) {
-  if (login.trim().length < 1) {
-    return cb(new Error('Login too short'));
-  }
-
-  return d10.db.getAuthDocsFromLogin(login)
-    .then((docs) => {
-      if (!docs) {
-        return cb();
-      }
-      const privateDoc = docs.filter(row => row.doc._id.indexOf('pr') === 0).pop();
-      if (!privateDoc) {
-        debug(`No private doc for ${login}`, docs);
-        return cb();
-      }
-      const passwordSha1 = hash.sha1(password);
-      let uid;
-      if (privateDoc.doc.password === passwordSha1) {
-        uid = privateDoc.doc._id.replace(/^pr/, 'us');
-      }
-
-      return cb(null, uid, docs);
-    })
-    .catch(cb);
-}
-
 function authFromLoginPass(login, password) {
   if (login.trim().length < 1) {
     return Promise.reject(new Error('Login too short'));
@@ -190,6 +159,5 @@ function getListenedSongsByDate(uid, opts, callback) {
 exports.isValidLogin = isValidLogin;
 exports.isValidPassword = isValidPassword;
 exports.createUser = createUser;
-exports.checkAuthFromLogin = checkAuthFromLogin;
 exports.authFromLoginPass = authFromLoginPass;
 exports.getListenedSongsByDate = getListenedSongsByDate;
