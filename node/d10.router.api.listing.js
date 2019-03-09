@@ -73,6 +73,7 @@ exports.api = function api(app) {
   app.get('/api/list/artists/albums/:artist', request => artistAlbums('artist/albums', request));
   app.get('/api/list/artists/songsByAlbum/:artist', request => artistSongsOrderedByAlbums('artist/songsOrderedByAlbums', request));
   app.get('/api/list/artists/genres/:artist', request => artistGenres('artist/genres', request));
+  app.get('/api/list/artists/byGenreYear/:genre/:artist', request => artistGenreSongs(request));
   app.get('/api/list/albums/artists/:album', request => albumArtists('album/artists', request));
   app.get('/api/list/mixed/songs/creation', mixedAlbumsSongsHandler);
 
@@ -527,6 +528,37 @@ exports.api = function api(app) {
       group_level: 2,
     };
     return listPromiseRespond(d10View(view, query), request.ctx);
+  }
+
+  function artistGenreSongs(request) {
+    if (!request.params.genre) {
+      return d10.realrest.err(428, request.params.genre, request.ctx);
+    }
+    if (!request.params.artist) {
+      return d10.realrest.err(428, request.params.artist, request.ctx);
+    }
+
+    const query = {
+      startkey: [request.params.genre, request.params.artist],
+      endkey: [request.params.genre, request.params.artist, []],
+      reduce: false,
+      include_docs: true,
+      limit: 30,
+    };
+
+    if (request.query.startkey) {
+      query.startkey = JSON.parse(request.query.startkey);
+      if (request.query.startkey_docid) {
+        query.startkey_docid = request.query.startkey_docid;
+      }
+    } else if (request.query.startdate) {
+      query.startkey.push(request.query.startdate);
+    }
+    if (request.query.limit) {
+      query.limit = request.query.limit;
+    }
+
+    return listPromiseRespond(d10View('genre/date-artist', query), request.ctx);
   }
 
   function albumArtists(view, request) {
