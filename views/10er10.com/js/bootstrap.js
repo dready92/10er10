@@ -230,7 +230,9 @@ define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.loc
 					if ( err ) {
 						debug("can't logout user...",err);
 					} else {
-						window.location.reload(true);
+						let url = window.location.protocol + '//' + window.location.host + window.location.pathname;
+						url += '?_=' + Date.now();
+						window.location = url;
 					}
 				}
 			});
