@@ -1,7 +1,8 @@
+/* eslint-disable object-curly-newline */
 /* eslint-disable no-plusplus */
 const d10 = require('./d10');
+
 const debug = d10.debug('d10:session');
-const when = require('./when');
 
 let sessionCache = {};
 
@@ -137,8 +138,8 @@ function getSession(userLogin, filter, then) {
  */
 function getSessionDataFromDatabase(of, then) {
   function sessionMatch(row) {
-    return ((of.session && row.doc._id === `se${of.session}`) ||
-              (of.remoteControlSession && row.doc._id === `rs${of.remoteControlSession}`));
+    return ((of.session && row.doc._id === `se${of.session}`)
+              || (of.remoteControlSession && row.doc._id === `rs${of.remoteControlSession}`));
   }
 
   getSession(of.user, sessionMatch, then);
@@ -155,33 +156,27 @@ function getUser(sessionId, then) {
     }
   }
 
-  function searchSession(thenSession) {
-    d10.couch.auth.getDoc(`se${sessionId}`, (err, resp) => {
-      if (err) {
-        return thenSession(err, resp);
-      }
-      return thenSession(null, `us${resp.userid}`);
-    });
+  function searchSession() {
+    return d10.dbp.authGetDoc(`se${sessionId}`)
+      .then(doc => `us${doc.userid}`);
   }
 
-  function searchRemoteSession(thenSession) {
-    d10.couch.auth.getDoc(`rs${sessionId}`, (err, resp) => {
-      if (err) {
-        return thenSession(err, resp);
-      }
-      return thenSession(null, `us${resp.userid}`);
-    });
+  function searchRemoteSession() {
+    return d10.dbp.authGetDoc(`rs${sessionId}`)
+      .then(doc => `us${doc.userid}`);
   }
 
-  when({ se: searchSession, rs: searchRemoteSession }, (errs, resps) => {
-    if (resps.se) {
-      return then(null, resps.se);
-    }
-    if (resps.rs) {
-      return then(null, resps.rs);
-    }
-    return then(errs, resps);
-  });
+  Promise.all([searchSession(), searchRemoteSession()])
+    .then(([se, rs]) => {
+      if (se) {
+        return then(null, se);
+      }
+      if (rs) {
+        return then(null, rs);
+      }
+      return then();
+    })
+    .catch(err => then(err));
 
   return true;
 }
