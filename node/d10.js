@@ -9,6 +9,7 @@ const mongoclient = require('./db/mongo');
 const { Magic } = mmmagic;
 const MONGO_COLLECTIONS = {
   SONGS: 'songs',
+  PLAYLISTS: 'playlists',
 };
 
 let config;

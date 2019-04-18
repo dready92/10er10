@@ -106,16 +106,21 @@ function startD10Migration() {
   return d10.dbp.d10GetAllDocs({ include_docs: true })
     .then((allDocs) => {
       const songs = [];
+      const playlists = [];
       allDocs.rows.map(row => row.doc).forEach((doc) => {
         if (doc._id.startsWith('aa')) {
           songs.push(doc);
+        } else if (doc._id.startsWith('pl')) {
+          playlists.push(doc);
         } else {
           console.log(doc._id);
         }
       });
 
       console.log('songs to migrate:', songs.length);
-      return D10MigrateSongs(songs);
+      console.log('playlists to migrate:', playlists.length);
+      return D10MigrateSongs(songs)
+        .then(() => D10MigratePlaylists(playlists));
     });
 }
 
@@ -145,6 +150,33 @@ function D10MigrateSongs(songs) {
     const song = saneSongs.pop();
 
     return songsCollection.updateOne({ _id: song._id }, { $set: song }, { upsert: true })
+      .then(start);
+  }
+
+  return start();
+}
+
+function D10MigratePlaylists(playlists) {
+  const collection = d10.mcol(d10.COLLECTIONS.PLAYLISTS);
+
+  console.log('Starting playlists migration:');
+  console.log('Playlists: sanitize');
+  const sanePlaylists = playlists.map((playlist) => {
+    const newPlaylist = {
+      ...playlist,
+    };
+    delete newPlaylist._rev;
+  });
+  console.log('Playlists: sanitize done');
+  console.log('Playlists: write in MongoDB');
+  function start() {
+    if (!sanePlaylists.length) {
+      console.log('Playlists: write in MongoDB done');
+      return Promise.resolve(true);
+    }
+
+    const playlist = sanePlaylists.pop();
+    return collection.updateOne({ _id: playlist._id }, { $set: playlist }, { upsert: true })
       .then(start);
   }
 
