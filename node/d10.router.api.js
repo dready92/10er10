@@ -23,8 +23,8 @@ exports.api = (app) => {
     if (badIds.length) {
       return d10.realrest.success([], request.ctx);
     }
-    d10.dbp.d10GetAllDocs({ keys: request.body.ids, include_docs: true })
-      .then(resp => d10.realrest.success(resp.rows.map(v => v.doc), request.ctx))
+    d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: request.body.ids } })
+      .then(resp => d10.realrest.success(resp, request.ctx))
       .catch(err => d10.realrest.err(500, err, request.ctx));
   });
 
@@ -101,8 +101,7 @@ exports.api = (app) => {
       .catch(err => d10.realrest.err(500, err, request.ctx));
   });
 
-  app.get('/api/length', (request) => {
-    return new Promise((resolve, reject) => {
+  app.get('/api/length', (request) => new Promise((resolve, reject) => {
       d10.mcol(d10.COLLECTIONS.SONGS)
         .aggregate([
           {
@@ -137,8 +136,7 @@ exports.api = (app) => {
       })
       .catch((err) => {
         d10.realrest.err(423, err, request.ctx);
-      });
-  });
+      }));
 
   app.get('/api/serverLoad', (request) => {
     d10.realrest.success({ load: os.loadavg() }, request.ctx);
