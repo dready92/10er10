@@ -126,11 +126,13 @@ function D10MigrateSongs(songs) {
   console.log('Songs: sanitize');
   const saneSongs = songs.map((song) => {
     const tokens = artistToken.tokenize(song);
-    return {
+    const newSong = {
       ...song,
       tokentitle: tokens.title,
       tokenartists: tokens.artists,
     };
+    delete newSong._rev;
+    return newSong;
   });
   console.log('Songs: sanitize done');
   console.log('Songs: write in MongoDB');
