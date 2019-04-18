@@ -120,7 +120,7 @@ function startD10Migration() {
 }
 
 function D10MigrateSongs(songs) {
-  const songsCollection = d10.mongo.collection('songs');
+  const songsCollection = d10.mcol(d10.COLLECTIONS.SONGS);
 
   console.log('Starting songs migration:');
   console.log('Songs: sanitize');

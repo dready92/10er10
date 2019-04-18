@@ -7,6 +7,9 @@ const mustache = require('./mustache');
 const mongoclient = require('./db/mongo');
 
 const { Magic } = mmmagic;
+const MONGO_COLLECTIONS = {
+  SONGS: 'songs',
+};
 
 let config;
 
@@ -110,6 +113,10 @@ function setMongoConfig(cfg) {
       db.on('reconnect', () => mongoDebug('reconnect'));
       module.exports.mongo = db;
     });
+}
+
+function mcol(id) {
+  return module.exports.mongo.collection(id);
 }
 
 function getAuthDocsFromLogin(login) {
@@ -427,4 +434,6 @@ module.exports = {
     loginInfos,
     d10Infos,
   },
+  mcol,
+  COLLECTIONS: MONGO_COLLECTIONS,
 };
