@@ -25,6 +25,7 @@
     "gm": "^1.23.1",
     "mime": "^2.4.0",
     "mmmagic": "^0.5.2",
+    "mongodb": "^3.2.3",
     "morgan": "^1.9.1",
     "musicmetadata": "^2.0.5",
     "ncouch": ">=1.0.0",
