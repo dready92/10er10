@@ -102,21 +102,43 @@ exports.api = (app) => {
   });
 
   app.get('/api/length', (request) => {
-    d10.dbp.d10View('song/length')
-      .then((resp) => {
-        let len = 0;
-        try {
-          len = resp.rows.shift().value;
-          d10.realrest.success({ length: len }, request.ctx);
-        } catch (e) {
-          d10.realrest.success({ length: 0 }, request.ctx);
-        }
+    return new Promise((resolve, reject) => {
+      d10.mcol(d10.COLLECTIONS.SONGS)
+        .aggregate([
+          {
+            $match: {
+              reviewed: true,
+              valid: true,
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalDuration: { $sum: '$duration' },
+            },
+          },
+        ], (err, cursor) => {
+          if (err) {
+            return reject(err);
+          }
+          cursor.toArray((err2, documents) => {
+            if (err2) {
+              return reject(err2);
+            }
+            if (!documents.length) {
+              return resolve(0);
+            }
+            return resolve(documents[0].totalDuration);
+          });
+        });
+    })
+      .then((duration) => {
+        d10.realrest.success({ length: duration }, request.ctx);
       })
       .catch((err) => {
         d10.realrest.err(423, err, request.ctx);
       });
   });
-
 
   app.get('/api/serverLoad', (request) => {
     d10.realrest.success({ load: os.loadavg() }, request.ctx);
