@@ -64,7 +64,10 @@ var setupConfig = function() {
 		config.couch = config.couch_dev;
 	}
 	d10 = require("../d10");
-	d10.setConfig(config);
+	d10.setConfig(config).then(onReady);
+}
+
+function onReady () {
 	console.log("using databases ",config.couch);
 
 	var todo = [];
@@ -100,7 +103,7 @@ var exportDb = function(db,then) {
 		{
 			include_docs: true,
 			startkey: "_design/",
-			endkey: "_designa" 
+			endkey: "_designa"
 		},
 		function(err,resp) {
 			if ( err ) {

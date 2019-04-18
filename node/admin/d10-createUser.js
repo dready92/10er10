@@ -13,9 +13,12 @@ configParser.getConfig(function(err,resp) {
 
 var onConfig = function() {
 
-	var d10 = require("../d10"),
-		users = require("../d10.users");
-	d10.setConfig(config);
+	var d10 = require("../d10");
+	d10.setConfig(config).then(onReady);
+}
+
+function onReady() {
+	var users = require("../d10.users");
 
 	if ( process.argv.length < 4 ) {
 		console.log("Usage: "+process.argv[0]+" "+process.argv[1]+" login passwd [-p]");

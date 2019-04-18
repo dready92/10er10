@@ -12,10 +12,12 @@ configParser.getConfig(function(err,resp) {
 });
 
 function onConfig () {
+	var d10 = require("../d10");
+	d10.setConfig(config).then(onReady);
+}
 
-	var d10 = require("../d10"),
-		users = require("../d10.users");
-	d10.setConfig(config);
+function onReady () {
+	var d10 = require("../d10");
 
 	if ( process.argv.length < 4 ) {
 		console.log("Usage: "+process.argv[0]+" "+process.argv[1]+" login count [-p]");

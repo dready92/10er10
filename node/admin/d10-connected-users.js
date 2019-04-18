@@ -18,7 +18,7 @@ var getSessions = function(then) {
 		}
 	});
 }
-	
+
 var ParseActiveSessions = function(err,sessions, then) {
 	if ( err ) {
 		return then(err,sessions);
@@ -34,7 +34,7 @@ var ParseActiveSessions = function(err,sessions, then) {
 	});
 	then(null,activeSessions);
 };
-	
+
 var findSessionsOwners = function(err,sessions, then) {
 	if ( err ) {
 		return then(err,sessions);
@@ -57,24 +57,24 @@ var findSessionsOwners = function(err,sessions, then) {
 		}
 	});
 };
-	
+
 
 var displayUsers = function ( err, users, then ) {
 	if ( err ) {
 		return then(err);
 	}
-	
+
 	if  ( !users.length ) {
 		console.log("No user logged in actually");
 	}
-	
+
 	users.forEach(function(user) {
 		console.log(user.login+" ("+user._id+")");
 	});
 	then();
 };
 
-	
+
 var run = function() {
 	configParser.getConfig(function(err,resp) {
 		if ( process.argv.length == 3 && process.argv[2] == "-p" ) {
@@ -88,7 +88,10 @@ var run = function() {
 
 	function onConfig () {
 		d10 = require("../d10");
-		d10.setConfig(config);
+		d10.setConfig(config).then(onReady);
+	}
+
+	function onReady() {
 		console.log("---------------------------");
 		getSessions(function(err,sessions) {
 			ParseActiveSessions(err,sessions,function(err,sessions) {
@@ -101,8 +104,8 @@ var run = function() {
 				});
 			});
 		});
-		
-		
+
+
 	};
 };
 

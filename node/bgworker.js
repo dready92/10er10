@@ -15,7 +15,7 @@ configParser.getConfig(function(foo,cfg) {
 	consumeQueue();
 });
 
-process.on("message",function(message) { 
+process.on("message",function(message) {
     pushInQueue(message);
 });
 
@@ -44,18 +44,20 @@ var consumeQueue = function() {
 				}
 				d10 = require(__dirname+"/d10");
                 debug = d10.debug("d10:bgworker");
-				d10.setConfig(config);
-				messageQueue.splice(i,1);
-                enableReccurrentJobs();
-				pushInQueue({type: "updateSongsHits"});
-				pushInQueue({type: "updateAlbumHits"});
-                return pushInQueue({type: "updateArtistHits"});
+				d10.setConfig(config).then(() => {
+					messageQueue.splice(i, 1);
+					enableReccurrentJobs();
+					pushInQueue({ type: "updateSongsHits" });
+					pushInQueue({ type: "updateAlbumHits" });
+					pushInQueue({ type: "updateArtistHits" });
+				});
+				return;
 			}
 		}
-		// no configuration 
+		// no configuration
 		return ;
 	}
-	
+
 	var next = function(err) {
 		working = false;
         if ( err ) {

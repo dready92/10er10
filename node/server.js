@@ -22,8 +22,10 @@ configParser.getConfig((foo, cfg) => {
   } else {
     configParser.switchDev();
   }
-  d10.setConfig(config);
-  onConfig(prod);
+  d10.setConfig(config)
+    .then(() => {
+      onConfig(prod);
+    });
 });
 
 

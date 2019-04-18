@@ -88,6 +88,8 @@ function setConfig(cfg) {
     d10wi: ncouch.server(config.couch.d10wi.dsn).debug(false).database(config.couch.d10wi.database),
   };
   module.exports.dbp = makePromisesDb(module.exports.couch);
+
+  return Promise.resolve(true);
 }
 
 function getAuthDocsFromLogin(login) {
