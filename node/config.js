@@ -19,12 +19,14 @@ exports.couch_dev = {
 
 
 exports.mongo_prod = {
-	url: 'mongodb://localhost:27017/d10_prod',
+	url: 'mongodb://localhost:27017',
+	database: 'd10_prod',
 	options: {},
 };
 
 exports.mongo_dev = {
-	url: 'mongodb://localhost:27017/d10_dev',
+	url: 'mongodb://localhost:27017',
+	database: 'd10_dev',
 	options: {},
 };
 

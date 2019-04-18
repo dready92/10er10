@@ -4,6 +4,7 @@ const debugModule = require('debug');
 const ncouch = require('ncouch');
 const mmmagic = require('mmmagic');
 const mustache = require('./mustache');
+const mongoclient = require('./db/mongo');
 
 const { Magic } = mmmagic;
 
@@ -89,7 +90,26 @@ function setConfig(cfg) {
   };
   module.exports.dbp = makePromisesDb(module.exports.couch);
 
-  return Promise.resolve(true);
+  return setMongoConfig(cfg);
+}
+
+function setMongoConfig(cfg) {
+  const mongoDebug = debugProvider('d10:mongodb');
+  if (module.exports.mongoClient) {
+    module.exports.mongoClient.close()
+      .catch(err => debug('error in mongodb client close()', err));
+  }
+
+  return mongoclient(cfg.mongo.url, cfg.mongo.options)
+    .then((client) => {
+      module.exports.mongoClient = client;
+
+      const db = client.db(cfg.mongo.database);
+      db.on('error', err => mongoDebug('error', err));
+      db.on('timeout', () => mongoDebug('timeout'));
+      db.on('reconnect', () => mongoDebug('reconnect'));
+      module.exports.mongo = db;
+    });
 }
 
 function getAuthDocsFromLogin(login) {

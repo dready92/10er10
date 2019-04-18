@@ -68,6 +68,7 @@ exports.switchProd = function switchProd() {
   config.port = config.port_prod;
   config.production = true;
   config.couch = config.couch_prod;
+  config.mongo = config.mongo_prod;
 };
 
 exports.switchDev = function switchDev() {
@@ -75,4 +76,5 @@ exports.switchDev = function switchDev() {
   config.port = config.port_dev;
   config.production = false;
   config.couch = config.couch_dev;
+  config.mongo = config.mongo_dev;
 };
