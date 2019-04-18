@@ -1,10 +1,10 @@
 var prompt = require("prompt"),
   fs = require("fs"),
-  config = require("../config");
+  configParser= require("../configParser");
 
 let target;
 let dirname;
-let d10;
+const d10 = require('../d10');
 
 const schema = {
   properties: {
@@ -32,8 +32,7 @@ prompt.get(schema, (err, result) => {
   target = onTarget(result.target);
   dirname = onDirname(result.dirname);
 
-  setupTargetConfig(target);
-  checkDirname();
+  setupTargetConfig(target).then(checkDirname);
 });
 
 function onTarget(targetEntry) {
@@ -47,14 +46,18 @@ function onTarget(targetEntry) {
 }
 
 function setupTargetConfig(t) {
-  if (t === 'p') {
-    config.couch = config.couch_prod;
-  } else {
-    config.couch = config.couch_dev;
-  }
-  d10 = require('../d10');
-  d10.setConfig(config);
-  console.log('using databases ', config.couch);
+  return new Promise((resolve, reject) => {
+    configParser.getConfig((err, config) => {
+      if (t === 'p') {
+        configParser.switchProd();
+      } else {
+        configParser.switchDev();
+      }
+      console.log('using databases ', config.couch);
+
+      return d10.setConfig(config).then(resolve, reject);
+    });
+  });
 }
 
 function onDirname(dirnameEntry) {
@@ -77,10 +80,7 @@ function checkDirname() {
       process.exit(1);
     }
 
-    const dbs = [];
-    for (let i in config.couch) {
-      dbs.push(i);
-    }
+    const dbs = Object.keys(d10.couch);
 
     function checkFile() {
       if (!dbs.length) {

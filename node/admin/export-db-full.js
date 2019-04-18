@@ -1,33 +1,39 @@
 var prompt = require("prompt"),
 		fs = require("fs"),
-	config = require("../config");
+	config = require("../config"),
+	configParser = require('../configParser');
+var d10 = require("../d10");
+var target, dirname;
 
-var target, dirname, d10;
 
 
-
-var getTarget = function() {
-	prompt().ask("Which config to export ? production (p) or test (t)","target")
-	.tap(
-		function(vars) {
-			target = vars.target.toString().replace(/\s+$/,"");
-			//console.log(target);
-			if ( target != "p" && target != "t" ) {
-				console.log("Bad answer... need p or t");
-				process.exit(1);
-			}
+function getTarget() {
+	var properties = [
+		{
+			name: "target",
+			message: "Which config to export ? production (p) or test (t)",
+			empty: false,
+			validator: /p|t/
+		},
+		{
+			name: "dirname",
+			message: "Please give the directory to write files to ",
+			empty: false
 		}
-	).ask("Please give the directory to write files to :","dirname")
-        .tap(
-                function(vars) {
-                        dirname = vars.dirname.toString().replace(/\s+$/,"");
-                        if ( dirname.length == 0 ) {
-                                dirname = ".";
-                        }
-                        checkDirname();
-                }
-        ).end();
-};
+	];
+	prompt.start();
+	prompt.get(properties, function (err, results) {
+		if (err) {
+			return console.log("Error: ", err);
+		}
+		target = results.target;
+		dirname = results.dirname.replace(/\s+$/, "");
+		if (dirname.length == 0) {
+			dirname = ".";
+		}
+		checkDirname();
+	});
+}
 
 var checkDirname = function() {
 	fs.stat(dirname,function(err,stat) {
@@ -45,15 +51,23 @@ var checkDirname = function() {
 };
 
 var setupConfig = function() {
-	if ( target == "p" ) {
-		config.couch = config.couch_prod;
-	} else {
-		config.couch = config.couch_dev;
-	}
-	d10 = require("../d10");
-	console.log("using databases ",config.couch);
 
 
+	configParser.getConfig((err, config) => {
+		if (target === 'p') {
+			configParser.switchProd();
+		} else {
+			configParser.switchDev();
+		}
+		console.log("using databases ", config.couch);
+
+		d10.setConfig(config).then(exportJob);
+	});
+
+
+}
+
+function exportJob() {
 	var todo = [];
 	var then = function(err) {
 		if ( err ) {

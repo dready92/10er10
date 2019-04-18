@@ -36,8 +36,8 @@ var populateDatabase = function(type, client,infos,then) {
 			console.log("Oh no ! Something went wrong when reading database dump "+file);
 			return then(new Error("File system transaction failed"));
 		}
-		
-		
+
+
 		var design = null;
 		try {
 			design = JSON.parse(resp);
@@ -46,9 +46,9 @@ var populateDatabase = function(type, client,infos,then) {
 			console.log("Oh no ! Something went wrong when parsing database dump to JSON");
 			return then ( new Error("JSON parsing failed") );
 		}
-		
+
 		var db = client.database(infos.database);
-		
+
 		var insertOne = function() {
 			if ( !design.length ) {
 				return then();
@@ -101,19 +101,17 @@ var createDatabases = function() {
 };
 
 
-configParser.getConfig(function(err,resp) {
+configParser.getConfig(function(err, resp) {
 	config = resp;
 
 	if ( process.argv.length > 2 && process.argv[2] == "-p" ) {
 		console.log("Setting up 10er10 PROD environment");
-		dbs = config.couch_prod;
 		configParser.switchProd();
 	} else {
-		console.log("Setting up 10er10 DEV environment");	
-		dbs = config.couch_dev;
+		console.log("Setting up 10er10 DEV environment");
 		configParser.switchDev();
 	}
+	dbs = config.couch;
 	console.log("Hit [Ctrl]-C to abort or wait 5 seconds");
-	setTimeout(function() { configCheck(); },5000);	
+	setTimeout(function() { configCheck(); },5000);
 });
-

@@ -11,7 +11,7 @@ configParser.getConfig(function(err,resp) {
 		configParser.switchDev();
 	}
 	config = resp;
-	getTarget();;
+	getTarget();
 });
 
 
@@ -59,9 +59,9 @@ var checkDirname = function() {
 
 var setupConfig = function() {
 	if ( target == "p" ) {
-		config.couch = config.couch_prod;
+		configParser.switchProd();
 	} else {
-		config.couch = config.couch_dev;
+		configParser.switchDev();
 	}
 	d10 = require("../d10");
 	d10.setConfig(config).then(onReady);
