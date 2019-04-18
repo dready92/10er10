@@ -10,6 +10,12 @@ const { Magic } = mmmagic;
 const MONGO_COLLECTIONS = {
   SONGS: 'songs',
   PLAYLISTS: 'playlists',
+  USER_PREFERENCES: 'userpreferences',
+  USER_HISTORY: 'userhistory',
+  USERS: 'users',
+  SESSIONS: 'sessions',
+  PINGS: 'pings',
+  EVENTS: 'events',
 };
 
 let config;

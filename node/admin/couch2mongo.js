@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /*
 
 This script will migrate D10 data from a CouchDB datastore to a MongoDB datastore.
@@ -103,10 +104,16 @@ function startMigration() {
 }
 
 function startD10Migration() {
-  return d10.dbp.d10GetAllDocs({ include_docs: true })
-    .then((allDocs) => {
+  return Promise.all([
+    d10.dbp.d10GetAllDocs({ include_docs: true }),
+    d10.dbp.d10wiGetAllDocs({ include_docs: true }),
+  ])
+    .then(([allDocs, allwiDocs]) => {
       const songs = [];
       const playlists = [];
+      const userHistory = [];
+      const userPreferences = [];
+      const songHits = {};
       allDocs.rows.map(row => row.doc).forEach((doc) => {
         if (doc._id.startsWith('aa')) {
           songs.push(doc);
@@ -117,43 +124,87 @@ function startD10Migration() {
         }
       });
 
+      allwiDocs.rows.map(row => row.doc).forEach((doc) => {
+        if (doc._id.startsWith('pr')) {
+          userHistory.push(doc);
+        } else if (doc._id.startsWith('up')) {
+          userPreferences.push(doc);
+        } else if (doc._id.startsWith('aa')) {
+          songHits[doc._id] = doc.hits || 0;
+        } else {
+          console.log(doc._id);
+        }
+      });
+
       console.log('songs to migrate:', songs.length);
       console.log('playlists to migrate:', playlists.length);
-      return D10MigrateSongs(songs)
-        .then(() => D10MigratePlaylists(playlists));
+      console.log('user preferences to migrate:', userPreferences.length);
+      console.log('user history to migrate:', userHistory.length);
+      return D10MigrateSongs(songs, songHits)
+        .then(() => D10MigratePlaylists(playlists))
+        .then(() => D10MigrateUserHistory(userHistory))
+        .then(() => D10MigrateUserPreferences(userPreferences));
+    })
+    .then(() => d10.dbp.authGetAllDocs({ include_docs: true }))
+    .then((docs) => {
+      const users = [];
+      const userPrivates = {};
+      const sessions = [];
+      docs.rows.map(row => row.doc).forEach((doc) => {
+        if (doc._id.startsWith('us')) {
+          users.push(doc);
+        } else if (doc._id.startsWith('pr')) {
+          userPrivates[`us${doc._id.substring(2)}`] = doc;
+        } else if (doc._id.startsWith('se')) {
+          sessions.push(doc);
+        } else {
+          console.log(doc._id);
+        }
+      });
+      console.log('users to migrate:', users.length);
+      console.log('sessions to migrate:', sessions.length);
+
+      return D10MigrateUsers(users, userPrivates)
+        .then(() => D10MigrateSessions(sessions));
+    })
+    .then(() => d10.dbp.trackGetAllDocs({ include_docs: true }))
+    .then((docs) => {
+      const pings = [];
+      const playEvents = [];
+      docs.rows.map(row => row.doc).forEach((doc) => {
+        if (doc._id.startsWith('pi')) {
+          pings.push(doc);
+        } else if (doc._id.startsWith('pt')) {
+          playEvents.push(doc);
+        } else {
+          console.log(doc._id);
+        }
+      });
+      console.log('pings to migrate:', pings.length);
+      console.log('events to migrate:', playEvents.length);
+      return D10MigratePings(pings)
+        .then(() => D10MigrateEvents(playEvents));
     });
 }
 
-function D10MigrateSongs(songs) {
-  const songsCollection = d10.mcol(d10.COLLECTIONS.SONGS);
+function D10MigrateSongs(songs, songHits) {
+  const collection = d10.mcol(d10.COLLECTIONS.SONGS);
 
   console.log('Starting songs migration:');
   console.log('Songs: sanitize');
-  const saneSongs = songs.map((song) => {
+  const saneData = songs.map((song) => {
     const tokens = artistToken.tokenize(song);
     const newSong = {
       ...song,
       tokentitle: tokens.title,
       tokenartists: tokens.artists,
+      hits: songHits[song._id] || 0,
     };
     delete newSong._rev;
     return newSong;
   });
   console.log('Songs: sanitize done');
-  console.log('Songs: write in MongoDB');
-  function start() {
-    if (!saneSongs.length) {
-      console.log('Songs: write in MongoDB done');
-      return Promise.resolve(true);
-    }
-
-    const song = saneSongs.pop();
-
-    return songsCollection.updateOne({ _id: song._id }, { $set: song }, { upsert: true })
-      .then(start);
-  }
-
-  return start();
+  return writeInMongo(collection, saneData, 'Songs');
 }
 
 function D10MigratePlaylists(playlists) {
@@ -161,22 +212,124 @@ function D10MigratePlaylists(playlists) {
 
   console.log('Starting playlists migration:');
   console.log('Playlists: sanitize');
-  const sanePlaylists = playlists.map((playlist) => {
+  const saneData = playlists.map((playlist) => {
     const newPlaylist = {
       ...playlist,
     };
     delete newPlaylist._rev;
+    return newPlaylist;
   });
   console.log('Playlists: sanitize done');
-  console.log('Playlists: write in MongoDB');
+  return writeInMongo(collection, saneData, 'Playlists');
+}
+
+function D10MigrateUserPreferences(prefs) {
+  const collection = d10.mcol(d10.COLLECTIONS.USER_PREFERENCES);
+
+  console.log('Starting user preferences migration:');
+  console.log('User preferences: sanitize');
+  const saneData = prefs.map((pref) => {
+    const newPref = {
+      ...pref,
+    };
+    delete newPref._rev;
+    newPref._id = `us${newPref._id.substring(2)}`;
+    return newPref;
+  });
+  console.log('User preferences: sanitize done');
+  return writeInMongo(collection, saneData, 'User preferences');
+}
+
+function D10MigrateUserHistory(prefs) {
+  const collection = d10.mcol(d10.COLLECTIONS.USER_HISTORY);
+
+  console.log('Starting user history migration:');
+  console.log('User history: sanitize');
+  const saneData = prefs.map((pref) => {
+    const newPref = {
+      ...pref,
+    };
+    delete newPref._rev;
+    newPref._id = `us${newPref._id.substring(2)}`;
+    return newPref;
+  });
+  console.log('User history: sanitize done');
+  return writeInMongo(collection, saneData, 'User history');
+}
+
+function D10MigrateUsers(users, privates) {
+  const collection = d10.mcol(d10.COLLECTIONS.USERS);
+
+  console.log('Starting users migration:');
+  console.log('Users: sanitize');
+  const saneData = users.map((pref) => {
+    const newPref = {
+      ...pref,
+      password: privates[pref._id].password,
+      depth: privates[pref._id].depth || 0,
+    };
+    delete newPref._rev;
+    return newPref;
+  });
+  console.log('Users: sanitize done');
+  return writeInMongo(collection, saneData, 'Users');
+}
+
+function D10MigrateSessions(sessions) {
+  const collection = d10.mcol(d10.COLLECTIONS.SESSIONS);
+
+  console.log('Starting sessions migration:');
+  console.log('Sessions: sanitize');
+  const saneData = sessions.map((pref) => {
+    const newPref = { ...pref };
+    delete newPref._rev;
+    return newPref;
+  });
+  console.log('Sessions: sanitize done');
+  return writeInMongo(collection, saneData, 'Sessions');
+}
+
+function D10MigratePings(pings) {
+  const collection = d10.mcol(d10.COLLECTIONS.PINGS);
+
+  console.log('Starting pings migration:');
+  console.log('pings: sanitize');
+  const saneData = pings.map((pref) => {
+    const newPref = {
+      ...pref,
+    };
+    delete newPref._rev;
+    newPref._id = `us${newPref._id.substring(2)}`;
+    return newPref;
+  });
+  console.log('Pings: sanitize done');
+  return writeInMongo(collection, saneData, 'Pings');
+}
+
+function D10MigrateEvents(events) {
+  const collection = d10.mcol(d10.COLLECTIONS.EVENTS);
+
+  console.log('Starting events migration:');
+  console.log('Events: sanitize');
+  const saneData = events.map((pref) => {
+    const newPref = { ...pref };
+    delete newPref._rev;
+    return newPref;
+  });
+  console.log('Events: sanitize done');
+  return writeInMongo(collection, saneData, 'Events');
+}
+
+function writeInMongo(collection, docs, label) {
+  console.log(`${label}: write in MongoDB`);
   function start() {
-    if (!sanePlaylists.length) {
-      console.log('Playlists: write in MongoDB done');
+    if (!docs.length) {
+      console.log(`${label}: write in MongoDB done`);
       return Promise.resolve(true);
     }
 
-    const playlist = sanePlaylists.pop();
-    return collection.updateOne({ _id: playlist._id }, { $set: playlist }, { upsert: true })
+    const doc = docs.pop();
+    return collection.updateOne({ _id: doc._id }, { $set: doc }, { upsert: true })
       .then(start);
   }
 
