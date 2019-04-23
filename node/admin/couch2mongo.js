@@ -104,10 +104,32 @@ function startMigration() {
 }
 
 function startD10Migration() {
-  return Promise.all([
-    d10.dbp.d10GetAllDocs({ include_docs: true }),
-    d10.dbp.d10wiGetAllDocs({ include_docs: true }),
-  ])
+  return d10.dbp.authGetAllDocs({ include_docs: true })
+    .then((docs) => {
+      const users = [];
+      const userPrivates = {};
+      const sessions = [];
+      docs.rows.map(row => row.doc).forEach((doc) => {
+        if (doc._id.startsWith('us')) {
+          users.push(doc);
+        } else if (doc._id.startsWith('pr')) {
+          userPrivates[`us${doc._id.substring(2)}`] = doc;
+        } else if (doc._id.startsWith('se')) {
+          sessions.push(doc);
+        } else {
+          console.log(doc._id);
+        }
+      });
+      console.log('users to migrate:', users.length);
+      console.log('sessions to migrate:', sessions.length);
+
+      return D10MigrateUsers(users, userPrivates)
+        .then(() => D10MigrateSessions(sessions));
+    })
+    .then(() => Promise.all([
+      d10.dbp.d10GetAllDocs({ include_docs: true }),
+      d10.dbp.d10wiGetAllDocs({ include_docs: true }),
+    ]))
     .then(([allDocs, allwiDocs]) => {
       const songs = [];
       const playlists = [];
@@ -144,28 +166,6 @@ function startD10Migration() {
         .then(() => D10MigratePlaylists(playlists))
         .then(() => D10MigrateUserHistory(userHistory))
         .then(() => D10MigrateUserPreferences(userPreferences));
-    })
-    .then(() => d10.dbp.authGetAllDocs({ include_docs: true }))
-    .then((docs) => {
-      const users = [];
-      const userPrivates = {};
-      const sessions = [];
-      docs.rows.map(row => row.doc).forEach((doc) => {
-        if (doc._id.startsWith('us')) {
-          users.push(doc);
-        } else if (doc._id.startsWith('pr')) {
-          userPrivates[`us${doc._id.substring(2)}`] = doc;
-        } else if (doc._id.startsWith('se')) {
-          sessions.push(doc);
-        } else {
-          console.log(doc._id);
-        }
-      });
-      console.log('users to migrate:', users.length);
-      console.log('sessions to migrate:', sessions.length);
-
-      return D10MigrateUsers(users, userPrivates)
-        .then(() => D10MigrateSessions(sessions));
     })
     .then(() => d10.dbp.trackGetAllDocs({ include_docs: true }))
     .then((docs) => {
@@ -224,7 +224,7 @@ function D10MigratePlaylists(playlists) {
 }
 
 function D10MigrateUserPreferences(prefs) {
-  const collection = d10.mcol(d10.COLLECTIONS.USER_PREFERENCES);
+  const collection = d10.mcol(d10.COLLECTIONS.USERS);
 
   console.log('Starting user preferences migration:');
   console.log('User preferences: sanitize');
@@ -237,7 +237,20 @@ function D10MigrateUserPreferences(prefs) {
     return newPref;
   });
   console.log('User preferences: sanitize done');
-  return writeInMongo(collection, saneData, 'User preferences');
+  console.log('User preferences: start write in Mongo');
+
+  function run() {
+    if (!saneData.length) {
+      console.log('User preferences: Mongo write done');
+      return Promise.resolve(true);
+    }
+    const pref = saneData.pop();
+    const id = pref._id;
+    delete pref._id;
+    return collection.updateOne({ _id: id }, { $set: { preferences: pref } });
+  }
+
+  return run();
 }
 
 function D10MigrateUserHistory(prefs) {
@@ -267,6 +280,7 @@ function D10MigrateUsers(users, privates) {
       ...pref,
       password: privates[pref._id].password,
       depth: privates[pref._id].depth || 0,
+      sessions: [],
     };
     delete newPref._rev;
     return newPref;
@@ -276,7 +290,7 @@ function D10MigrateUsers(users, privates) {
 }
 
 function D10MigrateSessions(sessions) {
-  const collection = d10.mcol(d10.COLLECTIONS.SESSIONS);
+  const collection = d10.mcol(d10.COLLECTIONS.USERS);
 
   console.log('Starting sessions migration:');
   console.log('Sessions: sanitize');
@@ -286,7 +300,20 @@ function D10MigrateSessions(sessions) {
     return newPref;
   });
   console.log('Sessions: sanitize done');
-  return writeInMongo(collection, saneData, 'Sessions');
+  console.log('Sessions: start write in Mongo');
+
+  function run() {
+    if (!saneData.length) {
+      console.log('Sessions: Mongo write done');
+      return Promise.resolve(true);
+    }
+    const pref = saneData.pop();
+    const id = `us${pref.userid}`;
+    delete pref.userid;
+    return collection.updateOne({ _id: id }, { $push: { sessions: pref } });
+  }
+
+  return run();
 }
 
 function D10MigratePings(pings) {
