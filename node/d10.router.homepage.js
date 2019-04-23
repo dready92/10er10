@@ -135,13 +135,13 @@ exports.homepage = (app) => {
 
     function checkPass() {
       users.authFromLoginPass(request.body.username, request.body.password)
-        .then((loginResponse) => {
-          if (!loginResponse) {
+        .then((userDoc) => {
+          if (!userDoc) {
             debug('POST/: bad loggin or password');
             return displayHomepage(request, response, next);
           }
-          debug('POST/: user logged with login/password:', loginResponse.uid);
-          return setSessionAndLang(request.ctx, loginResponse)
+          debug('POST/: user logged with login/password:', userDoc._id);
+          return setSessionAndLang(request.ctx, userDoc)
             .catch(() => {
               debug('ignoring session error');
             });
@@ -162,16 +162,16 @@ exports.homepage = (app) => {
 
     function checkPass() {
       users.authFromLoginPass(request.body.username, request.body.password)
-        .then((loginResponse) => {
-          if (!loginResponse) {
+        .then((userDoc) => {
+          if (!userDoc) {
             const e = new Error('login failed');
-            e.statusCode = 500;
+            e.statusCode = 401;
             e.data = { error: 'login failed', reason: 'invalid credentials' };
             throw e;
           }
-          debug('POST /api/session: user logged with login/password: ', loginResponse.uid);
+          debug('POST /api/session: user logged with login/password: ', userDoc._id);
 
-          return setSessionAndLang(request.ctx, loginResponse)
+          return setSessionAndLang(request.ctx, userDoc)
             .catch(() => {
               const e = new Error('Session storage failed');
               e.statusCode = 500;
@@ -189,18 +189,17 @@ exports.homepage = (app) => {
   });
 };
 
-function setSessionAndLang(ctx, loginResponse) {
-  return new Promise((resolve, reject) => {
-    session.makeSession(loginResponse.uid, (err, sessionDoc) => {
-      if (err) {
-        debug('POST/: bad response from makeSession', err);
-        return reject(err);
-      }
-      session.fillUserCtx(ctx, { rows: loginResponse.docs }, sessionDoc);
-      const cookie = { user: ctx.user.login, session: sessionDoc._id.substring(2) };
+function setSessionAndLang(ctx, userDoc) {
+  return session.makeSession(userDoc)
+    .then((userSession) => {
+      session.fillUserCtx(ctx, userDoc, userSession);
+      const cookie = { user: ctx.user.login, session: userSession._id.substring(2) };
       ctx.setCookie(cookie);
       if (ctx.user.lang) { ctx.lang = ctx.user.lang; }
-      return resolve(ctx);
+      return ctx;
+    })
+    .catch((err) => {
+      debug('POST/: bad response from makeSession', err);
+      return err;
     });
-  });
 }

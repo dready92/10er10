@@ -126,24 +126,9 @@ function authFromLoginPass(login, password) {
     return Promise.reject(new Error('Login too short'));
   }
 
-  return d10.db.getAuthDocsFromLogin(login)
-    .then((docs) => {
-      if (!docs) {
-        return null;
-      }
-      const privateDoc = docs.filter(row => row.doc._id.indexOf('pr') === 0).pop();
-      if (!privateDoc) {
-        debug(`No private doc for ${login}`, docs);
-        return null;
-      }
-      const passwordSha1 = hash.sha1(password);
-      let uid;
-      if (privateDoc.doc.password === passwordSha1) {
-        uid = privateDoc.doc._id.replace(/^pr/, 'us');
-      }
+  const passwordSha1 = hash.sha1(password);
 
-      return { uid, docs };
-    });
+  return d10.mcol(d10.COLLECTIONS.USERS).findOne({ login, password: passwordSha1 });
 }
 
 function getListenedSongsByDate(uid, opts, callback) {
