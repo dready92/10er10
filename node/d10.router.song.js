@@ -116,6 +116,7 @@ exports.api = function api(app) {
 
         fields.valid = true;
         fields.reviewed = true;
+        fields.hits = 0;
 
         d10.couch.d10.getDoc(request.params.id, (err, doc) => {
           if (err) {
@@ -137,7 +138,6 @@ exports.api = function api(app) {
             } else {
               debug('debug', 'storeDoc success');
               d10.realrest.success(completeDoc, request.ctx);
-              d10.couch.d10wi.storeDoc({ _id: completeDoc._id, hits: 0 });
             }
           });
         });

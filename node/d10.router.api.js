@@ -39,24 +39,18 @@ exports.api = (app) => {
   });
 
   app.get('/api/userinfos', (request) => {
-    const p1 = d10.dbp.d10wiGetDoc(request.ctx.user._id.replace(/^us/, 'up'));
-    const p2 = d10.dbp.d10View('user/all_infos', {
-      key: [request.ctx.user._id.replace(/^us/, ''), 'pl'],
-      include_docs: true,
-    }).then(data => data.rows.map(v => v.doc));
-    Promise.all([p1, p2])
-      .then(([preferences, playlists]) => {
-        const response = {
-          preferences,
-          playlists,
-          user: request.ctx.user,
-        };
+    const response = {
+      user: { ...request.ctx.user },
+      playlists: request.ctx.user.playlists,
+      preferences: request.ctx.user.preferences,
+    };
 
-        d10.realrest.success(response, request.ctx);
-      })
-      .catch((err) => {
-        d10.realrest.err(423, err, request.ctx);
-      });
+    delete response.user.playlists;
+    delete response.user.preferences;
+    delete response.user.password;
+    delete response.user.depth;
+    delete response.user.parent;
+    d10.realrest.success(response, request.ctx);
   }); // /api/userinfos
 
   app.get('/api/htmlElements', (request) => {
@@ -149,44 +143,38 @@ exports.api = (app) => {
       .catch(err => d10.realrest.err(423, err, request.ctx));
   });
 
-
   app.put('/api/current_playlist', urlencodedParserMiddleware, jsonParserMiddleware, (request) => {
+    const user = request.ctx.user;
     const data = { ...request.body };
 
-    d10.dbp.d10wiGetDoc(request.ctx.user._id.replace(/^us/, 'up'))
-      .then((userPreferences) => {
-        if (!data.type) {
-          data.type = 'default';
-        }
-        const actions = [];
-        if (data.id) {
-          actions.push(d10.dbp.d10GetDoc(data.id)
-            .then(() => null)
-            .catch(() => {
-              throw new Error('doc id is unknown');
-            }));
-        }
-        if (data.list) {
-          actions.push(d10.dbp.d10GetAllDocs({ keys: data.list })
-            .then((resp) => {
-              if (resp.rows.length !== data.list.length) {
-                throw new Error('length differs between  user preferences and PUT data');
-              }
-            }));
-        }
+    if (!data.type) {
+      data.type = 'default';
+    }
+    const actions = [];
+    if (data.id) {
+      actions.push(d10.dbp.d10GetDoc(data.id)
+        .then(() => null)
+        .catch(() => {
+          throw new Error('doc id is unknown');
+        }));
+    }
+    if (data.list) {
+      actions.push(d10.dbp.d10GetAllDocs({ keys: data.list })
+        .then((resp) => {
+          if (resp.rows.length !== data.list.length) {
+            throw new Error('length differs between  user preferences and PUT data');
+          }
+        }));
+    }
 
-        Promise.all(actions)
-          .then(() => recordDoc(userPreferences))
-          .catch(err => d10.realrest.err(413, err, request.ctx));
-      })
+    Promise.all(actions)
+      .then(updatePreferences)
       .catch(err => d10.realrest.err(413, err, request.ctx));
 
-    function recordDoc(userPreferences) {
-      const preferences = { ...userPreferences };
+    function updatePreferences() {
+      const preferences = { ...user.preferences };
       preferences.playlist = { ...data };
-
-      return d10.dbp.d10wiStoreDoc(preferences)
-        .then(() => d10.realrest.success([], request.ctx));
+      return updateUserPreferences(user._id, preferences);
     }
   });
 
@@ -208,40 +196,14 @@ exports.api = (app) => {
       }
 
       function updateHits(id) {
-        d10.dbp.d10wiGetDoc(id)
-          .catch((err) => {
-            if (err && err.statusCode && err.statusCode === 404) {
-              return null;
-            }
-            throw err;
-          })
-          .then((doc) => {
-            let updatedDoc;
-            if (!doc) {
-              updatedDoc = { _id: id, hits: 0 };
-            } else {
-              updatedDoc = { ...doc };
-            }
-
-            if (updatedDoc.hits) {
-              updatedDoc.hits++;
-            } else {
-              updatedDoc.hits = 1;
-            }
-            return d10.dbp.d10wiStoreDoc(updatedDoc);
-          })
+        d10.mcol(d10.COLLECTIONS.SONGS).updateOne({ _id: id }, { $inc: { hits: 1 } })
           .catch(storeerr => debug('/api/ping error on updateHits db request:', storeerr));
       }
 
       function updateUserData(id) {
-        d10.dbp.d10wiGetDoc(request.ctx.user._id.replace(/^us/, 'pr'))
-          .then((doc) => {
-            const updatedDoc = { ...doc };
-            if (!updatedDoc.listen) updatedDoc.listen = {};
-            if (updatedDoc.listen[id]) updatedDoc.listen[id]++;
-            else updatedDoc.listen[id] = 1;
-            return d10.dbp.d10wiStoreDoc(updatedDoc);
-          })
+        const upkey = { $inc: {} };
+        upkey.$inc[`listen.${id}`] = 1;
+        d10.mcol(d10.COLLECTIONS.USER_HISTORY).updateOne({ _id: request.ctx.user._id }, upkey)
           .catch(storeerr => debug('/api/ping error on updateUserData db request:', storeerr));
       }
 
@@ -282,21 +244,14 @@ exports.api = (app) => {
     // eslint-disable-next-line no-restricted-globals
     if (isNaN(volume)) volume = 0;
 
-    d10.dbp.d10wiGetDoc(`up${request.ctx.user._id.substr(2)}`)
-      .then((doc) => {
-        const updatedDoc = { ...doc };
-        updatedDoc.volume = volume;
-        return d10.dbp.d10wiStoreDoc(updatedDoc);
-      })
+    d10.mcol(d10.COLLECTIONS.USERS).updateOne({ _id: request.ctx.user._id }, { $set: { 'preferences.volume': volume } })
       .then(() => d10.realrest.success({ volume }, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
   });
 
 
-  function updateUserPreferences(userId, onDoc) {
-    return d10.dbp.d10wiGetDoc(`up${userId.substr(2)}`)
-      .then(onDoc)
-      .then(d10.dbp.d10wiStoreDoc);
+  function updateUserPreferences(userId, preferences) {
+    return d10.mcol(d10.COLLECTIONS.USERS).updateOne({ _id: userId }, { $set: { preferences } });
   }
 
   app.put('/api/preference/:name', jsonParserMiddleware, (request) => {
@@ -327,7 +282,10 @@ exports.api = (app) => {
       return;
     }
 
-    updateUserPreferences(request.ctx.user._id, docUpdateFn)
+    const newPreferences = docUpdateFn(request.ctx.user.preferences);
+
+
+    updateUserPreferences(request.ctx.user._id, newPreferences)
       .then(() => d10.realrest.success([], request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
   });
@@ -335,9 +293,8 @@ exports.api = (app) => {
   app.put('/api/starring/likes/aa:id', (request) => {
     let star = null;
     d10.dbp.d10GetDoc(`aa${request.params.id}`)
-      .then(() => d10.dbp.d10wiGetDoc(`up${request.ctx.user._id.substr(2)}`))
-      .then((d) => {
-        const doc = { ...d };
+      .then(() => {
+        const doc = { ...request.ctx.user.preferences };
         if (!doc.dislikes) {
           doc.dislikes = {};
         }
@@ -353,7 +310,7 @@ exports.api = (app) => {
           doc.likes[`aa${request.params.id}`] = true;
           star = 'likes';
         }
-        return d10.dbp.d10wiStoreDoc(doc);
+        return updateUserPreferences(request.ctx.user._id, doc);
       })
       .then(() => d10.realrest.success({ id: `aa${request.params.id}`, star }, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
@@ -362,9 +319,8 @@ exports.api = (app) => {
   app.put('/api/starring/dislikes/aa:id', (request) => {
     let star = null;
     d10.dbp.d10GetDoc(`aa${request.params.id}`)
-      .then(() => d10.dbp.d10wiGetDoc(`up${request.ctx.user._id.substr(2)}`))
-      .then((d) => {
-        const doc = { ...d };
+      .then(() => {
+        const doc = { ...request.ctx.user.preferences };
         if (!doc.dislikes) {
           doc.dislikes = {};
         }
@@ -380,7 +336,7 @@ exports.api = (app) => {
           doc.dislikes[`aa${request.params.id}`] = true;
           star = 'dislikes';
         }
-        return d10.dbp.d10wiStoreDoc(doc);
+        return updateUserPreferences(request.ctx.user._id, doc);
       })
       .then(() => d10.realrest.success({ id: `aa${request.params.id}`, star }, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));

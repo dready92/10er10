@@ -380,13 +380,9 @@ exports.api = function api(app) {
       }
     }
 
-    d10.dbp.d10wiView('s_user_likes/name', query)
-      .then((resp) => {
-        const keys = Object.keys(resp.rows).map(k => resp.rows[k].value);
-        return d10.dbp.d10GetAllDocs({ keys, include_docs: true })
-          .then(resp2 => resp.rows.map((row, k) => ({ doc: resp2.rows[k].doc, key: row.key })));
-      })
-      .then(resp => d10.realrest.success(resp, request.ctx))
+    const keys = request.ctx.user.preferences.likes ? Object.keys(request.ctx.user.preferences.likes) : [];
+    d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: keys } })
+      .then(docs => d10.realrest.success(docs, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
