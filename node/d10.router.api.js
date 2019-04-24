@@ -288,6 +288,7 @@ exports.api = (app) => {
         updatedDoc.volume = volume;
         return d10.dbp.d10wiStoreDoc(updatedDoc);
       })
+      .then(() => d10.realrest.success({ volume }, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
   });
 
