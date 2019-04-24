@@ -43,8 +43,7 @@ function getd10authHeader(ctx) {
 
 function checkAuth(ctx, passTheCoochie) {
   /* eslint no-param-reassign: ["error", { "props": false }] */
-  const cookieData =
-  getd10cookie(ctx) || getd10authHeader(ctx);
+  const cookieData = getd10cookie(ctx) || getd10authHeader(ctx);
   if (!cookieData) {
     return passTheCoochie();
   }
@@ -58,6 +57,9 @@ function checkAuth(ctx, passTheCoochie) {
     .then((userSession) => {
       if (userSession) {
         debug('Found session in datastore');
+      } else {
+        debug('Session not found in datastore');
+        return {};
       }
       return d10.mcol(d10.COLLECTIONS.USERS).findOne({login: cookieData.user})
         .then((userDoc) => {
@@ -71,7 +73,9 @@ function checkAuth(ctx, passTheCoochie) {
         });
     })
     .then((userData) => {
-      sessionService.fillUserCtx(ctx, userData.user, userData.session);
+      if (userData && userData.user && userData.session) {
+        sessionService.fillUserCtx(ctx, userData.user, userData.session);
+      }
       return passTheCoochie();
     })
     .catch((err) => {
