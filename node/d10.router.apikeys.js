@@ -1,4 +1,4 @@
-const d10 = require("./d10");
+const d10 = require('./d10');
 const ApiKey = require('./lib/api-key');
 
 module.exports.api = (app) => {
@@ -9,14 +9,10 @@ module.exports.api = (app) => {
     if (!user.apikeys) {
       user.apikeys = [];
     }
-    user.apikeys.push(apiKey);
 
-    d10.couch.auth.storeDoc(user, (err, storeResponse) => {
-      if (err) {
-        return d10.realrest.err(500, err, req.ctx);
-      }
-      return d10.realrest.success(storeResponse, req.ctx);
-    });
+    d10.mcol(d10.COLLECTIONS.USERS).updateOne({ _id: user._id }, { $push: { apikeys: apiKey } })
+      .then(() => d10.realrest.success(apiKey, req.ctx))
+      .catch(err => d10.realrest.err(500, err, req.ctx));
   });
 
   app.get('/api/apikeys', (req) => {
@@ -25,18 +21,8 @@ module.exports.api = (app) => {
   });
 
   app.delete('/api/apikeys/:apikeyid', (req) => {
-    const user = req.ctx.user;
-
-    if (!user.apikeys) {
-      user.apikeys = [];
-    }
-    user.apikeys = user.apikeys.filter(k => k !== req.params.apikeyid);
-
-    d10.couch.auth.storeDoc(user, (err, storeResponse) => {
-      if (err) {
-        return d10.realrest.err(500, err, req.ctx);
-      }
-      return d10.realrest.success(storeResponse, req.ctx);
-    });
+    d10.mcol(d10.COLLECTIONS.USERS).updateOne({ _id: user._id }, { $pull: { apikeys: { key: req.params.apikeyid } } })
+      .then(() => d10.realrest.success({ success: true }, req.ctx))
+      .catch(err => d10.realrest.err(500, err, req.ctx));
   });
 };

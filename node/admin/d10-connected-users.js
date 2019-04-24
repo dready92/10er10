@@ -4,19 +4,17 @@ var config,
 
 
 var getSessions = function(then) {
-	d10.couch.auth.getAllDocs({startkey: "se", endkey: "sf", inclusive_end: false, include_docs: true},function(err,resp) {
-		if ( err ) {
-			then (err, resp);
-		}
-		else
-		{
-			var sessions = [];
-			resp.rows.forEach(function(row) {
-				sessions.push(row.doc);
-			});
-			then(null,sessions);
-		}
-	});
+	d10.mcol(d10.COLLECTIONS.USERS).find({})
+		.then((users) => {
+			const sessions = [];
+			users.forEach((user) => {
+				user.sessions.filter(session => session._id.beginsWith('se')).forEach((session) => {
+					sessions.push(session);
+				});
+			})
+			then(null, sessions);
+		})
+		.catch(then);
 }
 
 var ParseActiveSessions = function(err,sessions, then) {

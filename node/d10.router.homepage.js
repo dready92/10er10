@@ -94,11 +94,12 @@ exports.homepage = (app) => {
       if (request.query.lang) {
         request.ctx.langUtils.langExists(request.query.lang, (exists) => {
           if (exists) {
-            request.ctx.user.lang = request.query.lang;
-            d10.couch.auth.storeDoc(request.ctx.user, () => {
-              request.ctx.lang = request.query.lang;
-              display10er10(request, response, next);
-            });
+            d10.mcol(d10.COLLECTIONS.USERS).updateOne({ _id: request.ctx.user._id }, { $set: { lang: request.query.lang } })
+              .then(() => {
+                request.ctx.lang = request.query.lang;
+                display10er10(request, response, next);
+              })
+              .catch(err => d10.realrest.err(500, err, request.ctx));
           } else {
             display10er10(request, response, next);
           }
@@ -112,13 +113,19 @@ exports.homepage = (app) => {
       });
     }
   }
+
   app.get('/welcome/goodbye', (request, response, next) => {
-    d10.couch.auth.deleteDoc(request.ctx.session, () => {});
-    delete request.ctx.session;
-    delete request.ctx.user;
-    delete request.ctx.userPrivateConfig;
-    request.ctx.headers['Set-Cookie'] = `${d10.config.cookieName}=no; path=${d10.config.cookiePath}`;
-    displayHomepage(request, response, next);
+    session.removeSession(request.ctx.session._id)
+      .catch((err) => {
+        debug('Error when deleting session', err);
+      })
+      .then(() => {
+        delete request.ctx.session;
+        delete request.ctx.user;
+        delete request.ctx.userPrivateConfig;
+        request.ctx.headers['Set-Cookie'] = `${d10.config.cookieName}=no; path=${d10.config.cookiePath}`;
+        displayHomepage(request, response, next);
+      });
   });
 
   app.get('/', displayHomepage);

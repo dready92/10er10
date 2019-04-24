@@ -12,7 +12,9 @@ module.exports = {
   makeSession,
   makeRemoteControlSession,
   getOrMakeSession,
+  setSessionLang,
   getUser,
+  setSessionTimestamp,
 };
 
 function init() {
@@ -25,30 +27,21 @@ function init() {
  * @param {String} of.userId - The user login id (with prepent 'us')
  * @param {String} [of.session] - The session id (without 'se')
  * @param {String} [of.remoteControlSession] - The remote control session id (without 'rs')
- * @param {Function} then - asynchronous callback
  */
-function getOrMakeSession(of, then) {
+function getOrMakeSession(of) {
   function filter(row) {
     return row.doc._id.substr(0, 2) === 'se';
   }
 
-  getSession(of.user, filter, (err, sessionResponse) => {
-    if (err) {
-      return then(err);
-    }
-
-    if (sessionResponse) {
-      return then(null, sessionResponse);
-    }
-
-    return makeSession(of.userId, (err2) => {
-      if (err2) {
-        return then(err2);
+  return getSession(of.user, filter)
+    .then((sessionResponse) => {
+      if (sessionResponse) {
+        return sessionResponse;
       }
 
-      return getOrMakeSession(of, then);
+      return makeSession(of.userId)
+        .then(getOrMakeSession);
     });
-  });
 }
 
 /**
@@ -57,18 +50,23 @@ function getOrMakeSession(of, then) {
  *
  * @param {string} userLogin - user's login
  * @param {Function} filter - the filter function, that should return true when the session object matches
- * @param {Function} then - callback {response: the whole CouchDB datastore response, doc: the session doc matching the criteria}
  */
-function getSession(userLogin, filter, then) {
-  d10.db.loginInfos(userLogin, (response) => {
-    let found = false;
-    response.rows.forEach((v) => {
-      if (!found && filter(v)) {
-        found = { response, doc: v.doc };
+function getSession(userLogin, filter) {
+  return getLoginInfos(userLogin)
+    .then((userDoc) => {
+      if (!userDoc) {
+        return null;
       }
+      const okfilter = userDoc.sessions.filter(filter);
+      if (okfilter.length) {
+        return okfilter[0];
+      }
+      return null;
     });
-    return then(null, found);
-  }, then);
+}
+
+function getLoginInfos(userLogin) {
+  return d10.mcol(d10.COLLECTIONS.USERS).findOne({ login: userLogin });
 }
 
 /**
@@ -79,24 +77,25 @@ function getSession(userLogin, filter, then) {
  * @param {String} [of.remoteControlSession] - The remote control session id (without 'rs')
  * @param {Function} then - asynchronous callback
  */
-function getSessionDataFromDatabase(of, then) {
+function getSessionDataFromDatabase(of) {
   function sessionMatch(row) {
-    return ((of.session && row.doc._id === `se${of.session}`)
-              || (of.remoteControlSession && row.doc._id === `rs${of.remoteControlSession}`));
+    return ((of.session && row._id === `se${of.session}`)
+              || (of.remoteControlSession && row._id === `rs${of.remoteControlSession}`));
   }
 
-  getSession(of.user, sessionMatch, then);
+  return getSession(of.user, sessionMatch);
 }
 
 function getUser(sessionId, then) {
+  debug(`looking up session ${sessionId}`);
   function searchSession() {
-    return d10.dbp.authGetDoc(`se${sessionId}`)
-      .then(doc => `us${doc.userid}`);
+    return d10.mcol(d10.COLLECTIONS.USERS).findOne({ 'sessions._id': `se${sessionId}` })
+      .then(doc => doc && doc._id);
   }
 
   function searchRemoteSession() {
-    return d10.dbp.authGetDoc(`rs${sessionId}`)
-      .then(doc => `us${doc.userid}`);
+    return d10.mcol(d10.COLLECTIONS.USERS).findOne({ 'sessions._id': `rs${sessionId}` })
+      .then(doc => doc && doc._id);
   }
 
   Promise.all([searchSession(), searchRemoteSession()])
@@ -115,7 +114,10 @@ function getUser(sessionId, then) {
 }
 
 function removeSession(sessionId, cb) {
-  d10.couch.auth.deleteDoc(sessionId, cb);
+  return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+    { 'sessions._id': sessionId },
+    { $pull: { sessions: { _id: sessionId } } },
+  )
 }
 
 function makeSession(userDoc) {
@@ -161,4 +163,18 @@ function fillUserCtx(ctx, userDoc, userSession) {
   delete ctx.user.password;
   delete ctx.user.parent;
   delete ctx.user.depth;
+}
+
+function setSessionLang(sessionId, lang) {
+  return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+    { 'sessions._id': sessionId },
+    { $set: { 'sessions.$.lang': lang } },
+  );
+}
+
+function setSessionTimestamp(sessionId, timestamp) {
+  return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+    { 'sessions._id': sessionId },
+    { $set: { 'sessions.$.ts_last_usage': timestamp } },
+  );
 }

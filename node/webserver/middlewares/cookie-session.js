@@ -43,7 +43,8 @@ function getd10authHeader(ctx) {
 
 function checkAuth(ctx, passTheCoochie) {
   /* eslint no-param-reassign: ["error", { "props": false }] */
-  const cookieData = getd10cookie(ctx) || getd10authHeader(ctx);
+  const cookieData =
+  getd10cookie(ctx) || getd10authHeader(ctx);
   if (!cookieData) {
     return passTheCoochie();
   }
@@ -51,28 +52,31 @@ function checkAuth(ctx, passTheCoochie) {
     debug('cookie is missing some keys');
     return passTheCoochie();
   }
-  // get from sessionCache
-  const userSessionCache = sessionService.getSessionDataFromCache(cookieData);
-  if (userSessionCache) {
-    debug('Found session in cache');
-    ctx.user = userSessionCache.us;
-    ctx.userPrivateConfig = userSessionCache.pr;
-    ctx.session = userSessionCache.se || {};
-    ctx.remoteControlSession = userSessionCache.rs || {};
-    return passTheCoochie();
-  }
 
   // get from database
-  return sessionService.getSessionDataFromDatabase(cookieData, (err, data) => {
-    if (err || !data) {
+  return sessionService.getSessionDataFromDatabase(cookieData)
+    .then((userSession) => {
+      if (userSession) {
+        debug('Found session in datastore');
+      }
+      return d10.mcol(d10.COLLECTIONS.USERS).findOne({login: cookieData.user})
+        .then((userDoc) => {
+          if (userDoc) {
+            debug('Found user document in datastore');
+          }
+          return {
+            user: userDoc,
+            session: userSession,
+          };
+        });
+    })
+    .then((userData) => {
+      sessionService.fillUserCtx(ctx, userData.user, userData.session);
       return passTheCoochie();
-    }
-    debug('Found session in datastore');
-    sessionService.fillUserCtx(ctx, data.response, data.doc);
-    sessionService.sessionCacheAdd(ctx.user, ctx.userPrivateConfig,
-      ctx.session, ctx.remoteControlSession);
-    return passTheCoochie();
-  });
+    })
+    .catch((err) => {
+      debug('error while checking auth from datastore', err);
+    });
 }
 
 exports.cookieSession = function cookieSession(req, res, next) {

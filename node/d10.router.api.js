@@ -6,6 +6,7 @@ const fs = require('fs');
 const os = require('os');
 const d10 = require('./d10');
 const dumbRadio = require('./lib/radio/dumb');
+const session = require('./session');
 
 const debug = d10.debug('d10:d10.router.api');
 const jsonParserMiddleware = bodyParser.json();
@@ -101,42 +102,42 @@ exports.api = (app) => {
       .catch(err => d10.realrest.err(500, err, request.ctx));
   });
 
-  app.get('/api/length', (request) => new Promise((resolve, reject) => {
-      d10.mcol(d10.COLLECTIONS.SONGS)
-        .aggregate([
-          {
-            $match: {
-              reviewed: true,
-              valid: true,
-            },
+  app.get('/api/length', request => new Promise((resolve, reject) => {
+    d10.mcol(d10.COLLECTIONS.SONGS)
+      .aggregate([
+        {
+          $match: {
+            reviewed: true,
+            valid: true,
           },
-          {
-            $group: {
-              _id: null,
-              totalDuration: { $sum: '$duration' },
-            },
+        },
+        {
+          $group: {
+            _id: null,
+            totalDuration: { $sum: '$duration' },
           },
-        ], (err, cursor) => {
-          if (err) {
-            return reject(err);
+        },
+      ], (err, cursor) => {
+        if (err) {
+          return reject(err);
+        }
+        cursor.toArray((err2, documents) => {
+          if (err2) {
+            return reject(err2);
           }
-          cursor.toArray((err2, documents) => {
-            if (err2) {
-              return reject(err2);
-            }
-            if (!documents.length) {
-              return resolve(0);
-            }
-            return resolve(documents[0].totalDuration);
-          });
+          if (!documents.length) {
+            return resolve(0);
+          }
+          return resolve(documents[0].totalDuration);
         });
+      });
+  })
+    .then((duration) => {
+      d10.realrest.success({ length: duration }, request.ctx);
     })
-      .then((duration) => {
-        d10.realrest.success({ length: duration }, request.ctx);
-      })
-      .catch((err) => {
-        d10.realrest.err(423, err, request.ctx);
-      }));
+    .catch((err) => {
+      d10.realrest.err(423, err, request.ctx);
+    }));
 
   app.get('/api/serverLoad', (request) => {
     d10.realrest.success({ load: os.loadavg() }, request.ctx);
@@ -261,8 +262,7 @@ exports.api = (app) => {
     }
 
     function updateSessionTimestamp() {
-      request.ctx.session.ts_last_usage = new Date().getTime();
-      d10.dbp.authStoreDoc(request.ctx.session)
+      session.setSessionTimestamp(request.ctx.session._id, Date.now())
         .catch(err => debug('Session timestamp updated, error:', err));
     }
 

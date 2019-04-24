@@ -2,6 +2,7 @@ const fs = require('fs');
 const pause = require('pause');
 const d10 = require('../../d10');
 const mustache = require('../../mustache');
+const session = require('../../session');
 
 const debug = d10.debug('d10:lang');
 
@@ -159,12 +160,10 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
         req.ctx.lang = lng;
         if (req.ctx.session && req.ctx.session._id) {
           req.ctx.session.lang = lng;
-          d10.couch.auth.storeDoc(req.ctx.session, (err, resp) => {
-            if (err) {
-              debug('LANG : session storage failed: ', err, resp);
-            }
-            passTheCoochie();
-          });
+
+          session.setSessionLang(req.ctx.session._id, lng)
+            .catch(err => debug('LANG : session storage failed: ', err))
+            .then(() => passTheCoochie());
         } else {
           passTheCoochie();
         }
