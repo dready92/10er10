@@ -208,7 +208,7 @@ function D10MigrateSongs(songs, songHits) {
 }
 
 function D10MigratePlaylists(playlists) {
-  const collection = d10.mcol(d10.COLLECTIONS.PLAYLISTS);
+  const collection = d10.mcol(d10.COLLECTIONS.USERS);
 
   console.log('Starting playlists migration:');
   console.log('Playlists: sanitize');
@@ -220,7 +220,21 @@ function D10MigratePlaylists(playlists) {
     return newPlaylist;
   });
   console.log('Playlists: sanitize done');
-  return writeInMongo(collection, saneData, 'Playlists');
+  console.log('Playlists: start write in Mongo');
+
+  function run() {
+    if (!saneData.length) {
+      console.log('Playlists: Mongo write done');
+      return Promise.resolve(true);
+    }
+    const pref = saneData.pop();
+    const userId = pref.user;
+    delete pref.user;
+
+    return collection.updateOne({ _id: userId }, { $push: { playlists: pref } });
+  }
+
+  return run();
 }
 
 function D10MigrateUserPreferences(prefs) {
@@ -281,6 +295,7 @@ function D10MigrateUsers(users, privates) {
       password: privates[pref._id].password,
       depth: privates[pref._id].depth || 0,
       sessions: [],
+      playlists: [],
     };
     delete newPref._rev;
     return newPref;
