@@ -231,7 +231,7 @@ function D10MigratePlaylists(playlists) {
     const userId = pref.user;
     delete pref.user;
 
-    return collection.updateOne({ _id: userId }, { $push: { playlists: pref } });
+    return collection.updateOne({ _id: userId }, { $push: { playlists: pref } }).then(run);
   }
 
   return run();
@@ -261,7 +261,7 @@ function D10MigrateUserPreferences(prefs) {
     const pref = saneData.pop();
     const id = pref._id;
     delete pref._id;
-    return collection.updateOne({ _id: id }, { $set: { preferences: pref } });
+    return collection.updateOne({ _id: id }, { $set: { preferences: pref } }).then(run);
   }
 
   return run();
@@ -325,7 +325,7 @@ function D10MigrateSessions(sessions) {
     const pref = saneData.pop();
     const id = `us${pref.userid}`;
     delete pref.userid;
-    return collection.updateOne({ _id: id }, { $push: { sessions: pref } });
+    return collection.updateOne({ _id: id }, { $push: { sessions: pref } }).then(run);
   }
 
   return run();
