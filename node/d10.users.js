@@ -137,7 +137,12 @@ function getListenedSongsByDate(uid, opts, callback) {
     opts.startkey[0] = uid;
   }
 
-  d10.couch.track.view('tracking/userDateTracking', opts, callback);
+  const cursor = d10.mcol(d10.COLLECTIONS.EVENTS).find({ user: uid, fullplay: true }).sort({ 'play.time': -1 }).limit(opts.limit);
+  if (opts.skip) {
+    cursor.skip(opts.skip);
+  }
+  cursor.then(response => callback(null, response))
+    .catch(err => callback(err));
 }
 
 
