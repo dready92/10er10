@@ -17,7 +17,6 @@ exports.couch_dev = {
         track: {dsn: "http://localhost:5984/",database:"track-test2"}
 };
 
-
 exports.mongo_prod = {
 	url: 'mongodb://localhost:27017',
 	database: 'd10_prod',
@@ -30,6 +29,18 @@ exports.mongo_dev = {
 	options: {},
 };
 
+exports.couch_dev = {
+	d10: { dsn: "http://localhost:5984/", database: "test-d10" },
+	d10wi: { dsn: "http://localhost:5984/", database: "test-d10wi" },
+	auth: { dsn: "http://localhost:5984/", database: "test-auth" },
+	track: { dsn: "http://localhost:5984/", database: "test-track" }
+};
+
+exports.mongo_dev = {
+	url: 'mongodb://localhost:27117',
+	database: 'd10_dev',
+	options: {},
+};
 
 // templates path
 exports.templates = {
