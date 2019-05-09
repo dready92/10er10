@@ -28,7 +28,7 @@ exports.mongo_dev = {
 	database: 'd10_dev',
 	options: {},
 };
-
+/*
 exports.couch_dev = {
 	d10: { dsn: "http://localhost:5984/", database: "test-d10" },
 	d10wi: { dsn: "http://localhost:5984/", database: "test-d10wi" },
@@ -41,7 +41,7 @@ exports.mongo_dev = {
 	database: 'd10_dev',
 	options: {},
 };
-
+*/
 // templates path
 exports.templates = {
 	node: "../views/10er10.com/",

@@ -1,3 +1,6 @@
+// eslint-disable-next-line no-unused-vars,prefer-destructuring
+const Collection = require('mongodb').Collection;
+
 process.env.MAGIC = process.env.MAGIC || `${__dirname}/magic/magic.mgc`;
 
 const debugModule = require('debug');
@@ -13,6 +16,9 @@ const MONGO_COLLECTIONS = {
   USERS: 'users',
   PINGS: 'pings',
   EVENTS: 'events',
+  ARTISTS: 'artists',
+  ALBUMS: 'albums',
+  SONGS_STAGING: 'songsstaging',
 };
 
 let config;
@@ -119,6 +125,11 @@ function setMongoConfig(cfg) {
     });
 }
 
+/**
+ * @param {String} id name of the collection to return
+ *
+ * @returns {Collection} a Mongo client collection instance
+ */
 function mcol(id) {
   return module.exports.mongo.collection(id);
 }

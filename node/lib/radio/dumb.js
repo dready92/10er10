@@ -1,90 +1,100 @@
-'use strict';
 
-var d10 = require ("../../d10"),
-  qs = require("qs");
 
-var _random = function(view, request,response) {
-  var count = parseInt(request.body.count);
-  if ( isNaN(count) || count < 1 ){
-    return d10.realrest.err(427,"count",request.ctx);
+const d10 = require('../../d10');
+
+
+// eslint-disable-next-line no-underscore-dangle
+function _random(view, request) {
+  const count = parseInt(request.body.count, 10);
+  // eslint-disable-next-line no-restricted-globals
+  if (isNaN(count) || count < 1) {
+    return d10.realrest.err(427, 'count', request.ctx);
   }
-  randomWork(view, request.body, count, function(err, resp) {
-    if ( err ) {
-      return d10.realrest.err(err.code,err.message,request.ctx);
+  randomWork(view, request.body, count, (err, resp) => {
+    if (err) {
+      return d10.realrest.err(err.code, err.message, request.ctx);
     }
     return d10.realrest.success(resp, request.ctx);
   });
+}
 
-};
-
-var getRandomIds = function (resp,count,not,really_not) {
-
-  var shuffle = function(o){ //v1.0
-    for(var j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+function getRandomIds(resp, count, not, really_not) {
+  const shuffle = function shuffle(o) { // v1.0
+    // eslint-disable-next-line no-plusplus, no-param-reassign
+    for (let j, x, i = o.length; i; j = parseInt(Math.random() * i, 10), x = o[--i], o[i] = o[j], o[j] = x);
     return o;
   };
 
 
-  var ids = [];
-  resp.rows.forEach(function(v,k) { ids.push(v.id); });
-  if ( !ids.length )	return ids;
-  really_not.forEach(function(v,k) {
-    if( ids.indexOf(v) >=0 )	ids.splice(ids.indexOf(v),1);
+  const ids = [];
+  resp.rows.forEach((v) => { ids.push(v.id); });
+  if (!ids.length) return ids;
+  really_not.forEach((v) => {
+    if (ids.indexOf(v) >= 0) ids.splice(ids.indexOf(v), 1);
   });
-  if ( !ids.length )	return ids;
-  not.forEach(function(v,k) {
-    if( ids.indexOf(v) >=0 )	ids.splice(ids.indexOf(v),1);
+  if (!ids.length) return ids;
+  not.forEach((v) => {
+    if (ids.indexOf(v) >= 0) ids.splice(ids.indexOf(v), 1);
   });
-  if ( !ids.length ) {
-    return getRandomIds(resp,count,[],really_not);
+  if (!ids.length) {
+    return getRandomIds(resp, count, [], really_not);
   }
-  if (  count > ids.length ) {
+  if (count > ids.length) {
     return shuffle(ids);
   }
 
-  if ( count == 1 ) {
-    var r = Math.floor(Math.random()*ids.length);
+  if (count === 1) {
+    const r = Math.floor(Math.random() * ids.length);
     return ids[r];
   }
   shuffle(ids);
-  return ids.slice(0,count);
-};
+  return ids.slice(0, count);
+}
 
-var randomWork = function(view, body, count, callback) {
-  var data = {};
-  var getArray = function(v) {
-    if ( typeof v == "undefined" ) return [];
-    if ( Object.prototype.toString.call(v) !== '[object Array]' ) {
-      if( v.length ) return [v];
+function randomWork(view, body, count, callback) {
+  const data = {};
+  function getArray(v) {
+    if (typeof v === 'undefined') return [];
+    if (Object.prototype.toString.call(v) !== '[object Array]') {
+      if (v.length) return [v];
       return [];
     }
     return v;
-  };
-
-  var name = getArray(body.name);
-  if ( name.length ) {
-    data.keys = name;
   }
-  var not = getArray(body.not);
-  var really_not = getArray(body.really_not);
-  d10.couch.d10.view(view,data,function(err,response) {
-    if ( err ) {
-      return callback({code: 423, message: err});
+
+  const genres = body.name;
+  const not = body.not && Array.isArray(body.not)
+    ? body.not
+    : [];
+  const really_not = body.really_not && Array.isArray(body.really_not)
+    ? body.really_not
+    : [];
+  const query = {};
+
+  if (genres && genres.length) {
+    query.genre = { $in: genres };
+  }
+  if (really_not.length) {
+    query._id = { $nin: really_not };
+  }
+  d10.couch.d10.view(view, data, (err, response) => {
+    if (err) {
+      return callback({ code: 423, message: err });
     }
-    var random = getRandomIds(response,count,not,really_not);
-    if ( !random.length ) {
-      return callback(null, {songs: []});
+    const random = getRandomIds(response, count, not, really_not);
+    if (!random.length) {
+      return callback(null, { songs: [] });
     }
-    d10.couch.d10.getAllDocs({keys: random, include_docs: true},function(err,resp) {
-      if ( err ) {
-        return callback({code: 423, message: err});
+    d10.couch.d10.getAllDocs({ keys: random, include_docs: true }, (err, resp) => {
+      if (err) {
+        return callback({ code: 423, message: err });
       }
-      var back = [];
-      resp.rows.forEach(function(v) { back.push(v.doc); });
+      let back = [];
+      resp.rows.forEach((v) => { back.push(v.doc); });
       return callback(null, back);
     });
   });
-};
+}
 
 _random.work = randomWork;
 

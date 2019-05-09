@@ -377,3 +377,51 @@ function writeInMongo(collection, docs, label) {
 
   return start();
 }
+
+/*
+views
+db.createView('artists', 'songs',
+[
+  { $unwind: "$tokenartists" },
+  { $match: { "tokenartists": { "$exists": true, "$ne": "" } } },
+  { $group:
+      {
+          _id: "$tokenartists",
+          songs: { $push: "$$ROOT" },
+          count: { $sum: 1 },
+          duration: { $sum: "$duration" },
+          hits: { $sum: "$hits" },
+          genres: { $addToSet: "$genre" }
+      },
+  }
+]
+)
+
+db.createView('albums', 'songs', [
+  { $match: { "album": { "$exists": true, "$ne": "" } } },
+  { $group:
+      {
+          _id: "$album",
+          songs: { $push: "$$ROOT" },
+          count: { $sum: 1 },
+          duration: { $sum: "$duration" },
+          hits: { $sum: "$hits" },
+          genres: { $addToSet: "$genre" }
+      },
+  }
+])
+
+db.getCollection('songs').aggregate([
+  { $match: { "album": { "$exists": true, "$ne": "" } } },
+  { $group:
+      {
+          _id: "$album",
+          songs: { $push: "$$ROOT" },
+          count: { $sum: 1 },
+          duration: { $sum: "$duration" },
+          hits: { $sum: "$hits" },
+          genres: { $addToSet: "$genre" }
+      },
+  }
+]);
+*/

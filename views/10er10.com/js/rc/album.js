@@ -85,7 +85,7 @@ angular.module("d10album",[])
 .factory("_d10albumFetch", ["d10albumDataParser", function(d10albumDataParser) {
   var rest = require("js/d10.rest");
   return function(album, callback) {
-    rest.song.list.albums(
+    rest.song.list.albumnames(
       {
         album: album,
         full: true

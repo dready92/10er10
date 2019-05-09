@@ -3,12 +3,8 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
   
   "use strict";
   
-  var getSongs = function(album, then) {
-	rest.song.list.albums(
-	  {
-		album: album,
-		full: true
-	  },
+  var getAlbum = function(album, then) {
+	rest.album.get(album,
 	  {
 		load: then
 	  }
@@ -17,7 +13,7 @@ define(["js/d10.templates", "js/d10.rest", "js/d10.router", "js/d10.dataParsers"
 
   var getTemplateData = function(album, then) {
 	var template_data = {album: album, songs:""};
-	getSongs(album, function(err,resp) {
+	getAlbum(album, function(err,resp) {
 	  if ( err ) {
 		return then(template_data);
 	  }

@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const os = require('os');
 const d10 = require('./d10');
-const dumbRadio = require('./lib/radio/dumb');
+const mongoSample = require('./lib/radio/mongoSample');
 const session = require('./session');
 
 const debug = d10.debug('d10:d10.router.api');
@@ -30,12 +30,27 @@ exports.api = (app) => {
   });
 
   app.get('/api/song/aa:id', (request) => {
-    d10.dbp.d10GetDoc(`aa${request.params.id}`)
-      .then(doc => d10.realrest.success(doc, request.ctx))
-      .catch(() => d10.realrest.err(404, {
-        error: 'Document not found',
-        reason: `id aa${request.params.id} not found`,
-      }, request.ctx));
+    d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: `aa${id}`})
+      .then((doc) => {
+        if (!doc) {
+          const err = new Error('Song not found');
+          err.code = 404;
+        }
+        d10.realrest.success(doc, request.ctx);
+      })
+      .catch((err) => {
+        if (err.code === 404) {
+          d10.realrest.err(404, {
+            error: 'Document not found',
+            reason: `id aa${request.params.id} not found`,
+          }, request.ctx);
+        } else {
+          d10.realrest.err(500, {
+            error: 'server error',
+            reason: null,
+          }, request.ctx);
+        }
+      });
   });
 
   app.get('/api/userinfos', (request) => {
@@ -96,42 +111,30 @@ exports.api = (app) => {
       .catch(err => d10.realrest.err(500, err, request.ctx));
   });
 
-  app.get('/api/length', request => new Promise((resolve, reject) => {
+  app.get('/api/length', (request) => {
     d10.mcol(d10.COLLECTIONS.SONGS)
       .aggregate([
         {
-          $match: {
-            reviewed: true,
-            valid: true,
-          },
+          $match: { reviewed: true, valid: true },
         },
         {
-          $group: {
-            _id: null,
-            totalDuration: { $sum: '$duration' },
-          },
+          $group: { _id: null, totalDuration: { $sum: '$duration' } },
         },
-      ], (err, cursor) => {
-        if (err) {
-          return reject(err);
+      ])
+      .toArray()
+      .then((documents) => {
+        if (!documents.length) {
+          return 0;
         }
-        cursor.toArray((err2, documents) => {
-          if (err2) {
-            return reject(err2);
-          }
-          if (!documents.length) {
-            return resolve(0);
-          }
-          return resolve(documents[0].totalDuration);
-        });
+        return documents[0].totalDuration;
+      })
+      .then((duration) => {
+        d10.realrest.success({ length: duration }, request.ctx);
+      })
+      .catch((err) => {
+        d10.realrest.err(423, err, request.ctx);
       });
-  })
-    .then((duration) => {
-      d10.realrest.success({ length: duration }, request.ctx);
-    })
-    .catch((err) => {
-      d10.realrest.err(423, err, request.ctx);
-    }));
+  });
 
   app.get('/api/serverLoad', (request) => {
     d10.realrest.success({ load: os.loadavg() }, request.ctx);
@@ -152,36 +155,43 @@ exports.api = (app) => {
     }
     const actions = [];
     if (data.id) {
-      actions.push(d10.dbp.d10GetDoc(data.id)
-        .then(() => null)
+      actions.push(d10.mcol(d10.COLLECTIONS.SONGS).findOne(data.id)
         .catch(() => {
-          throw new Error('doc id is unknown');
-        }));
+          throw new Error('Error in datastore transaction');
+        }))
+        .then((doc) => {
+          if (!doc) {
+            throw new Error('Document id is unknown');
+          }
+        });
     }
     if (data.list) {
-      actions.push(d10.dbp.d10GetAllDocs({ keys: data.list })
-        .then((resp) => {
-          if (resp.rows.length !== data.list.length) {
-            throw new Error('length differs between  user preferences and PUT data');
+      actions.push(d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: data.list } })
+        .toArray()
+        .then((docs) => {
+          if (!docs || docs.length !== data.list.length) {
+            throw new Error('Some document ids can not be found');
           }
         }));
     }
 
     Promise.all(actions)
       .then(updatePreferences)
+      .then(() => d10.realrest.success({ updated: true}, request.ctx))
       .catch(err => d10.realrest.err(413, err, request.ctx));
 
     function updatePreferences() {
-      const preferences = { ...user.preferences };
-      preferences.playlist = { ...data };
-      return updateUserPreferences(user._id, preferences);
+      return d10.mcol(d10.COLLECTIONS.USERS).updateOne({ _id: user.id }, { $set: { 'preferences.playlist': data } });
     }
   });
 
   app.post('/api/ping', jsonParserMiddleware, (request) => {
     function updateAliveDoc() {
-      d10.dbp.trackUpdateDoc(`tracking/ping/${request.ctx.user._id.replace(/^us/, 'pi')}`)
-        .catch(err => debug('/api/ping error on db request:', err));
+      d10.mcol(d10.COLLECTIONS.PINGS).updateOne(
+        { _id: request.ctx.user._id },
+        { $push: { ping: Date.now() } },
+      )
+        .catch(err => debug('ping error on db request:', err));
     }
 
     function parsePlayerInfos() {
@@ -235,7 +245,7 @@ exports.api = (app) => {
   });
 
   app.post('/api/random', jsonParserMiddleware, (request, response) => {
-    dumbRadio('genre/unsorted', request, response);
+    mongoSample('genre/unsorted', request, response);
   });
 
 
@@ -291,8 +301,14 @@ exports.api = (app) => {
   });
 
   app.put('/api/starring/likes/aa:id', (request) => {
+    const songid = `aa${request.params.id}`;
     let star = null;
-    d10.dbp.d10GetDoc(`aa${request.params.id}`)
+    d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: songid })
+      .then((song) => {
+        if (!song) {
+          throw new Error('Song not found');
+        }
+      })
       .then(() => {
         const doc = { ...request.ctx.user.preferences };
         if (!doc.dislikes) {
@@ -317,8 +333,14 @@ exports.api = (app) => {
   });
 
   app.put('/api/starring/dislikes/aa:id', (request) => {
+    const songid = `aa${request.params.id}`;
     let star = null;
-    d10.dbp.d10GetDoc(`aa${request.params.id}`)
+    d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: songid })
+      .then((song) => {
+        if (!song) {
+          throw new Error('Song not found');
+        }
+      })
       .then(() => {
         const doc = { ...request.ctx.user.preferences };
         if (!doc.dislikes) {
@@ -345,69 +367,23 @@ exports.api = (app) => {
   app.get('/api/search', (request, response) => {
     songSearch('song/search', request, response);
   });
-  function songSearch(view, request) {
-    const options = { include_docs: true };
-    if (request.query.start) {
-      const start = d10.ucwords(request.query.start.replace(/^\s+/, '').replace(/\s+$/, ''));
-      const end = d10.nextWord(start);
-      options.startkey = start;
-      options.endkey = end;
-      options.inclusive_end = false;
-    }
 
-    d10.dbp.d10View(view, options)
-      .then((resp) => {
-        const results = { title: [], artist: [], album: [] };
-        resp.rows.forEach((v) => {
-          const doc = { ...v.doc };
-          const { field } = v.value.json;
-          if (field === 'album') {
-            let put = false;
-            for (let i = 0, len = results[field].length; i < len; i++) {
-              if (results[field][i].doc[field] === doc[field]) {
-                put = true;
-                break;
-              } else if (results[field][i].doc[field] > doc[field]) {
-                put = true;
-                results[field].splice(i, 0, { doc, value: v.value });
-                break;
-              }
-            }
-            if (!put) {
-              results[field].push({ doc, value: v.value });
-            }
-          } else if (field === 'artist') {
-            let put = false;
-            for (let i = 0, len = results[field].length; i < len; i++) {
-              if (results[field][i].value.json.value === v.value.json.value) {
-                put = true;
-                break;
-              } else if (results[field][i].value.json.value > v.value.json.value) {
-                put = true;
-                results[field].splice(i, 0, { doc, value: v.value });
-                break;
-              }
-            }
-            if (!put) {
-              results[field].push({ doc, value: v.value });
-            }
-          } else {
-            let put = false;
-            for (let i = 0, len = results[field].length; i < len; i++) {
-              if (`${results[field][i].doc[field]} ${results[field][i].doc._id}` === `${doc[field]} ${doc._id}`) {
-                put = true;
-                break;
-              } else if (`${results[field][i].doc[field]} ${results[field][i].doc._id}` > `${doc[field]} ${doc._id}`) {
-                put = true;
-                results[field].splice(i, 0, { doc, value: v.value });
-                break;
-              }
-            }
-            if (!put) {
-              results[field].push({ doc, value: v.value });
-            }
-          }
-        });
+  function songSearch(view, request) {
+    const search = d10.ucwords(request.query.start.replace(/^\s+/, '').replace(/\s+$/, ''));
+
+    const titleSearch = d10.mcol(d10.COLLECTIONS.SONGS).find({ tokentitle: { $regex: `^${search}` } })
+      .then(results => results || [])
+      .then(results => results.map(result => ({ doc: result, value: { json: { field: 'title', value: result.tokentitle } } })));
+    const albumSearch = d10.mcol(d10.COLLECTIONS.ALBUMS).find({ _id: { $regex: `^${search}` } })
+      .then(results => results || [])
+      .then(results => results.map(result => ({ value: { json: { field: 'album', value: result._id } } })));
+    const artistSearch = d10.mcol(d10.COLLECTIONS.ARTISTS).find({ _id: { $regex: `^${search}` } })
+      .then(results => results || [])
+      .then(results => results.map(result => ({ value: { json: { field: 'artist', value: result._id } } })));
+
+    Promise.all([titleSearch, albumSearch, artistSearch])
+      .then(([title, artist, album]) => {
+        const results = { title, artist, album };
         d10.realrest.success(results, request.ctx);
       })
       .catch(err => d10.realrest.err(423, err, request.ctx));
@@ -432,12 +408,30 @@ exports.api = (app) => {
       }
     }
     if (artists.length) {
-      jobs.push(d10.dbp.d10View('artist/artist', { reduce: false, include_docs: true, keys: artists })
-        .then(resp => ({ field: 'artists', results: resp.rows })));
+      jobs.push(
+        d10.mcol(d10.COLLECTIONS.ARTISTS).find({ _id: { $in: artists } })
+          .then(as => as || [])
+          .then((as) => {
+            const back = { field: 'artists', results: [] };
+            as.forEach((artist) => {
+              artist.songs.forEach(song => back.push({ doc: song, key: artist._id }));
+            });
+            return back;
+          }),
+      );
     }
     if (albums.length) {
-      jobs.push(d10.dbp.d10View('album/album', { reduce: false, include_docs: true, keys: albums })
-        .then(resp => ({ field: 'albums', results: resp.rows })));
+      jobs.push(
+        d10.mcol(d10.COLLECTIONS.ARTISTS).find({ _id: { $in: albums } })
+          .then(as => as || [])
+          .then((as) => {
+            const back = { field: 'albums', results: [] };
+            as.forEach((album) => {
+              album.songs.forEach(song => back.push({ doc: song, key: album._id }));
+            });
+            return back;
+          }),
+      );
     }
     Promise.all(jobs)
       .then((responses) => {
@@ -450,57 +444,83 @@ exports.api = (app) => {
       .catch(err => d10.realrest.err(427, err, request.ctx));
   });
 
-  app.get('/api/relatedArtists/:artist', (request) => {
-    const related = [];
-    const relatedHash = {};
-    d10.dbp.d10View('artist/related', { key: request.params.artist })
-      .then((body) => {
-        if (!body.rows.length) {
-          return d10.realrest.success({ artists: [], artistsRelated: [] }, request.ctx);
+  app.get('/api/artist/byName/:artist', (request) => {
+    if (!request.params.artist || !request.params.artist.length) {
+      return d10.realrest.err(400, 'Artist name cannot be empty', request.ctx);
+    }
+
+    d10.mcol(d10.COLLECTIONS.ARTISTS).findOne({ _id: request.params.artist })
+      .then((artist) => {
+        if (!artist) {
+          return d10.realrest.err(404, 'Not Found', request.ctx);
         }
-        const relatedKeys = [];
-        body.rows.forEach((v) => {
-          if (v.value in relatedHash) {
-            relatedHash[v.value]++;
-          } else {
-            relatedHash[v.value] = 1;
-          }
-          if (related.indexOf(v.value) < 0) {
-            related.push(v.value);
-          }
-          relatedKeys.push(v.value);
-        });
-
-        const opts = { keys: relatedKeys };
-
-        return d10.dbp.d10View('artist/related', opts);
+        return d10.realrest.success(artist, request.ctx);
       })
-      .then((degree2) => {
-        const relatedArtists = [];
-        const relatedArtistsHash = {};
-        degree2.rows.forEach((v) => {
-          if (v.value !== request.params.artist && !relatedHash[v.value]) {
-            if (v.value in relatedArtistsHash) {
-              relatedArtistsHash[v.value]++;
-            } else {
-              relatedArtistsHash[v.value] = 1;
-            }
-          }
-          if (v.value !== request.params.artist
-            && related.indexOf(v.value) < 0
-            && relatedArtists.indexOf(v.value) < 0) { relatedArtists.push(v.value); }
-        });
-
-        return d10.realrest.success(
-          {
-            artists: relatedHash,
-            artistsRelated: relatedArtistsHash,
-          },
-          request.ctx,
-        );
-      })
-      .catch(err => d10.realrest.err(427, err, request.ctx));
+      .catch(err => d10.realrest.err(500, err, request.ctx));
   });
+
+  app.get('/api/relatedArtists/:artist', (request) => {
+    const artist = request.params.artist;
+    relatedArtists(artist)
+      .then(response => d10.realrest.success(response, request.ctx))
+      .catch(err => d10.realrest.err(500, err, request.ctx));
+  });
+
+  function relatedArtists(artist) {
+    let level1;
+    const level2 = [];
+
+    return d10.mcol(d10.COLLECTIONS.SONGS).aggregate([
+      { $match: { tokenartists: artist } },
+      { $unwind: { path: '$tokenartists' } },
+      { $match: { tokenartists: { $ne: artist } } },
+      { $group: { _id: '$tokenartists', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+    ]).toArray()
+      .then((related) => {
+        level1 = related || [];
+        if (!related) {
+          return;
+        }
+        const level1artists = level1.map(rArtist => rArtist._id);
+        const level1artistsAndSource = [...level1artists, artist];
+
+        // eslint-disable-next-line arrow-body-style
+        return level1artists.reduce((previous, artistName) => previous.then(() => {
+          return d10.mcol(d10.COLLECTIONS.SONGS).aggregate([
+            { $match: { tokenartists: artistName } },
+            { $unwind: { path: '$tokenartists' } },
+            { $match: { tokenartists: { $nin: level1artistsAndSource } } },
+            { $group: { _id: '$tokenartists', count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+          ]).toArray();
+        })
+          .then((results) => {
+            level2.push({ artist: artistName, results: results || [] });
+          }), Promise.resolve());
+      })
+      .then(() => {
+        const response = { artists: {}, artistsRelated: {} };
+        if (!level1.length) {
+          return response;
+        }
+        level1.forEach((art) => { response.artists[art._id] = art.count * 1000; });
+        if (!level2.length) {
+          return response;
+        }
+        level2.forEach((art) => {
+          const name = art.artist;
+          art.results.forEach((result) => {
+            response.artistsRelated[result._id] = response.artists[name] + result.count;
+          });
+        });
+        return response;
+      })
+      .catch((err) => {
+        debug('error ', err);
+        throw err;
+      });
+  }
 
   /*
    track : _id: pt....  , song: aa....
@@ -516,86 +536,118 @@ exports.api = (app) => {
   _id: pl.... , songs: [aa....]
   */
   app.delete('/api/song/aa:id', (request) => {
-    let references;
-    let images;
+    const songId = `aa${request.params.id}`;
 
-    d10.dbp.d10GetDoc(`aa${request.params.id}`)
-      .catch((err) => {
-        d10.realrest.err(423, err, request.ctx);
-        return null;
-      })
-      .then((doc) => {
-        if (doc.user !== request.ctx.user._id && !request.ctx.user.superman) {
-          return d10.realrest.err(403, 'You are not allowed to delete this song', request.ctx);
+    d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: songId })
+      .then((song) => {
+        if (!song) {
+          throw new Error('Song not found');
         }
-        Promise.all([findAllSongReferences(doc._id), getUnusedImages(doc)])
-          .then((responses) => {
-            // eslint-disable-next-line prefer-destructuring
-            references = responses[0];
-            // eslint-disable-next-line prefer-destructuring
-            images = responses[1];
-            const modifiedDocs = removeSongReferences(references);
-            return recordModifiedDocs(modifiedDocs);
-          })
-          .then(() => {
-            // do not return promise, this is background task
-            Promise.all([
-              removeSongFile(doc._id),
-              removeUnusedImages(images),
-            ])
-              .then(err => debug('error garbaging deleted song files', err));
+        if (song.user !== request.ctx.user._id && !request.ctx.user.superman) {
+          throw new Error('You are not allowed to delete this song');
+        }
 
-            return d10.realrest.success([], request.ctx);
-          })
-          .catch(err => d10.realrest.err(423, err, request.ctx));
-      });
+        return song;
+      })
+      .then(song => updateSongReferencesOnDelete(song).then(() => song))
+      .then(song => removeSongFromDb(song).then(() => song))
+      .then((song) => {
+        // do not return promise, this is background task
+        Promise.all([
+          removeSongFile(song._id),
+          getUnusedImages(song).then(removeUnusedImages),
+        ])
+          .catch(err => debug('error garbaging deleted song files', err));
+
+        return d10.realrest.success([], request.ctx);
+      })
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   });
+
+  function removeSongFromDb(song) {
+    return d10.mcol(d10.COLLECTIONS.SONGS).deleteOne({ _id: song._id });
+  }
+
+  function updateSongReferencesOnDelete(song) {
+    return Promise.all([
+      removeSongFromUserHistory(song),
+      removeSongFromRpl(song),
+      updateSongInEvents(song),
+    ]);
+  }
+
+  function removeSongFromUserHistory(song) {
+    const filter = {};
+    filter[`listen.${song._id}`] = { $gt: 0 };
+    const update = { $unset: {} };
+    update.$unset[`listen.${song._id}`] = true;
+    return d10.mcol(d10.COLLECTIONS.USER_HISTORY).updateMany(filter, update);
+  }
+
+  function removeSongFromRpl(song) {
+    const filter = { songs: song._id };
+    const update = { $unset: { 'songs.$[element]': true } };
+    const arrayFilters = [{ element: song._id }];
+    return d10.mcol(d10.COLLECTIONS.USER_HISTORY).updateMany(filter, update, { arrayFilters });
+  }
+
+  function updateSongInEvents(song) {
+    const filter = { song: song._id };
+    const update = { $set: { orphan: true, document: song } };
+    return d10.mcol(d10.COLLECTIONS.USER_HISTORY).updateMany(filter, update);
+  }
+
+  app.get('/api/album/byName/:album', request => albumGet(request));
+
+  function albumGet(request) {
+    if (!request.params.album || !request.params.album.length) {
+      return d10.realrest.err(400, 'Album name cannot be empty', request.ctx);
+    }
+
+    d10.mcol(d10.COLLECTIONS.ALBUMS).findOne({ _id: request.params.album })
+      .then((album)=> {
+        if (!album) {
+          return d10.realrest.err(404, 'Not Found', request.ctx);
+        }
+        return d10.realrest.success(album, request.ctx);
+      })
+      .catch(err => d10.realrest.err(500, err, request.ctx));
+  }
 
   app.get('/api/album/firstLetter', (request) => {
-    const query = { group: true, group_level: 1 };
-    d10.couch.d10.view('album/firstLetter', query, (err, resp) => {
-      if (err) {
-        debug(err);
-        return d10.realrest.err(423, request.params.sort, request.ctx);
-      }
-      d10.realrest.success(resp.rows, request.ctx);
-    });
+    d10.mcol(d10.COLLECTIONS.ALBUMS).aggregate([
+      {
+        $group: {
+          _id: { $substrCP: ['$_id', 0, 1] },
+          value: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ]).toArray()
+      .then(res => res.map(r => ({ key: r._id, value: r.value })))
+      .then(response => d10.realrest.success(response, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   });
 
-  app.get('/api/genres/available', (request) => {
-    d10.couch.d10.view('genre/name', {
-      group: true,
-      group_level: 1,
-    }, (err, resp) => {
-      if (err) {
-        debug(err);
-        return d10.realrest.err(423, null, request.ctx);
-      }
-      d10.realrest.success(resp.rows, request.ctx);
-    });
-  });
+  app.get('/api/genres/available', request => d10.mcol(d10.COLLECTIONS.SONGS).aggregate([
+    {
+      $group: {
+        _id: '$genre',
+        count: { $sum: 1 },
+      },
+    },
+  ])
+    .then(cursor => cursor.toArray())
+    .then((result) => {
+      const response = result.map(res => ({ key: [res._id], value: res.count }));
+      d10.realrest.success(response, request.ctx);
+    })
+    .catch(err => d10.realrest.err(423, err, request.ctx)));
 
   app.get('/api/genre/gotAlbums/:genre', (request) => {
-    if (!request.params.genre
-      // eslint-disable-next-line no-mixed-operators
-      || d10.config.allowCustomGenres === false
-       // eslint-disable-next-line no-mixed-operators
-       && d10.config.genres.indexOf(request.params.genre) < 0) {
-      return d10.realrest.err(428, request.params.genre, request.ctx);
-    }
-    d10.couch.d10.view('genre/albums', {
-      group: true,
-      group_level: 1,
-      startkey: [request.params.genre],
-      endkey: [request.params.genre, []],
-    }, (err, resp) => {
-      debug(err, resp);
-      if (err) {
-        debug(err);
-        return d10.realrest.err(423, request.params.genre, request.ctx);
-      }
-      d10.realrest.success({ albums: !!resp.rows.length }, request.ctx);
-    });
+    d10.realrest.err(400, new Error('REST API not supported'), request.ctx);
   });
 
   function isGenreValid(genre) {
@@ -609,16 +661,7 @@ exports.api = (app) => {
     }
 
     function getAlbums(genre) {
-      const startkey = [genre];
-      const endkey = [genre, {}];
-      return d10.dbp.d10View('genre/albums', {
-        reduce: true, group: true, group_level: 2, startkey, endkey,
-      })
-        .then((resp) => {
-          const albums = new Set();
-          resp.rows.forEach(row => albums.add(row.key[1]));
-          return albums.size;
-        })
+      return d10.mcol(d10.COLLECTIONS.ALBUMS).count({ genres: genre })
         .catch((err) => {
           debug('getAlbum failed ', err);
           throw err;
@@ -626,16 +669,7 @@ exports.api = (app) => {
     }
 
     function getArtists(genre) {
-      const startkey = [genre];
-      const endkey = [genre, {}];
-      return d10.dbp.d10View('genre/artists', {
-        reduce: true, group: true, group_level: 2, startkey, endkey,
-      })
-        .then((resp) => {
-          const artists = new Set();
-          resp.rows.forEach(row => artists.add(row.key[1]));
-          return artists.size;
-        })
+      return d10.mcol(d10.COLLECTIONS.ARTISTS).count({ genres: genre })
         .catch((err) => {
           debug('getArtists failed ', err);
           throw err;
@@ -643,14 +677,21 @@ exports.api = (app) => {
     }
 
     function getSongInfos(genre) {
-      return d10.dbp.d10View('genre/songInfos', {
-        reduce: true, group: true, group_level: 1, key: genre,
-      })
-        .then((resp) => {
-          if (!resp.rows.length) {
+      return d10.mcol(d10.COLLECTIONS.SONGS).aggregate([
+        { $match: { genre } },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            duration: { $sum: '$duration' },
+          },
+        },
+      ]).toArray()
+        .then((result) => {
+          if (!result || !result.length) {
             throw new Error('Unknown genre in database');
           }
-          return resp.rows[0].value;
+          return result[0];
         })
         .catch((err) => {
           debug('getSongInfos failed ', err);
@@ -683,142 +724,26 @@ exports.api = (app) => {
     }
 
     const { genre } = request.params;
-    const query = {
-      startkey: [genre],
-      endkey: [genre, []],
-      group: true,
-      group_level: 2,
-    };
 
-    /*
-      {"rows":[
-        {"key":["Pop",2016],"value":1},
-        {"key":["Pop",2017],"value":20}
-      ]}
-    */
-    d10.dbp.d10View('genre/date', query)
-      .then(resp => resp.rows.map(row => ({ date: row.key[1], count: row.value })))
+    d10.mcol(d10.COLLECTIONS.SONGS).aggregate([
+      { $match: { genre } },
+      {
+        $group: {
+          _id: '$date',
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ])
+      .then(cursor => cursor.toArray())
       .then(resp => d10.realrest.success(resp, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
   });
 
   app.get('/api/genres/date-artist/:genre', (request) => {
-    if (!isGenreValid(request.params.genre)) {
-      return d10.realrest.err(428, request.params.genre, request.ctx);
-    }
-
-    const { genre } = request.params;
-    const query = {
-      startkey: [genre],
-      endkey: [genre, []],
-      group: true,
-      group_level: 3,
-    };
-    if (request.query && request.query.limit) {
-      query.limit = request.query.limit;
-    }
-    if (request.query && request.query.startkey) {
-      query.startkey = request.query.startkey;
-    } else if (request.query && request.query.startdate) {
-      query.startkey.push(request.query.startdate);
-    }
-
-    /*
-      {"rows":[
-        {"key":["Pop",2016,"artist"],"value":1},
-        {"key":["Pop",2017,"artist1"],"value":18},
-        {"key":["Pop",2017,"artist2"],"value":2}
-      ]}
-    */
-    d10.dbp.d10View('genre/date-artist', query)
-      .then(resp => resp.rows.map(row => ({
-        date: row.key[1],
-        artist: row.key[2],
-        count: row.value,
-      })))
-      .then(resp => d10.realrest.success(resp, request.ctx))
-      .catch(err => d10.realrest.err(423, err, request.ctx));
+    d10.realrest.err(400, new Error('REST API not supported'), request.ctx);
   });
 }; // exports.api
-
-function findAllSongReferences(id) {
-  const responses = { d10: [], d10wi: [], track: [] };
-  const jobs = [
-    d10.dbp.d10View('references/songs', { key: id, include_docs: true })
-      .then((resp) => { responses.d10 = resp.rows; }),
-    d10.dbp.d10wiView('references/songs', { key: id, include_docs: true })
-      .then((resp) => { responses.d10wi = resp.rows; }),
-    d10.dbp.trackView('references/songs', { key: id, include_docs: true })
-      .then((resp) => { responses.track = resp.rows; }),
-  ];
-
-  return Promise.all(jobs).then(() => responses);
-}
-
-function removeSongReferences(id, responses) {
-  const modifiedDocs = { d10: [], d10wi: [], track: [] };
-  responses.d10.forEach((v) => {
-    if (v.doc._id === id) {
-      const modifiedDoc = { ...v.doc, _deleted: true };
-      modifiedDocs.d10.push(modifiedDoc);
-    } else if (v.doc._id.substr(0, 2) === 'pl' && v.doc.songs) {
-      const modifiedDoc = { ...v.doc, songs: [] };
-      v.doc.songs.forEach((val) => { if (val !== id) modifiedDoc.songs.push(val); });
-      modifiedDocs.d10.push(modifiedDoc);
-    }
-  });
-  responses.d10wi.forEach((v) => {
-    if (v.doc._id === id) {
-      const modifiedDoc = { ...v.doc, _deleted: true };
-      modifiedDocs.d10wi.push(modifiedDoc);
-    } else if (v.doc._id.substr(0, 2) === 'pr') {
-      const modifiedDoc = { ...v.doc, listen: {} };
-      Object.keys(v.doc.listen).filter(key => key !== id)
-        .forEach((key) => { modifiedDoc.listen[key] = v.doc.listen[key]; });
-      modifiedDocs.d10wi.push(modifiedDoc);
-    } else if (v.doc._id.substr(0, 2) === 'up') {
-      const modifiedDoc = { ...v.doc, likes: {}, dislikes: {} };
-      if (v.doc.likes) {
-        Object.keys(v.doc.likes).filter(key => key !== id)
-          .forEach((key) => { modifiedDoc.likes[key] = v.doc.dislikes[key]; });
-      }
-      if (v.doc.dislikes) {
-        Object.keys(v.doc.dislikes).filter(key => key !== id)
-          .forEach((key) => { modifiedDoc.dislikes[key] = v.doc.dislikes[key]; });
-      }
-      if (v.doc.playlist && v.doc.playlist.list) {
-        const replacement = v.doc.playlist.list.filter(val => val !== id);
-        modifiedDoc.playlist.list = replacement;
-      }
-      modifiedDocs.d10wi.push(v.doc);
-    }
-  });
-  responses.track.forEach((v) => {
-    if (v.doc._id.substr(0, 2) === 'pt' && v.doc.song === id) {
-      const modifiedDoc = { ...v.doc, _deleted: true };
-      modifiedDocs.track.push(modifiedDoc);
-    }
-  });
-  return modifiedDocs;
-}
-
-function recordModifiedDocs(modifiedDocs) {
-  debug('recordModifiedDocs recording: ', modifiedDocs);
-  const jobs = [];
-  if (modifiedDocs.d10.length) {
-    jobs.push(d10.dbp.d10StoreDocs(modifiedDocs.d10)
-      .then(resp => ({ db: 'd10', response: resp })));
-  }
-  if (modifiedDocs.d10wi.length) {
-    jobs.push(d10.dbp.d10wiStoreDocs(modifiedDocs.d10wi)
-      .then(resp => ({ db: 'd10wi', response: resp })));
-  }
-  if (modifiedDocs.track.length) {
-    jobs.push(d10.dbp.trackStoreDocs(modifiedDocs.track)
-      .then(resp => ({ db: 'track', response: resp })));
-  }
-  return Promise.all(jobs);
-}
 
 function getUnusedImages(doc) {
   const keys = [];
@@ -834,15 +759,16 @@ function getUnusedImages(doc) {
     return Promise.resolve([]);
   }
 
-  return d10.dbp.d10View('images/sha1', { keys })
-    .then((resp) => {
-      resp.rows.forEach((v) => {
-        if (usage[v.key]) usage[v.key]++;
-        else usage[v.key] = 1;
-      });
+  return d10.mcol(d10.COLLECTIONS.SONGS).find({ 'images.sha1': { $in: keys } })
+    .then(response => response || [])
+    .then((songs) => {
+      songs.forEach(song => song.images.forEach((v) => {
+        if (usage[v.sha1]) usage[v.sha1]++;
+        else usage[v.sha1] = 1;
+      }));
       const back = [];
       keys.forEach((v) => {
-        if (!usage[v] || usage[v] < 2) {
+        if (!usage[v]) {
           back.push({ sha1: v, filename: filenames[v] });
         }
       });
