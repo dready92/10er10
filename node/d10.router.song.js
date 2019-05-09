@@ -22,6 +22,29 @@ exports.api = function api(app) {
       d10.realrest.success(r, request.ctx);
     });
   });
+
+  app.get('/api/review/aa:id', (request) => {
+    const songId = `aa${request.params.id}`;
+    Promise.all([
+      d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: songId }),
+      d10.mcol(d10.COLLECTIONS.SONGS_STAGING).findOne({ _id: songId }),
+    ])
+      .then(([song, songstaging]) => {
+        let source;
+        if (song) {
+          source = song;
+        } else if (songstaging) {
+          source = songstaging;
+        } else {
+          const err = new Error('Song not found');
+          err.code = 404;
+          throw err;
+        }
+        d10.realrest.success(source, request.ctx);
+      })
+      .catch(err => d10.realrest.err(err.code || 500, err, request.ctx));
+  });
+
   app.get('/html/my/review', (request, response) => {
     request.ctx.headers['Content-Type'] = 'text/html';
     d10.couch.d10.view('user/song', { key: [request.ctx.user._id, false], include_docs: true }, (err, resp) => {
@@ -50,6 +73,7 @@ exports.api = function api(app) {
     if (request.params.id.substr(0, 2) !== 'aa') {
       return next();
     }
+    const id = request.params.id;
 
     const fields = {};
     const errors = {};
@@ -116,29 +140,48 @@ exports.api = function api(app) {
 
         fields.valid = true;
         fields.reviewed = true;
-        fields.hits = 0;
 
-        d10.couch.d10.getDoc(request.params.id, (err, doc) => {
-          if (err) {
-            d10.realrest.err(err.statusCode, err.statusMessage, request.ctx);
-            return;
+        Promise.all([
+          d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: id }),
+          d10.mcol(d10.COLLECTIONS.SONGS_STAGING).findOne({ _id: id }),
+        ]).then(([songDoc, stagingDoc]) => {
+          let sourceIsStaging = null;
+          let source;
+          if (songDoc) {
+            sourceIsStaging = false;
+            source = songDoc;
+          } else if (stagingDoc) {
+            sourceIsStaging = true;
+            source = stagingDoc;
+          } else {
+            d10.realrest.err(404, 'Song not found', request.ctx);
+            return null;            
           }
 
-          if (doc.user !== request.ctx.user._id && !request.ctx.user.superman) {
-            debug('debug', request.ctx.user._id, 'Not allowed to edit', doc._id);
+          if (source.user !== request.ctx.user._id && !request.ctx.user.superman) {
+            debug('debug', request.ctx.user._id, 'Not allowed to edit', source._id);
             d10.realrest.err(403, 'Forbidden', request.ctx);
-            return;
+            return null;
           }
-          const completeDoc = { ...doc, ...fields };
 
-          d10.couch.d10.storeDoc(completeDoc, (err2) => {
-            if (err2) {
-              debug('debug', 'storeDoc error');
-              d10.realrest.err(err2.statusCode, err2.statusMessage, request.ctx);
-            } else {
-              debug('debug', 'storeDoc success');
-              d10.realrest.success(completeDoc, request.ctx);
-            }
+          const doc = { ...source, ...fields };
+          let record;
+          if (sourceIsStaging) {
+            record = d10.mcol(d10.COLLECTIONS.SONGS).insertOne(doc).then(() => {
+              d10.mcol(d10.COLLECTIONS.SONGS_STAGING).deleteOne({ _id: doc._id });
+            });
+          } else {
+            record = d10.mcol(d10.COLLECTIONS.SONGS).updateOne({ _id: doc._id }, { $set: doc })
+              .then((updateResponse) => {
+                if (!updateResponse.modifiedCount) {
+                  throw new Error('update song in SONGS collection: not found');
+                }
+                return updateResponse;
+              });
+          }
+          return record.then(() => {
+            debug('debug', 'storeDoc success');
+            d10.realrest.success(doc, request.ctx);
           });
         });
       },

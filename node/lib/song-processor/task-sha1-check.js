@@ -11,16 +11,21 @@ module.exports = function sha1CheckTask(job) {
       // eslint-disable-next-line prefer-promise-reject-errors
       return reject('Sha1 not available');
     }
-    d10.couch.d10.view('song/sha1', { key: job.tasks.sha1File.response }, (err, resp) => {
-      if (err) {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject(501);
-      } else if (!resp.rows || resp.rows.length) {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject(433);
-      } else {
-        resolve();
-      }
-    });
+    const sha1 = job.tasks.sha1File.response;
+
+    const sha1checksongs = d10.mcol(d10.COLLECTIONS.SONGS).countDocuments({ sha1 });
+    const sha1checkstaging = d10.mcol(d10.COLLECTIONS.SONGS_STAGING).countDocuments({ sha1 });
+
+    Promise.all([sha1checksongs, sha1checkstaging])
+      .then(([count1, count2]) => {
+        if (count1 || count2) {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject(433);
+        } else {
+          resolve();
+        }
+      })
+      // eslint-disable-next-line prefer-promise-reject-errors
+      .catch(() => reject(501));
   });
 };

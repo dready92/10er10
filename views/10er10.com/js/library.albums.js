@@ -112,31 +112,31 @@ define(["js/d10.dataParsers", "js/d10.templates", "js/d10.router",
     var albumRowTemplate = tpl.mustacheView("library.listing.album.all.row");
     
 	var loadContentDiv = function( contentDiv, letter) {
-		var endPoint = rest.song.list.albums;
+		var endPoint = rest.album.list;
 		var options = {};
 		if ( letter ) { 
-			options.startkey = JSON.stringify([letter]);
-			options.endkey = JSON.stringify([toolbox.nextLetter(letter)]);
+			options.start = letter;
+			options.stop = toolbox.nextLetterJS(letter);
 		}
 
-		var cursor = new restHelpers.couchMapMergedCursor(endPoint,options,"album");
+		var cursor = new restHelpers.mongoPagedCursor(endPoint, options);
 		var cols = 0;
         var currentAlbumRow = $(albumRowTemplate);
         contentDiv.append(currentAlbumRow);
 		var fetchAll = function(err,resp) {
 			if ( err ) { return ; }
-            if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
+			if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }
 			$.each(resp,function(k,songs) {
 				var albumData = dataParsers.singleAlbumParser(songs);
-                albumData.songs = songs.map(function(row) { return row.doc ? row.doc : row });
+				albumData.songs = songs.songs;
 				var html = $( tpl.albumMini(albumData) ).data("albumDetails",albumData);
-                if ( cols == 4 ){
-                  currentAlbumRow = $(albumRowTemplate);
-                  contentDiv.append(currentAlbumRow);
-                  cols=0;
-                }
-                cols++;
-                currentAlbumRow.append(html);
+				if ( cols == 4 ){
+					currentAlbumRow = $(albumRowTemplate);
+					contentDiv.append(currentAlbumRow);
+					cols=0;
+				}
+				cols++;
+				currentAlbumRow.append(html);
 			});
 		};
 		if ( cursor.hasMoreResults() ) { cursor.getNext(fetchAll); }

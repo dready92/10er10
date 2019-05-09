@@ -48,10 +48,10 @@ define(["js/playlist", "js/d10.rest", "js/d10.restHelpers", "js/d10.dataParsers"
         };
 
 		if ( topic == "albums" ) {
-			cursor = new restHelpers.couchMapMergedCursor(rest.song.list.albums,{},"album");
+			cursor = new restHelpers.mongoPagedCursor(rest.album.list,{});
 			opts.parseResults = albumResultsParser;
 		} else {
-			cursor = new restHelpers.couchMapCursor(endpoint, data);
+			cursor = new restHelpers.mongoPagedCursor(endpoint, data);
 		}
         categorydiv.find("section").data("infiniteScroll", widgetHelpers.createInfiniteScroll(categorydiv, cursor, opts) );
 	};

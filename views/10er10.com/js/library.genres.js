@@ -15,10 +15,10 @@ define(["js/d10.rest", "js/d10.localcache", "js/d10.templates", "js/d10.router"]
 				var content = "";
 				$.each(data,function(k,v) { //{"key":["Dub"],"value":{"count":50,"artists":["Velvet Shadows","Tommy McCook & The Aggrovators","Thomsons All Stars"]}}
 					var artists = "";
-					$.each(v.value.artists,function(foo,artist) {
+					$.each(v.artists,function(foo,artist) {
 						artists+=tpl.mustacheView("library.listing.genre.line", {"artist": artist})
 					});
-					content+=tpl.mustacheView("library.listing.genre", {"genre": v.key[0],"count": v.value.count},  {"artists": artists});
+					content+=tpl.mustacheView("library.listing.genre", {"genre": v._id,"count": v.count},  {"artists": artists});
 				});
 				categorydiv.find("div.genresLanding").html(content);
 				categorydiv.find("div.pleaseWait").hide();

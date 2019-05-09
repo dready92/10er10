@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-amd
 define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl, config, user, rest) {
 	
 	
@@ -80,6 +81,43 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 		this.getNext = getResults;
 	};
 	
+	function mongoPagedCursor(endpoint, queryData) {
+		const actualData = $.extend({ offset: 0 }, queryData);
+		const rpp = actualData.limit ? actualData.limit : config.rpp;
+		let endOfStream = false;
+		actualData.limit = rpp;
+
+		this.hasMoreResults = function () { return !endOfStream; }
+		this.getNext = nextResults;
+
+		function nextResults(cb) {
+			endpoint(actualData, {
+				load(err, resp) {
+					let lastResult;
+					if (err) {
+						endOfStream = true;
+						cb(err, resp);
+					} else if (!Array.isArray(resp)) {
+						endOfStream = true;
+						cb(999, resp);
+					} else {
+						incrementCursor(resp, cb);
+					}
+				}
+			});
+		}
+
+		function incrementCursor(resp, cb) {
+			if (resp.length < rpp) {
+				endOfStream = true;
+			} else {
+				resp.pop();
+				actualData.offset = actualData.offset + rpp - 1;
+			}
+			cb(null, resp);
+		}
+	}
+
 	var couchMapCursor = function(endpoint, queryData) {
 		var actualData = $.extend({},queryData);
 		var rpp = actualData.limit ? actualData.limit : config.rpp;
@@ -262,7 +300,8 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 		couchMapMergedCursor: couchMapMergedCursor,
 		couchMapCursor: couchMapCursor,
 		emulatedCursor: emulatedCursor,
-		favoriteSongsLoader: favoriteSongsLoader
+		favoriteSongsLoader: favoriteSongsLoader,
+		mongoPagedCursor: mongoPagedCursor
 	};
 
 	
