@@ -1,158 +1,168 @@
-var d10 = require ("./d10");
+const d10 = require('./d10');
 
-exports.playlistAndSongs = function(id, then) {
-	
-	var getSongs = function(playlist) {
-		if ( !playlist.songs || !playlist.songs.length ) {
-			return then(null,playlist);
-		}
-		
-		d10.couch.d10.getAllDocs({include_docs: true, keys: playlist.songs},function(err,resp) {
-			if ( err ) { return then(8); }
-			playlist.songs = [];
-			if ( resp.rows ) {
-				resp.rows.forEach(function(v,k) {
-					if ( !v.error ) {
-						playlist.songs.push(v.doc);
-					}
-				});
-			}
-			then(null,playlist);
-		});
-	};
-	
-	if ( !id.length || id.substr(0,2) != "pl" ) {
-		return then(8);
-	}
-	
-	d10.couch.d10.getDoc(id,function(err,playlist) {
-		if ( err ) { then(8); }
-		else if ( playlist.songs && playlist.songs.length ) {
-			getSongs(playlist);
-		} else {
-			then(null, playlist);
-		}
-	});
+const debug = d10.debug('d10:rpl');
+
+exports.playlistAndSongs = function playlistAndSongs(user, playlistId, then) {
+  d10.mcol(d10.COLLECTIONS.USERS).findOne({ _id: user._id })
+    .then((dbuser) => {
+      if (!dbuser || !dbuser.playlists) {
+        throw new Error('User or playlist not found');
+      }
+      const playlist = dbuser.playlists.filter(pl => pl._id === playlistId).pop();
+      if (!playlist) {
+        throw new Error('Playlist not found');
+      }
+      return getSongs(playlist);
+    })
+    .catch(() => then(8));
+
+  function getSongs(playlist) {
+    if (!playlist.songs || !playlist.songs.length) {
+      return then(null, playlist);
+    }
+
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: playlist.songs } })
+      .toArray()
+      .then((songs) => {
+        const playlistBack = { ...playlist, songs };
+        then(null, playlistBack);
+      });
+  }
 };
 
-exports.update = function(playlist, songs, then) {
-	if ( !playlist._id.length || playlist._id.substr(0,2) != "pl" ) {
-		return then(8);
-	}
+exports.update = function update(user, playlist, songs, then) {
+  if (!playlist._id.length || playlist._id.substr(0, 2) !== 'pl') {
+    return then(8);
+  }
+  const upq = [{ _id: user._id },
+    { $set: { 'playlists.$[element].songs': songs } },
+    { arrayFilters: [{ 'element._id': playlist._id }] }];
 
-	var songsDetail = [];
+  return fetchSongs().then(songDetails => d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+    { _id: user._id },
+    { $set: { 'playlists.$[element].songs': songs } },
+    { arrayFilters: [{ 'element._id': playlist._id }] },
+  )
+    .then(() => songDetails)
+    .catch((err) => {
+      // eslint-disable-next-line no-param-reassign
+      err.code = 4;
+      throw err;
+    }))
+    .then((songDetails) => {
+      const updatedPlaylist = { ...user.playlists[playlist._id], songs };
+      then(null, { playlist: updatedPlaylist, songs: songDetails });
+    })
+    .catch((err) => {
+      then(err.code || 10);
+    });
 
-	var save = function() {
-		playlist.songs = songs;
-		d10.couch.d10.storeDoc(playlist,function(err,resp) {
-			if ( err ) { return then(4); }
-			then(null,{playlist: playlist,songs: songsDetail});
-			
-		});
-	};
-	
-	
-	if ( songs.length ) {
-		
-		d10.couch.d10.getAllDocs({include_docs: true, keys: songs},function(err,docs) {
-			if ( err ) { return then(8); }
-			var good=true;
-			docs.rows.forEach(function(v,k) {
-				if ( v.error ) {
-					good = false;
-				} else {
-					songsDetail.push(v.doc);
-				}
-			});
-			if ( !good ) {
-				return then(8);
-			}
-			save();
-		});
-	} else {
-		save();
-	}
+  function fetchSongs() {
+    if (songs.length) {
+      return d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: songs } }).toArray()
+        .then((dbsongs) => {
+          if (!dbsongs || !dbsongs.length || dbsongs.length !== songs.length) {
+            const err = new Error('Songs from datastore differ from song ids');
+            err.code = 8;
+            throw err;
+          }
+        });
+    }
+    return Promise.resolve([]);
+  }
 };
 
-exports.append = function(playlist, song, then) {
-	if ( !playlist._id.length || playlist._id.substr(0,2) != "pl"
-		|| !song.length || song.substr(0,2) != "aa" 
-	) {
-		return then(8);
-	}
-	
-	var save = function(songDoc) {
-		playlist.songs.push(song);
-		
-		d10.couch.d10.storeDoc(playlist,function(err,resp) {
-			if ( err ) { 		return then(4); }
-			playlist._rev = resp.rev;
-			then(null,{playlist: playlist, song: songDoc});
-		});
-	};
-	
-	d10.couch.d10.getDoc(song,function(err,doc) {
-		if ( err ) { then(8); }
-		else { save(doc); }
-	});
+exports.append = function append(user, playlist, songId, then) {
+  if (!playlist._id.length || playlist._id.substr(0, 2) !== 'pl'
+    || !songId.length || songId.substr(0, 2) !== 'aa'
+  ) {
+    return then(8);
+  }
+
+  return d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: songId })
+    .then((song) => {
+      if (!song) {
+        const e = new Error('song not found');
+        e.code = 8;
+        throw e;
+      }
+      return song;
+    })
+    .then((song) => {
+      const updateQuery = { $push: {} };
+      updateQuery.$push[`playlists.${playlist._id}.songs`] = songId;
+      return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+        { _id: user._id },
+        { $push: { 'playlists.$[element].songs': songId } },
+        { arrayFilters: [{ 'element._id': playlist._id }] },
+      )
+        .then(() => song)
+        .catch((err) => {
+          // eslint-disable-next-line no-param-reassign
+          err.code = 4;
+          throw err;
+        });
+    })
+    .then((song) => {
+      const updatedPlaylist = { ...playlist, songs: [...playlist.songs] };
+      updatedPlaylist.songs.push(songId);
+      then(null, { updatedPlaylist, song });
+    })
+    .catch((err) => {
+      then(err.code || 10);
+    });
 };
 
-exports.create = function(login, name, songs, then) {
-	d10.db.d10Infos(
-		login,
-		function(infos) {
-			var good=true;
-			infos.rows.forEach(function(v,k) {
-				if ( v.doc._id.substr(0,2) == "pl" && v.doc.name == name ) {
-					good = false;
-				}
-			});
-			if ( !good ) {
-				return then(430);
-			}
-			var playlist = { _id: "pl"+d10.uid(), name: name, user: login, songs: [] };
-			d10.couch.d10.storeDoc(playlist,function(err,resp) {
-				if ( err ) { 	return then(423); }
-				if ( !songs || !songs.length ) {
-					return then(null,{playlist: playlist, songs: []});
-				}
-				exports.update(playlist,songs,then);
-			});
-		},
-		function(resp) {
-			return d10.realrest.err(423,resp,request.ctx);
-		}
-	);
+exports.create = function create(user, name, songs, then) {
+  const existing = user.playlists.filter(playlist => playlist.name === name).length;
+  if (existing) {
+    return then(430);
+  }
+
+  const playlist = {
+    _id: `pl${d10.uid()}`,
+    name,
+    songs: [],
+  };
+
+  return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+    { _id: user._id },
+    { $push: { playlists: playlist } },
+  )
+    .then(() => {
+      if (!playlist.songs.length) {
+        return [];
+      }
+      return d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: playlist.songs } }).toArray();
+    })
+    .then((response) => {
+      const updatedPlaylist = { playlist, songs: response };
+      return then(null, updatedPlaylist);
+    })
+    .catch((err) => {
+      debug('Error on playlist creation ', err);
+      then(423);
+    });
 };
 
-exports.rename = function(login,playlist, name, then) {
-	d10.db.d10Infos(
-		login,
-		function(infos) {
-			var good=true;
-			infos.rows.forEach(function(v,k) {
-				if ( v.doc._id.substr(0,2) == "pl" && v.doc.name == name ) {
-					good = false;
-				}
-			});
-			if ( !good ) {
-				return then(430);
-			}
-			
-			d10.couch.d10.getDoc(playlist,function(err,doc) {
-				if ( err ) { 		return then(423);}
-				if ( doc.user != login ) {
-					return then(403);
-				}
-				doc.name = name;
-				d10.couch.d10.storeDoc(doc,function(err,resp) {
-					if ( err ) 		{then(423);}
-					else	{ then(null,doc); }
-				});
-			});
-		},
-		function(resp) {
-			return d10.realrest.err(423,resp,request.ctx);
-		}
-	);
+exports.rename = function rename(user, playlistId, name, then) {
+  const existing = user.playlists.filter(pl => pl.name === name).length;
+  if (existing) {
+    return then(430);
+  }
+
+  return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+    { _id: user._id },
+    { $set: { 'playlists.$[element].name': name } },
+    { arrayFilters: [{ 'element._id': playlistId }] },
+  )
+    .then(() => {
+      const playlist = user.playlists.filter(pl => pl._id === playlistId);
+      const updatedPlaylist = { ...playlist, name };
+      return then(updatedPlaylist);
+    })
+    .catch((err) => {
+      debug('troubles renaming an rpl ', err);
+      return then(423);
+    });
 };
