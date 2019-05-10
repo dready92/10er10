@@ -98,6 +98,7 @@ define(['js/d10.templates', 'js/d10.toolbox', 'js/d10.imageUtils', 'js/d10.artis
         duration: album.duration,
         imageAlternatives: {},
         images: {},
+        image_class: [],
         date: [],
         songs: '',
         minutes: m < 10 ? [`0${m}`] : [m],

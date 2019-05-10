@@ -25,6 +25,7 @@ exports.api = (app) => {
       return d10.realrest.success([], request.ctx);
     }
     d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: request.body.ids } })
+      .toArray()
       .then(resp => d10.realrest.success(resp, request.ctx))
       .catch(err => d10.realrest.err(500, err, request.ctx));
   });
@@ -181,7 +182,7 @@ exports.api = (app) => {
       .catch(err => d10.realrest.err(413, err, request.ctx));
 
     function updatePreferences() {
-      return d10.mcol(d10.COLLECTIONS.USERS).updateOne({ _id: user.id }, { $set: { 'preferences.playlist': data } });
+      return d10.mcol(d10.COLLECTIONS.USERS).updateOne({ _id: user._id }, { $set: { 'preferences.playlist': data } });
     }
   });
 
@@ -638,8 +639,7 @@ exports.api = (app) => {
         count: { $sum: 1 },
       },
     },
-  ])
-    .then(cursor => cursor.toArray())
+  ]).toArray()
     .then((result) => {
       const response = result.map(res => ({ key: [res._id], value: res.count }));
       d10.realrest.success(response, request.ctx);
