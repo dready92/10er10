@@ -3,11 +3,12 @@ const Collection = require('mongodb').Collection;
 
 process.env.MAGIC = process.env.MAGIC || `${__dirname}/magic/magic.mgc`;
 
-const debugModule = require('debug');
 const ncouch = require('ncouch');
 const mmmagic = require('mmmagic');
+const debugProvider = require('./debug');
 const mustache = require('./mustache');
 const mongoclient = require('./db/mongo');
+const mongocheck = require('./db/check-base');
 
 const { Magic } = mmmagic;
 const MONGO_COLLECTIONS = {
@@ -71,25 +72,6 @@ function makePromisesDb(couch) {
   return db;
 }
 
-function debugProvider(identifier) {
-  const dbg = debugModule(identifier);
-  return (...args) => {
-    let str = '';
-    args.forEach((arg) => {
-      if (arg && typeof arg === 'object') {
-        if (arg.stack) {
-          str += arg.stack;
-        } else {
-          str += JSON.stringify(arg);
-        }
-      } else {
-        str += arg;
-      }
-    });
-    dbg(str);
-  };
-}
-
 const debug = debugProvider('d10:d10');
 
 function setConfig(cfg) {
@@ -122,6 +104,8 @@ function setMongoConfig(cfg) {
       db.on('timeout', () => mongoDebug('timeout'));
       db.on('reconnect', () => mongoDebug('reconnect'));
       module.exports.mongo = db;
+
+      return mongocheck(db);
     });
 }
 
