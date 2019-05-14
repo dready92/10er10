@@ -64,9 +64,25 @@ module.exports = check;
 function check(db) {
   return db.collections().then(collections => checkArtistsView(db, collections)
     .then(() => checkAlbumsView(db, collections))
+    .then(() => checkCollectionsExist(db, collections))
     .then(() => checkCollection(db, 'users'))
     .then(() => checkCollection(db, 'songs'))
   );
+}
+
+function checkCollectionsExist(db, collections) {
+  const jobs = Object.keys(indexes).map((collname) => {
+    debug(collname, ': checking if collection exists');
+    const collinfo = collections.filter(coll => coll.collectionName === collname);
+    if (collinfo.length) {
+      debug(collname, ': exists');
+      return Promise.resolve(true);
+    }
+    debug(collname, ': do not exist. Launching the create task');
+    return db.createCollection(collname);
+  });
+
+  return Promise.all(jobs);
 }
 
 function checkCollection(db, collectionName) {
@@ -101,11 +117,11 @@ function checkCollection(db, collectionName) {
 
         return runPromiseInSequense(promises)
           .then(() => {
-            debug('users: all indices creation OK');
+            debug(collectionName, ': all indices creation OK');
             return true;
           })
           .catch((err) => {
-            debug('users: indices creation failed');
+            debug(collectionName, ': indices creation failed');
             throw err;
           });
       }
@@ -120,7 +136,6 @@ function getMissingIndexes(reference, colIndexes) {
     let found = false;
     colIndexes.forEach((colindex) => {
       try {
-        console.log(refindex.key, colindex.key)
         deepStrictEqual(refindex.key, colindex.key);
         found = true;
         // eslint-disable-next-line no-empty
