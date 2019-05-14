@@ -95,7 +95,23 @@ function setMongoConfig(cfg) {
       .catch(err => debug('error in mongodb client close()', err));
   }
 
-  return mongoclient(cfg.mongo.url, cfg.mongo.options)
+  let mongoUrl = cfg.mongo.url;
+  let mongoOptions = cfg.mongo.options;
+
+  if (process.env.MONGO_URL) {
+    mongoUrl = process.env.MONGO_URL;
+    mongoOptions = {};
+  }
+
+  if (process.env.MONGO_OPTIONS) {
+    try {
+      mongoOptions = JSON.parse(process.env.MONGO_OPTIONS);
+    } catch (e) {
+      debug('Unable to set mongo options from environment variable MONGO_OPTIONS: JSON.parse failed');
+    }
+  }
+
+  return mongoclient(mongoUrl, mongoOptions)
     .then((client) => {
       module.exports.mongoClient = client;
 
@@ -106,6 +122,10 @@ function setMongoConfig(cfg) {
       module.exports.mongo = db;
 
       return mongocheck(db);
+    })
+    .catch((err) => {
+      debug('unable to connect to MongoDb ', err);
+      process.exit(1);
     });
 }
 
