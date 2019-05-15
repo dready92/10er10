@@ -8,6 +8,8 @@ before_install:
   - docker-compose up -d
   - ls -l
   - ls -l node_modules/
+install:
+  - npm install
 script:
   - $(npm bin)/cypress run
 
