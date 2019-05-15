@@ -1,0 +1,36 @@
+version: '3.2'
+
+services:
+  d10:
+    build: .
+    image: dready92/10er10:1.0-snapshot
+    environment:
+      - DEBUG=d10.*
+      - MONGO_HOST=db:27017
+      - MONGO_URL=mongodb://db:27017
+      - MONGO_DB=d10
+      - AUDIO_TMPDIR=/data/tmp/audio
+      - AUDIO_DIR=/data/audio
+      - IMAGES_TMPDIR=/data/tmp/images
+      - IMAGES_DIR=/data/images
+    ports:
+      - 8888:8888
+    volumes:
+      - ../..:/d10:z
+      - ../data:/data:z
+    depends_on:
+      - db
+    networks:
+      - web
+  db:
+    image: mongo:4-xenial
+    environment:
+      - MONGO_INITDB_DATABASE=d10
+    ports:
+      - 27017:27017
+    volumes:
+      - ../../node_modules/d10-fixtures/datastore:/docker-entrypoint-initdb.d:z
+    networks:
+      - web
+networks:
+  web:

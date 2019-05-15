@@ -43,6 +43,37 @@ function getType(obj, key) {
   return 'scalar';
 }
 
+function overridesWithEnv() {
+  if (process.env.MONGO_URL) {
+    config.mongo.url = process.env.MONGO_URL;
+    config.mongo.options = {};
+  }
+
+  if (process.env.MONGO_OPTIONS) {
+    try {
+      config.mongo.options = JSON.parse(process.env.MONGO_OPTIONS);
+    } catch (e) {
+      console.log('error json.parsing string', e);
+    }
+  }
+
+  if (process.env.MONGO_DB) {
+    config.mongo.database = process.env.MONGO_DB;
+  }
+
+  if (process.env.AUDIO_TMPDIR) {
+    config.audio.tmpdir = process.env.AUDIO_TMPDIR;
+  }
+  if (process.env.AUDIO_DIR) {
+    config.audio.dir = process.env.AUDIO_DIR;
+  }
+  if (process.env.IMAGES_TMPDIR) {
+    config.images.tmpdir = process.env.IMAGES_TMPDIR;
+  }
+  if (process.env.IMAGES_DIR) {
+    config.images.dir = process.env.IMAGES_DIR;
+  }
+}
 
 // eslint-disable-next-line consistent-return
 exports.getConfig = function getConfig(callback) {
@@ -69,6 +100,7 @@ exports.switchProd = function switchProd() {
   config.production = true;
   config.couch = config.couch_prod;
   config.mongo = config.mongo_prod;
+  overridesWithEnv(config);
 };
 
 exports.switchDev = function switchDev() {
@@ -77,4 +109,5 @@ exports.switchDev = function switchDev() {
   config.production = false;
   config.couch = config.couch_dev;
   config.mongo = config.mongo_dev;
+  overridesWithEnv(config);
 };

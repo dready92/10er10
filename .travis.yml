@@ -1,0 +1,12 @@
+dist: xenial
+language: node_js
+node_js:
+  - 10
+services:
+  - docker
+before_install:
+  - sudo apt-get install -y libgconf-2-4
+  - git clone https://github.com/dready92/d10-fixtures.git
+  - docker-compose -f docker/travis/docker-compose.yml up -d
+script:
+  - $(npm bin)/cypress run

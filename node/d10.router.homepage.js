@@ -65,7 +65,8 @@ exports.homepage = (app) => {
           }
           vars.langs.push(langO);
         });
-
+        request.ctx.headers['Content-Type'] = 'text/html; charset=utf-8';
+        response.writeHead(200, request.ctx.headers);
         response.end(d10.mustache.to_html(homepage, vars, {
           resultsContainer,
           libraryContainer,
@@ -82,15 +83,14 @@ exports.homepage = (app) => {
   }
 
   function displayHomepage(request, response, next) {
-    if (request.ctx.session && '_id' in request.ctx.session && request.ctx.user) {
+    const logged = request.ctx.session && '_id' in request.ctx.session && request.ctx.user;
+    if (logged) {
       debug('homepage router: LOGGED');
     } else {
       debug('homepage router: NOT LOGGED');
     }
-    request.ctx.headers['Content-Type'] = 'text/html; charset=utf-8';
-    response.writeHead(200, request.ctx.headers);
 
-    if (request.ctx.session && '_id' in request.ctx.session && request.ctx.user) {
+    if (logged) {
       if (request.query.lang) {
         request.ctx.langUtils.langExists(request.query.lang, (exists) => {
           if (exists) {
@@ -109,6 +109,8 @@ exports.homepage = (app) => {
       }
     } else {
       request.ctx.langUtils.parseServerTemplate(request, 'login.html', (err, html) => {
+        request.ctx.headers['Content-Type'] = 'text/html; charset=utf-8';
+        response.writeHead(200, request.ctx.headers);
         response.end(html);
       });
     }
@@ -145,7 +147,7 @@ exports.homepage = (app) => {
         .then((userDoc) => {
           if (!userDoc) {
             debug('POST/: bad loggin or password');
-            return displayHomepage(request, response, next);
+            return;
           }
           debug('POST/: user logged with login/password:', userDoc._id);
           return setSessionAndLang(request.ctx, userDoc)
