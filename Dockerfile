@@ -24,6 +24,8 @@ RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for
 RUN mkdir /d10
 VOLUME /d10
 
+RUN npm install --production
+
 RUN cd /tmp && git clone https://github.com/dready92/d10-fixtures.git && mv d10-fixtures /fixtures
 
 WORKDIR /d10/node

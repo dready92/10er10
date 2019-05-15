@@ -5,7 +5,7 @@ node_js:
 services:
   - docker
 before_install:
-  - docker-compose up
+  - docker-compose up -d
   - npm install
 script:
   - $(npm bin)/cypress run
