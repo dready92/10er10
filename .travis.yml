@@ -7,8 +7,7 @@ services:
 before_install:
   - docker-compose up -d
   - ls -l
-  - mkdir node_modules/d10-fixtures
-  - npm install
+  - ls -l node_modules/
 script:
   - $(npm bin)/cypress run
 
