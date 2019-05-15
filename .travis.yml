@@ -5,8 +5,6 @@ node_js:
 services:
   - docker
 before_install:
-  - sudo apt-get install -y lame vorbis-tools flac faad2 graphicsmagick
-  - npm install
   - docker-compose up
   - sleep 30
 script:
