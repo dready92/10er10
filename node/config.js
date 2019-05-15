@@ -35,13 +35,13 @@ exports.couch_dev = {
 	auth: { dsn: "http://localhost:5984/", database: "test-auth" },
 	track: { dsn: "http://localhost:5984/", database: "test-track" }
 };
-
+*/
 exports.mongo_dev = {
 	url: 'mongodb://localhost:27117',
 	database: 'd10_dev',
 	options: {},
 };
-*/
+
 // templates path
 exports.templates = {
 	node: "../views/10er10.com/",

@@ -97,6 +97,7 @@ function setMongoConfig(cfg) {
 
   let mongoUrl = cfg.mongo.url;
   let mongoOptions = cfg.mongo.options;
+  let mongoDatabase = cfg.mongo.database;
 
   if (process.env.MONGO_URL) {
     mongoUrl = process.env.MONGO_URL;
@@ -111,11 +112,15 @@ function setMongoConfig(cfg) {
     }
   }
 
+  if (process.env.MONGO_DB) {
+    mongoDatabase = process.env.MONGO_DB;
+  }
+
   return mongoclient(mongoUrl, mongoOptions)
     .then((client) => {
       module.exports.mongoClient = client;
 
-      const db = client.db(cfg.mongo.database);
+      const db = client.db(mongoDatabase);
       db.on('error', err => mongoDebug('error', err));
       db.on('timeout', () => mongoDebug('timeout'));
       db.on('reconnect', () => mongoDebug('reconnect'));

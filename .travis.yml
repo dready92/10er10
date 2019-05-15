@@ -1,9 +1,10 @@
+dist: xenial
 language: node_js
 node_js:
-  - "10"
+  - 10
 services:
   - docker
-  before_install:
+before_install:
   - sudo apt-get install -y lame vorbis-tools flac faad2 graphicsmagick
   - npm install
   - docker-compose up
