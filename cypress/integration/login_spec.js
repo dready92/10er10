@@ -3,7 +3,7 @@
 
 /// <reference types="Cypress" />
 
-const url = 'http://::1:8888';
+const url = 'http://localhost:8888';
 
 describe('Login test', function () {
   it('should fail with a wrong user/pass', function () {
