@@ -4,7 +4,8 @@ node_js:
   - 10
 services:
   - docker
-# before_install:
+before_install:
+  - sudo apt-get install -y libgconf-2-4
 #  - docker-compose up -d
 #  - ls -l
 #  - ls -l node_modules/
