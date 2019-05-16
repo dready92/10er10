@@ -11,7 +11,7 @@ ARG TRAVIS_REPO_SLUG
 RUN echo "Commit sha1: $TRAVIS_COMMIT"
 RUN echo "Repo slug: $TRAVIS_REPO_SLUG"
 RUN dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-RUN dnf install -y git lame vorbis-tools flac faad2 GraphicsMagick git python2 make gcc
+RUN dnf install -y git lame vorbis-tools flac faad2 GraphicsMagick git python2 make gcc gcc-c++
 
 # Install nvm with node and npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash \
