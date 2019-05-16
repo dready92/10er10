@@ -11,4 +11,5 @@ before_install:
   - ss -ltpn
 script:
   - $(npm bin)/cypress run
-
+after_script:
+  - docker-compose logs d10
