@@ -2,7 +2,7 @@ version: '3.2'
 
 services:
   d10:
-    build: .
+    build: ./docker
     image: dready92/10er10:1.0-snapshot
     environment:
       - DEBUG=d10.*
@@ -13,8 +13,6 @@ services:
       - TRAVIS_REPO_SLUG
     ports:
       - 8888:8888
-    volumes:
-      - .:/d10:z
     depends_on:
       - db
     networks:
