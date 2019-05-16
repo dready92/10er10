@@ -7,11 +7,7 @@ services:
 before_install:
   - env
   - sudo apt-get install -y libgconf-2-4
-#  - docker-compose up -d
-#  - ls -l
-#  - ls -l node_modules/
-# install:
-#  - npm install
+  - docker-compose up -d
 script:
   - $(npm bin)/cypress run
 

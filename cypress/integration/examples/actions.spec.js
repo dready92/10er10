@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-context('Actions', () => {
+context.skip('Actions', () => {
   beforeEach(() => {
     cy.visit('https://example.cypress.io/commands/actions')
   })

@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-context('Cypress.Commands', () => {
+context.skip('Cypress.Commands', () => {
   beforeEach(() => {
     cy.visit('https://example.cypress.io/cypress-api')
   })

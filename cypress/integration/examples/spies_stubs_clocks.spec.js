@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-context('Spies, Stubs, and Clock', () => {
+context.skip('Spies, Stubs, and Clock', () => {
   it('cy.spy() - wrap a method in a spy', () => {
     // https://on.cypress.io/spy
     cy.visit('https://example.cypress.io/commands/spies-stubs-clocks')
