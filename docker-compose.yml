@@ -2,16 +2,17 @@ version: '3.2'
 
 services:
   d10:
-    build: ./docker
+    build:
+      context: ./docker
+      args:
+        - TRAVIS_COMMIT
+        - TRAVIS_REPO_SLUG
     image: dready92/10er10:1.0-snapshot
     environment:
       - DEBUG=d10.*
       - MONGO_HOST=db:27017
       - MONGO_URL=mongodb://db:27017
       - MONGO_DB=d10
-    args:
-      - TRAVIS_COMMIT
-      - TRAVIS_REPO_SLUG
     ports:
       - 8888:8888
     depends_on:
