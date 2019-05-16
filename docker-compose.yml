@@ -9,6 +9,8 @@ services:
       - MONGO_HOST=db:27017
       - MONGO_URL=mongodb://db:27017
       - MONGO_DB=d10
+      - TRAVIS_COMMIT
+      - TRAVIS_REPO_SLUG
     ports:
       - 8888:8888
     volumes:
