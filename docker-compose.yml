@@ -24,7 +24,7 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - ./node_modules/d10-fixtures/datastore:/docker-entrypoint-initdb.d:z
+      - ./d10-fixtures/datastore:/docker-entrypoint-initdb.d:z
     networks:
       - web
 networks:

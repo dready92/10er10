@@ -5,8 +5,6 @@ WORKDIR /usr/local/nvm
 ENV NVM_DIR /usr/local/nvm
 ENV NODE_VERSION 10.15.3
 ENV MONGO_HOST localhost:27017
-ENV TRAVIS_COMMIT master
-ENV TRAVIS_REPO_SLUG dready92/10er10
 
 RUN dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 RUN dnf install -y git lame vorbis-tools flac faad2 GraphicsMagick git
