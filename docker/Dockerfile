@@ -24,12 +24,9 @@ ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh > /wait-for-it.sh && chmod +x /wait-for-it.sh
-
 RUN cd / && git clone https://github.com/$TRAVIS_REPO_SLUG.git d10 && cd d10 && git checkout $TRAVIS_COMMIT
-
 RUN npm install --production
-
-RUN cd /tmp && git clone https://github.com/dready92/d10-fixtures.git && mv d10-fixtures /fixtures
+RUN cd / && git clone https://github.com/dready92/d10-fixtures.git fixtures
 
 WORKDIR /d10/node
 CMD /wait-for-it.sh "${MONGO_HOST}" -- node server.js

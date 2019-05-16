@@ -5,10 +5,10 @@ node_js:
 services:
   - docker
 before_install:
-  - env
   - sudo apt-get install -y libgconf-2-4
   - git clone https://github.com/dready92/d10-fixtures.git
   - docker-compose up -d
+  - ss -ltpn
 script:
   - $(npm bin)/cypress run
 
