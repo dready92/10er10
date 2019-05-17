@@ -10,5 +10,3 @@ before_install:
   - docker-compose -f docker/travis/docker-compose.yml up -d
 script:
   - $(npm bin)/cypress run
-after_script:
-  - docker-compose logs d10
