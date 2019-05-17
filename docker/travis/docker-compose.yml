@@ -3,7 +3,7 @@ version: '3.2'
 services:
   d10:
     build:
-      context: ./docker
+      context: .
       args:
         - TRAVIS_COMMIT
         - TRAVIS_REPO_SLUG

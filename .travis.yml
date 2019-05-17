@@ -7,8 +7,7 @@ services:
 before_install:
   - sudo apt-get install -y libgconf-2-4
   - git clone https://github.com/dready92/d10-fixtures.git
-  - docker-compose up -d
-  - ss -ltpn
+  - docker-compose -f docker/travis/docker-compose.yml up -d
 script:
   - $(npm bin)/cypress run
 after_script:
