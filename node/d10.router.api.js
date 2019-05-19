@@ -142,8 +142,8 @@ exports.api = (app) => {
   });
 
   app.get('/api/toReview', (request) => {
-    d10.dbp.d10View('user/song', { key: [request.ctx.user._id, false] })
-      .then(resp => d10.realrest.success({ count: resp.rows.length }, request.ctx))
+    d10.mcol(d10.COLLECTIONS.SONGS_STAGING).count({ user: request.ctx.user._id })
+      .then(count => d10.realrest.success({ count }, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
   });
 
@@ -229,7 +229,7 @@ exports.api = (app) => {
         delete updatedDoc.id;
         updatedDoc._id = `pt${d10.uid()}`;
         updatedDoc.user = request.ctx.user._id;
-        d10.dbp.trackStoreDoc(updatedDoc)
+        d10.mcol(d10.COLLECTIONS.EVENTS).insertOne(updatedDoc)
           .catch(storeerr => debug('/api/ping error on track Store db request:', storeerr));
       });
     }
@@ -372,17 +372,20 @@ exports.api = (app) => {
   function songSearch(view, request) {
     const search = d10.ucwords(request.query.start.replace(/^\s+/, '').replace(/\s+$/, ''));
 
-    const titleSearch = d10.mcol(d10.COLLECTIONS.SONGS).find({ tokentitle: { $regex: `^${search}` } })
+    const titleSearch = d10.mcol(d10.COLLECTIONS.SONGS).find({ tokentitle: { $regex: search } })
+      .toArray()
       .then(results => results || [])
       .then(results => results.map(result => ({ doc: result, value: { json: { field: 'title', value: result.tokentitle } } })));
-    const albumSearch = d10.mcol(d10.COLLECTIONS.ALBUMS).find({ _id: { $regex: `^${search}` } })
+    const albumSearch = d10.mcol(d10.COLLECTIONS.ALBUMS).find({ _id: { $regex: `${search}` } })
+      .toArray()
       .then(results => results || [])
-      .then(results => results.map(result => ({ value: { json: { field: 'album', value: result._id } } })));
-    const artistSearch = d10.mcol(d10.COLLECTIONS.ARTISTS).find({ _id: { $regex: `^${search}` } })
+      .then(results => results.map(result => ({ name: result._id, value: { json: { field: 'album', value: result._id } } })));
+    const artistSearch = d10.mcol(d10.COLLECTIONS.ARTISTS).find({ _id: { $regex: `${search}` } })
+      .toArray()
       .then(results => results || [])
-      .then(results => results.map(result => ({ value: { json: { field: 'artist', value: result._id } } })));
+      .then(results => results.map(result => ({ name: result._id, value: { json: { field: 'artist', value: result._id } } })));
 
-    Promise.all([titleSearch, albumSearch, artistSearch])
+    Promise.all([titleSearch, artistSearch, albumSearch])
       .then(([title, artist, album]) => {
         const results = { title, artist, album };
         d10.realrest.success(results, request.ctx);
@@ -411,11 +414,12 @@ exports.api = (app) => {
     if (artists.length) {
       jobs.push(
         d10.mcol(d10.COLLECTIONS.ARTISTS).find({ _id: { $in: artists } })
+          .toArray()
           .then(as => as || [])
           .then((as) => {
             const back = { field: 'artists', results: [] };
             as.forEach((artist) => {
-              artist.songs.forEach(song => back.push({ doc: song, key: artist._id }));
+              artist.songs.forEach(song => back.results.push({ doc: song, key: artist._id }));
             });
             return back;
           }),
@@ -423,12 +427,13 @@ exports.api = (app) => {
     }
     if (albums.length) {
       jobs.push(
-        d10.mcol(d10.COLLECTIONS.ARTISTS).find({ _id: { $in: albums } })
+        d10.mcol(d10.COLLECTIONS.ALBUMS).find({ _id: { $in: albums } })
+          .toArray()
           .then(as => as || [])
           .then((as) => {
             const back = { field: 'albums', results: [] };
             as.forEach((album) => {
-              album.songs.forEach(song => back.push({ doc: song, key: album._id }));
+              album.songs.forEach(song => back.results.push({ doc: song, key: album._id }));
             });
             return back;
           }),

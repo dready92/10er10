@@ -256,14 +256,14 @@ var results = function (search,mainUi) {
 					parseResults: function(rows) {
 						var html = "";
 						for ( var index in rows ) {
-							html+= tpl.mustacheView ( "results.album", {"name": rows[index].doc.album, "ename": escape(rows[index].doc.album) } ) ;
+							html+= tpl.mustacheView ( "results.album", {"name": rows[index].name, "ename": escape(rows[index].name) } ) ;
 						}
 						return html;
 					},
 					onContent: function(rows) {
 						var details = {albums: []};
 						for ( var index in rows ) {
-							details.albums.push( rows[index].doc.album );
+							details.albums.push( rows[index].name );
 						}
 						(function(token,widget) {
 							rest.search.details(details, {
@@ -295,14 +295,14 @@ var results = function (search,mainUi) {
 					parseResults: function(rows) {
 						var html = "";
 						for ( var index in rows ) {
-							html+= tpl.mustacheView ( "results.artist", {"name": rows[index].value.json.value, "ename": escape(rows[index].value.json.value) } ) ;
+							html+= tpl.mustacheView ( "results.artist", {"name": rows[index].name, "ename": escape(rows[index].name) } ) ;
 						}
 						return html;
 					},
 					onContent: function(rows) {
 						var details = {artists: []};
 						for ( var index in rows ) {
-							details.artists.push( rows[index].value.json.value );
+							details.artists.push( rows[index].name );
 						}
 						(function(token,widget) {
 							rest.search.details(details, {

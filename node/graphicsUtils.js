@@ -148,25 +148,35 @@ exports.imageFromMeta = (meta, then) => {
       files.sha1_file(imgTmp, (err2, sha1) => {
         if (err2) { then(err2); }
         const sha1Value = sha1.split(' ', 2).shift();
-        d10.couch.d10.view('images/sha1', { key: sha1Value }, (err3, view) => {
-          if (err3) { return then(err2); }
-          if (view.rows.length) {
-            return then(null, { filename: view.rows[0].value, sha1: sha1Value });
-          }
-          exports.resizeImage(
-            imgTmp,
-            d10.config.images.dir,
-            imgName,
-            (err4, alternatives) => {
-              if (err4) { return then(err); }
-              return then(null, {
-                filename: imgName,
-                sha1: sha1Value,
-                alternatives,
-              });
-            },
-          );
-        });
+        Promise.all([
+          d10.mcol(d10.COLLECTIONS.SONGS).find({'images.sha1': sha1Value}).toArray(),
+          d10.mcol(d10.COLLECTIONS.SONGS_STAGING).find({ 'images.sha1': sha1Value }).toArray()
+        ])
+          .then(([s1, s2]) => {
+            const songs = s1 || [];
+            const songstaging = s2 || [];
+            return songs.concat(songstaging);
+          })
+          .then((songs) => {
+            if (songs.length) {
+              const image = songs[0].images.filter(img => img.sha1 === sha1Value).pop();
+              return then(null, { filename: image.filename, sha1: sha1Value });
+            }
+            
+            return exports.resizeImage(
+              imgTmp,
+              d10.config.images.dir,
+              imgName,
+              (err4, alternatives) => {
+                if (err4) { return then(err); }
+                return then(null, {
+                  filename: imgName,
+                  sha1: sha1Value,
+                  alternatives,
+                });
+              },
+            );
+          });
       });
     });
   } else {

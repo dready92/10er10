@@ -34,9 +34,6 @@ exports.update = function update(user, playlist, songs, then) {
   if (!playlist._id.length || playlist._id.substr(0, 2) !== 'pl') {
     return then(8);
   }
-  const upq = [{ _id: user._id },
-    { $set: { 'playlists.$[element].songs': songs } },
-    { arrayFilters: [{ 'element._id': playlist._id }] }];
 
   return fetchSongs().then(songDetails => d10.mcol(d10.COLLECTIONS.USERS).updateOne(
     { _id: user._id },
@@ -104,9 +101,9 @@ exports.append = function append(user, playlist, songId, then) {
         });
     })
     .then((song) => {
-      const updatedPlaylist = { ...playlist, songs: [...playlist.songs] };
-      updatedPlaylist.songs.push(songId);
-      then(null, { updatedPlaylist, song });
+      const updatedPlaylist = { ...playlist };
+      updatedPlaylist.songs = [...playlist.songs, songId];
+      then(null, { playlist: updatedPlaylist, song });
     })
     .catch((err) => {
       then(err.code || 10);
@@ -157,9 +154,9 @@ exports.rename = function rename(user, playlistId, name, then) {
     { arrayFilters: [{ 'element._id': playlistId }] },
   )
     .then(() => {
-      const playlist = user.playlists.filter(pl => pl._id === playlistId);
+      const playlist = user.playlists.filter(pl => pl._id === playlistId).pop();
       const updatedPlaylist = { ...playlist, name };
-      return then(updatedPlaylist);
+      return then(null, updatedPlaylist);
     })
     .catch((err) => {
       debug('troubles renaming an rpl ', err);

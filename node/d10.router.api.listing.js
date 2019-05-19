@@ -5,7 +5,6 @@ const d10 = require('./d10');
 const debug = d10.debug('d10:d10.router.api.listing');
 // const artists = require('./d10.artists');
 const users = require('./d10.users');
-// const { getAndParseByAlbum } = require('./rest-helpers');
 
 function validGenre(genre) {
   return d10.config.allowCustomGenres === true || d10.config.genres.indexOf(genre) >= 0;
@@ -18,51 +17,31 @@ exports.api = function api(app) {
   app.get('/api/album', request => albumSearch('album/search/search', request));
   app.get('/api/artistsListing', request => artistTokenized('artist/tokenized', request));
   app.get('/api/genresResume', request => genreArtist('genre/artist', request));
-  app.get('/api/list/artists', 
-  request => artistBaseName('artist/', request));
+  app.get('/api/list/artists',
+    request => artistBaseName('artist/', request));
   app.get('/api/list/creations',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     listByCreation);
   app.get('/api/list/hits',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     listByHits);
   app.get('/api/list/creations/mergeAlbums', mixedAlbumsSongsHandler);
   app.get('/api/list/genres',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => genreName('genre/name', request));
   app.get('/api/own/list/titles',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => titleName(`${request.ctx.user._id}/title_name`, request));
   app.get('/api/list/titles',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => titleName('title/name', request));
   app.get('/api/list/albumnames', request => albumName('album/name', request));
   app.get('/api/list/albums', request => albums(request));
   app.get('/api/list/genres/artists/:genre',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => genreArtists('genre/artists', request));
   app.get('/api/list/genres/albums/:genre',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => genreAlbums('genre/albums', request));
   app.get('/api/list/genres/dateArtist/:genre', genreDateArtist);
   app.get('/api/list/s_user',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     userSongs);
   app.get('/api/list/likes',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     getLikes);
   app.get('/api/list/genres/albumsSongs/:genre',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => genreAlbumsSongs('genre/albums', request));
   app.get('/api/list/artists/albums/:artist', request => artistAlbums('artist/albums', request));
   app.get('/api/list/artists/songsByAlbum/:artist', request => artistSongsOrderedByAlbums('artist/songsOrderedByAlbums', request));
@@ -81,7 +60,7 @@ exports.api = function api(app) {
       {
         $group: {
           _id: null,
-          artists: { $addToSet: '$tokenartists' }
+          artists: { $addToSet: '$tokenartists' },
         },
       },
     ])
@@ -98,53 +77,8 @@ exports.api = function api(app) {
 
     return d10.mcol(d10.COLLECTIONS.SONGS).find({ album: { $regex: `^${q}` } }, { album: 1, _id: 0 })
       .then(resp => resp.map(doc => doc.album))
-      .then(albums => d10.realrest.success(albums, request.ctx))
+      .then(albumsRsponse => d10.realrest.success(albumsRsponse, request.ctx))
       .catch(() => d10.realrest.success([], request.ctx));
-  }
-
-  function gotd10QueryMiddleware(request, response, next) {
-    // eslint-disable-next-line no-param-reassign
-    request.d10query = {};
-    next();
-  }
-
-  function mayHaveStartStringMiddleware(request, response, next) {
-    if (!request.d10query) {
-      // eslint-disable-next-line no-param-reassign
-      request.d10query = {};
-    }
-
-    const query = {};
-
-    if (request.query.start && request.query.start.length) {
-      const q = d10.ucwords(request.query.start);
-      query.startkey = [q];
-      query.endkey = [d10.nextWord(q)];
-    }
-    // eslint-disable-next-line no-param-reassign
-    request.d10query = { ...request.d10query, ...query };
-
-    next();
-  }
-
-  function mayHaveStartKeyAndDocId(request, response, next) {
-    if (!request.d10query) {
-      // eslint-disable-next-line no-param-reassign
-      request.d10query = {};
-    }
-
-    const query = {};
-
-    if (request.query.startkey) {
-      query.startkey = JSON.parse(request.query.startkey);
-      if (request.query.startkey_docid) {
-        query.startkey_docid = request.query.startkey_docid;
-      }
-    }
-    // eslint-disable-next-line no-param-reassign
-    request.d10query = { ...request.d10query, ...query };
-
-    next();
   }
 
   app.get('/api/genre', (request) => {
@@ -196,7 +130,7 @@ exports.api = function api(app) {
     if (request.query.artist && request.query.artist.length) {
       query.tokenartists = request.query.artist;
     }
-    const offset = request.query.offset ||  0;
+    const offset = request.query.offset || 0;
     return d10.mcol(d10.COLLECTIONS.SONGS).find(query)
       .sort({ artist: -1, title: -1 })
       .skip(offset)
@@ -243,21 +177,7 @@ exports.api = function api(app) {
   }
 
   function mixedAlbumsSongsHandler(request) {
-    d10.realrest.err(400, 'not implemented', request.ctx)
-    /*
-    const couchQuery = getCouchQuery(request.query);
-    if (!couchQuery) {
-      return d10.realrest.err(428, request.query.genre, request.ctx);
-    }
-
-    const ignoredAlbums = request.query.ignoredAlbums
-      ? JSON.parse(request.query.ignoredAlbums)
-      : [];
-
-    return getAndParseByAlbum(couchQuery, ignoredAlbums)
-      .then(response => d10.realrest.success(response, request.ctx))
-      .catch(e => d10.realrest.err(500, e, request.ctx));
-    */
+    d10.realrest.err(400, 'not implemented', request.ctx);
   }
 
   function listByHits(request) {
@@ -359,7 +279,9 @@ exports.api = function api(app) {
   }
 
   function getLikes(request) {
-    const keys = request.ctx.user.preferences.likes ? Object.keys(request.ctx.user.preferences.likes) : [];
+    const keys = request.ctx.user.preferences.likes
+      ? Object.keys(request.ctx.user.preferences.likes)
+      : [];
     d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: keys } })
       .toArray()
       .then(docs => d10.realrest.success(docs, request.ctx))
@@ -444,7 +366,7 @@ exports.api = function api(app) {
       .sort({ album: -1, tracknumber: 1 })
       .toArray()
       .then(docs => d10.realrest.success(docs, request.ctx))
-      .catch(err => d10.realrest.err(423, err, request.ctx));      
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function artistGenres(view, request) {
@@ -489,8 +411,9 @@ exports.api = function api(app) {
 
     return d10.mcol(d10.COLLECTIONS.ARTISTS).find({ album })
       .sort({ _id: 1 })
-      .offset(offset)
+      .skip(offset)
       .limit(d10.config.rpp)
+      .toArray()
       .then(docs => d10.realrest.success(docs, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
   }
@@ -609,7 +532,10 @@ exports.api = function api(app) {
             });
 
             if (responses.length === responseLength) {
-              return d10.realrest.success({ songs: responses, nextOffset: realOffset }, request.ctx);
+              return d10.realrest.success({
+                songs: responses,
+                nextOffset: realOffset,
+              }, request.ctx);
             }
 
             if (hits.rows.length < requestLength) {

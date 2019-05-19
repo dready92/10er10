@@ -21,6 +21,7 @@ module.exports.api = (app) => {
   });
 
   app.delete('/api/apikeys/:apikeyid', (req) => {
+    const user = req.ctx.user;
     d10.mcol(d10.COLLECTIONS.USERS).updateOne({ _id: user._id }, { $pull: { apikeys: { key: req.params.apikeyid } } })
       .then(() => d10.realrest.success({ success: true }, req.ctx))
       .catch(err => d10.realrest.err(500, err, req.ctx));
