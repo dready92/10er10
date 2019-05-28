@@ -4,6 +4,7 @@ const d10 = require('./d10');
 const when = require('./when');
 const songProcessorEmitter = require('./lib/song-processor/song-processor-events');
 const songProcessor = require('./lib/song-processor');
+const artistToken = require('./artistToken');
 
 const debug = d10.debug('d10:d10.router.song');
 const jsonParserMiddleware = bodyParser.json();
@@ -147,7 +148,7 @@ exports.api = function api(app) {
             source = stagingDoc;
           } else {
             d10.realrest.err(404, 'Song not found', request.ctx);
-            return null;            
+            return null;
           }
 
           if (source.user !== request.ctx.user._id && !request.ctx.user.superman) {
@@ -155,8 +156,11 @@ exports.api = function api(app) {
             d10.realrest.err(403, 'Forbidden', request.ctx);
             return null;
           }
-
           const doc = { ...source, ...fields };
+          const tokens = artistToken.tokenize(doc);
+          doc.tokentitle = tokens.title;
+          doc.tokenartists = tokens.artists;
+
           let record;
           if (sourceIsStaging) {
             record = d10.mcol(d10.COLLECTIONS.SONGS).insertOne(doc).then(() => {

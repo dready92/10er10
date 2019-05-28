@@ -32,6 +32,7 @@ $ node couch2mongo.js -p
 const prompt = require('prompt');
 const configParser = require('../configParser');
 const d10 = require('../d10');
+const d10CouchLayer = require('../d10.couch');
 const artistToken = require('../artistToken');
 
 const schema = {
@@ -93,6 +94,7 @@ Press Ctrl-C to abort, or wait 5 seconds
 });
 
 function startMigration() {
+  d10CouchLayer(d10);
   const d10Migration = startD10Migration();
 
   d10Migration

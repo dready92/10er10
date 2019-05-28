@@ -61,7 +61,7 @@ function checkAuth(ctx, passTheCoochie) {
         debug('Session not found in datastore');
         return {};
       }
-      return d10.mcol(d10.COLLECTIONS.USERS).findOne({login: cookieData.user})
+      return d10.mcol(d10.COLLECTIONS.USERS).findOne({ login: cookieData.user })
         .then((userDoc) => {
           if (userDoc) {
             debug('Found user document in datastore');

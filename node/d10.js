@@ -3,7 +3,6 @@ const Collection = require('mongodb').Collection;
 
 process.env.MAGIC = process.env.MAGIC || `${__dirname}/magic/magic.mgc`;
 
-const ncouch = require('ncouch');
 const mmmagic = require('mmmagic');
 const debugProvider = require('./debug');
 const mustache = require('./mustache');
@@ -20,71 +19,16 @@ const MONGO_COLLECTIONS = {
   ARTISTS: 'artists',
   ALBUMS: 'albums',
   SONGS_STAGING: 'songsstaging',
+  INVITES: 'invites',
 };
 
 let config;
-
-function toPromise(fn, context) {
-  return (...args) => new Promise((resolve, reject) => {
-    args.push((err, response) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(response);
-      }
-    });
-    fn.apply(context, args);
-  });
-}
-
-function makePromisesDb(couch) {
-  const db = {};
-  db.trackGetAllDocs = toPromise(couch.track.getAllDocs, couch.track);
-  db.trackGetDoc = toPromise(couch.track.getDoc, couch.track);
-  db.trackStoreDoc = toPromise(couch.track.storeDoc, couch.track);
-  db.trackStoreDocs = toPromise(couch.track.storeDocs, couch.track);
-  db.trackView = toPromise(couch.track.view, couch.track);
-  db.trackUpdateDoc = toPromise(couch.track.updateDoc, couch.track);
-  db.trackDeleteDoc = toPromise(couch.track.deleteDoc, couch.track);
-  db.d10GetAllDocs = toPromise(couch.d10.getAllDocs, couch.d10);
-  db.d10GetDoc = toPromise(couch.d10.getDoc, couch.d10);
-  db.d10StoreDoc = toPromise(couch.d10.storeDoc, couch.d10);
-  db.d10StoreDocs = toPromise(couch.d10.storeDocs, couch.d10);
-  db.d10View = toPromise(couch.d10.view, couch.d10);
-  db.d10List = toPromise(couch.d10.list, couch.d10);
-  db.d10UpdateDoc = toPromise(couch.d10.updateDoc, couch.d10);
-  db.d10DeleteDoc = toPromise(couch.d10.deleteDoc, couch.d10);
-  db.d10wiGetAllDocs = toPromise(couch.d10wi.getAllDocs, couch.d10wi);
-  db.d10wiGetDoc = toPromise(couch.d10wi.getDoc, couch.d10wi);
-  db.d10wiStoreDoc = toPromise(couch.d10wi.storeDoc, couch.d10wi);
-  db.d10wiStoreDocs = toPromise(couch.d10wi.storeDocs, couch.d10wi);
-  db.d10wiView = toPromise(couch.d10wi.view, couch.d10wi);
-  db.d10wiUpdateDoc = toPromise(couch.d10wi.updateDoc, couch.d10wi);
-  db.d10wiDeleteDoc = toPromise(couch.d10wi.deleteDoc, couch.d10wi);
-  db.authGetAllDocs = toPromise(couch.auth.getAllDocs, couch.auth);
-  db.authGetDoc = toPromise(couch.auth.getDoc, couch.auth);
-  db.authStoreDoc = toPromise(couch.auth.storeDoc, couch.auth);
-  db.authStoreDocs = toPromise(couch.auth.storeDocs, couch.auth);
-  db.authView = toPromise(couch.auth.view, couch.auth);
-  db.authUpdateDoc = toPromise(couch.auth.updateDoc, couch.auth);
-  db.authDeleteDoc = toPromise(couch.auth.deleteDoc, couch.auth);
-
-  return db;
-}
 
 const debug = debugProvider('d10:d10');
 
 function setConfig(cfg) {
   module.exports.config = cfg;
   config = cfg;
-  module.exports.couch = {
-    d10: ncouch.server(config.couch.d10.dsn).debug(false).database(config.couch.d10.database),
-    auth: ncouch.server(config.couch.auth.dsn).debug(false).database(config.couch.auth.database),
-    track: ncouch.server(config.couch.track.dsn).debug(false).database(config.couch.track.database),
-    d10wi: ncouch.server(config.couch.d10wi.dsn).debug(false).database(config.couch.d10wi.database),
-  };
-  module.exports.dbp = makePromisesDb(module.exports.couch);
-
   return setMongoConfig(cfg);
 }
 

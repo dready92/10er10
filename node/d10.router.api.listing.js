@@ -3,7 +3,6 @@
 const d10 = require('./d10');
 
 const debug = d10.debug('d10:d10.router.api.listing');
-// const artists = require('./d10.artists');
 const users = require('./d10.users');
 
 function validGenre(genre) {
@@ -11,8 +10,6 @@ function validGenre(genre) {
 }
 
 exports.api = function api(app) {
-  const { d10View } = d10.dbp;
-
   app.get('/api/artist', request => artistSearch('artist/search', request));
   app.get('/api/album', request => albumSearch('album/search/search', request));
   app.get('/api/artistsListing', request => artistTokenized('artist/tokenized', request));
@@ -53,20 +50,13 @@ exports.api = function api(app) {
   function artistSearch(view, request) {
     const q = d10.ucwords(request.query.start);
 
-    return d10.mcol(d10.COLLECTIONS.SONGS).aggregate([
-      { $project: { tokenartists: true } },
-      { $unwind: '$tokenartists' },
-      { $match: { tokenartists: { $regex: `^${q}` } } },
-      {
-        $group: {
-          _id: null,
-          artists: { $addToSet: '$tokenartists' },
-        },
-      },
-    ])
-      .then((doc) => {
-        doc.artists.sort();
-        return doc.artists;
+    return d10.mcol(d10.COLLECTIONS.ARTISTS)
+      .find({ _id: { $regex: `^${q}` } })
+      .toArray()
+      .then((docs) => {
+        const artists = (docs || []).map(artist => artist._id);
+        artists.sort();
+        return artists;
       })
       .then(artists => d10.realrest.success(artists, request.ctx))
       .catch(() => d10.realrest.success([], request.ctx));
@@ -92,15 +82,18 @@ exports.api = function api(app) {
   });
 
   function artistTokenized(view, request) {
-    const query = { ...request.d10query, group: true, group_level: 1 };
+    const offset = request.query.offset ? parseInt(request.query.offset, 10) : 0; 
+    const limit = request.query.limit ? parseInt(request.query.limit, 10) : d10.config.rpp;
 
-    if (request.query.limit) {
-      const limit = parseInt(request.query.limit, 10);
-      if (!isNaN(limit)) {
-        query.limit = limit;
-      }
-    }
-    listPromiseRespond(d10View(view, query), request.ctx);
+    d10.mcol(d10.COLLECTIONS.ARTISTS).find({})
+      .sort({ _id: 1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray()
+      .then((response) => {
+        const artists = (response || []).map(artist => ({ ...artist, songs: artist.songs.length }));
+        d10.realrest.success(artists, request.ctx);
+      });
   }
 
   function genreArtist(view, request) {
