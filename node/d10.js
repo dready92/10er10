@@ -82,30 +82,6 @@ function mcol(id) {
   return module.exports.mongo.collection(id);
 }
 
-function loginInfos(login, cb, ecb) {
-  module.exports.dbp.authView('infos/all', { include_docs: true, key: ['login', login] })
-    .then((resp) => {
-      if (!resp.rows) {
-        ecb(null, resp);
-        return null;
-      }
-      return resp.rows[0].doc._id.replace(/^us/, '');
-    })
-    .then((id) => {
-      if (!id) {
-        return null;
-      }
-      return module.exports.dbp.authView('infos/all', { include_docs: true, startkey: [id, ''], endkey: [id, []] });
-    })
-    .then((resp) => {
-      if (resp) {
-        cb(resp);
-      }
-      return null;
-    })
-    .catch(err => ecb(err));
-}
-
 function d10Infos(login, cb, ecb) {
   module.exports.dbp.d10View('user/all_infos', { include_docs: true, startkey: [login, null], endkey: [login, []] })
     .then(resp => cb(resp))
@@ -335,7 +311,6 @@ module.exports = {
     statusMessage,
   },
   db: {
-    loginInfos,
     d10Infos,
   },
   mcol,
