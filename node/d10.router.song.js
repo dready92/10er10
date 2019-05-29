@@ -134,7 +134,7 @@ exports.api = function api(app) {
           return;
         }
         if (request.body.album) {
-          fields.album = d10.sanitize.string(request.body.album);
+          fields.album = sanitize.string(request.body.album);
         } else {
           fields.album = '';
         }

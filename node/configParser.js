@@ -44,6 +44,10 @@ function getType(obj, key) {
 }
 
 function overridesWithEnv() {
+  if (process.env.PORT) {
+    config.port = process.env.PORT;
+  }
+
   if (process.env.MONGO_URL) {
     config.mongo.url = process.env.MONGO_URL;
     config.mongo.options = {};

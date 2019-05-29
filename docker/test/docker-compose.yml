@@ -5,6 +5,7 @@ services:
     build: .
     image: dready92/10er10:1.0-snapshot
     environment:
+      - port=8888
       - DEBUG=d10.*
       - MONGO_HOST=db:27777
       - MONGO_URL=mongodb://db:27777
@@ -17,7 +18,7 @@ services:
       - 8888:8888
     volumes:
       - ../..:/d10:z
-      - ../data:/data:z
+      - ../../node_modules/d10-fixtures/files:/data:z
     depends_on:
       - db
     networks:
