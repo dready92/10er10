@@ -66,12 +66,6 @@ function mcol(id) {
   return module.exports.mongo.collection(id);
 }
 
-function d10Infos(login, cb, ecb) {
-  module.exports.dbp.d10View('user/all_infos', { include_docs: true, startkey: [login, null], endkey: [login, []] })
-    .then(resp => cb(resp))
-    .catch((err) => { if (ecb) ecb(err); });
-}
-
 const httpStatusCodes = {
   100: 'Continue',
   101: 'Switching Protocols',
@@ -202,38 +196,6 @@ function fileType(file, cb) {
   });
 }
 
-const sanitize = {
-  string(s) {
-    return ucwords(s.replace(/^\s+/, '').replace(/\s+$/, '').replace(/</g, '').replace(/>/g, '')
-      .toLowerCase());
-  },
-  number(s) {
-    // eslint-disable-next-line no-param-reassign
-    s = parseFloat(s);
-    // eslint-disable-next-line no-restricted-globals
-    if (isNaN(s)) return 0;
-    return s;
-  },
-  genre(s) {
-    // eslint-disable-next-line no-param-reassign
-    s = s.toLowerCase();
-    let back = '';
-    config.genres.forEach((v) => {
-      if (s === v.toLowerCase()) {
-        back = v;
-      }
-    });
-    return back;
-  },
-};
-
-const valid = {
-  title(s) { return (s.length); },
-  artist(s) { return (s.length); },
-  genre(s) { return (config.genres.indexOf(s) >= 0); },
-  id(s) { return s.substr(0, 2) === 'aa'; },
-};
-
 const realrest = {
   err(code, data, ctx) {
     if (!ctx) {
@@ -260,22 +222,6 @@ const realrest = {
 
 };
 
-function saveUser(doc, deleteIt) {
-  if (deleteIt) {
-    module.exports.dbp.authDeleteDoc(doc)
-      .then(() => debug(`user deleted ${doc._id}`))
-      .catch(() => debug(`failed to delete user ${doc._id}`));
-  }
-}
-
-function saveUserPrivate(doc, deleteIt) {
-  if (deleteIt) {
-    module.exports.dbp.authDeleteDoc(doc)
-      .then(() => debug(`user private infos deleted ${doc._id}`))
-      .catch(() => debug(`failed to delete user private infos ${doc._id}`));
-  }
-}
-
 module.exports = {
   debug: debugProvider,
   mustache,
@@ -287,15 +233,9 @@ module.exports = {
   ucwords,
   fileType,
   sanitize,
-  valid,
   realrest,
-  saveUser,
-  saveUserPrivate,
   http: {
     statusMessage,
-  },
-  db: {
-    d10Infos,
   },
   mcol,
   COLLECTIONS: MONGO_COLLECTIONS,

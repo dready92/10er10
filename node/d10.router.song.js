@@ -61,6 +61,24 @@ exports.api = function api(app) {
       });
   });
 
+  const sanitize = {
+    string(s) {
+      return d10.ucwords(s.replace(/^\s+/, '').replace(/\s+$/, '').replace(/</g, '').replace(/>/g, '')
+        .toLowerCase());
+    },
+    genre(s) {
+      // eslint-disable-next-line no-param-reassign
+      s = s.toLowerCase();
+      let back = '';
+      d10.config.genres.forEach((v) => {
+        if (s === v.toLowerCase()) {
+          back = v;
+        }
+      });
+      return back;
+    },
+  };
+
   // eslint-disable-next-line consistent-return
   app.put('/api/meta/:id', jsonParserMiddleware, (request, response, next) => {
     if (request.params.id.substr(0, 2) !== 'aa') {
@@ -70,10 +88,10 @@ exports.api = function api(app) {
 
     const fields = {};
     const errors = {};
-    fields.title = request.body.title ? d10.sanitize.string(request.body.title) : '';
-    fields.artist = request.body.artist ? d10.sanitize.string(request.body.artist) : '';
+    fields.title = request.body.title ? sanitize.string(request.body.title) : '';
+    fields.artist = request.body.artist ? sanitize.string(request.body.artist) : '';
     if (!d10.config.allowCustomGenres) {
-      fields.genre = request.body.genre ? d10.sanitize.genre(request.body.genre) : '';
+      fields.genre = request.body.genre ? sanitize.genre(request.body.genre) : '';
     } else {
       fields.genre = request.body.genre && request.body.genre.length ? request.body.genre : 'Other';
     }
