@@ -232,7 +232,6 @@ module.exports = {
   inlineView,
   ucwords,
   fileType,
-  sanitize,
   realrest,
   http: {
     statusMessage,
