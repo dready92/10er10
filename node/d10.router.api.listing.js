@@ -66,6 +66,7 @@ exports.api = function api(app) {
     const q = d10.ucwords(request.query.start);
 
     return d10.mcol(d10.COLLECTIONS.SONGS).find({ album: { $regex: `^${q}` } }, { album: 1, _id: 0 })
+      .toArray()
       .then(resp => resp.map(doc => doc.album))
       .then(albumsRsponse => d10.realrest.success(albumsRsponse, request.ctx))
       .catch(() => d10.realrest.success([], request.ctx));
@@ -82,7 +83,7 @@ exports.api = function api(app) {
   });
 
   function artistTokenized(view, request) {
-    const offset = request.query.offset ? parseInt(request.query.offset, 10) : 0; 
+    const offset = request.query.offset ? parseInt(request.query.offset, 10) : 0;
     const limit = request.query.limit ? parseInt(request.query.limit, 10) : d10.config.rpp;
 
     d10.mcol(d10.COLLECTIONS.ARTISTS).find({})

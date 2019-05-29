@@ -454,7 +454,7 @@ define(['js/domReady', 'js/user', 'js/d10.rest', 'js/d10.templates', 'js/d10.dnd
           });
 
           $('input[name=album]', topicdiv).permanentOvlay(
-            rest.album.list,
+            rest.album.listnames,
             $('input[name=album]', topicdiv).parent().find('.overlay'),
             {
               autocss: true,
