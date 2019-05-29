@@ -35,10 +35,11 @@ exports.api = function api(app) {
   app.delete('/api/songImage/:id/:filename', (request) => {
     const songId = request.params.id;
     const filename = request.params.filename;
+    const songsCollection = d10.mcol(d10.COLLECTIONS.SONGS);
 
     return Promise.all([
-      d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: songId }),
-      d10.mcol(d10.COLLECTIONS.SONGS).find({ 'images.filename': filename }).toArray(),
+      songsCollection.findOne({ _id: songId }),
+      songsCollection.find({ images: { $elemMatch: { filename } } }).toArray(),
     ])
       .then(([doc, used]) => {
         if (doc.user !== request.ctx.user._id && !request.ctx.user.superman) {
@@ -62,16 +63,16 @@ exports.api = function api(app) {
         }
 
         // remove image from documens
-        return d10.mcol(d10.COLLECTIONS.SONGS).updateOne(
+        return songsCollection.updateOne(
           { _id: songId },
           {
             $pull: {
-              'images.filename': filename,
+              images: { filename },
             },
           },
         ).then(updateResponse => ({
           image,
-          deleteFiles: saneUsed.length > 1,
+          deleteFiles: saneUsed.length <= 1,
           response: updateResponse,
         }));
       })
@@ -131,7 +132,10 @@ exports.api = function api(app) {
       || !request.query.filesize || !request.query.filesize.length) {
       return d10.realrest.err(427, 'filename and filesize arguments required', request.ctx);
     }
-    privAddimage(request.query.filename, request.query.filesize, [request.params.id], request)
+
+    const filesize = Number(request.query.filesize);
+
+    privAddimage(request.query.filename, filesize, [request.params.id], request)
       .then((update) => {
         debug('Image update complete ', update.dbresponse);
         d10.realrest.success(update.image, request.ctx);
@@ -148,7 +152,10 @@ exports.api = function api(app) {
       || !request.query.ids || !Array.isArray(request.query.ids) || !request.query.ids.length) {
       return d10.realrest.err(427, 'filename, filesize and ids arguments required', request.ctx);
     }
-    privAddimage(request.query.filename, request.query.filesize, request.query.ids, request)
+
+    const filesize = Number(request.query.filesize);
+
+    privAddimage(request.query.filename, filesize, request.query.ids, request)
       .then((update) => {
         debug('Image update complete ', update.dbresponse);
         d10.realrest.success(update.image, request.ctx);

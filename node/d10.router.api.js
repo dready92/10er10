@@ -666,7 +666,7 @@ exports.api = (app) => {
     }
 
     function getAlbums(genre) {
-      return d10.mcol(d10.COLLECTIONS.ALBUMS).count({ genres: genre })
+      return d10.mcol(d10.COLLECTIONS.ALBUMS).countDocuments({ genres: genre })
         .catch((err) => {
           debug('getAlbum failed ', err);
           throw err;
@@ -674,7 +674,7 @@ exports.api = (app) => {
     }
 
     function getArtists(genre) {
-      return d10.mcol(d10.COLLECTIONS.ARTISTS).count({ genres: genre })
+      return d10.mcol(d10.COLLECTIONS.ARTISTS).countDocuments({ genres: genre })
         .catch((err) => {
           debug('getArtists failed ', err);
           throw err;
