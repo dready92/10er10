@@ -37,9 +37,9 @@ exports.couch_dev = {
 };
 */
 exports.mongo_dev = {
-	url: 'mongodb://localhost:27117',
-	database: 'd10_dev',
-	options: {},
+	url: 'mongodb://localhost:27017',
+	database: 'd10_migtest1',
+	options: { useNewUrlParser: true },
 };
 
 // templates path

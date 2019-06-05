@@ -142,7 +142,7 @@ exports.api = (app) => {
   });
 
   app.get('/api/toReview', (request) => {
-    d10.mcol(d10.COLLECTIONS.SONGS_STAGING).count({ user: request.ctx.user._id })
+    d10.mcol(d10.COLLECTIONS.SONGS_STAGING).countDocuments({ user: request.ctx.user._id })
       .then(count => d10.realrest.success({ count }, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
   });

@@ -1,11 +1,11 @@
-/* eslint-disable global-require */
+/* eslint-disable no-console,global-require */
 let config;
 
 
 const configParser = require('../configParser');
 
 configParser.getConfig((err, resp) => {
-  if (process.argv.length > 4 && process.argv[4] == '-p') {
+  if (process.argv.length > 4 && process.argv[4] === '-p') {
     configParser.switchProd();
   } else {
     configParser.switchDev();
@@ -39,7 +39,7 @@ function onReady() {
         if (err) {
           console.log('not created : something went wrong : ', err);
         } else {
-          console.log(`user created, id = us${resp}`);
+          console.log(`user created, id = ${resp}`);
         }
       },
     });
