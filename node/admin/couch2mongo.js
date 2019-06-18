@@ -99,34 +99,47 @@ function startMigration() {
 
   d10Migration
     .then(() => {
-      console.log('migration success');
+      console.log('');
+      console.log('-------------------------------------------------');
+      console.log('Migration complete. No error');
+      console.log('-------------------------------------------------');
     })
     .catch(err => console.log('migration error', err))
     .then(() => d10.mongoClient.close());
 }
 
 function startD10Migration() {
+  console.log('--- --- --- ---');
+  console.log('Loading from CouchDB, database "auth"');
   return d10.dbp.authGetAllDocs({ include_docs: true })
     .then((docs) => {
       const users = [];
       const userPrivates = {};
       const sessions = [];
-      docs.rows.map(row => row.doc).forEach((doc) => {
-        if (doc._id.startsWith('us')) {
-          users.push(doc);
-        } else if (doc._id.startsWith('pr')) {
-          userPrivates[`us${doc._id.substring(2)}`] = doc;
-        } else if (doc._id.startsWith('se')) {
-          sessions.push(doc);
-        } else {
-          console.log(doc._id);
-        }
-      });
+      docs.rows.map(row => row.doc)
+        .filter(doc => !doc._id.startsWith('_design/'))
+        .forEach((doc) => {
+          if (doc._id.startsWith('us')) {
+            users.push(doc);
+          } else if (doc._id.startsWith('pr')) {
+            userPrivates[`us${doc._id.substring(2)}`] = doc;
+          } else if (doc._id.startsWith('se')) {
+            sessions.push(doc);
+          } else if (!doc._id.startsWith('in')) {
+            console.log('ignored document:', doc._id);
+          }
+        });
+
+      console.log('--- --- --- ---');
       console.log('users to migrate:', users.length);
       console.log('sessions to migrate:', sessions.length);
 
       return D10MigrateUsers(users, userPrivates)
         .then(() => D10MigrateSessions(sessions));
+    })
+    .then(() => {
+      console.log('--- --- --- ---');
+      console.log('Loading from CouchDB, databases "d10" and "d10wi"');
     })
     .then(() => Promise.all([
       d10.dbp.d10GetAllDocs({ include_docs: true }),
@@ -138,28 +151,33 @@ function startD10Migration() {
       const userHistory = [];
       const userPreferences = [];
       const songHits = {};
-      allDocs.rows.map(row => row.doc).forEach((doc) => {
-        if (doc._id.startsWith('aa')) {
-          songs.push(doc);
-        } else if (doc._id.startsWith('pl')) {
-          playlists.push(doc);
-        } else {
-          console.log(doc._id);
-        }
-      });
+      allDocs.rows.map(row => row.doc)
+        .filter(doc => !doc._id.startsWith('pr') && !doc._id.startsWith('_design/') && !doc._id.startsWith('up'))
+        .forEach((doc) => {
+          if (doc._id.startsWith('aa')) {
+            songs.push(doc);
+          } else if (doc._id.startsWith('pl')) {
+            playlists.push(doc);
+          } else {
+            console.log('ignored document:', doc._id);
+          }
+        });
 
-      allwiDocs.rows.map(row => row.doc).forEach((doc) => {
-        if (doc._id.startsWith('pr')) {
-          userHistory.push(doc);
-        } else if (doc._id.startsWith('up')) {
-          userPreferences.push(doc);
-        } else if (doc._id.startsWith('aa')) {
-          songHits[doc._id] = doc.hits || 0;
-        } else {
-          console.log(doc._id);
-        }
-      });
+      allwiDocs.rows.map(row => row.doc)
+        .filter(doc => !doc._id.startsWith('_design/'))
+        .forEach((doc) => {
+          if (doc._id.startsWith('pr')) {
+            userHistory.push(doc);
+          } else if (doc._id.startsWith('up')) {
+            userPreferences.push(doc);
+          } else if (doc._id.startsWith('aa')) {
+            songHits[doc._id] = doc.hits || 0;
+          } else {
+            console.log('ignored document:', doc._id);
+          }
+        });
 
+      console.log('--- --- --- ---');
       console.log('songs to migrate:', songs.length);
       console.log('playlists to migrate:', playlists.length);
       console.log('user preferences to migrate:', userPreferences.length);
@@ -169,19 +187,27 @@ function startD10Migration() {
         .then(() => D10MigrateUserHistory(userHistory))
         .then(() => D10MigrateUserPreferences(userPreferences));
     })
+    .then(() => {
+      console.log('--- --- --- ---');
+      console.log('Loading from CouchDB, database "track"');
+    })
     .then(() => d10.dbp.trackGetAllDocs({ include_docs: true }))
     .then((docs) => {
       const pings = [];
       const playEvents = [];
-      docs.rows.map(row => row.doc).forEach((doc) => {
-        if (doc._id.startsWith('pi')) {
-          pings.push(doc);
-        } else if (doc._id.startsWith('pt')) {
-          playEvents.push(doc);
-        } else {
-          console.log(doc._id);
-        }
-      });
+      docs.rows.map(row => row.doc)
+        .filter(doc => !doc._id.startsWith('_design/'))
+        .forEach((doc) => {
+          if (doc._id.startsWith('pi')) {
+            pings.push(doc);
+          } else if (doc._id.startsWith('pt')) {
+            playEvents.push(doc);
+          } else {
+            console.log('ignored document:', doc._id);
+          }
+        });
+
+      console.log('--- --- --- ---');
       console.log('pings to migrate:', pings.length);
       console.log('events to migrate:', playEvents.length);
       return D10MigratePings(pings)
@@ -191,7 +217,7 @@ function startD10Migration() {
 
 function D10MigrateSongs(songs, songHits) {
   const collection = d10.mcol(d10.COLLECTIONS.SONGS);
-
+  console.log('--- --- --- ---');
   console.log('Starting songs migration:');
   console.log('Songs: sanitize');
   const saneData = songs.map((song) => {
@@ -211,7 +237,7 @@ function D10MigrateSongs(songs, songHits) {
 
 function D10MigratePlaylists(playlists) {
   const collection = d10.mcol(d10.COLLECTIONS.USERS);
-
+  console.log('--- --- --- ---');
   console.log('Starting playlists migration:');
   console.log('Playlists: sanitize');
   const saneData = playlists.map((playlist) => {
@@ -222,7 +248,7 @@ function D10MigratePlaylists(playlists) {
     return newPlaylist;
   });
   console.log('Playlists: sanitize done');
-  console.log('Playlists: start write in Mongo');
+  console.log(`Playlists: start write in Mongo (${saneData.length})`);
 
   function run() {
     if (!saneData.length) {
@@ -241,7 +267,7 @@ function D10MigratePlaylists(playlists) {
 
 function D10MigrateUserPreferences(prefs) {
   const collection = d10.mcol(d10.COLLECTIONS.USERS);
-
+  console.log('--- --- --- ---');
   console.log('Starting user preferences migration:');
   console.log('User preferences: sanitize');
   const saneData = prefs.map((pref) => {
@@ -253,7 +279,7 @@ function D10MigrateUserPreferences(prefs) {
     return newPref;
   });
   console.log('User preferences: sanitize done');
-  console.log('User preferences: start write in Mongo');
+  console.log(`User preferences: start write in Mongo (${saneData.length})`);
 
   function run() {
     if (!saneData.length) {
@@ -271,7 +297,7 @@ function D10MigrateUserPreferences(prefs) {
 
 function D10MigrateUserHistory(prefs) {
   const collection = d10.mcol(d10.COLLECTIONS.USER_HISTORY);
-
+  console.log('--- --- --- ---');
   console.log('Starting user history migration:');
   console.log('User history: sanitize');
   const saneData = prefs.map((pref) => {
@@ -288,7 +314,7 @@ function D10MigrateUserHistory(prefs) {
 
 function D10MigrateUsers(users, privates) {
   const collection = d10.mcol(d10.COLLECTIONS.USERS);
-
+  console.log('--- --- --- ---');
   console.log('Starting users migration:');
   console.log('Users: sanitize');
   const saneData = users.map((pref) => {
@@ -308,7 +334,7 @@ function D10MigrateUsers(users, privates) {
 
 function D10MigrateSessions(sessions) {
   const collection = d10.mcol(d10.COLLECTIONS.USERS);
-
+  console.log('--- --- --- ---');
   console.log('Starting sessions migration:');
   console.log('Sessions: sanitize');
   const saneData = sessions.map((pref) => {
@@ -335,7 +361,7 @@ function D10MigrateSessions(sessions) {
 
 function D10MigratePings(pings) {
   const collection = d10.mcol(d10.COLLECTIONS.PINGS);
-
+  console.log('--- --- --- ---');
   console.log('Starting pings migration:');
   console.log('pings: sanitize');
   const saneData = pings.map((pref) => {
@@ -352,7 +378,7 @@ function D10MigratePings(pings) {
 
 function D10MigrateEvents(events) {
   const collection = d10.mcol(d10.COLLECTIONS.EVENTS);
-
+  console.log('--- --- --- ---');
   console.log('Starting events migration:');
   console.log('Events: sanitize');
   const saneData = events.map((pref) => {
@@ -365,7 +391,7 @@ function D10MigrateEvents(events) {
 }
 
 function writeInMongo(collection, docs, label) {
-  console.log(`${label}: write in MongoDB`);
+  console.log(`${label}: write in MongoDB (${docs.length})`);
   function start() {
     if (!docs.length) {
       console.log(`${label}: write in MongoDB done`);
@@ -379,51 +405,3 @@ function writeInMongo(collection, docs, label) {
 
   return start();
 }
-
-/*
-views
-db.createView('artists', 'songs',
-[
-  { $unwind: "$tokenartists" },
-  { $match: { "tokenartists": { "$exists": true, "$ne": "" } } },
-  { $group:
-      {
-          _id: "$tokenartists",
-          songs: { $push: "$$ROOT" },
-          count: { $sum: 1 },
-          duration: { $sum: "$duration" },
-          hits: { $sum: "$hits" },
-          genres: { $addToSet: "$genre" }
-      },
-  }
-]
-)
-
-db.createView('albums', 'songs', [
-  { $match: { "album": { "$exists": true, "$ne": "" } } },
-  { $group:
-      {
-          _id: "$album",
-          songs: { $push: "$$ROOT" },
-          count: { $sum: 1 },
-          duration: { $sum: "$duration" },
-          hits: { $sum: "$hits" },
-          genres: { $addToSet: "$genre" }
-      },
-  }
-])
-
-db.getCollection('songs').aggregate([
-  { $match: { "album": { "$exists": true, "$ne": "" } } },
-  { $group:
-      {
-          _id: "$album",
-          songs: { $push: "$$ROOT" },
-          count: { $sum: 1 },
-          duration: { $sum: "$duration" },
-          hits: { $sum: "$hits" },
-          genres: { $addToSet: "$genre" }
-      },
-  }
-]);
-*/
