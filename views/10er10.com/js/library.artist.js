@@ -90,7 +90,7 @@ define(['js/d10.templates', 'js/d10.rest', 'js/d10.router', 'js/d10.dataParsers'
         }
         const artist = { ...data };
         const songs = [...artist.songs];
-        songs.sort((a, b) => a.album > b.album);
+        songs.sort((a, b) => a.album.localeCompare(b.album));
         const response = parseAlbumSongs(songs, param);
         const topHits = getGreatestHits(artist.songs);
         let topHitsHTML = '';
