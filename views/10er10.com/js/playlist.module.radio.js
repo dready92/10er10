@@ -2,7 +2,7 @@
 
 define(["js/domReady","js/d10.playlistModule", "js/playlist", "js/d10.templates",
        "js/user", "js/d10.rest", "js/d10.localcache"
-], 
+],
 	   function(foo, playlistModule, playlist, tpl, user, rest, localcache) {
 
 var module = null;
@@ -14,13 +14,13 @@ var createModule= function (ui) {
     var loadGenres = function(then) {
       rest.genre.available({load: then});
     };
-    
+
     var getGenres = function( then ) {
       var genres = localcache.getJSON("playlist.module.radio.genres");
       if ( genres ) {
         return then(null,genres);
       }
-      
+
       loadGenres(function(err,resp) {
         if ( err ) {
           return then(err,resp);
@@ -29,7 +29,7 @@ var createModule= function (ui) {
         then(err,resp);
       });
     };
-    
+
     var prepareGenresTemplate = function(then) {
       getGenres(function(err,resp) {
         if ( err ) {return then(err);}
@@ -47,18 +47,18 @@ var createModule= function (ui) {
         then( null, tpl.mustacheView("hoverbox.genres.list", template_data) );
       });
     };
-    
-    
+
+
 	var appendRandomSongs = function(count, genres) {
 		count = count || 3;
 		genres = genres || [];
-		
-		
-		
+
+
+
 		var opts = {
 			data: {
-				"not[]": playlist.allIds(),
-				"really_not[]": [],
+				"not": playlist.allIds(),
+				"really_not": [],
 				"type": "genre",
 				"count": count
 			},
@@ -69,9 +69,9 @@ var createModule= function (ui) {
 				}
 			}
 		};
-		for ( var index in user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
-		if ( genres && genres.length )  opts.data["name[]"] = genres;
-				
+		for ( var index in user.get_preferences().dislikes ) { opts.data["really_not"].push(index); }
+		if ( genres && genres.length )  opts.data["name"] = genres;
+
 		rest.song.random(opts);
 	};
 
@@ -80,7 +80,7 @@ var createModule= function (ui) {
 		var genres = getSelectedGenres();
 		appendRandomSongs(count, genres);
 	};
-    
+
     var getSelectedGenres = function() {
       return ui.find("div.checked").map(function() {     return $(this).attr('name');    }   ).get();
     };
@@ -122,25 +122,25 @@ var createModule= function (ui) {
 	});
 	ui.find(".list").delegate("div","click",function() {
 		if ( !module.isEnabled() ) { return ;}
-		$(this).toggleClass("checked"); 
+		$(this).toggleClass("checked");
 	});
-	
+
 	return module;
 };
 var settings ;
 
-	
+
 settings = $.extend(
 	{
 		delay: 7000,
 		count: 5
 	}
-	
+
 ,{});
 
 var mod = createModule($("#container > .radio"));
 playlist.modules[mod.name] = mod;
-return mod;	
-	
-	
+return mod;
+
+
 });

@@ -190,8 +190,8 @@ exports.api = function api(app) {
       return d10.realrest.err(428, request.query.genre, request.ctx);
     }
     const offset = request.query.offset ? Number(request.query.offset) : 0;
-    return d10.mcol(d10.COLLECTIONS.SONGS).find({})
-      .sort({ genre: -1, tokentitle: -1 })
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({ genre: request.query.genre })
+      .sort({ tokentitle: 1 })
       .skip(offset)
       .limit(d10.config.rpp)
       .toArray()
