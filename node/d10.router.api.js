@@ -372,15 +372,15 @@ exports.api = (app) => {
   function songSearch(view, request) {
     const search = d10.ucwords(request.query.start.replace(/^\s+/, '').replace(/\s+$/, ''));
 
-    const titleSearch = d10.mcol(d10.COLLECTIONS.SONGS).find({ tokentitle: { $regex: search } })
+    const titleSearch = d10.mcol(d10.COLLECTIONS.SONGS).find({ tokentitle: { $regex: search } }).sort({ tokentitle: 1 })
       .toArray()
       .then(results => results || [])
       .then(results => results.map(result => ({ doc: result, value: { json: { field: 'title', value: result.tokentitle } } })));
-    const albumSearch = d10.mcol(d10.COLLECTIONS.ALBUMS).find({ _id: { $regex: `${search}` } })
+    const albumSearch = d10.mcol(d10.COLLECTIONS.ALBUMS).find({ _id: { $regex: `${search}` } }).sort({ _id: 1 })
       .toArray()
       .then(results => results || [])
       .then(results => results.map(result => ({ name: result._id, value: { json: { field: 'album', value: result._id } } })));
-    const artistSearch = d10.mcol(d10.COLLECTIONS.ARTISTS).find({ _id: { $regex: `${search}` } })
+    const artistSearch = d10.mcol(d10.COLLECTIONS.ARTISTS).find({ _id: { $regex: `${search}` } }).sort({ _id: 1 })
       .toArray()
       .then(results => results || [])
       .then(results => results.map(result => ({ name: result._id, value: { json: { field: 'artist', value: result._id } } })));
