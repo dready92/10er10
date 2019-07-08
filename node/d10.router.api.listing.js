@@ -206,7 +206,7 @@ exports.api = function api(app) {
       query.title = request.query.title;
     }
     const cursor = d10.mcol(d10.COLLECTIONS.SONGS).find(query)
-      .sort({ title: -1, artist: -1 })
+      .sort({ title: 1, artist: 1 })
       .skip(offset);
     if (!request.query.full) {
       cursor.limit(d10.config.rpp);
