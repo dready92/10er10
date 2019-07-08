@@ -86,8 +86,6 @@ exports.append = function append(user, playlist, songId, then) {
       return song;
     })
     .then((song) => {
-      const updateQuery = { $push: {} };
-      updateQuery.$push[`playlists.${playlist._id}.songs`] = songId;
       return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
         { _id: user._id },
         { $push: { 'playlists.$[element].songs': songId } },
@@ -116,24 +114,38 @@ exports.create = function create(user, name, songs, then) {
     return then(430);
   }
 
-  const playlist = {
-    _id: `pl${d10.uid()}`,
-    name,
-    songs: [],
-  };
+  return d10.mcol(d10.COLLECTIONS.SONGS)
+    .find({ _id: { $in: songs } }).toArray()
+    .then((existingSongs) => {
+      const existingSongIds = existingSongs.map(s => s._id);
+      const okSongIds = songs.filter(songId => existingSongIds.includes(songId));
+      return okSongIds;
+    })
+    .then((songIds) => {
+      const playlist = {
+        _id: `pl${d10.uid()}`,
+        name,
+        songs: songIds,
+      };
 
-  return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
-    { _id: user._id },
-    { $push: { playlists: playlist } },
-  )
-    .then(() => {
+      return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+        { _id: user._id },
+        { $push: { playlists: playlist } },
+      )
+        .then(() => playlist);
+    })
+    .then((playlist) => {
       if (!playlist.songs.length) {
         return [];
       }
-      return d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: playlist.songs } }).toArray();
+      return d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: playlist.songs } }).toArray()
+        .then(response => ({ songs: response, playlist }));
     })
     .then((response) => {
-      const updatedPlaylist = { playlist, songs: response };
+      const updatedPlaylist = {
+        playlist: response.playlist,
+        songs: d10.orderedList(response.playlist.songs, response.songs),
+      };
       return then(null, updatedPlaylist);
     })
     .catch((err) => {

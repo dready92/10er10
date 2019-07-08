@@ -222,6 +222,12 @@ const realrest = {
 
 };
 
+function orderedList(ids, items) {
+  const itemsHash = {};
+  items.forEach((item) => { itemsHash[item._id] = item; });
+  return ids.map(id => itemsHash[id]);
+}
+
 module.exports = {
   debug: debugProvider,
   mustache,
@@ -238,4 +244,5 @@ module.exports = {
   },
   mcol,
   COLLECTIONS: MONGO_COLLECTIONS,
+  orderedList,
 };

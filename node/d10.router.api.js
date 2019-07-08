@@ -26,7 +26,7 @@ exports.api = (app) => {
     }
     d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: request.body.ids } })
       .toArray()
-      .then(resp => d10.realrest.success(resp, request.ctx))
+      .then(resp => d10.realrest.success(d10.orderedList(request.body.ids, resp), request.ctx))
       .catch(err => d10.realrest.err(500, err, request.ctx));
   });
 
@@ -178,7 +178,7 @@ exports.api = (app) => {
 
     Promise.all(actions)
       .then(updatePreferences)
-      .then(() => d10.realrest.success({ updated: true}, request.ctx))
+      .then(() => d10.realrest.success({ updated: true }, request.ctx))
       .catch(err => d10.realrest.err(413, err, request.ctx));
 
     function updatePreferences() {
