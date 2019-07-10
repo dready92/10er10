@@ -145,24 +145,22 @@ function statusMessage(code) {
   return 'Generic error';
 }
 
-function lngView(request, n, d, p, cb) {
-  if (!cb && p) {
-    // eslint-disable-next-line no-param-reassign
-    cb = p;
-    // eslint-disable-next-line no-param-reassign
-    p = null;
-  }
+function lngView(request, n, d, p) {
+  return new Promise((resolve, reject) => {
+    if (n.match(/^inline\//)) {
+      return inlineView(request, n, d, p, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(response);
+        }
+      });
+    }
 
-  if (n.match(/^inline\//)) {
-    return inlineView(request, n, d, p, cb);
-  }
-
-  return request.ctx.langUtils.parseServerTemplate(request, `${n}.html`, (err, data) => {
-    if (err) throw err;
-    // eslint-disable-next-line no-param-reassign
-    data = mustache.to_html(data, d, p);
-    if (cb) cb.call(data, data);
+    return request.ctx.langUtils.parseServerTemplate(request, `${n}.html`)
+      .then(data => mustache.to_html(data, d, p));
   });
+
 }
 
 function inlineView(request, n, d, p, cb) {

@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals */
 const bodyParser = require('body-parser');
 const d10 = require('./d10');
-const when = require('./when');
 const songProcessorEmitter = require('./lib/song-processor/song-processor-events');
 const songProcessor = require('./lib/song-processor');
 const artistToken = require('./artistToken');
@@ -46,13 +45,11 @@ exports.api = function api(app) {
       .then((docs) => {
         response.writeHead(200, request.ctx.headers);
         if (docs && docs.length) {
-          d10.lngView(request, 'review/list', { rows: docs }, {}, (data) => {
-            response.end(data);
-          });
+          d10.lngView(request, 'review/list', { rows: docs }, {})
+            .then(data => response.end(data));
         } else {
-          d10.lngView(request, 'review/none', {}, {}, (data) => {
-            response.end(data);
-          });
+          d10.lngView(request, 'review/none', {}, {})
+            .then(data => response.end(data));
         }
       })
       .catch(() => {
@@ -95,44 +92,28 @@ exports.api = function api(app) {
     } else {
       fields.genre = request.body.genre && request.body.genre.length ? request.body.genre : 'Other';
     }
-    when(
-      {
-        title(cb) {
-          if (!fields.title.length) {
-            d10.lngView(request, 'inline/review_err_no_title', {}, {}, cb);
-          } else {
-            cb();
-          }
-        },
-        artist(cb) {
-          if (!fields.artist.length) {
-            d10.lngView(request, 'inline/review_err_no_artist', {}, {}, cb);
-          } else {
-            cb();
-          }
-        },
-        genre(cb) {
-          if (!fields.genre.length) {
-            d10.lngView(request, 'inline/review_err_unknown_genre', {}, {}, cb);
-          } else {
-            cb();
-          }
-        },
-      },
-      (errs, responses) => {
-        if (responses.title && responses.title.length) {
-          errors.title = responses.title;
+
+    const titleErrPromise = fields.title.length ? Promise.resolve(null) : d10.lngView(request, 'inline/review_err_no_title', {}, {});
+    const artistErrPromise = fields.artist.length ? Promise.resolve(null) : d10.lngView(request, 'inline/review_err_no_artist', {}, {});
+    const genreErrPromise = fields.genre.length ? Promise.resolve(null) : d10.lngView(request, 'inline/review_err_unknown_genre', {}, {});
+
+    Promise.all([titleErrPromise, artistErrPromise, genreErrPromise])
+      .then(([titleErr, artistErr, genreErr]) => {
+        if (titleErr) {
+          errors.title = titleErr;
         }
-        if (responses.artist && responses.artist.length) {
-          errors.artist = responses.artist;
+        if (artistErr) {
+          errors.artist = artistErr;
         }
-        if (responses.genre && responses.genre.length) {
-          errors.genre = responses.genre;
+        if (genreErr) {
+          errors.genre = genreErr;
         }
+
         if (d10.count(errors)) {
           d10.realrest.err(412, errors, request.ctx);
           return;
         }
+
         if (request.body.album) {
           fields.album = sanitize.string(request.body.album);
         } else {
@@ -152,55 +133,59 @@ exports.api = function api(app) {
         fields.valid = true;
         fields.reviewed = true;
 
-        Promise.all([
-          d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: id }),
-          d10.mcol(d10.COLLECTIONS.SONGS_STAGING).findOne({ _id: id }),
-        ]).then(([songDoc, stagingDoc]) => {
-          let sourceIsStaging = null;
-          let source;
-          if (songDoc) {
-            sourceIsStaging = false;
-            source = songDoc;
-          } else if (stagingDoc) {
-            sourceIsStaging = true;
-            source = stagingDoc;
-          } else {
-            d10.realrest.err(404, 'Song not found', request.ctx);
-            return null;
-          }
-
-          if (source.user !== request.ctx.user._id && !request.ctx.user.superman) {
-            debug('debug', request.ctx.user._id, 'Not allowed to edit', source._id);
-            d10.realrest.err(403, 'Forbidden', request.ctx);
-            return null;
-          }
-          const doc = { ...source, ...fields };
-          const tokens = artistToken.tokenize(doc);
-          doc.tokentitle = tokens.title;
-          doc.tokenartists = tokens.artists;
-
-          let record;
-          if (sourceIsStaging) {
-            record = d10.mcol(d10.COLLECTIONS.SONGS).insertOne(doc).then(() => {
-              d10.mcol(d10.COLLECTIONS.SONGS_STAGING).deleteOne({ _id: doc._id });
-            });
-          } else {
-            record = d10.mcol(d10.COLLECTIONS.SONGS).updateOne({ _id: doc._id }, { $set: doc })
-              .then((updateResponse) => {
-                if (!updateResponse.modifiedCount) {
-                  throw new Error('update song in SONGS collection: not found');
-                }
-                return updateResponse;
-              });
-          }
-          return record.then(() => {
-            debug('debug', 'storeDoc success');
-            d10.realrest.success(doc, request.ctx);
-          });
-        });
-      },
-    );
+        recordMeta(request, id, fields)
+          .catch(err => d10.realrest.err(500, err, request.ctx));
+      });
   });
+
+  function recordMeta(request, id, fields) {
+    return Promise.all([
+      d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: id }),
+      d10.mcol(d10.COLLECTIONS.SONGS_STAGING).findOne({ _id: id }),
+    ]).then(([songDoc, stagingDoc]) => {
+      let sourceIsStaging = null;
+      let source;
+      if (songDoc) {
+        sourceIsStaging = false;
+        source = songDoc;
+      } else if (stagingDoc) {
+        sourceIsStaging = true;
+        source = stagingDoc;
+      } else {
+        d10.realrest.err(404, 'Song not found', request.ctx);
+        return null;
+      }
+
+      if (source.user !== request.ctx.user._id && !request.ctx.user.superman) {
+        debug('debug', request.ctx.user._id, 'Not allowed to edit', source._id);
+        d10.realrest.err(403, 'Forbidden', request.ctx);
+        return null;
+      }
+      const doc = { ...source, ...fields };
+      const tokens = artistToken.tokenize(doc);
+      doc.tokentitle = tokens.title;
+      doc.tokenartists = tokens.artists;
+
+      let record;
+      if (sourceIsStaging) {
+        record = d10.mcol(d10.COLLECTIONS.SONGS).insertOne(doc).then(() => {
+          d10.mcol(d10.COLLECTIONS.SONGS_STAGING).deleteOne({ _id: doc._id });
+        });
+      } else {
+        record = d10.mcol(d10.COLLECTIONS.SONGS).updateOne({ _id: doc._id }, { $set: doc })
+          .then((updateResponse) => {
+            if (!updateResponse.matchedCount) {
+              throw new Error('update song in SONGS collection: not found');
+            }
+            return updateResponse;
+          });
+      }
+      return record.then(() => {
+        debug('debug', 'storeDoc success');
+        d10.realrest.success(doc, request.ctx);
+      });
+    });
+  }
 
 
   // eslint-disable-next-line consistent-return
