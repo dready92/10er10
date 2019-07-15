@@ -4,6 +4,13 @@ node_js:
   - 10
 services:
   - docker
+cache:
+  directories:
+    - ~/.npm
+    - ~/.cache
+  override:
+    - npm ci
+    - npm run cy:verify
 before_install:
   - sudo apt-get install -y libgconf-2-4
   - git clone https://github.com/dready92/d10-fixtures.git
