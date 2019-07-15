@@ -1,12 +1,13 @@
+/* eslint-disable no-console */
 let config;
 const express = require('express');
 const vhost = require('vhost');
 
 const configParser = require('./configParser');
 const d10 = require('./d10');
+const configChecker = require('./configChecker');
 const WebSocketServer = require('./lib/websocket-server');
 const dosWatchdog = require('./dosWatchdog');
-const session = require('./session');
 const d10WebServer = require('./webserver/d10');
 const d10InvitesServer = require('./webserver/invites');
 
@@ -21,14 +22,27 @@ configParser.getConfig((foo, cfg) => {
     configParser.switchDev();
   }
   d10.setConfig(config)
-    .then(() => {
-      onConfig(prod);
-    });
+    .then(() => onConfig(prod));
 });
 
 
 function onConfig() {
-  session.init();
+  return configChecker().then((checksResponse) => {
+    if (checksResponse.errors.length) {
+      console.log('Configuration checker encountered problems:');
+      checksResponse.errors.forEach(resp => console.log(resp.component, resp.label, resp.error));
+      process.exit(1);
+    }
+    setupServers();
+  })
+    .catch((err) => {
+      console.log('Configuration checker encountered an error');
+      console.log(err);
+      process.exit(1);
+    });
+}
+
+function setupServers() {
   const d10RouterModule = d10WebServer;
   const invitesServerModule = d10InvitesServer;
   const d10Router = d10RouterModule.getD10Server(config);

@@ -5,7 +5,6 @@ const d10 = require('./d10');
 const debug = d10.debug('d10:session');
 
 module.exports = {
-  init,
   getSessionDataFromDatabase,
   fillUserCtx,
   removeSession,
@@ -16,9 +15,6 @@ module.exports = {
   getUser,
   setSessionTimestamp,
 };
-
-function init() {
-}
 
 /**
  *
