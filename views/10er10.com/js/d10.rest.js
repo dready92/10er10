@@ -371,6 +371,9 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			if (query.genre) {
 				options.data.genre = query.genre;
 			}
+			if (query.offset) {
+				options.data.offset = query.offset;
+			}
 			restQuery("album.list", "GET", config.site_url + "/api/list/albums", options);
 		},
 
