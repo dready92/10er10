@@ -28,5 +28,6 @@ WORKDIR /d10
 RUN git checkout $TRAVIS_COMMIT && npm install --production
 
 WORKDIR /d10/node
+RUN cp ../docker/travis/config.local.js .
 
 CMD /wait-for-it.sh "${MONGO_HOST}" -- node server.js
