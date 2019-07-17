@@ -1,10 +1,10 @@
 {
   "name": "10er10",
-  "version": "0.23.0",
+  "version": "1.0.0",
   "description": "10er10 is an HTML5 audio jukebox. It works on Firefox 4+ and Chromium/Chrome.",
   "main": "node/server.js",
   "engines": {
-    "node": ">=6.5"
+    "node": ">=10"
   },
   "directories": {
     "doc": "doc"

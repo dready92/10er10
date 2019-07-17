@@ -1,12 +1,17 @@
 10er10 is an HTML5 audio jukebox. It works on Firefox 4+ and Chromium/Chrome.
 
+Important change for 1.0 version
+================================
+
+The storage database has been changed from CouchDB to MongoDB. Please read [the migration documentation](./doc/couch%20to%20mongo%20migration.md) to update.
+
 Install
 =======
 
 Install servers
 ---------------
 
-* MongoDB : Follow the instructions of the official MongoDB documentation (https://docs.mongodb.com/manual/installation/) to setup MongoDB on your system.
+* MongoDB : Follow the instructions of [the official MongoDB documentation](https://docs.mongodb.com/manual/installation/) to setup MongoDB on your system.
 
 Minimum required version : 4.0.0
 
@@ -81,11 +86,11 @@ Open **node/config.js**
 
 * configure audio path
 
-10er10 needs two distinct folders to store audio files: 
+10er10 needs two distinct folders to store audio files:
 
 
 - exports.audio.tmpdir : the temporary folder is where the uploaded files are stored
-- exports.audio.dir : this is where the ogg files are stored. 
+- exports.audio.dir : this is where the ogg files are stored.
 
 Of course, those two folders should be writable by the unix user that will launch the node server.
 
@@ -94,7 +99,7 @@ Of course, those two folders should be writable by the unix user that will launc
 10er10 needs two distinct folders to store images:
 
 - exports.images.tmpdir : the temporary folder is where the uploaded files are stored (could be the same than exports.audio.tmpdir)
-- exports.images.dir : this is where the images are stored. 
+- exports.images.dir : this is where the images are stored.
 
 
 * about audio URI
@@ -114,7 +119,7 @@ Look at exports.cmds.
 - exports.cmds.faad : the path to the faad executable
 
 Still here ? Let's go for the fun part.
- 
+
 Create a 10er10 user
 --------------------
 

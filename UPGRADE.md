@@ -1,3 +1,9 @@
+Upgrade from 0.23 to 1.0.0
+==========================
+
+- Storage system has switched from CouchDB to MongoDB. Follow [the specific migration document](./doc/couch%20to%20mongo%20migration.md).
+- NodeJS runtime has been updated. Use NodeJS version 10 or higher.
+
 Upgrade from 0.22 to 0.23
 =========================
 
@@ -119,7 +125,7 @@ To upgrade your PROD databases, run
 
 - use CSS media queries to adapt search results width and my playlists width
 - display the time at cursor in progression bar
-- click on an artist or album in search results minified boxes to open it 
+- click on an artist or album in search results minified boxes to open it
 - dedicated artist page
 - dedicated album page
 - two columns layout for the "all artists" page
