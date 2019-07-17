@@ -1,29 +1,27 @@
 10er10 is an HTML5 audio jukebox. It works on Firefox 4+ and Chromium/Chrome.
 
+Important change for 1.0 version
+================================
+
+The storage database has been changed from CouchDB to MongoDB. Please read [the migration documentation](./doc/couch%20to%20mongo%20migration.md) to update.
+
 Install
 =======
 
 Install servers
 ---------------
 
-* CouchDB : the safe way is to install CouchDB by downloading the CouchBase Server ( http://www.couchbase.com/ ). You can also try from source ( http://couchdb.apache.org ), or via your package manager.
+* MongoDB : Follow the instructions of [the official MongoDB documentation](https://docs.mongodb.com/manual/installation/) to setup MongoDB on your system.
 
-Minimum required version : 1.0.1
+Minimum required version : 4.0.0
 
 * Node.js : install node.js ( http://nodejs.org ) from source or with your package manager.
 
-Minimum required version : 0.6.0
+Minimum required version : 10.0.0
 
 Don't forget to add the node binary's folder to the path of the Unix user which will run 10er10.
 
 Debian squeeze users, using the nodejs deb package : you should create a symlink from /usr/lib/nodejs to /usr/lib/node for connect to work.
-
-* NPM : install the Node package manager ( http://npmjs.org ). As of node.js 0.6.3, NPM is now included: no more need to install it !
-
-
-Hint : **curl http://npmjs.org/install.sh | sh**
-
-Please check that your npm version (using the command **npm -v**) is >= 1.0.0 .
 
 Install audio utilities
 -----------------------
@@ -84,15 +82,15 @@ Open **node/config.js**
 
 * setup your databases configuration
 
-10er10 uses 4 couchdb databases. Look at **exports.couch_prod** and **exports.couch_dev** objects, and be sure to point the DSN to your CouchDB server. Databases will be created by the installer.
+10er10 uses 1 MongoDB database. Look at **exports.mongo_prod** and **exports.mongo_dev** objects, and be sure to point the DSN to your MongoDB server. Database and collections will be created by the installer.
 
 * configure audio path
 
-10er10 needs two distinct folders to store audio files: 
+10er10 needs two distinct folders to store audio files:
 
 
 - exports.audio.tmpdir : the temporary folder is where the uploaded files are stored
-- exports.audio.dir : this is where the ogg files are stored. 
+- exports.audio.dir : this is where the ogg files are stored.
 
 Of course, those two folders should be writable by the unix user that will launch the node server.
 
@@ -101,7 +99,7 @@ Of course, those two folders should be writable by the unix user that will launc
 10er10 needs two distinct folders to store images:
 
 - exports.images.tmpdir : the temporary folder is where the uploaded files are stored (could be the same than exports.audio.tmpdir)
-- exports.images.dir : this is where the images are stored. 
+- exports.images.dir : this is where the images are stored.
 
 
 * about audio URI
@@ -121,22 +119,6 @@ Look at exports.cmds.
 - exports.cmds.faad : the path to the faad executable
 
 Still here ? Let's go for the fun part.
- 
-Launch the installer
---------------------
-
-go into the node/install directory and run the installer.js script.
-
-To setup dev databases:
-
-    cd node/install
-    node install.js
-
-To setup prod databases:
-
-    cd node/install
-    node install.js -p
-
 
 Create a 10er10 user
 --------------------
@@ -190,5 +172,3 @@ What else ?
 -----------
 
 Fork, patch, send pull requests !
-
-Follow 10er10 development : https://plus.google.com/u/0/b/109983204693472020055/

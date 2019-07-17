@@ -370,8 +370,8 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 			genres = genres || [];
 			var opts = {
 				data: {
-					"not[]": allIds(),
-					"really_not[]": [],
+					"not": allIds(),
+					"really_not": [],
 					"type": "genre",
 					"count": count
 				},
@@ -384,8 +384,8 @@ define(["js/domReady", "js/user", "js/d10.rest", "js/d10.dnd", "js/d10.router", 
 					}
 				}
 			};
-			for ( var index in user.get_preferences().dislikes ) { opts.data["really_not[]"].push(index); }
-			if ( genres && genres.length )  opts.data["name[]"] = genres;
+			for ( var index in user.get_preferences().dislikes ) { opts.data["really_not"].push(index); }
+			if ( genres && genres.length )  opts.data["name"] = genres;
             rest.song.random(opts);
 		};
 

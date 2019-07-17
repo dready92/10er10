@@ -4,76 +4,17 @@ const d10 = require('./d10');
 
 const debug = d10.debug('d10:session');
 
-let sessionCache = {};
-
 module.exports = {
-  init,
-  getSessionDataFromCache,
   getSessionDataFromDatabase,
-  sessionCacheAdd,
   fillUserCtx,
   removeSession,
   makeSession,
   makeRemoteControlSession,
   getOrMakeSession,
+  setSessionLang,
   getUser,
+  setSessionTimestamp,
 };
-
-function init() {
-  d10.couch.auth.on('save', (err, doc) => {
-    if (err) {
-      return;
-    }
-    const type = doc._id.substr(0, 2);
-    if (!isSessionRelatedDocType(type)) {
-      return;
-    }
-    Object.keys(sessionCache).forEach((key) => {
-      if (sessionCache[key][type] && sessionCache[key][type]._id === doc._id) {
-        sessionCache[key][type] = doc;
-      }
-    });
-  });
-
-  d10.couch.auth.on('delete', (err, doc) => {
-    if (err) {
-      return;
-    }
-    const type = doc._id.substr(0, 2);
-    if (!isSessionRelatedDocType(type)) {
-      return;
-    }
-
-    Object.keys(sessionCache).forEach((key) => {
-      if (sessionCache[key][type] && sessionCache[key][type]._id === doc._id) {
-        delete sessionCache[key];
-      }
-    });
-  });
-
-  // cache invalidation
-  setInterval(() => { sessionCache = {}; }, 1000 * 60 * 30);
-}
-
-function isSessionRelatedDocType(docType) {
-  return docType === 'se' || docType === 'pr' || docType === 'us' || docType === 'rs';
-}
-
-function sessionCacheAdd(us, pr, se, rs) {
-  sessionCache[us.login] = { us, pr, se, rs };
-}
-
-function getSessionDataFromCache(cookieData) {
-  if (sessionCache[cookieData.user]) {
-    if (cookieData.session && sessionCache[cookieData.user].se._id === `se${cookieData.session}`) {
-      return sessionCache[cookieData.user];
-    }
-    if (cookieData.remoteControlSession && sessionCache[cookieData.user].rs._id === `rs${cookieData.remoteControlSession}`) {
-      return sessionCache[cookieData.user];
-    }
-  }
-  return false;
-}
 
 /**
  *
@@ -82,30 +23,21 @@ function getSessionDataFromCache(cookieData) {
  * @param {String} of.userId - The user login id (with prepent 'us')
  * @param {String} [of.session] - The session id (without 'se')
  * @param {String} [of.remoteControlSession] - The remote control session id (without 'rs')
- * @param {Function} then - asynchronous callback
  */
-function getOrMakeSession(of, then) {
+function getOrMakeSession(of) {
   function filter(row) {
     return row.doc._id.substr(0, 2) === 'se';
   }
 
-  getSession(of.user, filter, (err, sessionResponse) => {
-    if (err) {
-      return then(err);
-    }
-
-    if (sessionResponse) {
-      return then(null, sessionResponse);
-    }
-
-    return makeSession(of.userId, (err2) => {
-      if (err2) {
-        return then(err2);
+  return getSession(of.user, filter)
+    .then((sessionResponse) => {
+      if (sessionResponse) {
+        return sessionResponse;
       }
 
-      return getOrMakeSession(of, then);
+      return makeSession(of.userId)
+        .then(getOrMakeSession);
     });
-  });
 }
 
 /**
@@ -114,18 +46,23 @@ function getOrMakeSession(of, then) {
  *
  * @param {string} userLogin - user's login
  * @param {Function} filter - the filter function, that should return true when the session object matches
- * @param {Function} then - callback {response: the whole CouchDB datastore response, doc: the session doc matching the criteria}
  */
-function getSession(userLogin, filter, then) {
-  d10.db.loginInfos(userLogin, (response) => {
-    let found = false;
-    response.rows.forEach((v) => {
-      if (!found && filter(v)) {
-        found = { response, doc: v.doc };
+function getSession(userLogin, filter) {
+  return getLoginInfos(userLogin)
+    .then((userDoc) => {
+      if (!userDoc) {
+        return null;
       }
+      const okfilter = userDoc.sessions.filter(filter);
+      if (okfilter.length) {
+        return okfilter[0];
+      }
+      return null;
     });
-    return then(null, found);
-  }, then);
+}
+
+function getLoginInfos(userLogin) {
+  return d10.mcol(d10.COLLECTIONS.USERS).findOne({ login: userLogin });
 }
 
 /**
@@ -136,34 +73,25 @@ function getSession(userLogin, filter, then) {
  * @param {String} [of.remoteControlSession] - The remote control session id (without 'rs')
  * @param {Function} then - asynchronous callback
  */
-function getSessionDataFromDatabase(of, then) {
+function getSessionDataFromDatabase(of) {
   function sessionMatch(row) {
-    return ((of.session && row.doc._id === `se${of.session}`)
-              || (of.remoteControlSession && row.doc._id === `rs${of.remoteControlSession}`));
+    return ((of.session && row._id === `se${of.session}`)
+              || (of.remoteControlSession && row._id === `rs${of.remoteControlSession}`));
   }
 
-  getSession(of.user, sessionMatch, then);
+  return getSession(of.user, sessionMatch);
 }
 
 function getUser(sessionId, then) {
-  for (let i = 0; i < sessionCache.length; i++) {
-    const element = sessionCache[i];
-    if (element.se && element.se._id === `se${sessionId}`) {
-      return then(null, element.us._id);
-    }
-    if (element.rs && element.rs._id === `rs${sessionId}`) {
-      return then(null, element.us._id);
-    }
-  }
-
+  debug(`looking up session ${sessionId}`);
   function searchSession() {
-    return d10.dbp.authGetDoc(`se${sessionId}`)
-      .then(doc => `us${doc.userid}`);
+    return d10.mcol(d10.COLLECTIONS.USERS).findOne({ 'sessions._id': `se${sessionId}` })
+      .then(doc => doc && doc._id);
   }
 
   function searchRemoteSession() {
-    return d10.dbp.authGetDoc(`rs${sessionId}`)
-      .then(doc => `us${doc.userid}`);
+    return d10.mcol(d10.COLLECTIONS.USERS).findOne({ 'sessions._id': `rs${sessionId}` })
+      .then(doc => doc && doc._id);
   }
 
   Promise.all([searchSession(), searchRemoteSession()])
@@ -181,49 +109,33 @@ function getUser(sessionId, then) {
   return true;
 }
 
-function saveSession(doc, deleteIt) {
-  if (deleteIt) {
-    d10.couch.auth.deleteDoc(doc, (err) => {
-      if (err) {
-        debug(`failed to delete session ${doc._id}`);
-      } else {
-        debug(`session deleted ${doc._id}`);
-      }
-    });
-  } else if (doc._rev) {
-    d10.couch.auth.storeDoc(doc, () => {});
-  }
-  return true;
-}
-
 function removeSession(sessionId, cb) {
-  d10.couch.auth.deleteDoc(sessionId, cb);
+  return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+    { 'sessions._id': sessionId },
+    { $pull: { sessions: { _id: sessionId } } },
+  )
 }
 
-function makeSession(uid, cb) {
-  return makeSessionForType(uid, 'se', cb);
+function makeSession(userDoc) {
+  return makeSessionForType(userDoc, 'se');
 }
 
-function makeRemoteControlSession(uid, cb) {
-  return makeSessionForType(uid, 'rs', cb);
+function makeRemoteControlSession(userDoc) {
+  return makeSessionForType(userDoc, 'rs');
 }
 
-function makeSessionForType(uid, type, cb) {
+function makeSessionForType(userDoc, type) {
   const sessionId = d10.uid();
   const d = new Date();
-  // create session and send cookie
+  // create session and record it in user doc
   const doc = {
     _id: `${type}${sessionId}`,
-    userid: uid.substr(2),
     ts_creation: d.getTime(),
     ts_last_usage: d.getTime(),
   };
-  d10.couch.auth.storeDoc(doc, (err) => {
-    if (err) {
-      return cb(new Error('Session recording error'));
-    }
-    return cb(null, doc);
-  });
+  return d10.mcol(d10.COLLECTIONS.USERS)
+    .updateOne({ _id: userDoc._id }, { $push: { sessions: doc } })
+    .then(() => doc);
 }
 
 /*
@@ -231,23 +143,34 @@ function makeSessionForType(uid, type, cb) {
  * ctx.user
  * ctx.userPrivateConfig
  */
-function fillUserCtx(ctx, response, session) {
-  if (session._id.indexOf('se') === 0) {
-    ctx.session = session;
+function fillUserCtx(ctx, userDoc, userSession) {
+  if (userSession._id.indexOf('se') === 0) {
+    ctx.session = userSession;
   } else {
-    ctx.remoteControlSession = session;
+    ctx.remoteControlSession = userSession;
   }
-  response.rows.forEach((v) => {
-    if (v.doc._id.indexOf('se') === 0 && session._id.indexOf('se') === 0 && v.doc._id !== session._id) {
-      debug('deleting session ', v.doc._id);
-      saveSession(v.doc, true);
-    } else if (v.doc._id.indexOf('rs') === 0 && session._id.indexOf('rs') === 0 && v.doc._id !== session._id) {
-      debug('deleting session ', v.doc._id);
-      saveSession(v.doc, true);
-    } else if (v.doc._id.indexOf('us') === 0) {
-      ctx.user = v.doc;
-    } else if (v.doc._id.indexOf('pr') === 0) {
-      ctx.userPrivateConfig = v.doc;
-    }
-  });
+  ctx.user = { ...userDoc };
+  delete ctx.user.sessions;
+  ctx.userPrivateConfig = {
+    depth: ctx.user.depth,
+    parent: ctx.user.parent,
+    password: ctx.user.password,
+  };
+  delete ctx.user.password;
+  delete ctx.user.parent;
+  delete ctx.user.depth;
+}
+
+function setSessionLang(sessionId, lang) {
+  return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+    { 'sessions._id': sessionId },
+    { $set: { 'sessions.$.lang': lang } },
+  );
+}
+
+function setSessionTimestamp(sessionId, timestamp) {
+  return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+    { 'sessions._id': sessionId },
+    { $set: { 'sessions.$.ts_last_usage': timestamp } },
+  );
 }

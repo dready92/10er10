@@ -89,6 +89,9 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 				restQuery("song.get","GET",config.site_url+"/api/song/"+song_id,options);
 			}
 		},
+		getForReview: function (song_id, options) {
+			restQuery("song.getForReview", "GET", config.site_url + "/api/review/" + song_id, options);
+		},
  		/*
 		 * @param start starting string of the song title
 		 *
@@ -174,49 +177,45 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 		},
 		list: {
 			hits: function(query, options) {
-				if ( query.startkey && query.startkey_docid ) {
-					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				if (query.offset) {
+					options.data = { offset: query.offset };
 				}
 				restQuery("song.list.hits","GET",config.site_url+"/api/list/hits",options);
 			},
 			creations: function(query, options) {
-				if ( query.startkey && query.startkey_docid ) {
-					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				if (query.offset) {
+					options.data = { offset: query.offset };
 				}
 				restQuery("song.list.creations","GET",config.site_url+"/api/list/creations",options);
 			},
 			genres: function(query, options) {
 				options.data = {};
-				if ( query.startkey && query.startkey_docid ) {
-					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				if (query.offset) {
+					options.data = { offset: query.offset };
 				}
 				options.data.genre = query.genre;
 				restQuery("song.list.genres","GET",config.site_url+"/api/list/genres",options);
 			},
-			albums: function(query, options) {
+			albumnames: function(query, options) {
 				options.data = {};
-				if ( query.startkey  ) {
-					options.data.startkey = query.startkey;
-					if ( query.startkey_docid ) {
-						options.data.startkey_docid = query.startkey_docid;
-					}
+				if (query.offset) {
+					options.data = { offset: query.offset };
 				}
-				if ( query.endkey  ) {
-					options.data.endkey = query.endkey;
-				}
+
 				if( query.album ) {
 					options.data.album = query.album;
 				}
 				if ( query.full ) {
 				  options.data.full = true;
 				}
-				restQuery("song.list.albums","GET",config.site_url+"/api/list/albums",options);
+				restQuery("song.list.albumnames","GET",config.site_url+"/api/list/albumnames",options);
 			},
  			artists: function(query, options) {
 				options.data = {};
-				if ( query.startkey && query.startkey_docid ) {
-					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				if (query.offset) {
+					options.data = { offset: query.offset };
 				}
+
 				if( query.artist ) {
 					options.data.artist = query.artist;
 				}
@@ -224,8 +223,8 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			},
  			titles: function(query, options) {
 				options.data = {};
-				if ( query.startkey && query.startkey_docid ) {
-					options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+				if (query.offset) {
+					options.data = { offset: query.offset };
 				}
 				if( query.title ) {
 					options.data.title = query.title;
@@ -299,14 +298,14 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			}
 		},
 		likes: function(query, options) {
-			if ( query.startkey && query.startkey_docid ) {
-				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+			if (query.offset) {
+				options.data = { offset: query.offset };
 			}
 			restQuery("user.likes","GET",config.site_url+"/api/list/likes",options);
 		},
 		songs: function(query, options) {
-			if ( query.startkey && query.startkey_docid ) {
-				options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+			if (query.offset) {
+				options.data = { offset: query.offset };
 			}
 			restQuery("user.songs","GET",config.site_url+"/api/list/s_user",options);
 		},
@@ -320,9 +319,10 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			list: {
 				genreLastListened: function(genre, query, options) {
 					options.data = {};
-					if ( query.startkey && query.startkey_docid ) {
-						options.data = {startkey: query.startkey, startkey_docid: query.startkey_docid};
+					if (query.offset) {
+						options.data = { offset: query.offset };
 					}
+
 					restQuery("user.song.list.genreLastListened","GET",
 							  config.site_url+"/api/own/list/genre/lastPlayed/" +encodeURIComponent(genre),options);
 				}
@@ -342,12 +342,15 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 
 
 	rest.album = {
+		get: function(album, options) {
+			restQuery("album.get", "GET", config.site_url + "/api/album/byName/" + encodeURIComponent(album), options);
+		},
 		/*
 		 * @param start starting string of the album name
 		 *
 		 * @return ["album 1","album2", ...]
 		 */
-		list: function(start, options) {
+		listnames: function(start, options) {
 			if ( !options && $.isPlainObject(start) ) {
 				options = start;
 				start = null;
@@ -355,8 +358,25 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 			if ( start ) {
 				options.data = {start: start};
 			}
-			restQuery("album.list","GET",config.site_url+"/api/album",options);
+			restQuery("album.listnames","GET",config.site_url+"/api/album",options);
 		},
+		list: function (query, options) {
+			options.data = {};
+			if (query.start) {
+				options.data.start = query.start;
+			}
+			if (query.stop) {
+				options.data.stop = query.stop;
+			}
+			if (query.genre) {
+				options.data.genre = query.genre;
+			}
+			if (query.offset) {
+				options.data.offset = query.offset;
+			}
+			restQuery("album.list", "GET", config.site_url + "/api/list/albums", options);
+		},
+
 		/*
 		 * @param album String album name
 		 *
@@ -376,6 +396,9 @@ define(["js/d10.httpbroker","js/d10.events", "js/config"],function(bghttp, emitt
 	};
 
 	rest.artist = {
+		get: function (artist, options) {
+			restQuery("artist.get", "GET", config.site_url + "/api/artist/byName/" + encodeURIComponent(artist), options);
+		},
 		/*
 		 * @param start starting string of the artist name
 		 *

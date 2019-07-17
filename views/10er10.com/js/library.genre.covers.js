@@ -1,15 +1,15 @@
 "use strict";
 define([
-  "js/d10.rest", 
-  "js/d10.localcache", 
-  "js/d10.templates", 
+  "js/d10.rest",
+  "js/d10.localcache",
+  "js/d10.templates",
   "js/d10.router",
   "js/d10.restHelpers",
   "js/d10.dataParsers",
   "js/d10.widgetHelpers"
-       ], 
+       ],
        function(rest, localcache, tpl, router, restHelpers, dataParsers, widgetHelpers) {
-    
+
     var albumRowTemplate = tpl.mustacheView("library.listing.album.all.row");
     var onContainerCreation = function(topicdiv, categorydiv, topic, category, param) {
       var template_data = {
@@ -24,7 +24,7 @@ define([
         toggleAlbumDetails($(this));
       });
       var contentDiv = categorydiv.find(".list");
-      
+
       var toggleAlbumDetails = function(miniWidget) {
       if ( miniWidget.hasClass("opened") ) {
         closeAlbumDetails(miniWidget);
@@ -32,7 +32,7 @@ define([
         widgetHelpers.albumDetail(miniWidget, ".list", ".albumrow", closeAlbumDetails);
       }
     };
-    
+
     var closeAlbumDetails = function(miniWidget) {
       var albumDetailsContainer = miniWidget.data("albumDetailsContainer");
       if ( albumDetailsContainer ) {
@@ -43,12 +43,14 @@ define([
       }
       miniWidget.removeClass("opened");
     };
-    
+
       //rest.genre.albumsSongs(genre, query, options)
       var restWrapper = function(query, options) {
-        return rest.genre.albumsSongs(category, query, options);
+        return rest.album.list({...query, genre: category}, options);
       };
-      var cursor = new restHelpers.couchMapMergedCursor(restWrapper, {}, "album");
+      var cursor = new widgetHelpers.BufferedCursor(
+        new restHelpers.mongoPagedCursor(restWrapper, {})
+      );
       var cols = 0;
       var currentAlbumRow = $(albumRowTemplate);
       contentDiv.append(currentAlbumRow);
@@ -59,7 +61,7 @@ define([
           var albums = null;
           rows.forEach(function(songs) {
             var albumData = dataParsers.singleAlbumParser(songs);
-            albumData.songs = songs.map(function(row) { return row.doc ? row.doc : row });
+            albumData.songs = songs.songs;
             var html = $( tpl.albumMini(albumData) ).data("albumDetails",albumData);
             if ( !albums ) {
               albums = html;
@@ -83,16 +85,16 @@ define([
       };
       widgetHelpers.createInfiniteScroll(categorydiv, cursor, scrollOpts);
     };
-    
+
     var onRoute = function(topicdiv, categorydiv, topic, category, param) {
     };
-    
-    
+
+
     return {
         onContainerCreation: onContainerCreation,
         onRoute: onRoute
     };
-    
-    
-    
+
+
+
 });

@@ -29,9 +29,9 @@ function isValidLogin(login) {
       || login.toLowerCase() === 'administrator'
       || login.toLowerCase() === 'root'
     ) return resolve(430);
-    return d10.dbp.authView('infos/all', { key: ['login', login] })
+    return d10.mcol(d10.COLLECTIONS.USERS).findOne({ login })
       .then((back) => {
-        if (back.rows.length) {
+        if (back) {
           return resolve(430);
         }
         return resolve();
@@ -63,44 +63,17 @@ function isValidPassword(password) {
 * opts.parent: "us123445547754"
 * opts.depth : 4
 *
-* opts.uuid : 5464623423453656
 * opts.callback = function(err,resp)
 *
 */
 function createUser(login, password, opts) {
   const parent = opts.parent && opts.depth ? opts.parent : null;
   const depth = opts.parent && opts.depth ? parseInt(opts.depth, 10) : 1;
-  const uuid = opts.uuid ? opts.uuid : d10.uid();
-
 
   function sendResponse(err, resp) {
     if (opts.callback) {
       opts.callback(err, resp);
     }
-  }
-
-  function createDocuments() {
-    const authUserDoc = { _id: `us${uuid}`, login, parent };
-    const authPrivDoc = { _id: `pr${uuid}`, password: hash.sha1(password), depth };
-    const d10PreferencesDoc = { _id: `up${uuid}` };
-    const d10PrivateDoc = { _id: `pr${uuid}` };
-
-    const authQuery = d10.dbp.authStoreDocs([authUserDoc, authPrivDoc]);
-    const wiQuery = d10.dbp.d10wiStoreDocs([d10PreferencesDoc, d10PrivateDoc]);
-
-    return Promise.all([authQuery, wiQuery])
-      .catch((err) => {
-        debug('User documents creation failed', err);
-        d10.dbp.authDeleteDoc(authUserDoc._id)
-          .catch(derr => debug(`unable to delete doc auth:${authUserDoc._id}`, derr));
-        d10.dbp.authDeleteDoc(authPrivDoc._id)
-          .catch(derr => debug(`unable to delete doc auth:${authPrivDoc._id}`, derr));
-        d10.dbp.d10wiDeleteDoc(d10PreferencesDoc._id)
-          .catch(derr => debug(`unable to delete doc d10wi:${d10PreferencesDoc._id}`, derr));
-        d10.dbp.d10wiDeleteDoc(d10PrivateDoc._id)
-          .catch(derr => debug(`unable to delete doc d10wi:${d10PrivateDoc._id}`, derr));
-        throw err;
-      });
   }
 
   Promise.all([isValidLogin(login), isValidPassword(password)])
@@ -115,8 +88,9 @@ function createUser(login, password, opts) {
       if (loginResponse || passwordResponse) {
         return sendResponse(errs);
       }
-      return createDocuments()
-        .then(() => sendResponse(null, uuid));
+      const userDoc = mkUserDoc(login, password, depth, parent);
+      return d10.mcol(d10.COLLECTIONS.USERS).insertOne(userDoc)
+        .then(() => sendResponse(null, userDoc._id));
     })
     .catch(sendResponse);
 }
@@ -126,24 +100,9 @@ function authFromLoginPass(login, password) {
     return Promise.reject(new Error('Login too short'));
   }
 
-  return d10.db.getAuthDocsFromLogin(login)
-    .then((docs) => {
-      if (!docs) {
-        return null;
-      }
-      const privateDoc = docs.filter(row => row.doc._id.indexOf('pr') === 0).pop();
-      if (!privateDoc) {
-        debug(`No private doc for ${login}`, docs);
-        return null;
-      }
-      const passwordSha1 = hash.sha1(password);
-      let uid;
-      if (privateDoc.doc.password === passwordSha1) {
-        uid = privateDoc.doc._id.replace(/^pr/, 'us');
-      }
+  const passwordSha1 = hash.sha1(password);
 
-      return { uid, docs };
-    });
+  return d10.mcol(d10.COLLECTIONS.USERS).findOne({ login, password: passwordSha1 });
 }
 
 function getListenedSongsByDate(uid, opts, callback) {
@@ -152,12 +111,35 @@ function getListenedSongsByDate(uid, opts, callback) {
     opts.startkey[0] = uid;
   }
 
-  d10.couch.track.view('tracking/userDateTracking', opts, callback);
+  const cursor = d10.mcol(d10.COLLECTIONS.EVENTS).find({ user: uid, fullplay: true }).sort({ 'play.time': -1 }).limit(opts.limit);
+  if (opts.skip) {
+    cursor.skip(opts.skip);
+  }
+  cursor.then(response => callback(null, response))
+    .catch(err => callback(err));
 }
 
+function mkUserDoc(login, password, depth, parent) {
+  const userDoc = {
+    _id: `us${d10.uid()}`,
+    depth,
+    parent,
+    login,
+    password: hash.sha1(password),
+    apikeys: [],
+    playlists: [],
+    sessions: [],
+    preferences: {},
+  };
 
-exports.isValidLogin = isValidLogin;
-exports.isValidPassword = isValidPassword;
-exports.createUser = createUser;
-exports.authFromLoginPass = authFromLoginPass;
-exports.getListenedSongsByDate = getListenedSongsByDate;
+  return userDoc;
+}
+
+module.exports = {
+  isValidLogin,
+  isValidPassword,
+  createUser,
+  authFromLoginPass,
+  getListenedSongsByDate,
+  mkUserDoc,
+};

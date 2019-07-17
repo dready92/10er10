@@ -1,74 +1,44 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable no-restricted-globals */
 const d10 = require('./d10');
 
 const debug = d10.debug('d10:d10.router.api.listing');
-const artists = require('./d10.artists');
 const users = require('./d10.users');
-const { getAndParseByAlbum } = require('./rest-helpers');
 
 function validGenre(genre) {
   return d10.config.allowCustomGenres === true || d10.config.genres.indexOf(genre) >= 0;
 }
 
 exports.api = function api(app) {
-  const { d10View } = d10.dbp;
-
-  app.get('/api/artist',
-    gotd10QueryMiddleware,
-    mayHaveStartStringMiddleware,
-    request => artistSearch('artist/search', request));
+  app.get('/api/artist', request => artistSearch('artist/search', request));
   app.get('/api/album', request => albumSearch('album/search/search', request));
-  app.get('/api/artistsListing',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
-    request => artistTokenized('artist/tokenized', request));
+  app.get('/api/artistsListing', request => artistTokenized('artist/tokenized', request));
   app.get('/api/genresResume', request => genreArtist('genre/artist', request));
   app.get('/api/list/artists',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => artistBaseName('artist/', request));
   app.get('/api/list/creations',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     listByCreation);
   app.get('/api/list/hits',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     listByHits);
   app.get('/api/list/creations/mergeAlbums', mixedAlbumsSongsHandler);
   app.get('/api/list/genres',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => genreName('genre/name', request));
   app.get('/api/own/list/titles',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => titleName(`${request.ctx.user._id}/title_name`, request));
   app.get('/api/list/titles',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => titleName('title/name', request));
-  app.get('/api/list/albums', request => albumName('album/name', request));
+  app.get('/api/list/albumnames', request => albumName('album/name', request));
+  app.get('/api/list/albums', request => albums(request));
   app.get('/api/list/genres/artists/:genre',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => genreArtists('genre/artists', request));
   app.get('/api/list/genres/albums/:genre',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => genreAlbums('genre/albums', request));
   app.get('/api/list/genres/dateArtist/:genre', genreDateArtist);
   app.get('/api/list/s_user',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     userSongs);
   app.get('/api/list/likes',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     getLikes);
   app.get('/api/list/genres/albumsSongs/:genre',
-    gotd10QueryMiddleware,
-    mayHaveStartKeyAndDocId,
     request => genreAlbumsSongs('genre/albums', request));
   app.get('/api/list/artists/albums/:artist', request => artistAlbums('artist/albums', request));
   app.get('/api/list/artists/songsByAlbum/:artist', request => artistSongsOrderedByAlbums('artist/songsOrderedByAlbums', request));
@@ -78,76 +48,28 @@ exports.api = function api(app) {
   app.get('/api/list/mixed/songs/creation', mixedAlbumsSongsHandler);
 
   function artistSearch(view, request) {
-    const query = { ...request.d10query, group: true };
+    const q = d10.ucwords(request.query.start);
 
-    d10.dbp.d10View(view, query)
-      .then((resp) => {
-        const buffer = {};
-        // remove doubles
-        resp.rows.forEach((row) => {
-          buffer[row.key[1]] = { text: row.key[1], json: row.key[1] };
-        });
-        const back = Object.keys(buffer).map(key => buffer[key]);
-        d10.realrest.success(back, request.ctx);
+    return d10.mcol(d10.COLLECTIONS.ARTISTS)
+      .find({ _id: { $regex: `^${q}` } })
+      .toArray()
+      .then((docs) => {
+        const artists = (docs || []).map(artist => artist._id);
+        artists.sort();
+        return artists;
       })
+      .then(artists => d10.realrest.success(artists, request.ctx))
       .catch(() => d10.realrest.success([], request.ctx));
   }
 
   function albumSearch(view, request) {
-    const query = { inclusive_end: false };
-    if (request.query.start && request.query.start.length) {
-      const q = d10.ucwords(request.query.start);
-      query.startkey = [q];
-      query.endkey = [d10.nextWord(q)];
-    }
-    d10.dbp.d10List(view, query)
-      .then(resp => d10.realrest.success(resp.albums, request.ctx))
+    const q = d10.ucwords(request.query.start);
+
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({ album: { $regex: `^${q}` } }, { album: 1, _id: 0 })
+      .toArray()
+      .then(resp => resp.map(doc => doc.album))
+      .then(albumsRsponse => d10.realrest.success(albumsRsponse, request.ctx))
       .catch(() => d10.realrest.success([], request.ctx));
-  }
-
-  function gotd10QueryMiddleware(request, response, next) {
-    // eslint-disable-next-line no-param-reassign
-    request.d10query = {};
-    next();
-  }
-
-  function mayHaveStartStringMiddleware(request, response, next) {
-    if (!request.d10query) {
-      // eslint-disable-next-line no-param-reassign
-      request.d10query = {};
-    }
-
-    const query = {};
-
-    if (request.query.start && request.query.start.length) {
-      const q = d10.ucwords(request.query.start);
-      query.startkey = [q];
-      query.endkey = [d10.nextWord(q)];
-    }
-    // eslint-disable-next-line no-param-reassign
-    request.d10query = { ...request.d10query, ...query };
-
-    next();
-  }
-
-  function mayHaveStartKeyAndDocId(request, response, next) {
-    if (!request.d10query) {
-      // eslint-disable-next-line no-param-reassign
-      request.d10query = {};
-    }
-
-    const query = {};
-
-    if (request.query.startkey) {
-      query.startkey = JSON.parse(request.query.startkey);
-      if (request.query.startkey_docid) {
-        query.startkey_docid = request.query.startkey_docid;
-      }
-    }
-    // eslint-disable-next-line no-param-reassign
-    request.d10query = { ...request.d10query, ...query };
-
-    next();
   }
 
   app.get('/api/genre', (request) => {
@@ -161,34 +83,54 @@ exports.api = function api(app) {
   });
 
   function artistTokenized(view, request) {
-    const query = { ...request.d10query, group: true, group_level: 1 };
+    const offset = request.query.offset ? parseInt(request.query.offset, 10) : 0;
+    const limit = request.query.limit ? parseInt(request.query.limit, 10) : d10.config.rpp;
 
-    if (request.query.limit) {
-      const limit = parseInt(request.query.limit, 10);
-      if (!isNaN(limit)) {
-        query.limit = limit;
-      }
-    }
-    listPromiseRespond(d10View(view, query), request.ctx);
+    d10.mcol(d10.COLLECTIONS.ARTISTS).find({})
+      .sort({ _id: 1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray()
+      .then((response) => {
+        const artists = (response || []).map(artist => ({ ...artist, songs: artist.songs.length }));
+        d10.realrest.success(artists, request.ctx);
+      });
   }
 
   function genreArtist(view, request) {
-    const query = { group: true, group_level: 1 };
-    listPromiseRespond(d10View(view, query), request.ctx);
+    return d10.mcol(d10.COLLECTIONS.SONGS).aggregate([
+      {
+        $group: {
+          _id: '$genre',
+          arts: { $addToSet: { $arrayElemAt: ['$tokenartists', 0] } },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          count: 1,
+          artistCount: { $size: '$arts' },
+          artists: { $slice: ['$arts', 3] },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]).toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function artistBaseName(view, request) {
-    const query = { ...request.d10query, include_docs: true, limit: d10.config.rpp + 1 };
-    let viewPart = 'basename';
+    const query = {};
     if (request.query.artist && request.query.artist.length) {
-      viewPart = 'name';
-      query.reduce = false;
-      query.endkey = [request.query.artist, []];
-      if (!query.startkey) {
-        query.startkey = [request.query.artist];
-      }
+      query.tokenartists = request.query.artist;
     }
-    listPromiseRespond(d10View(`${view}${viewPart}`, query), request.ctx);
+    const offset = request.query.offset || 0;
+    return d10.mcol(d10.COLLECTIONS.SONGS).find(query)
+      .sort({ artist: -1, title: -1 })
+      .skip(offset)
+      .limit(d10.config.rpp)
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function listByCreation(request, response) {
@@ -196,197 +138,147 @@ exports.api = function api(app) {
       if (!validGenre(request.query.genre)) {
         return d10.realrest.err(428, request.query.genre, request.ctx);
       }
-      return tsCreationGenre('genre/creation', request, response);
+      return tsCreationGenre(request, response);
     }
 
-    return tsCreationName('ts_creation/name', request, response);
+    return tsCreationName(request, response);
   }
 
-  function tsCreationGenre(view, request) {
-    const query = {
-      ...request.d10query,
-      include_docs: true,
-      descending: true,
-      limit: d10.config.rpp + 1,
-      endkey: request.query.genre,
-    };
-    if (!query.startkey) {
-      query.startkey = [request.query.genre, {}];
-    }
-
-    listPromiseRespond(d10View(view, query), request.ctx);
-  }
-
-  function tsCreationName(view, request) {
-    const query = {
-      ...request.d10query,
-      include_docs: true,
-      reduce: false,
-      descending: true,
-      limit: d10.config.rpp + 1,
-    };
-    listPromiseRespond(d10View(view, query), request.ctx);
-  }
-
-  function getCouchQuery(query) {
-    const couchQuery = { include_docs: true, descending: true, limit: d10.config.rpp + 1 };
-    if (query.genre) {
-      if (!validGenre(query.genre)) {
-        return false;
-      }
-      couchQuery.genre = query.genre;
-      couchQuery.view = 'genre/creation';
-      couchQuery.endkey = couchQuery.genre;
-    } else {
-      couchQuery.view = 'ts_creation/name';
-      couchQuery.reduce = false;
-    }
-    if (query.startkey) {
-      couchQuery.startkey = JSON.parse(query.startkey);
-      if (query.startkey_docid) {
-        couchQuery.startkey_docid = query.startkey_docid;
-      }
-    }
-
-    if (couchQuery.genre && !couchQuery.startkey) {
-      couchQuery.startkey = [couchQuery.genre, {}];
-    }
-
-    return couchQuery;
-  }
-
-  function mixedAlbumsSongsHandler(request) {
-    const couchQuery = getCouchQuery(request.query);
-    if (!couchQuery) {
+  function tsCreationGenre(request) {
+    if (!request.query.genre || !validGenre(request.query.genre)) {
       return d10.realrest.err(428, request.query.genre, request.ctx);
     }
 
-    const ignoredAlbums = request.query.ignoredAlbums
-      ? JSON.parse(request.query.ignoredAlbums)
-      : [];
+    const offset = request.query.offset || 0;
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({ genre: request.query.genre })
+      .sort({ ts_creation: -1, tokentitle: -1 })
+      .skip(offset)
+      .limit(d10.config.rpp)
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
+  }
 
-    return getAndParseByAlbum(couchQuery, ignoredAlbums)
-      .then(response => d10.realrest.success(response, request.ctx))
-      .catch(e => d10.realrest.err(500, e, request.ctx));
+  function tsCreationName(request) {
+    const offset = request.query.offset ? Number(request.query.offset) : 0;
+
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({})
+      .sort({ ts_creation: -1, tokentitle: -1 })
+      .skip(offset)
+      .limit(d10.config.rpp)
+      .toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
+  }
+
+  function mixedAlbumsSongsHandler(request) {
+    d10.realrest.err(400, 'not implemented', request.ctx);
   }
 
   function listByHits(request) {
-    const query = {
-      ...request.d10query,
-      reduce: false,
-      descending: true,
-      limit: d10.config.rpp + 1,
-    };
-
-    d10View('hits/name', query)
-      .then((resp) => {
-        const keys = Object.keys(resp.rows).map(k => resp.rows[k].id);
-
-        return d10.dbp.d10GetAllDocs({ keys, include_docs: true })
-          .then((resp2) => {
-            const back = [];
-            resp.rows.forEach((v, i) => {
-              back.push({
-                id: v.id,
-                key: v.key,
-                doc: resp2.rows[i].doc,
-              });
-            });
-            return d10.realrest.success(back, request.ctx);
-          });
-      })
-      .catch((err) => {
-        debug(err);
-        d10.realrest.err(423, request.params.sort, request.ctx);
-      });
+    const offset = request.query.offset ? Number(request.query.offset) : 0;
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({})
+      .sort({ hits: -1, tokentitle: -1 })
+      .skip(offset)
+      .limit(d10.config.rpp)
+      .toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function genreName(view, request) {
     if (!request.query.genre || !validGenre(request.query.genre)) {
       return d10.realrest.err(428, request.query.genre, request.ctx);
     }
-    const query = {
-      ...request.d10query,
-      include_docs: true,
-      reduce: false,
-      limit: d10.config.rpp + 1,
-      endkey: [request.query.genre, {}],
-    };
-    if (!query.startkey) {
-      query.startkey = [request.query.genre];
-    }
-
-    return listPromiseRespond(d10View(view, query), request.ctx);
+    const offset = request.query.offset ? Number(request.query.offset) : 0;
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({ genre: request.query.genre })
+      .sort({ tokentitle: 1 })
+      .skip(offset)
+      .limit(d10.config.rpp)
+      .toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function titleName(view, request) {
-    const query = {
-      ...request.d10query,
-      include_docs: true,
-      reduce: false,
-      limit: d10.config.rpp + 1,
-    };
+    const query = {};
+    const offset = request.query.offset ? Number(request.query.offset) : 0;
     if (request.query.title && request.query.title.length) {
-      query.endkey = [request.query.title, []];
-      if (!query.startkey) {
-        query.startkey = [request.query.title];
-      }
+      query.title = request.query.title;
     }
-    return listPromiseRespond(d10View(view, query), request.ctx);
+    const cursor = d10.mcol(d10.COLLECTIONS.SONGS).find(query)
+      .sort({ title: 1, artist: 1 })
+      .skip(offset);
+    if (!request.query.full) {
+      cursor.limit(d10.config.rpp);
+    }
+    return cursor.toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
+  }
+
+  function albums(request) {
+    const offset = request.query.offset ? Number(request.query.offset) : 0;
+    const limit = d10.config.rpp;
+    const query = {};
+    const idQueries = [];
+    if (request.query.genre && validGenre(request.query.genre)) {
+      query.genres = request.query.genre;
+    }
+    if (request.query.start) {
+      idQueries.push({ $gte: request.query.start });
+    }
+    if (request.query.stop) {
+      idQueries.push({ $lt: request.query.stop });
+    }
+    if (idQueries.length > 1) {
+      query.$and = idQueries.map(q => ({ _id: q }));
+    } else if (idQueries.length === 1) {
+      query._id = idQueries[0];
+    }
+    d10.mcol(d10.COLLECTIONS.ALBUMS).find(query)
+      .sort({ _id: 1 }).skip(offset)
+      .limit(limit)
+      .toArray()
+      .then(response => response || [])
+      .then(response => d10.realrest.success(response, request.ctx))
+      .catch(e => d10.realrest.err(500, e, request.ctx));
   }
 
   function albumName(view, request) {
-    const query = {
-      ...request.d10query,
-      include_docs: true,
-      reduce: false,
-    };
+    const query = {};
+    const offset = request.query.offset || 0;
+    if (request.query.album) {
+      query.album = request.query.album;
+    }
+    const cursor = d10.mcol(d10.COLLECTIONS.SONGS).find(query)
+      .sort({ album: -1, tracknumber: 1 })
+      .skip(offset);
     if (!request.query.full) {
-      query.limit = d10.config.rpp + 1;
+      cursor.limit(d10.config.rpp);
     }
-    if (request.query.album && request.query.album.length) {
-      query.endkey = [request.query.album, []];
-      if (!query.startkey) {
-        query.startkey = [request.query.album];
-      }
-    }
-    if (request.query.endkey) {
-      query.endkey = JSON.parse(request.query.endkey);
-    }
-    return listPromiseRespond(d10View(view, query), request.ctx);
+    cursor.toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function userSongs(request) {
-    const query = {
-      ...request.d10query,
-      include_docs: true,
-      startkey: [request.ctx.user._id],
-      endkey: [request.ctx.user._id, []],
-      limit: d10.config.rpp + 1,
-    };
-    return listPromiseRespond(d10View('s_user/name', query), request.ctx);
+    const offset = Number(request.query.offset) || 0;
+    d10.mcol(d10.COLLECTIONS.SONGS).find({ user: request.ctx.user._id })
+      .sort({ name: -1 })
+      .skip(offset)
+      .limit(d10.config.rpp)
+      .toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function getLikes(request) {
-    const query = {
-      ...request.d10query,
-      endkey: [request.ctx.user._id, []],
-      limit: d10.config.rpp + 1,
-    };
-    if (request.query.startkey) {
-      query.startkey = JSON.parse(request.query.startkey);
-      if (request.query.startkey_docid) {
-        query.startkey_docid = request.query.startkey_docid;
-      }
-    }
-
-    d10.dbp.d10wiView('s_user_likes/name', query)
-      .then((resp) => {
-        const keys = Object.keys(resp.rows).map(k => resp.rows[k].value);
-        return d10.dbp.d10GetAllDocs({ keys, include_docs: true })
-          .then(resp2 => resp.rows.map((row, k) => ({ doc: resp2.rows[k].doc, key: row.key })));
-      })
-      .then(resp => d10.realrest.success(resp, request.ctx))
+    const keys = request.ctx.user.preferences.likes
+      ? Object.keys(request.ctx.user.preferences.likes)
+      : [];
+    d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: keys } })
+      .toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
@@ -394,31 +286,40 @@ exports.api = function api(app) {
     if (!request.params.genre || !validGenre(request.params.genre)) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
-    const query = {
-      ...request.d10query,
-      endkey: [request.params.genre, []],
-      group: true,
-      group_level: 2,
-    };
-    if (!query.startkey) {
-      query.startkey = [request.params.genre];
-    }
-    return listPromiseRespond(d10View(view, query), request.ctx);
+    return d10.mcol(d10.COLLECTIONS.SONGS).distinct('tokenartists', { genre: request.params.genre })
+      .then((docs) => {
+        docs.sort();
+        if (request.query.offset) {
+          docs.splice(0, request.query.offset);
+        }
+        const response = docs.slice(0, d10.config.rpp);
+        return d10.realrest.success(response, request.ctx);
+      })
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function genreAlbums(view, request) {
     if (!request.params.genre || !validGenre(request.params.genre)) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
+    const offset = request.query.offset ? Number(request.query.offset) : 0;
+    const aggregationQuery = [
+      { $match: { genre: request.params.genre } },
+      { $group: { _id: '$album', count: { $sum: 1 } } },
+    ];
+    if (offset) {
+      aggregationQuery.push({ $skip: offset });
+    }
+    aggregationQuery.push({ $limit: d10.config.rpp });
 
-    const query = {
-      startkey: [request.params.genre],
-      endkey: [request.params.genre, []],
-      group: true,
-      group_level: 2,
-    };
-
-    return listPromiseRespond(d10View(view, query), request.ctx);
+    return d10.mcol(d10.COLLECTIONS.SONGS)
+      .aggregate(aggregationQuery)
+      .toArray()
+      .then((docs) => {
+        const output = docs.map(doc => ({ album: doc._id, count: doc.count }));
+        d10.realrest.success(output, request.ctx);
+      })
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function genreAlbumsSongs(view, request) {
@@ -426,80 +327,28 @@ exports.api = function api(app) {
       || !validGenre(request.params.genre)) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
-    const query = {
-      ...request.d10query,
-      endkey: [request.params.genre, []],
-      reduce: false,
-      include_docs: true,
-      limit: d10.config.rpp + 1,
-    };
-    if (!query.startkey) {
-      query.startkey = [request.params.genre];
-    }
-    return listPromiseRespond(d10View(view, query), request.ctx);
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({ genre: request.params.genre })
+      .sort({ album: -1, tracknumber: 1 })
+      .toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function genreDateArtist(request) {
     if (!request.params.genre) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
-    let date;
-    if (request.query.date) {
-      date = parseInt(request.query.date, 10);
-      if (isNaN(date)) {
-        date = null;
-      }
-    }
-
-    let limit;
-    if (request.query.limit) {
-      limit = parseInt(request.query.limit, 10);
-      if (isNaN(limit)) {
-        limit = null;
-      }
-    }
-
-    const query = {
-      startkey: [request.params.genre],
-      endkey: [request.params.genre, []],
-      reduce: false,
-      include_docs: true,
-      limit: limit || 30,
-    };
-
-    if (request.query.startkey) {
-      query.startkey = JSON.parse(request.query.startkey);
-      if (request.query.startkey_docid) {
-        query.startkey_docid = request.query.startkey_docid;
-      }
-    } else if (date) {
-      query.startkey.push(date);
-      if (request.query.artist) {
-        query.startkey.push(request.query.artist);
-      }
-    }
-    if (date) {
-      query.endkey = [request.params.genre, date, []];
-      if (request.query.artist) {
-        query.endkey = [request.params.genre, date, `${request.query.artist}0`];
-      }
-    }
-
-    return listPromiseRespond(d10View('genre/date-artist', query), request.ctx);
+    return d10.realrest.err(400, 'Not implemented', request.ctx);
   }
 
   function artistAlbums(view, request) {
     if (!request.params.artist) {
       return d10.realrest.err(428, request.params.artist, request.ctx);
     }
-    const query = {
-      startkey: [request.params.artist],
-      endkey: [request.params.artist, []],
-      group: true,
-      group_level: 2,
-    };
-
-    return listPromiseRespond(d10View(view, query), request.ctx);
+    return d10.mcol(d10.COLLECTIONS.SONGS).distinct('album', { tokenartists: request.params.artist })
+      .sort()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function artistSongsOrderedByAlbums(view, request) {
@@ -507,13 +356,11 @@ exports.api = function api(app) {
       return d10.realrest.err(428, request.params.artist, request.ctx);
     }
 
-    const query = {
-      startkey: [request.params.artist],
-      endkey: [request.params.artist, []],
-      include_docs: true,
-    };
-
-    return listPromiseRespond(d10View(view, query), request.ctx);
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({ tokenartists: request.params.artist })
+      .sort({ album: -1, tracknumber: 1 })
+      .toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function artistGenres(view, request) {
@@ -521,13 +368,10 @@ exports.api = function api(app) {
       return d10.realrest.err(428, request.params.artist, request.ctx);
     }
 
-    const query = {
-      startkey: [request.params.artist],
-      endkey: [request.params.artist, []],
-      group: true,
-      group_level: 2,
-    };
-    return listPromiseRespond(d10View(view, query), request.ctx);
+    return d10.mcol(d10.COLLECTIONS.SONGS).distinct('genre', { tokenartists: request.params.artist })
+      .sort()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function artistGenreSongs(request) {
@@ -538,27 +382,17 @@ exports.api = function api(app) {
       return d10.realrest.err(428, request.params.artist, request.ctx);
     }
 
-    const query = {
-      startkey: [request.params.genre, request.params.artist],
-      endkey: [request.params.genre, request.params.artist, []],
-      reduce: false,
-      include_docs: true,
-      limit: 30,
-    };
+    const genre = request.params.genre;
+    const artist = request.params.artist;
+    const limit = d10.config.rpp;
+    const offset = request.query.offset || 0;
 
-    if (request.query.startkey) {
-      query.startkey = JSON.parse(request.query.startkey);
-      if (request.query.startkey_docid) {
-        query.startkey_docid = request.query.startkey_docid;
-      }
-    } else if (request.query.startdate) {
-      query.startkey.push(request.query.startdate);
-    }
-    if (request.query.limit) {
-      query.limit = request.query.limit;
-    }
-
-    return listPromiseRespond(d10View('genre/date-artist', query), request.ctx);
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({ genre, tokenartists: artist })
+      .sort({ tokentitle: -1 })
+      .skip(offset)
+      .limit(limit)
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function albumArtists(view, request) {
@@ -566,15 +400,16 @@ exports.api = function api(app) {
       debug('no album');
       return d10.realrest.err(428, request.params.album, request.ctx);
     }
+    const album = request.params.album;
+    const offset = request.query.offset ? Number(request.query.offset) : 0;
 
-    const query = {
-      startkey: [request.params.album],
-      endkey: [request.params.album, []],
-      group: true,
-      group_level: 2,
-    };
-
-    return listPromiseRespond(d10View(view, query), request.ctx);
+    return d10.mcol(d10.COLLECTIONS.ARTISTS).find({ album })
+      .sort({ _id: 1 })
+      .skip(offset)
+      .limit(d10.config.rpp)
+      .toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   }
 
   function listPromiseRespond(promise, context) {
@@ -587,9 +422,6 @@ exports.api = function api(app) {
   }
 
   app.get('/api/list/artist/hits', (request) => {
-    let startkey;
-    let startkeyDocid;
-
     const query = {};
     if (request.query.genre) {
       if (!validGenre(request.query.genre)) {
@@ -597,128 +429,64 @@ exports.api = function api(app) {
       }
       query.genre = request.query.genre;
     }
-
     if (!request.query.artist) {
       debug('no artist');
       return d10.realrest.err(428, request.query.artist, request.ctx);
     }
-    const { artist } = request.query;
-    if (request.query.startkey) {
-      startkey = JSON.parse(request.query.startkey);
-      if (request.query.startkey_docid) {
-        startkeyDocid = request.query.startkey_docid;
-      }
-    }
-    query.startkey = startkey;
-    query.startkey_docid = startkeyDocid;
-
-    return listPromiseRespond(artists.getSongsByHits(artist, query), request.ctx);
+    query.tokenartists = request.query.artist;
+    const offset = request.query.offset || 0;
+    const limit = d10.config.rpp;
+    return d10.mcol(d10.COLLECTIONS.SONGS).find(query).sort({ hits: -1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray()
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   });
 
   app.get('/api/genre/artistsByHits/:genre', (request) => {
     if (!validGenre(request.params.genre)) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
-    const query = { descending: true, endkey: [request.params.genre] };
-    if (request.query.startkey) {
-      query.startkey = JSON.parse(request.query.startkey);
-      if (request.query.startkey_docid) {
-        query.startkey_docid = request.query.startkey_docid;
-      }
-    } else {
-      query.startkey = [request.params.genre, {}];
-    }
-    return listPromiseRespond(d10View('artistHits/artists', query), request.ctx);
+    return d10.realrest.err(400, 'REST endpoint not supported', request.ctx);
   });
 
   app.get('/api/genre/albumsByHits/:genre', (request) => {
     if (!validGenre(request.params.genre)) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
-    const opts = { descending: true, endkey: [request.params.genre] };
-    if (request.query.startkey) {
-      opts.startkey = JSON.parse(request.query.startkey);
-      if (request.query.startkey_docid) {
-        opts.startkey_docid = request.query.startkey_docid;
-      }
-    } else {
-      opts.startkey = [request.params.genre, {}];
-    }
-
-    const promise = d10View('albumHits/albums', opts)
-      .then((list) => {
-        const albumSongs = {};
-        const keys = [];
-        list.rows.forEach((row) => {
-          albumSongs[row.key[2]] = [];
-          // eslint-disable-next-line no-param-reassign
-          row.value = albumSongs[row.key[2]];
-          keys.push(row.key[2]);
-        });
-
-        return d10View('album/album', { reduce: false, include_docs: true, keys })
-          .then((docs) => {
-            docs.rows.forEach((row) => { albumSongs[row.doc.album].push(row.doc); });
-            return list;
-          });
-      });
-
-    return listPromiseRespond(promise, request.ctx);
+    return d10.realrest.err(400, 'REST endpoint not supported', request.ctx);
   });
 
   app.get('/api/genre/songsByHits/:genre', (request) => {
     if (!validGenre(request.params.genre)) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
-    const query = { include_docs: true, descending: true, endkey: [request.params.genre] };
-    if (request.query.startkey) {
-      query.startkey = JSON.parse(request.query.startkey);
-      if (request.query.startkey_docid) {
-        query.startkey_docid = request.query.startkey_docid;
-      }
-    } else {
-      query.startkey = [request.params.genre, {}];
-    }
-
-    return listPromiseRespond(d10View('genre/song-hits', query), request.ctx);
+    const genre = request.params.genre;
+    const offset = request.query.offset || 0;
+    return d10.mcol(d10.COLLECTIONS.SONGS).find({ genre }).sort({ hits: -1 }).skip(offset)
+      .limit(d10.config.rpp)
+      .then(docs => d10.realrest.success(docs, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   });
 
   app.get('/api/own/list/mixed/lastPlayed', (request) => {
     const requestLength = d10.config.rpp;
     const opts = {
-      reduce: false,
-      descending: true,
-      include_docs: true,
-      startkey: request.query.startkey
-        ? JSON.parse(request.query.startkey)
-        : [request.ctx.user._id, {}],
-      endkey: [request.ctx.user._id],
+      offset: request.query.offset || 0,
       limit: requestLength,
     };
-
-    if (request.query.startkey_docid) {
-      opts.startkey_docid = request.query.startkey_docid;
-    }
 
     users.getListenedSongsByDate(request.ctx.user._id, opts, (err, hits) => {
       if (err) {
         return d10.realrest.err(423, err, request.ctx);
       }
-      if (!hits.rows.length) {
+      if (!hits.length) {
         return d10.realrest.success([], request.ctx);
       }
-      const ids = hits.rows.map(row => row.value);
 
-      return d10.dbp.d10GetAllDocs({ include_docs: true, keys: ids })
-        .then((docs) => {
-          const response = hits.rows.map((row) => {
-            const element = { ...row };
-            element.song = docs.rows.find(song => song.doc._id === row.value).doc;
-            return element;
-          });
-
-          return d10.realrest.success(response, request.ctx);
-        })
+      return d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: hits } })
+        .then(docs => d10.realrest.success(docs, request.ctx))
         .catch(err2 => d10.realrest.err(423, err2, request.ctx));
     });
   });
@@ -728,23 +496,15 @@ exports.api = function api(app) {
     if (!validGenre(request.params.genre)) {
       return d10.realrest.err(428, request.params.genre, request.ctx);
     }
+    const genre = request.params.genre;
     const responseLength = d10.config.rpp + 1;
     const requestLength = d10.config.rpp * 3;
     const responses = [];
     const opts = {
-      reduce: false,
-      descending: true,
-      endkey: [request.ctx.user._id],
+      offset: request.query.offset || 0,
       limit: requestLength,
     };
-    if (request.query.startkey) {
-      opts.startkey = JSON.parse(request.query.startkey);
-      if (request.query.startkey_docid) {
-        opts.startkey_docid = request.query.startkey_docid;
-      }
-    } else {
-      opts.startkey = [request.ctx.user._id, {}];
-    }
+    let realOffset = opts.offset;
 
     function fetchLastPlayed() {
       // eslint-disable-next-line consistent-return
@@ -752,42 +512,31 @@ exports.api = function api(app) {
         if (err) {
           return d10.realrest.err(423, err, request.ctx);
         }
-        if (!hits.rows.length) {
+        if (!hits.length) {
           return d10.realrest.success(responses, request.ctx);
         }
-        const ids = hits.rows.map(row => row.value);
         // eslint-disable-next-line consistent-return
-        d10.dbp.d10GetAllDocs({ include_docs: true, keys: ids })
-          .then(() => {
-            const docHash = {};
-            Object.keys(hits.rows)
-              .filter(i => samegenreFilter(hits.rows[i]))
-              .forEach((i) => {
-                if (responses.length < responseLength) {
-                  responses.push({
-                    doc: docHash[hits.rows[i].value],
-                    id: hits.rows[i].id,
-                    key: hits.rows[i].key,
-                    value: hits.rows[i].value,
-                  });
-                }
-              });
+        d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: hits }, genre })
+          .then((songs) => {
+            songs.forEach((song) => {
+              if (responses.length < responseLength) {
+                responses.push(song);
+                realOffset += 1;
+              }
+            });
 
             if (responses.length === responseLength) {
-              return d10.realrest.success(responses, request.ctx);
+              return d10.realrest.success({
+                songs: responses,
+                nextOffset: realOffset,
+              }, request.ctx);
             }
 
             if (hits.rows.length < requestLength) {
-              return d10.realrest.success(responses, request.ctx);
+              return d10.realrest.success({ songs: responses, nextOffset: null }, request.ctx);
             }
 
-            opts.startkey = hits.rows[(hits.rows.length - 1)].key;
-            opts.startkey_docid = hits.rows[(hits.rows.length - 1)].id;
             return fetchLastPlayed();
-
-            function samegenreFilter(row) {
-              return row.value in docHash && docHash[row.value].genre === request.params.genre;
-            }
           })
           .catch(err2 => d10.realrest.err(423, err2, request.ctx));
       });

@@ -6,12 +6,9 @@ const jsonParserMiddleware = bodyParser.json();
 
 exports.api = function api(app) {
   app.get('/api/plm/pl*', (request) => {
-    rpl.playlistAndSongs(`pl${request.params[0]}`, (err, playlist) => {
+    rpl.playlistAndSongs(request.ctx.user, `pl${request.params[0]}`, (err, playlist) => {
       if (err) {
         return d10.realrest.err(423, null, request.ctx);
-      }
-      if (playlist.user !== request.ctx.user._id) {
-        return d10.realrest.err(403, null, request.ctx);
       }
       return d10.realrest.success(playlist, request.ctx);
     });
@@ -21,24 +18,23 @@ exports.api = function api(app) {
     if (!request.body.playlist) {
       return d10.realrest.err(427, 'playlist parameter is empty', request.ctx);
     }
-    let songs = request.body['songs[]'] ? request.body['songs[]'] : [];
-    if (Object.prototype.toString.call(songs) !== '[object Array]') {
+    let songs = request.body.songs || [];
+    if (!Array.isArray(songs)) {
       songs = [songs];
     }
 
-    return d10.couch.d10.getDoc(request.body.playlist, (err, playlist) => {
-      if (err) {
-        return d10.realrest.err(423, err, request.ctx);
+    const user = request.ctx.user;
+    const playlists = user.playlists || [];
+    const playlist = playlists.filter(pl => pl._id === request.body.playlist).pop();
+    if (!playlist) {
+      return d10.realrest.err(423, 'Playlist unknown', request.ctx);
+    }
+
+    return rpl.update(user, playlist, songs, (err2, response) => {
+      if (!err2) {
+        return d10.realrest.success(response, request.ctx);
       }
-      if (playlist.user !== request.ctx.user._id) {
-        return d10.realrest.err(403, null, request.ctx);
-      }
-      return rpl.update(playlist, songs, (err2, response) => {
-        if (!err2) {
-          return d10.realrest.success(response, request.ctx);
-        }
-        return d10.realrest.err(423, err2, request.ctx);
-      });
+      return d10.realrest.err(423, err2, request.ctx);
     });
   });
 
@@ -47,20 +43,20 @@ exports.api = function api(app) {
     if (!request.body.song) {
       return d10.realrest.err(427, 'song parameter is empty', request.ctx);
     }
+    const user = request.ctx.user;
+    const playlistId = `pl${request.params.id}`;
+    const playlists = user.playlists || [];
+    const playlist = playlists.filter(pl => pl._id === playlistId).pop();
 
-    return d10.couch.d10.getDoc(`pl${request.params.id}`, (err, playlist) => {
-      if (err) {
-        return d10.realrest.err(423, err, request.ctx);
+    if (!playlist) {
+      return d10.realrest.err(404, 'playlist not found', request.ctx);
+    }
+
+    return rpl.append(request.ctx.user, playlist, request.body.song, (err2, resp) => {
+      if (!err2) {
+        return d10.realrest.success({ playlist: resp.playlist, song: resp.song }, request.ctx);
       }
-      if (playlist.user !== request.ctx.user._id) {
-        return d10.realrest.err(403, null, request.ctx);
-      }
-      return rpl.append(playlist, request.body.song, (err2, resp) => {
-        if (!err2) {
-          return d10.realrest.success({ playlist: resp.playlist, song: resp.song }, request.ctx);
-        }
-        return d10.realrest.err(423, null, request.ctx);
-      });
+      return d10.realrest.err(423, null, request.ctx);
     });
   });
 
@@ -72,7 +68,7 @@ exports.api = function api(app) {
     if (Object.prototype.toString.call(songs) !== '[object Array]') {
       songs = [songs];
     }
-    return rpl.create(request.ctx.user._id, request.body.name, songs,
+    return rpl.create(request.ctx.user, request.body.name, songs,
       (err, playlist) => {
         if (err) {
           d10.realrest.err(423, err, request.ctx);
@@ -86,7 +82,7 @@ exports.api = function api(app) {
     if (!request.body.name || !request.body.name.length) {
       return d10.realrest.err(427, 'name parameter missing', request.ctx);
     }
-    return rpl.rename(request.ctx.user._id, `pl${request.params.id}`, request.body.name,
+    return rpl.rename(request.ctx.user, `pl${request.params.id}`, request.body.name,
       (err, playlist) => {
         if (err) {
           d10.realrest.err(423, err, request.ctx);
@@ -97,20 +93,18 @@ exports.api = function api(app) {
   });
 
   app.delete('/api/plm/pl:id', (request) => {
+    const user = request.ctx.user;
     const playlistId = `pl${request.params.id}`;
-    d10.couch.d10.getDoc(playlistId, (err, playlist) => {
-      if (err) {
-        d10.realrest.err(423, err, request.ctx);
-      }
-      if (playlist.user != request.ctx.user._id) {
-        return d10.realrest.err(403, '', request.ctx);
-      }
-      return d10.couch.d10.deleteDoc(playlist, (err2) => {
-        if (err2) {
-          return d10.realrest.err(423, err2, request.ctx);
-        }
-        return d10.realrest.success(playlist, request.ctx);
-      });
-    });
+    const playlist = user.playlists.filter(pl => pl._id === playlistId).pop();
+    if (!playlist) {
+      return d10.realrest.err(423, err, request.ctx);
+    }
+
+    const newPlaylists = user.playlists.filter(pl => pl._id !== playlistId);
+
+    return d10.mcol(d10.COLLECTIONS.USERS)
+      .updateOne({ _id: user._id }, { $set: { playlists: newPlaylists } })
+      .then(() => d10.realrest.success(playlist, request.ctx))
+      .catch(err => d10.realrest.err(423, err, request.ctx));
   });
 };

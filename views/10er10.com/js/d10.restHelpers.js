@@ -1,118 +1,43 @@
+// eslint-disable-next-line import/no-amd
 define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl, config, user, rest) {
-	
-	
-	var couchMapMergedCursor = function(endpoint,queryData, mergeField) {
-		var innerCursor = new couchMapCursor(endpoint, queryData);
-		var buffer = [];
-		var merged = [];
-		var rpp = config.rpp;
-		var mergedRpp = 10;
+		
+	function mongoPagedCursor(endpoint, queryData) {
+		const actualData = $.extend({ offset: 0 }, queryData);
+		const rpp = actualData.limit ? actualData.limit : config.rpp;
+		let endOfStream = false;
+		actualData.limit = rpp;
 
-		var innerCursorFetchUntilRpp = function(then) {
-            if (buffer.length && !innerCursor.hasMoreResults()) {
-              merged.push(buffer);
-              buffer = [];
-            }
-			if ( !innerCursor.hasMoreResults() || merged.length >= mergedRpp ) {
-				var back = merged.splice(0,mergedRpp);
-				return then(back);
-			} else {
-				innerCursorFetch(function(err,resp) {
-					if ( err ) {
-						return then([]);
-					} else {
-						return innerCursorFetchUntilRpp(then);
-					}
-				});
-			}
-		};
-		
-		var innerCursorFetch = function(cb) {
-			innerCursor.getNext(function(err,resp) {
-				if ( err ) {
-					merged = [];
-					buffer = [];
-					return cb(err,resp);
-				} else {
-					var currentFieldValue ;
-					if ( buffer.length ) {
-						currentFieldValue = buffer[0].doc[mergeField];
-					} else if ( resp.length ) {
-						currentFieldValue = resp[0].doc[mergeField];
-					}
-					for (var i in resp ) {
-						if ( resp[i].doc[mergeField] == currentFieldValue ) {
-							buffer.push(resp[i]);
-						} else {
-							merged.push(buffer);
-							buffer = [resp[i]];
-							currentFieldValue = resp[i].doc[mergeField];
-						}
-					}
-					cb();
-				}
-			});
-		};
-		
-		var getResults = function(cb) {
-			if ( !innerCursor.hasMoreResults() ) {
-				if ( buffer.length ) {
-					merged.push(buffer);
-					buffer = [];
-				}
-				if ( merged.length ) {
-					var localMerged = merged;
-					merged = [];
-					return cb(null,localMerged);
-				} else {
-					return cb(null,null);
-				}
-			} else {
-				innerCursorFetchUntilRpp(function(results) {
-					return cb(null,results);
-				});
-			}
-		};
-		var hasMoreResults = function() {
-			return innerCursor.hasMoreResults() || merged.length || buffer.length;
-		}
-		this.hasMoreResults = hasMoreResults;
-		this.getNext = getResults;
-	};
-	
-	var couchMapCursor = function(endpoint, queryData) {
-		var actualData = $.extend({},queryData);
-		var rpp = actualData.limit ? actualData.limit : config.rpp;
-        actualData.limit = rpp;
-		var endOfStream = false;
-		var getResults = function(cb) {
+		this.hasMoreResults = function () { return !endOfStream; }
+		this.getNext = nextResults;
+
+		function nextResults(cb) {
 			endpoint(actualData, {
-				load: function(err,resp) {
-					var lastResult ;
-					if ( err ) {
+				load(err, resp) {
+					let lastResult;
+					if (err) {
 						endOfStream = true;
-						cb(err,resp);
-					} else if ( !$.isArray(resp) ) {
+						cb(err, resp);
+					} else if (!Array.isArray(resp)) {
 						endOfStream = true;
-						cb(999,resp);
+						cb(999, resp);
 					} else {
-						if ( resp.length < rpp ) {
-							endOfStream = true;
-						} else {
-							lastResult = resp.pop();
-							actualData.startkey = JSON.stringify( lastResult.key );
-                            if ( "doc" in lastResult && "_id" in lastResult.doc ) {
-                              actualData.startkey_docid = lastResult.doc._id;
-                            }
-						}
-						cb(null,resp);
+						incrementCursor(resp, cb);
 					}
 				}
 			});
-		};
-		this.hasMoreResults = function() { return !endOfStream ;}
-		this.getNext = getResults;
-	};
+		}
+
+		function incrementCursor(resp, cb) {
+			if (resp.length < rpp) {
+				endOfStream = true;
+			} else {
+				resp.pop();
+				actualData.offset = actualData.offset + rpp - 1;
+			}
+			cb(null, resp);
+		}
+	}
+
 	
 	var emulatedCursor = function(data) {
 		var rpp = config.rpp;
@@ -259,10 +184,9 @@ define(["js/d10.templates", "js/config", "js/user", "js/d10.rest"], function(tpl
 // widget.outerHeight: the visible window
 
 	return {
-		couchMapMergedCursor: couchMapMergedCursor,
-		couchMapCursor: couchMapCursor,
 		emulatedCursor: emulatedCursor,
-		favoriteSongsLoader: favoriteSongsLoader
+		favoriteSongsLoader: favoriteSongsLoader,
+		mongoPagedCursor: mongoPagedCursor
 	};
 
 	

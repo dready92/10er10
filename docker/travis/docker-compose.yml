@@ -1,0 +1,33 @@
+version: '3.2'
+
+services:
+  d10:
+    build:
+      context: .
+      args:
+        - TRAVIS_COMMIT
+        - TRAVIS_REPO_SLUG
+    image: dready92/10er10:1.0-snapshot
+    environment:
+      - DEBUG=d10.*
+      - MONGO_HOST=db:27017
+      - MONGO_URL=mongodb://db:27017
+      - MONGO_DB=d10
+    ports:
+      - 127.0.0.1:8888:8888
+    depends_on:
+      - db
+    networks:
+      - web
+  db:
+    image: mongo:4-xenial
+    environment:
+      - MONGO_INITDB_DATABASE=d10
+    ports:
+      - 27017:27017
+    volumes:
+      - ../../d10-fixtures/datastore:/docker-entrypoint-initdb.d:z
+    networks:
+      - web
+networks:
+  web:

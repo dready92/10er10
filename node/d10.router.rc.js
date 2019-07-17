@@ -125,10 +125,14 @@ exports.publicApi = function publicApi(app) {
       user: request.ctx.user._id,
       session: request.ctx.remoteControlSession._id,
     };
-    return session.removeSession(id.session, () => {
-      emitter.emit('logout', id);
-      d10.realrest.success({ logout: true }, request.ctx);
-    });
+    return session.removeSession(id.session)
+      .catch((err) => {
+        debug('Error removing session', err);
+      })
+      .then(() => {
+        emitter.emit('logout', id);
+        d10.realrest.success({ logout: true }, request.ctx);
+      });
   });
 
   app.post('/api/rc/login', jsonParserMiddleware, urlencodedParserMiddleware, (request) => {

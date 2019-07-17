@@ -93,10 +93,10 @@ define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolb
 					rest.genre.artists(genre, {}, {
 						load: function(err, data) {
 							if ( err )	return then(err);
-							var back = {title:tpl.mustacheView("library.extendedInfos.genre.artists"), data: []};
+							var back = {title: tpl.mustacheView("library.extendedInfos.genre.artists"), data: []};
 							for ( var i in data ) {
-								back.data.push($("<li />").html(data[i].key[1])
-													.attr("data-name","library/artists/"+encodeURIComponent( data[i].key[1])));
+								back.data.push($("<li />").html(data[i])
+													.attr("data-name","library/artists/"+encodeURIComponent( data[i])));
 							}
 							then(null,back);
 						}
@@ -108,8 +108,8 @@ define(["js/d10.templates","js/user","js/d10.rest", "js/d10.when", "js/d10.toolb
 							if ( err ) { return then(err); }
 							var back = {title: tpl.mustacheView("library.extendedInfos.genre.albums"), data: []};
 							for ( var i in data ) {
-								back.data.push($("<li />").html(data[i].key[1]+" ("+data[i].value+" songs)")
-													.attr("data-name","library/albums/"+encodeURIComponent(data[i].key[1])));
+								back.data.push($("<li />").html(data[i].album+" ("+data[i].count+" songs)")
+													.attr("data-name","library/albums/"+encodeURIComponent(data[i].album)));
 							}
 							then(null,back);
 						},

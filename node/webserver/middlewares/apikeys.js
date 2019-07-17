@@ -45,29 +45,21 @@ function setupEnvUsingApikey(req, apikey, next) {
   // eslint-disable-next-line prefer-destructuring
   const ctx = req.ctx;
 
-  d10.couch.auth.view('apikeys/id', { key: apikey, include_docs: true }, (err, resp) => {
-    if (err) {
-      console.log('apikey logUsingHeader middleware', err, resp);
-      return next();
-    }
-
-    if (resp.rows.length === 0) {
-      return next();
-    }
-
-    const user = resp.rows[0].doc;
-    return sessionService.getOrMakeSession({
-      user: user.login,
-      userId: user._id,
-    }, (err2, response) => {
-      if (err2) {
+  d10.mcol(d10.COLLECTIONS.USERS).findOne({ 'apikeys.key': apikey })
+    .then((userDoc) => {
+      if (!userDoc) {
         return next();
       }
 
-      sessionService.fillUserCtx(ctx, response.response, response.doc);
-      sessionService.sessionCacheAdd(ctx.user, ctx.userPrivateConfig,
-        ctx.session, ctx.remoteControlSession);
-      return next(true);
-    });
-  });
+      return sessionService.getOrMakeSession({
+        user: userDoc.login,
+        userId: userDoc._id,
+      })
+        .then((userSession) => {
+          sessionService.fillUserCtx(ctx, userDoc, userSession);
+          return next(true);
+        })
+        .catch(() => next());
+    })
+    .catch(() => next());
 }

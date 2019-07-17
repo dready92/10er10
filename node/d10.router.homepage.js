@@ -65,7 +65,8 @@ exports.homepage = (app) => {
           }
           vars.langs.push(langO);
         });
-
+        request.ctx.headers['Content-Type'] = 'text/html; charset=utf-8';
+        response.writeHead(200, request.ctx.headers);
         response.end(d10.mustache.to_html(homepage, vars, {
           resultsContainer,
           libraryContainer,
@@ -82,23 +83,23 @@ exports.homepage = (app) => {
   }
 
   function displayHomepage(request, response, next) {
-    if (request.ctx.session && '_id' in request.ctx.session && request.ctx.user) {
+    const logged = request.ctx.session && '_id' in request.ctx.session && request.ctx.user;
+    if (logged) {
       debug('homepage router: LOGGED');
     } else {
       debug('homepage router: NOT LOGGED');
     }
-    request.ctx.headers['Content-Type'] = 'text/html; charset=utf-8';
-    response.writeHead(200, request.ctx.headers);
 
-    if (request.ctx.session && '_id' in request.ctx.session && request.ctx.user) {
+    if (logged) {
       if (request.query.lang) {
         request.ctx.langUtils.langExists(request.query.lang, (exists) => {
           if (exists) {
-            request.ctx.user.lang = request.query.lang;
-            d10.couch.auth.storeDoc(request.ctx.user, () => {
-              request.ctx.lang = request.query.lang;
-              display10er10(request, response, next);
-            });
+            d10.mcol(d10.COLLECTIONS.USERS).updateOne({ _id: request.ctx.user._id }, { $set: { lang: request.query.lang } })
+              .then(() => {
+                request.ctx.lang = request.query.lang;
+                display10er10(request, response, next);
+              })
+              .catch(err => d10.realrest.err(500, err, request.ctx));
           } else {
             display10er10(request, response, next);
           }
@@ -108,17 +109,25 @@ exports.homepage = (app) => {
       }
     } else {
       request.ctx.langUtils.parseServerTemplate(request, 'login.html', (err, html) => {
+        request.ctx.headers['Content-Type'] = 'text/html; charset=utf-8';
+        response.writeHead(200, request.ctx.headers);
         response.end(html);
       });
     }
   }
+
   app.get('/welcome/goodbye', (request, response, next) => {
-    d10.couch.auth.deleteDoc(request.ctx.session, () => {});
-    delete request.ctx.session;
-    delete request.ctx.user;
-    delete request.ctx.userPrivateConfig;
-    request.ctx.headers['Set-Cookie'] = `${d10.config.cookieName}=no; path=${d10.config.cookiePath}`;
-    displayHomepage(request, response, next);
+    session.removeSession(request.ctx.session._id)
+      .catch((err) => {
+        debug('Error when deleting session', err);
+      })
+      .then(() => {
+        delete request.ctx.session;
+        delete request.ctx.user;
+        delete request.ctx.userPrivateConfig;
+        request.ctx.headers['Set-Cookie'] = `${d10.config.cookieName}=no; path=${d10.config.cookiePath}`;
+        displayHomepage(request, response, next);
+      });
   });
 
   app.get('/', displayHomepage);
@@ -135,13 +144,13 @@ exports.homepage = (app) => {
 
     function checkPass() {
       users.authFromLoginPass(request.body.username, request.body.password)
-        .then((loginResponse) => {
-          if (!loginResponse) {
+        .then((userDoc) => {
+          if (!userDoc) {
             debug('POST/: bad loggin or password');
-            return displayHomepage(request, response, next);
+            return;
           }
-          debug('POST/: user logged with login/password:', loginResponse.uid);
-          return setSessionAndLang(request.ctx, loginResponse)
+          debug('POST/: user logged with login/password:', userDoc._id);
+          return setSessionAndLang(request.ctx, userDoc)
             .catch(() => {
               debug('ignoring session error');
             });
@@ -162,16 +171,16 @@ exports.homepage = (app) => {
 
     function checkPass() {
       users.authFromLoginPass(request.body.username, request.body.password)
-        .then((loginResponse) => {
-          if (!loginResponse) {
+        .then((userDoc) => {
+          if (!userDoc) {
             const e = new Error('login failed');
-            e.statusCode = 500;
+            e.statusCode = 401;
             e.data = { error: 'login failed', reason: 'invalid credentials' };
             throw e;
           }
-          debug('POST /api/session: user logged with login/password: ', loginResponse.uid);
+          debug('POST /api/session: user logged with login/password: ', userDoc._id);
 
-          return setSessionAndLang(request.ctx, loginResponse)
+          return setSessionAndLang(request.ctx, userDoc)
             .catch(() => {
               const e = new Error('Session storage failed');
               e.statusCode = 500;
@@ -189,18 +198,17 @@ exports.homepage = (app) => {
   });
 };
 
-function setSessionAndLang(ctx, loginResponse) {
-  return new Promise((resolve, reject) => {
-    session.makeSession(loginResponse.uid, (err, sessionDoc) => {
-      if (err) {
-        debug('POST/: bad response from makeSession', err);
-        return reject(err);
-      }
-      session.fillUserCtx(ctx, { rows: loginResponse.docs }, sessionDoc);
-      const cookie = { user: ctx.user.login, session: sessionDoc._id.substring(2) };
+function setSessionAndLang(ctx, userDoc) {
+  return session.makeSession(userDoc)
+    .then((userSession) => {
+      session.fillUserCtx(ctx, userDoc, userSession);
+      const cookie = { user: ctx.user.login, session: userSession._id.substring(2) };
       ctx.setCookie(cookie);
       if (ctx.user.lang) { ctx.lang = ctx.user.lang; }
-      return resolve(ctx);
+      return ctx;
+    })
+    .catch((err) => {
+      debug('POST/: bad response from makeSession', err);
+      return err;
     });
-  });
 }

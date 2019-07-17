@@ -65,7 +65,7 @@ onmessage = function(e){
 
 	var decoded = xmlhttp.responseText,
 		contentType = xmlhttp.getResponseHeader("Content-Type") || "text/html";
-	if ( data.dataType == 'json' || contentType.match(/json$/) ) {
+	if ( data.dataType == 'json' || contentType.match(/application\/json/) ) {
 		try {
 			decoded = JSON.parse(xmlhttp.responseText);
 		} catch (ex) {
