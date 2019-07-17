@@ -26,7 +26,7 @@ exports.mongo_prod = {
 };
 
 
-$ node couch2mongo.js -p
+$ node couch2mongo.js
 </code>
 */
 const prompt = require('prompt');
@@ -89,7 +89,7 @@ Press Ctrl-C to abort, or wait 5 seconds
 `);
     setTimeout(() => {
       d10.setConfig(config).then(startMigration);
-    }, 500);
+    }, 5000);
   });
 });
 
