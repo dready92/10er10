@@ -108,11 +108,13 @@ exports.homepage = (app) => {
         display10er10(request, response, next);
       }
     } else {
-      request.ctx.langUtils.parseServerTemplate(request, 'login.html', (err, html) => {
-        request.ctx.headers['Content-Type'] = 'text/html; charset=utf-8';
-        response.writeHead(200, request.ctx.headers);
-        response.end(html);
-      });
+      request.ctx.langUtils.parseServerTemplate(request, 'login.html')
+        .then((html) => {
+          request.ctx.headers['Content-Type'] = 'text/html; charset=utf-8';
+          response.writeHead(200, request.ctx.headers);
+          response.end(html);
+        })
+        .catch(err => response.status(500).json({ err }));
     }
   }
 

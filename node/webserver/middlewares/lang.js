@@ -95,10 +95,7 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
   *
   *
   */
-  function parseServerTemplate(request, tpl, parseServerTemplateCb) {
-    // getHeadersLang(request,function(lng) {
-    // var lng = request.ctx.lang ? request.ctx.lang : d10.config.templates.defaultLang;
-    // var lng =
+  function parseServerTemplate(request, tpl) {
     debug('LANG parseServerTemplate: ', tpl, request.url, request.ctx.lang);
     const prom = new Promise((resolve, reject) => {
       loadLang(request.ctx.lang, 'server', (err, hash) => {
@@ -120,10 +117,6 @@ module.exports = function langMiddleware(langRoot, tplRoot, cb) {
         });
       });
     });
-    if (parseServerTemplateCb) {
-      prom.then(resp => parseServerTemplateCb(null, resp))
-        .catch(parseServerTemplateCb);
-    }
     return prom;
   }
 

@@ -72,19 +72,11 @@ exports.api = (app) => {
 
   app.get('/api/htmlElements', (request) => {
     const promises = Object.keys(d10.config.templates.clientList)
-      .map(tplTag => new Promise((resolve, reject) => {
+      .map((tplTag) => {
         const tpl = d10.config.templates.clientList[tplTag];
-        request.ctx.langUtils.parseServerTemplate(request, tpl, (err, html) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve({
-              name: tplTag,
-              value: html,
-            });
-          }
-        });
-      }));
+        return request.ctx.langUtils.parseServerTemplate(request, tpl)
+          .then(html => ({ name: tplTag, value: html }));
+      });
 
     const dynamicP = new Promise((resolve, reject) => {
       request.ctx.langUtils.loadLang(request.ctx.lang, 'client', (err, lang) => {

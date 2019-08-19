@@ -80,13 +80,12 @@ function readFilesInDir(dir, opts, callback) {
 
 exports.publicApi = function publicApi(app) {
   app.get('/rc', (request, response) => {
-    request.ctx.langUtils.parseServerTemplate(request, 'html/rc/login.html', (err, resp) => {
-      if (err) {
+    request.ctx.langUtils.parseServerTemplate(request, 'html/rc/login.html')
+      .then(resp => response.end(d10.mustache.to_html(resp, {})))
+      .catch((err) => {
         debug(err);
-        return response.end('An error occured');
-      }
-      return response.end(d10.mustache.to_html(resp, {}));
-    });
+        response.end('An error occured');
+      });
   });
   app.get('/rc/js', (request, response) => {
     const jsPath = `${d10.config.javascript.rootDir}/rc`;
