@@ -31,7 +31,7 @@ exports.api = (app) => {
   });
 
   app.get('/api/song/aa:id', (request) => {
-    d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: `aa${id}`})
+    d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: `aa${request.params.id}` })
       .then((doc) => {
         if (!doc) {
           const err = new Error('Song not found');
@@ -611,7 +611,7 @@ exports.api = (app) => {
     }
 
     d10.mcol(d10.COLLECTIONS.ALBUMS).findOne({ _id: request.params.album })
-      .then((album)=> {
+      .then((album) => {
         if (!album) {
           return d10.realrest.err(404, 'Not Found', request.ctx);
         }
