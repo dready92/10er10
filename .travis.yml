@@ -16,4 +16,4 @@ before_install:
   - git clone https://github.com/dready92/d10-fixtures.git
   - docker-compose -f docker/travis/docker-compose.yml up -d
 script:
-  - $(npm bin)/cypress run
+  - $(npm bin)/cypress run --config video=false
