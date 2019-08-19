@@ -36,6 +36,7 @@ exports.api = (app) => {
         if (!doc) {
           const err = new Error('Song not found');
           err.code = 404;
+          throw err;
         }
         d10.realrest.success(doc, request.ctx);
       })
