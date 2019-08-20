@@ -637,6 +637,7 @@ exports.api = (app) => {
         count: { $sum: 1 },
       },
     },
+    { $sort: { _id: 1 } },
   ]).toArray()
     .then((result) => {
       const response = result.map(res => ({ key: [res._id], value: res.count }));
