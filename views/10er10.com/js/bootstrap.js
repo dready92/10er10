@@ -1,8 +1,8 @@
 
 define(["js/d10.httpbroker","js/d10.when", "js/d10.rest", "js/user", "js/d10.localcache", "js/d10.templates", "js/d10.router",
-	   "js/playlist", "js/d10.jobWorker","js/bgtask", "js/my.plm", "js/d10.events", "js/config", "js/d10.audioCapabilities"],
+	   "js/playlist", "js/d10.jobWorker","js/bgtask", "js/my.plm", "js/d10.events", "js/config", "js/d10.audioCapabilities", "js/d10.mediaSession"],
 	   function(bghttp, When, rest, user, localcache, tpl, router,
-                playlist, jobs, bgtask, plmCtlr, pubsub, config, audioCapabilities) {
+                playlist, jobs, bgtask, plmCtlr, pubsub, config, audioCapabilities, mediaSession) {
 
     var startupTime = new Date().getTime();
 

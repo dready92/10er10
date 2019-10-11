@@ -45,6 +45,7 @@ function getD10Server(config) {
   d10Router.use('/js/', express.static('../views/10er10.com/js'));
   d10Router.use('/css/', express.static('../views/10er10.com/css'));
   d10Router.use('/html/rc/', express.static('../views/10er10.com/html/rc'));
+  d10Router.use('/audioImages/', express.static(config.images.dir));
   d10Router.use(cookieSessionMiddleware);
   d10Router.use(apikeyHeaderMiddleware);
   if (!config.production) {
@@ -56,7 +57,6 @@ function getD10Server(config) {
   d10Router.use(ensureLoginMiddleware);
   downloadRoutes(d10Router);
   d10Router.use('/audio/', express.static(config.audio.dir));
-  d10Router.use('/audioImages/', express.static(config.images.dir));
   baseApiRoutes(d10Router);
   plmApiRoutes(d10Router);
   listingApiRoutes(d10Router);
