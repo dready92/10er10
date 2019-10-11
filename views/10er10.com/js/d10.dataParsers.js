@@ -3,6 +3,16 @@
 // eslint-disable-next-line no-undef,import/no-amd,prefer-arrow-callback
 define(['js/d10.templates', 'js/d10.toolbox', 'js/d10.imageUtils', 'js/d10.artistTokenizer'],
   (tpl, toolbox, imageUtils, artistTokenizer) => {
+
+    function albumSongsSort(s1, s2) {
+      const s1track = s1.tracknumber || 0;
+      const s2track = s2.tracknumber || 0;
+      if (s1track !== s2track) {
+        return s1track - s2track;
+      }
+      return s1.title.localeCompare(s2.title);
+    }
+
     function singleAlbumParser(songs) {
       if (!Array.isArray(songs)) {
         return singleAlbumParser2(songs);
@@ -16,7 +26,10 @@ define(['js/d10.templates', 'js/d10.toolbox', 'js/d10.imageUtils', 'js/d10.artis
       const genres = {};
       const images = {};
       const imageAlternatives = {};
-      songs.forEach((song) => {
+
+      const orderedSongs = songs.sort(albumSongsSort);
+
+      orderedSongs.forEach((song) => {
         albumData.album = song.album || '';
         song.artistsToken = artistTokenizer(song, true);
         song.title = song.artistsToken[1];
@@ -104,7 +117,10 @@ define(['js/d10.templates', 'js/d10.toolbox', 'js/d10.imageUtils', 'js/d10.artis
         minutes: m < 10 ? [`0${m}`] : [m],
         hours: h ? [h] : [],
       };
-      album.songs.forEach((song) => {
+
+      const orderedSongs = album.songs.sort(albumSongsSort);
+
+      orderedSongs.forEach((song) => {
         const newSong = { ...song };
         newSong.artistsToken = [newSong.tokenartists, newSong.tokentitle];
         newSong.title = song.tokentitle;
@@ -156,7 +172,7 @@ define(['js/d10.templates', 'js/d10.toolbox', 'js/d10.imageUtils', 'js/d10.artis
 
     function multiAlbumsParser(songs) {
       const back = [];
-      let sap = new streamAlbumParser(((album) => { back.push(album); }));
+      let sap = new streamAlbumParser((album) => { back.push(album); });
       sap.onData(songs);
       sap.end();
       sap = null;
