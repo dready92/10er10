@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 const deepStrictEqual = require('assert').deepStrictEqual;
 const debugProvider = require('../debug');
 
@@ -15,6 +16,7 @@ const ARTISTS_PIPELINE = [
       duration: { $sum: '$duration' },
       hits: { $sum: '$hits' },
       genres: { $addToSet: '$genre' },
+      ts_creation: { $max: '$ts_creation' },
     },
   },
 ];
@@ -30,6 +32,7 @@ const ALBUMS_PIPELINE = [
       duration: { $sum: '$duration' },
       hits: { $sum: '$hits' },
       genres: { $addToSet: '$genre' },
+      ts_creation: { $max: '$ts_creation' },
     },
   },
 ];
@@ -41,7 +44,7 @@ const ALBUMS_PIPELINE = [
     name: 'sessions._id_1',
     ns: 'd10_dev.users' } ]
 */
-const indexes = {
+const INDEXES = {
   songs: [
     { name: 'album_1', key: { album: 1 } },
     { name: 'genre_1', key: { genre: 1 } },
@@ -62,18 +65,18 @@ const indexes = {
 module.exports = check;
 
 function check(db) {
-  return db.collections().then(collections => checkArtistsView(db, collections)
-    .then(() => checkAlbumsView(db, collections))
-    .then(() => checkCollectionsExist(db, collections))
-    .then(() => checkCollection(db, 'users'))
-    .then(() => checkCollection(db, 'songs'))
-  );
+  return db.listCollections().toArray()
+    .then(collections => checkArtistsView(db, collections)
+      .then(() => checkAlbumsView(db, collections))
+      .then(() => checkCollectionsExist(db, collections))
+      .then(() => checkCollection(db, 'users'))
+      .then(() => checkCollection(db, 'songs')));
 }
 
 function checkCollectionsExist(db, collections) {
-  const jobs = Object.keys(indexes).map((collname) => {
+  const jobs = Object.keys(INDEXES).map((collname) => {
     debug(collname, ': checking if collection exists');
-    const collinfo = collections.filter(coll => coll.collectionName === collname);
+    const collinfo = collections.filter(coll => coll.name === collname);
     if (collinfo.length) {
       debug(collname, ': exists');
       return Promise.resolve(true);
@@ -88,7 +91,7 @@ function checkCollectionsExist(db, collections) {
 function checkCollection(db, collectionName) {
   return db.indexInformation(collectionName, { full: true })
     .then((collindexes) => {
-      const refindexes = indexes[collectionName];
+      const refindexes = INDEXES[collectionName];
       const saneindexes = collindexes.filter(index => index.name !== '_id_');
       const missing = getMissingIndexes(refindexes, saneindexes);
       const unexpected = getUnexpectedIndexes(refindexes, saneindexes);
@@ -97,6 +100,12 @@ function checkCollection(db, collectionName) {
         debug(collectionName, ': list of unexpected indices:');
         unexpected.forEach(debug);
         debug('Those indices will be left as-is. It can prevent index creation success on the current collection');
+        // eslint-disable-next-line no-console
+        console.log(collectionName, ': list of unexpected indices:');
+        // eslint-disable-next-line no-console
+        unexpected.forEach(console.log.bind(console));
+        // eslint-disable-next-line no-console
+        console.log('Those indices will be left as-is. It can prevent index creation success on the current collection');
       }
       if (missing.length) {
         debug('planning creation of ', missing.length, ' indexes');
@@ -169,49 +178,76 @@ function getUnexpectedIndexes(reference, colIndexes) {
 }
 
 function checkArtistsView(db, collections) {
-  debug('checking for "artists" collection');
-  const artistsCollection = collections.filter(coll => coll.collectionName === 'artists');
-  if (artistsCollection.length > 1) {
-    throw new Error('DB got several collections "artists"');
-  }
-  if (artistsCollection.length === 0) {
-    debug('"artists" collection not found. Trying to create');
-    return db.command({ create: 'artists', viewOn: 'songs', pipeline: ARTISTS_PIPELINE })
-      .then(() => {
-        debug('View "artists" has been created');
-        return Promise.resolve(true);
-      })
-      .catch((err) => {
-        debug('View "artists" creation failed', err);
-        throw err;
-      });
-  }
-
-  debug('view "artists" exists');
-  return Promise.resolve(true);
+  return checkView(db, collections, 'artists', 'songs', ARTISTS_PIPELINE);
 }
 
 function checkAlbumsView(db, collections) {
-  debug('checking for "albums" collection');
-  const artistsCollection = collections.filter(coll => coll.collectionName === 'albums');
-  if (artistsCollection.length > 1) {
-    throw new Error('DB got several collections "albums"');
-  }
-  if (artistsCollection.length === 0) {
-    debug('"albums" collection not found. Trying to create');
-    return db.command({ create: 'albums', viewOn: 'songs', pipeline: ALBUMS_PIPELINE })
-      .then(() => {
-        debug('View "albums" has been created');
-        return Promise.resolve(true);
-      })
-      .catch((err) => {
-        debug('View "albums" creation failed', err);
-        throw err;
-      });
+  return checkView(db, collections, 'albums', 'songs', ALBUMS_PIPELINE);
+}
+
+function checkView(db, collections, name, on, pipeline) {
+  debug(`${name}: checking collection`);
+  const collection = collections.filter(coll => coll.name === name);
+
+  if (collection.length > 1) {
+    throw new Error(`${name}: DB got several collections with that name`);
   }
 
-  debug('view "albums" exists');
-  return Promise.resolve(true);
+  if (collection.length === 0) {
+    debug(`${name}: collection not found. Trying to create`);
+    return createView(db, name, on, pipeline);
+  }
+
+  debug(`${name}: view  exists`);
+  if (checkPipeline(db, collection[0], pipeline)) {
+    return Promise.resolve(true);
+  }
+
+  return dropCollection(db, name)
+    .then(() => createView(db, name, on, pipeline));
+}
+
+function createView(db, name, on, pipeline) {
+  return db.command({ create: name, viewOn: on, pipeline })
+    .then(() => {
+      debug(`${name}: view has been created`);
+      return Promise.resolve(true);
+    })
+    .catch((err) => {
+      debug(`${name}: View creation failed`, err);
+      throw err;
+    });
+}
+
+function dropCollection(db, name) {
+  debug(`${name}: dropping collection`);
+  return db.dropCollection(name)
+    .then((response) => {
+      if (response !== true) {
+        throw new Error(`${name}: unable to drop collection`);
+      }
+      debug(`${name}: collection dropped`);
+      return response;
+    })
+    .catch((err) => {
+      debug(`${name}: drop collection failed`, err);
+      throw err;
+    });
+}
+
+function checkPipeline(db, collection, pipeline) {
+  const name = collection.name;
+  debug(`${name}: checking pipeline definition for collection`);
+  let ok;
+  try {
+    deepStrictEqual(collection.options.pipeline, pipeline);
+    ok = true;
+    debug(`${name}: pipeline stages ok in collection`);
+  } catch (err) {
+    debug(`${name}: pipeline stages differs in collection`);
+    ok = false;
+  }
+  return ok;
 }
 
 function runPromiseInSequense(arr) {
