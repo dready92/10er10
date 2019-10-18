@@ -25,8 +25,8 @@ module.exports = {
  * @param {String} [of.remoteControlSession] - The remote control session id (without 'rs')
  */
 function getOrMakeSession(of) {
-  function filter(row) {
-    return row.doc._id.substr(0, 2) === 'se';
+  function filter(doc) {
+    return doc._id.substr(0, 2) === 'se';
   }
 
   return getSession(of.user, filter)
