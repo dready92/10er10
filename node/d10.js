@@ -223,7 +223,7 @@ const realrest = {
 function orderedList(ids, items) {
   const itemsHash = {};
   items.forEach((item) => { itemsHash[item._id] = item; });
-  return ids.map(id => itemsHash[id]);
+  return ids.map(id => itemsHash[id]).filter(doc => doc);
 }
 
 module.exports = {

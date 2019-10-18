@@ -24,7 +24,7 @@ exports.playlistAndSongs = function playlistAndSongs(user, playlistId, then) {
     return d10.mcol(d10.COLLECTIONS.SONGS).find({ _id: { $in: playlist.songs } })
       .toArray()
       .then((songs) => {
-        const playlistBack = { ...playlist, songs };
+        const playlistBack = { ...playlist, songs: d10.orderedList(playlist.songs, songs) };
         then(null, playlistBack);
       });
   }
@@ -85,19 +85,17 @@ exports.append = function append(user, playlist, songId, then) {
       }
       return song;
     })
-    .then((song) => {
-      return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
-        { _id: user._id },
-        { $push: { 'playlists.$[element].songs': songId } },
-        { arrayFilters: [{ 'element._id': playlist._id }] },
-      )
-        .then(() => song)
-        .catch((err) => {
-          // eslint-disable-next-line no-param-reassign
-          err.code = 4;
-          throw err;
-        });
-    })
+    .then(song => d10.mcol(d10.COLLECTIONS.USERS).updateOne(
+      { _id: user._id },
+      { $push: { 'playlists.$[element].songs': songId } },
+      { arrayFilters: [{ 'element._id': playlist._id }] },
+    )
+      .then(() => song)
+      .catch((err) => {
+        // eslint-disable-next-line no-param-reassign
+        err.code = 4;
+        throw err;
+      }))
     .then((song) => {
       const updatedPlaylist = { ...playlist };
       updatedPlaylist.songs = [...playlist.songs, songId];
