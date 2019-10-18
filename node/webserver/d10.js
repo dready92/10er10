@@ -24,6 +24,8 @@ const invitesApiRoutes = require('../d10.router.invites').api;
 const apiKeysRoutes = require('../d10.router.apikeys').api;
 const rcApiRoutes = require('../d10.router.rc').api;
 
+const apiv2Router = express.Router({ caseSensitive: true });
+require('../api/v2/song')(apiv2Router);
 
 module.exports = {
   getD10Server,
@@ -65,6 +67,7 @@ function getD10Server(config) {
   rcApiRoutes(d10Router);
   invitesApiRoutes(d10Router);
   apiKeysRoutes(d10Router);
+  d10Router.use('/api/v2', apiv2Router);
 
   return d10Router;
 }
