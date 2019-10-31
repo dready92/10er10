@@ -5,12 +5,13 @@ const debugProvider = require('../debug');
 const debug = debugProvider('d10:mongo:check-base');
 
 const ARTISTS_PIPELINE = [
-  { $unwind: '$tokenartists' },
-  { $match: { tokenartists: { $exists: true, $ne: '' } } },
+  { $addFields: { _artist: '$tokenartists' } },
+  { $unwind: '$_artist' },
+  { $match: { _artist: { $exists: true, $ne: '' } } },
   {
     $group:
     {
-      _id: '$tokenartists',
+      _id: '$_artist',
       songs: { $push: '$$ROOT' },
       count: { $sum: 1 },
       duration: { $sum: '$duration' },

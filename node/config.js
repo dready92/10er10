@@ -38,7 +38,7 @@ exports.couch_dev = {
 */
 exports.mongo_dev = {
 	url: 'mongodb://localhost:27017',
-	database: 'd10_migtest1',
+	database: 'd10_dev',
 	options: { useNewUrlParser: true },
 };
 
