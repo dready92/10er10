@@ -1,3 +1,5 @@
+const pause = require('pause');
+
 const d10 = require('../../d10');
 
 const sessionService = require('../../session');
@@ -45,10 +47,18 @@ function setupEnvUsingApikey(req, apikey, next) {
   // eslint-disable-next-line prefer-destructuring
   const ctx = req.ctx;
 
+  const handle = pause(req);
+
+  function nextWrapper(arg) {
+    handle.end();
+    next(arg);
+    handle.resume();
+  }
+
   d10.mcol(d10.COLLECTIONS.USERS).findOne({ 'apikeys.key': apikey })
     .then((userDoc) => {
       if (!userDoc) {
-        return next();
+        return nextWrapper();
       }
 
       return sessionService.getOrMakeSession({
@@ -57,9 +67,9 @@ function setupEnvUsingApikey(req, apikey, next) {
       })
         .then((userSession) => {
           sessionService.fillUserCtx(ctx, userDoc, userSession);
-          return next(true);
+          return nextWrapper(true);
         })
-        .catch(() => next());
+        .catch(() => nextWrapper());
     })
-    .catch(() => next());
+    .catch(() => nextWrapper());
 }
