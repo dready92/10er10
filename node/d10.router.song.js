@@ -4,6 +4,7 @@ const d10 = require('./d10');
 const songProcessorEmitter = require('./lib/song-processor/song-processor-events');
 const songProcessor = require('./lib/song-processor');
 const artistToken = require('./artistToken');
+const denormalize = require('./db/denormalization');
 
 const debug = d10.debug('d10:d10.router.song');
 const jsonParserMiddleware = bodyParser.json();
@@ -183,7 +184,24 @@ exports.api = function api(app) {
       return record.then(() => {
         debug('debug', 'storeDoc success');
         d10.realrest.success(doc, request.ctx);
-      });
+
+        if (!sourceIsStaging) {
+          // do not return: this is a background operation
+          denormalize(doc, source)
+            .then((results) => {
+              const errors = results.map(settled =>  settled.status === 'rejected');
+              if (!errors.length) {
+                debug('denormalization: all OK');
+              } else {
+                debug('denormalization: ERRORS:');
+                errors.forEach(err => debug(err.reason));
+              }
+            });
+        }
+
+        
+      })
+      .catch((err) => d10.realrest.err(500, err, request.ctx));
     });
   }
 
