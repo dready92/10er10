@@ -3,6 +3,6 @@
   "rules": {
     "no-use-before-define": 0,
     "no-underscore-dangle": ["error", {"allow": ["_id", "_rev"]}],
-    "prefer-destructuring": 0,
+    "prefer-destructuring": 0
   }
 }
