@@ -201,7 +201,7 @@ exports.homepage = (app) => {
 };
 
 function setSessionAndLang(ctx, userDoc) {
-  return session.makeSession(userDoc)
+  return session.makeSession(userDoc._id)
     .then((userSession) => {
       session.fillUserCtx(ctx, userDoc, userSession);
       const cookie = { user: ctx.user.login, session: userSession._id.substring(2) };

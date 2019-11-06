@@ -37,6 +37,10 @@ function getOrMakeSession(of) {
 
       return makeSession(of.userId)
         .then(getOrMakeSession);
+    })
+    .catch((e) => {
+      debug('getOrMakeSession error', e);
+      throw e;
     });
 }
 
@@ -53,7 +57,8 @@ function getSession(userLogin, filter) {
       if (!userDoc) {
         return null;
       }
-      const okfilter = userDoc.sessions.filter(filter);
+      const sessions = userDoc.sessions || [];
+      const okfilter = sessions.filter(filter);
       if (okfilter.length) {
         return okfilter[0];
       }
@@ -109,22 +114,22 @@ function getUser(sessionId, then) {
   return true;
 }
 
-function removeSession(sessionId, cb) {
+function removeSession(sessionId) {
   return d10.mcol(d10.COLLECTIONS.USERS).updateOne(
     { 'sessions._id': sessionId },
     { $pull: { sessions: { _id: sessionId } } },
-  )
+  );
 }
 
-function makeSession(userDoc) {
-  return makeSessionForType(userDoc, 'se');
+function makeSession(userDocId) {
+  return makeSessionForType(userDocId, 'se');
 }
 
-function makeRemoteControlSession(userDoc) {
-  return makeSessionForType(userDoc, 'rs');
+function makeRemoteControlSession(userDocId) {
+  return makeSessionForType(userDocId, 'rs');
 }
 
-function makeSessionForType(userDoc, type) {
+function makeSessionForType(userDocId, type) {
   const sessionId = d10.uid();
   const d = new Date();
   // create session and record it in user doc
@@ -134,7 +139,7 @@ function makeSessionForType(userDoc, type) {
     ts_last_usage: d.getTime(),
   };
   return d10.mcol(d10.COLLECTIONS.USERS)
-    .updateOne({ _id: userDoc._id }, { $push: { sessions: doc } })
+    .updateOne({ _id: userDocId }, { $push: { sessions: doc } })
     .then(() => doc);
 }
 
