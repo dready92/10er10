@@ -95,6 +95,11 @@ exports.cmds = {
 	faad_opts: ["-qw"]
 }
 
+// static routes, that will be added to 10er10 main application server.
+// example:
+//
+// exports.staticRoutes = [ {uri: '/dev/', directoryPath: '/var/www/10er10/dev' } ];
+exports.staticRoutes = [];
 
 exports.library = {
 	// default tab when click on "library" : "genres","albums","titles","hits" (=popular), "creations" (=last songs uploaded)

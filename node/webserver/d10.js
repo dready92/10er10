@@ -43,6 +43,13 @@ function getD10Server(config) {
   }
 
   d10Router.use(contextMiddleware);
+
+  if (config.staticRoutes) {
+    config.staticRoutes.forEach((route) => {
+      d10Router.use(route.uri, express.static(route.directoryPath));
+    });
+  }
+
   d10Router.use('/js/', express.static('../views/10er10.com/js'));
   d10Router.use('/css/', express.static('../views/10er10.com/css'));
   d10Router.use('/html/rc/', express.static('../views/10er10.com/html/rc'));
