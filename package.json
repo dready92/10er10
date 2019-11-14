@@ -9,6 +9,9 @@
   "directories": {
     "doc": "doc"
   },
+  "scripts": {
+    "swagger": "swagger-jsdoc -d node/swagger.js -o doc/doc.yaml"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/dready92/10er10"
@@ -34,6 +37,7 @@
     "prompt": "^0.2.14",
     "qs": "^6.7.0",
     "serve-favicon": "^2.5.0",
+    "swagger-jsdoc": "^3.4.0",
     "vhost": "^3.0.2",
     "ws": "^7.1.0"
   },

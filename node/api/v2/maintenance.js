@@ -6,7 +6,62 @@ const debug = d10.debug('d10:api:v2:maintenance');
 
 
 let denormalizationTask = null;
-
+/**
+ * @swagger
+ * /api/v2/maintenance/denormalize:
+ *  post:
+ *    tags:
+ *      - admins
+ *    summary: launch denormalization of data on the Store
+ *    operationId: maintenanceDenormalizePost
+ *    description: This asks the server to re-denormalize data on every needed document of the store
+ *    responses:
+ *      '200':
+ *        description: progress of data denormalization task
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/DenormalizationTask"
+ *      '400':
+ *        description: wrong call; no task is running
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                error:
+ *                  type: string
+ *                  description: error message
+ *                reason:
+ *                  type: string
+ *                  description: reason leading to the error
+ *  get:
+ *    tags:
+ *      - admins
+ *    summary: get the progress of the denormalization of data on the Store
+ *    operationId: maintenanceDenormalize
+ *    description: Get the progress of the denormalization task for data on the store
+ *    responses:
+ *      '200':
+ *        description: progress of data denormalization task
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/DenormalizationTask"
+ *      '400':
+ *        description: wrong call; no task is running
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                error:
+ *                  type: string
+ *                  description: error message
+ *                reason:
+ *                  type: string
+ *                  description: reason leading to the error
+ */
 module.exports = function apiv2(app) {
   app.get('/maintenance/denormalize', (req) => {
     if (denormalizationTask) {
@@ -15,6 +70,8 @@ module.exports = function apiv2(app) {
     const err = { error: 'no task', reason: 'no task is currently running' };
     return d10.realrest.err(400, err, req.ctx);
   });
+
+
   app.post('/maintenance/denormalize', denormalizeController);
 };
 
