@@ -8,7 +8,7 @@ const SORT_KEYS = {
 };
 
 function getOpts(req) {
-  return helpers.getOpts(req, 'tokentitle', SORT_KEYS);
+  return helpers.getOpts(req, 'tokentitle', { sortKeys: SORT_KEYS, mappings: { genre: 'genres' } });
 }
 
 module.exports = function apiv2(app) {

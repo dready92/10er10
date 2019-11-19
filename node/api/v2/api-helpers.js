@@ -37,12 +37,12 @@ function getListFn(itemClass, mongoCollection, customGetOpts) {
   };
 }
 
-function getOpts(req, searchField = '_id', sortKeys) {
+function getOpts(req, searchField = '_id', opts) {
   const mongoQueryOptions = {
     query: {},
     limit: ensureLimit(req.query.limit),
     skip: ensureOffset(req.query.offset),
-    sort: ensureSort(req.query.sort, req.query.sortDirection, sortKeys),
+    sort: ensureSort(req.query.sort, req.query.sortDirection, opts.sortKeys),
     includeSongs: ensureBoolean(req.query.includeSongs),
   };
 
@@ -53,8 +53,8 @@ function getOpts(req, searchField = '_id', sortKeys) {
 
   const genres = ensureGenres(req.query.genres);
   if (genres) {
-    mongoQueryOptions.query.genre = {
-      $in: genres
+    mongoQueryOptions.query[opts.mappings.genre] = {
+      $in: genres,
     };
   }
 
@@ -115,6 +115,7 @@ function ensureBoolean(b, def = false) {
 
 function ensureNumber(nb, def = 0) {
   const out = Number(nb);
+  // eslint-disable-next-line no-restricted-globals
   if (isNaN(out)) {
     return def;
   }

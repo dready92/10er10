@@ -10,7 +10,7 @@ const SORT_KEYS = {
 
 
 function getOpts(req) {
-  return helpers.getOpts(req, '_id', SORT_KEYS);
+  return helpers.getOpts(req, '_id', { sortKeys: SORT_KEYS, mappings: { genre: 'genres' } });
 }
 
 module.exports = function apiv2(app) {

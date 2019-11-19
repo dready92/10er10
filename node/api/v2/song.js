@@ -7,8 +7,9 @@ const SORT_KEYS = {
 };
 
 const helpers = require('./api-helpers');
+
 function getOpts(req) {
-  return helpers.getOpts(req, 'tokentitle', SORT_KEYS);
+  return helpers.getOpts(req, 'tokentitle', { sortKeys: SORT_KEYS, mappings: { genre: 'genre' } });
 }
 
 module.exports = function apiv2(app) {
