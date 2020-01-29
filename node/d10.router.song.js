@@ -28,7 +28,8 @@ exports.api = function api(app) {
         if (song) {
           source = song;
         } else if (songstaging) {
-          source = songstaging;
+          const tokens = artistToken.tokenize(songstaging);
+          source = { ...songstaging, tokentitle: tokens.title, tokenartists: tokens.artists };
         } else {
           const err = new Error('Song not found');
           err.code = 404;
@@ -199,7 +200,7 @@ exports.api = function api(app) {
             });
         }
 
-        
+
       })
       .catch((err) => d10.realrest.err(500, err, request.ctx));
     });

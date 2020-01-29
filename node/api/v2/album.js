@@ -8,7 +8,7 @@ const SORT_KEYS = {
 };
 
 function getOpts(req) {
-  return helpers.getOpts(req, 'tokentitle', { sortKeys: SORT_KEYS, mappings: { genre: 'genres' } });
+  return helpers.getOpts(req, '_id', { sortKeys: SORT_KEYS, mappings: { genre: 'genres' } });
 }
 /**
  * @swagger

@@ -22,7 +22,7 @@ function getListFn(itemClass, mongoCollection, customGetOpts) {
       projection.songs = 0;
     }
 
-    d10.mcol(mongoCollection).find(mongoQueryOptions.query, projection)
+    d10.mcol(mongoCollection).find(mongoQueryOptions.query, { projection })
       .sort(mongoQueryOptions.sort)
       .skip(mongoQueryOptions.skip)
       .limit(mongoQueryOptions.limit)

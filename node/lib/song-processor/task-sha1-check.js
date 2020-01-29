@@ -13,8 +13,8 @@ module.exports = function sha1CheckTask(job) {
     }
     const sha1 = job.tasks.sha1File.response;
 
-    const sha1checksongs = d10.mcol(d10.COLLECTIONS.SONGS).countDocuments({ sha1 });
-    const sha1checkstaging = d10.mcol(d10.COLLECTIONS.SONGS_STAGING).countDocuments({ sha1 });
+    const sha1checksongs = d10.mcol(d10.COLLECTIONS.SONGS).countDocuments({ sha1File: sha1 });
+    const sha1checkstaging = d10.mcol(d10.COLLECTIONS.SONGS_STAGING).countDocuments({ sha1File: sha1 });
 
     Promise.all([sha1checksongs, sha1checkstaging])
       .then(([count1, count2]) => {

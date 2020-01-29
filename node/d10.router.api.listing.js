@@ -124,11 +124,15 @@ exports.api = function api(app) {
     if (request.query.artist && request.query.artist.length) {
       query.tokenartists = request.query.artist;
     }
-    const offset = request.query.offset || 0;
+    let offset = parseInt(request.query.offset, 10);
+    if (isNaN(offset)) {
+      offset = 0;
+    }
     return d10.mcol(d10.COLLECTIONS.SONGS).find(query)
       .sort({ artist: -1, title: -1 })
       .skip(offset)
       .limit(d10.config.rpp)
+      .toArray()
       .then(docs => d10.realrest.success(docs, request.ctx))
       .catch(err => d10.realrest.err(423, err, request.ctx));
   }
