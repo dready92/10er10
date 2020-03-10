@@ -1,8 +1,9 @@
+const pause = require('pause');
+
 const d10 = require('../../d10');
 const sessionService = require('../../session');
 
 const debug = d10.debug('d10:cookieSession');
-const pause = require('pause');
 
 function getd10cookie(ctx) {
   const cookies = {};
@@ -53,24 +54,15 @@ function checkAuth(ctx, passTheCoochie) {
   }
 
   // get from database
-  return sessionService.getSessionDataFromDatabase(cookieData)
-    .then((userSession) => {
-      if (userSession) {
+  return sessionService.getSessionAndUserFromDatabase(cookieData)
+    .then((userInfos) => {
+      if (userInfos) {
         debug('Found session in datastore');
       } else {
         debug('Session not found in datastore');
         return {};
       }
-      return d10.mcol(d10.COLLECTIONS.USERS).findOne({ login: cookieData.user })
-        .then((userDoc) => {
-          if (userDoc) {
-            debug('Found user document in datastore');
-          }
-          return {
-            user: userDoc,
-            session: userSession,
-          };
-        });
+      return userInfos;
     })
     .then((userData) => {
       if (userData && userData.user && userData.session) {

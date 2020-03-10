@@ -5,6 +5,7 @@ const d10 = require('./d10');
 const debug = d10.debug('d10:session');
 
 module.exports = {
+  getSessionAndUserFromDatabase,
   getSessionDataFromDatabase,
   fillUserCtx,
   removeSession,
@@ -15,6 +16,15 @@ module.exports = {
   getUser,
   setSessionTimestamp,
 };
+
+/**
+ * @typedef {Object} Session
+ * 
+ * @property {string} _id - session identifier (starts with "se" or "rs")
+ * @property {string} lang - locale used in this session
+ * @property {number} ts_creation - the time that session has been created
+ * @property {number} ts_last_usage - the last time this session has been used
+ */
 
 /**
  *
@@ -49,7 +59,9 @@ function getOrMakeSession(of) {
  *
  *
  * @param {string} userLogin - user's login
- * @param {Function} filter - the filter function, that should return true when the session object matches
+ * @param {Function} filter - the filter function, that should return true when
+ *                            the session object matches
+ * @return {Promise<Session>} - the session object, or null
  */
 function getSession(userLogin, filter) {
   return getLoginInfos(userLogin)
@@ -76,7 +88,7 @@ function getLoginInfos(userLogin) {
  * @param {String} of.user - The user login
  * @param {String} [of.session] - The session id (without 'se')
  * @param {String} [of.remoteControlSession] - The remote control session id (without 'rs')
- * @param {Function} then - asynchronous callback
+ * @return {Promise<Session>} - the session object, or null
  */
 function getSessionDataFromDatabase(of) {
   function sessionMatch(row) {
@@ -85,6 +97,36 @@ function getSessionDataFromDatabase(of) {
   }
 
   return getSession(of.user, sessionMatch);
+}
+
+/**
+ *
+ * @param {Object} of - The data to help lookup the session
+ * @param {String} of.user - The user login
+ * @param {String} [of.session] - The session id (without 'se')
+ * @param {String} [of.remoteControlSession] - The remote control session id (without 'rs')
+ * @return {Promise} - an object with keys session & user
+ */
+function getSessionAndUserFromDatabase(of) {
+  function sessionMatch(row) {
+    return ((of.session && row._id === `se${of.session}`)
+      || (of.remoteControlSession && row._id === `rs${of.remoteControlSession}`));
+  }
+  return getLoginInfos(of.user)
+    .then((userDoc) => {
+      if (!userDoc) {
+        return null;
+      }
+      const sessions = userDoc.sessions || [];
+      const okfilter = sessions.filter(sessionMatch);
+      if (okfilter.length) {
+        return {
+          session: okfilter[0],
+          user: userDoc,
+        };
+      }
+      return null;
+    });
 }
 
 function getUser(sessionId, then) {

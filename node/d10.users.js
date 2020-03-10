@@ -10,7 +10,6 @@ const errCodes = {
   440: 'Password does not contain enough characters',
   441: 'Password does not contain enough different characters',
 };
-const debug = d10.debug('d10:d10.users');
 
 function isValidLogin(login) {
   return new Promise((resolve) => {
@@ -29,6 +28,7 @@ function isValidLogin(login) {
       || login.toLowerCase() === 'administrator'
       || login.toLowerCase() === 'root'
     ) return resolve(430);
+
     return d10.mcol(d10.COLLECTIONS.USERS).findOne({ login })
       .then((back) => {
         if (back) {
