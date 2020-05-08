@@ -6,17 +6,22 @@ const debug = d10.debug('d10:router:audio:download');
 
 exports.api = function api(app) {
   app.get('/audio/download/aa:id', (request, response) => {
+    const songId = `aa${request.params.id}`;
     let extension = 'ogg';
     if (request.query.extension && request.query.extension.length) {
       extension = request.query.extension.replace(/\W+/g, '');
     }
-    const file = `${d10.config.audio.dir}/${request.params.id.substr(0, 1)}/aa${request.params.id}.${extension}`;
+    const file = `${d10.config.audio.dir}/${songId.substr(2, 1)}/${songId}.${extension}`;
 
     Promise.all([
       promisify(fs.stat)(file),
-      d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: `aa${request.params.id}` }),
+      d10.mcol(d10.COLLECTIONS.SONGS).findOne({ _id: songId })
     ])
-      .then((stat, doc) => {
+      .then(([stat, doc]) => {
+        if (!doc) {
+          response.status(404).json({ error: 'Not found', reason: `No song with id "${songId}" in datastore` });
+          return;
+        }
         request.ctx.headers['Content-Type'] = 'application/octet-stream';
         request.ctx.headers['Content-Disposition'] = `attachment; filename="${doc.artist} - ${doc.title}.${extension}"`;
         request.ctx.headers['Content-Transfer-Encoding'] = 'binary';
