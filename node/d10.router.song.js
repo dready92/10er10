@@ -28,7 +28,12 @@ exports.api = function api(app) {
         if (song) {
           source = song;
         } else if (songstaging) {
-          const tokens = artistToken.tokenize(songstaging);
+          let tokens;
+          try {
+            tokens = artistToken.tokenize(songstaging);
+          } catch (e) {
+            tokens = { title: '', artists: '' };
+          }
           source = { ...songstaging, tokentitle: tokens.title, tokenartists: tokens.artists };
         } else {
           const err = new Error('Song not found');
@@ -190,7 +195,7 @@ exports.api = function api(app) {
           // do not return: this is a background operation
           denormalize(doc, source)
             .then((results) => {
-              const errors = results.map(settled =>  settled.status === 'rejected');
+              const errors = results.map(settled => settled.status === 'rejected');
               if (!errors.length) {
                 debug('denormalization: all OK');
               } else {
@@ -199,10 +204,8 @@ exports.api = function api(app) {
               }
             });
         }
-
-
       })
-      .catch((err) => d10.realrest.err(500, err, request.ctx));
+        .catch(err => d10.realrest.err(500, err, request.ctx));
     });
   }
 
