@@ -6,6 +6,12 @@ module.exports.api = (app) => {
     const uid = d10.uid();
     const apiKey = new ApiKey(uid);
     const user = req.ctx.user;
+
+    const description = req.body && req.body.description ? req.body.description : null;
+    const pairing = req.body && req.body.pairing ? req.body.pairing : null;
+    apiKey.description = description;
+    apiKey.pairing = pairing;
+
     if (!user.apikeys) {
       user.apikeys = [];
     }
