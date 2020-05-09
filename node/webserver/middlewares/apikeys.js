@@ -14,13 +14,35 @@ function loginUsingHeader(req, res, next) {
     return next();
   }
 
-  if (!req.headers['api-key']) {
+  let apiKey = parseApiKeyHeader(req.headers);
+  if (!apiKey) {
+    apiKey = parseAuthorizationBearerHeader(req.headers);
+  }
+  if (!apiKey) {
     return next();
   }
 
-  const apikey = req.headers['api-key'];
+  return setupEnvUsingApikey(req, apiKey, next);
+}
 
-  return setupEnvUsingApikey(req, apikey, next);
+function parseApiKeyHeader(headers) {
+  if (headers['api-key']) {
+    return headers['api-key'];
+  }
+
+  return null;
+}
+
+function parseAuthorizationBearerHeader(headers) {
+  const bearerString = 'bearer ';
+  const authorization = headers.authorization;
+  if (authorization
+    && authorization.length > bearerString.length
+    && authorization.toLowerCase().startsWith(bearerString)) {
+    return authorization.substr(0, bearerString.length);
+  }
+
+  return null;
 }
 
 function loginUsingPath(req, res, next) {
