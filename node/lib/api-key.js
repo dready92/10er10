@@ -2,6 +2,7 @@ class ApiKey {
   constructor(keyAsString) {
     this.key = keyAsString;
     this.creation = Date.now();
+    this.lastUse = null;
     this.disabled = false;
     this.description = null;
     this.pairing = null;
